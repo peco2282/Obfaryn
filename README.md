@@ -6,7 +6,7 @@ Obfaryn is an ASM-based obfuscator for Kotlin/JVM and Java JARs. It strips debug
 
 ## Requirements
 
-The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The public `obfaryn-api` and `obfaryn-annotations` modules use Kotlin language/API version 2.1 and Java 8 bytecode. The core and CLI require Java 11 or later at runtime; the Gradle plugin requires Java 17 or later. The Java version needed by an obfuscated JAR also depends on the input and enabled transformations.
+The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The `obfaryn-api`, `obfaryn-annotations`, `obfaryn-core`, and CLI modules use Kotlin language/API version 2.1 and Java 8 bytecode. The Gradle plugin requires Java 17 or later. The Java version needed by an obfuscated JAR also depends on the input and enabled transformations.
 
 | Module | Purpose |
 | --- | --- |
@@ -15,6 +15,10 @@ The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The public `obfaryn-api` 
 | `obfaryn-core` | Obfuscation engine |
 | `obfaryn-cli` | Command-line application |
 | `obfaryn-gradle-plugin` | Gradle integration |
+
+## License
+
+Obfaryn's original source code, including its API, annotations, core, CLI, and Gradle plugin, is licensed under the [Mozilla Public License 2.0](LICENSE). If you modify and distribute an Obfaryn source file, make that file's source available under MPL 2.0. Separate files that merely use Obfaryn can have their own license. The Gradle Wrapper and third-party dependencies retain their respective licenses.
 
 ## CLI
 

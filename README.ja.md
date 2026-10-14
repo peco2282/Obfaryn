@@ -8,6 +8,10 @@ Kotlin/JVM と Java の JAR を対象にした ASM ベースの難読化ツー�
 
 `obfaryn-api`、`obfaryn-annotations`、`obfaryn-core` と CLI は Kotlin language/API 2.1、Java 8 bytecode で公開します。Gradle Plugin は Java 17 以上で動作します。ビルドには JDK 21 と Kotlin Gradle Plugin 2.4.21 を使用します。各モジュールの Kotlin 言語/API バージョン、標準ライブラリの下限、JVM target はルートの `build.gradle.kts` で設定しています。難読化対象の JAR に必要な Java バージョンは、その入力 JAR と変換内容に依存します。
 
+## ライセンス
+
+Obfaryn の独自ソースコード（API、アノテーション、core、CLI、Gradle Plugin を含む）は [Mozilla Public License 2.0](LICENSE) で提供します。Obfaryn のソースファイルを改変して配布する場合は、そのファイルのソースを MPL 2.0 の条件で提供してください。Obfaryn を利用する別ファイルには独自のライセンスを選べます。Gradle Wrapper と外部依存ライブラリには、それぞれのライセンスが適用されます。
+
 ## CLI
 
 ```powershell
