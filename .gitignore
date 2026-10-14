@@ -1,0 +1,35 @@
+# Gradle and Kotlin caches / generated outputs
+.gradle/
+.gradle-user/
+.kotlin/
+**/build/
+
+# IDEs and local editor settings
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+out/
+.classpath
+.project
+.settings/
+.apt_generated/
+.factorypath
+.springBeans
+.sts4-cache
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local release inputs and generated mappings
+*.mapping.txt
+*.key
+*.p12
+*.jks
