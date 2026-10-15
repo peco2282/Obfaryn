@@ -1,5 +1,6 @@
 package com.peco2282.obfaryn.core
 
+import com.peco2282.obfaryn.api.MapPlatformOptions
 import com.peco2282.obfaryn.api.transformer.Transformer
 import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import com.peco2282.obfaryn.core.integrity.IntegrityProtection
@@ -77,9 +78,10 @@ class Obfuscator(
     val classesLoaded = context.classes.size
     val resourcesLoaded = context.resources.size
     val platform = Platforms.select(config.platform, context)
+    val platformOptions = MapPlatformOptions(config.platformOptions)
     val keep = KeepRules()
     config.keep.forEach(keep::add)
-    platform.applyConfiguration(context, keep)
+    platform.configure(context, platformOptions, keep)
     config.platformConfiguration?.invoke(keep)
     val annotatedNoObfuscationClasses = context.classes.values
       .filter(ObfuscationAnnotationPolicy::noObfuscation).mapTo(linkedSetOf()) { it.name }
@@ -120,7 +122,7 @@ class Obfuscator(
     val integrity = config.integrityPrivateKey?.let {
       IntegrityProtection(it, config.integrityPublicKey!!)
     }
-    val entrypoints = platform.entrypoints(context).toMutableSet()
+    val entrypoints = platform.entrypoints(context, platformOptions).toMutableSet()
     context.resources["META-INF/MANIFEST.MF"]?.let { entry ->
       val manifest = java.util.jar.Manifest(entry.data.inputStream())
       for (name in listOf("Main-Class", "Premain-Class", "Agent-Class", "Launcher-Agent-Class")) {

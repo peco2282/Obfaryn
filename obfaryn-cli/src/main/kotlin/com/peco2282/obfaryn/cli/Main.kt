@@ -24,6 +24,7 @@ fun main(args: Array<String>) {
     var output: Path? = null
     var mapping: Path? = null
     var platform = "auto"
+    val platformOptions = linkedMapOf<String, String>()
     var seed: Long? = null
     var strings = true
     var numbers = true
@@ -60,6 +61,11 @@ fun main(args: Array<String>) {
         "--mapping" -> mapping = Paths.get(args.getOrElse(i++) { error("Missing mapping path") })
         "--report" -> report = Paths.get(args.getOrElse(i++) { error("Missing report path") })
         "--platform" -> platform = args.getOrElse(i++) { error("Missing platform") }
+        "--platform-option" -> {
+          val option = args.getOrElse(i++) { error("Missing platform option") }
+          require('=' in option && option.substringBefore('=').isNotBlank()) { "Platform option must be key=value" }
+          platformOptions[option.substringBefore('=')] = option.substringAfter('=')
+        }
         "--seed" -> seed = args.getOrElse(i++) { error("Missing seed") }.toLong()
         "--keep" -> keep += args.getOrElse(i++) { error("Missing keep rule") }
         "--exclude-class" -> excludeClasses += args.getOrElse(i++) { error("Missing class regex") }
@@ -101,7 +107,7 @@ fun main(args: Array<String>) {
       stripKotlinMetadata = stripKotlinMetadata, stringEncryption = strings, numberObfuscation = numbers,
       kotlinMetadataMode = kotlinMetadataMode, applicationPackages = applicationPackages,
       renameClasses = rename, renameMethods = rename, renameFields = rename,
-      seed = seed, platform = platform, keep = keep,
+      seed = seed, platform = platform, platformOptions = platformOptions, keep = keep,
       verifyOutput = verifyOutput, dryRun = dryRun,
       stripGenericSignatures = stripGenericSignatures, stripMethodParameters = stripMethodParameters,
       classpath = classpath, recomputeFrames = recomputeFrames,
@@ -155,4 +161,4 @@ fun main(args: Array<String>) {
   }
 }
 
-private fun usage() = "Usage: obfaryn input.jar -o output.jar [--virtualize-method regex] [--exclude-virtualization regex] [--virtualization-mode strict|eligible] [--virtualization-analyze-only] [--virtualization-report path] [--virtualization-runtime-group-size N] [--target-package package --flatten-packages] [--platform generic|paper] [--seed N] [--mapping path] [--report path] [--classpath dependency.jar] [--recompute-frames] [--application-package package] [--preserve-kotlin-metadata|--strip-kotlin-metadata] [--keep class|package.**|class#method(desc)|class#field] [--verify-output] [--dry-run] [--strip-generic-signatures] [--keep-method-parameters] [--no-string-encryption] [--no-number-obfuscation] [--no-rename]\n       obfaryn deobfuscate-stacktrace --mapping mapping.txt stacktrace.txt"
+private fun usage() = "Usage: obfaryn input.jar -o output.jar [--virtualize-method regex] [--exclude-virtualization regex] [--virtualization-mode strict|eligible] [--virtualization-analyze-only] [--virtualization-report path] [--virtualization-runtime-group-size N] [--target-package package --flatten-packages] [--platform id] [--platform-option key=value] [--seed N] [--mapping path] [--report path] [--classpath dependency.jar] [--recompute-frames] [--application-package package] [--preserve-kotlin-metadata|--strip-kotlin-metadata] [--keep class|package.**|class#method(desc)|class#field] [--verify-output] [--dry-run] [--strip-generic-signatures] [--keep-method-parameters] [--no-string-encryption] [--no-number-obfuscation] [--no-rename]\n       obfaryn deobfuscate-stacktrace --mapping mapping.txt stacktrace.txt"

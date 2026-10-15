@@ -1,24 +1,26 @@
 package com.peco2282.obfaryn.core.platform
 
 import com.peco2282.obfaryn.api.*
-import com.peco2282.obfaryn.core.keep.KeepRules
 import org.objectweb.asm.tree.MethodInsnNode
 import java.util.ServiceLoader
 
-class GenericPlatform : Platform<KeepRules> {
-  override val id = "generic"
-  override fun detect(context: PlatformContext) = true
-  override fun createConfiguration() = KeepRules()
-  override fun configure(config: KeepRules) = Unit
+class GenericPlatform : Platform {
+  override val metadata: PlatformMetadata = DefaultPlatformMetadata("generic", "Generic", "builtin")
+  override fun detect(context: PlatformContext): PlatformDetection =
+    DefaultPlatformDetection(1, listOf("generic fallback"))
 }
 
-class PaperPlatform : Platform<KeepRules> {
-  override val id = "paper"
-  override fun detect(context: PlatformContext) = context.resources.containsKey("plugin.yml") || context.resources.containsKey("paper-plugin.yml")
-  override fun createConfiguration() = KeepRules()
-  override fun configure(config: KeepRules) = Unit
+class PaperPlatform : Platform {
+  override val metadata: PlatformMetadata = DefaultPlatformMetadata("paper", "Paper", "builtin")
+  override fun detect(context: PlatformContext): PlatformDetection = when {
+    context.resources.containsKey("paper-plugin.yml") ->
+      DefaultPlatformDetection(100, listOf("paper-plugin.yml found"))
+    context.resources.containsKey("plugin.yml") ->
+      DefaultPlatformDetection(80, listOf("plugin.yml found"))
+    else -> DefaultPlatformDetection(0)
+  }
 
-  override fun entrypoints(context: PlatformContext): Set<String> = buildSet {
+  override fun entrypoints(context: PlatformContext, options: PlatformOptions): Set<String> = buildSet {
     for (path in listOf("plugin.yml", "paper-plugin.yml")) {
       val data = context.resources[path]?.data ?: continue
       val yaml = data.toString(Charsets.UTF_8)
@@ -29,15 +31,15 @@ class PaperPlatform : Platform<KeepRules> {
     }
   }
 
-  override fun configureResources(context: PlatformContext, config: PlatformConfiguration) {
-    for (path in listOf("plugin.yml", "paper-plugin.yml")) if (path in context.resources) config.keepResource(path)
-    entrypoints(context).forEach(config::keepClassNameOnly)
-    configurePerformanceSensitiveMethods(context, config)
+  override fun configure(context: PlatformContext, options: PlatformOptions, target: PlatformConfiguration) {
+    for (path in listOf("plugin.yml", "paper-plugin.yml")) if (path in context.resources) target.keepResource(path)
+    entrypoints(context, options).forEach(target::keepClassNameOnly)
+    configurePerformanceSensitiveMethods(context, target)
   }
 
   private fun configurePerformanceSensitiveMethods(context: PlatformContext, config: PlatformConfiguration) {
     data class MethodKey(val owner: String, val name: String, val descriptor: String)
-    val entrypoints = entrypoints(context)
+    val entrypoints = entrypoints(context, MapPlatformOptions())
     val applicationRoots = entrypoints.mapNotNull { it.substringBeforeLast('/', "").takeIf(String::isNotEmpty) }.distinct()
     val methods = context.classes.values.filter { owner ->
       applicationRoots.isEmpty() || applicationRoots.any { owner.name == it || owner.name.startsWith("$it/") }
@@ -86,16 +88,29 @@ class PaperPlatform : Platform<KeepRules> {
 }
 
 object Platforms {
-  fun all(): List<Platform<*>> = listOf(PaperPlatform()) + ServiceLoader.load(Platform::class.java).toList() + GenericPlatform()
+  fun all(): List<Platform> = listOf(PaperPlatform()) +
+    ServiceLoader.load(PlatformProvider::class.java).map { provider ->
+      require(provider.metadata.apiVersion == PlatformApi.VERSION) {
+        "Platform '${provider.metadata.id}' requires API ${provider.metadata.apiVersion}, supported API is ${PlatformApi.VERSION}"
+      }
+      provider.create().also { platform ->
+        require(platform.metadata.id == provider.metadata.id) { "Platform provider metadata ID does not match implementation ID" }
+      }
+    } + GenericPlatform()
 
-  fun select(id: String, context: PlatformContext): Platform<*> = select(id, context, all())
+  fun select(id: String, context: PlatformContext): Platform = select(id, context, all())
 
-  internal fun select(id: String, context: PlatformContext, platforms: List<Platform<*>>): Platform<*> {
+  internal fun select(id: String, context: PlatformContext, platforms: List<Platform>): Platform {
     require(platforms.map { it.id }.distinct().size == platforms.size) { "Duplicate platform IDs" }
     require(platforms.none { it.id.isBlank() || it.id == "auto" }) { "Invalid platform ID" }
-    return if (id == "auto") platforms.firstOrNull { it.id != "generic" && it.detect(context) }
-      ?: platforms.firstOrNull { it.id == "generic" && it.detect(context) }
-      ?: error("No platform detected")
+    require(platforms.all { it.metadata.apiVersion == PlatformApi.VERSION }) { "Unsupported platform API version" }
+    return if (id == "auto") {
+      val detected = platforms.map { it to it.detect(context) }.filter { it.second.detected }
+      val confidence = detected.maxOfOrNull { it.second.confidence } ?: error("No platform detected")
+      val best = detected.filter { it.second.confidence == confidence }
+      require(best.size == 1) { "Ambiguous platform detection: ${best.joinToString { it.first.id }}" }
+      best.single().first
+    }
     else platforms.firstOrNull { it.id == id } ?: error("Unknown platform: $id")
   }
 }

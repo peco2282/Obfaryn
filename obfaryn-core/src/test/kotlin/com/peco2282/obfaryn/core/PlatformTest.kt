@@ -1,8 +1,7 @@
 package com.peco2282.obfaryn.core
 
-import com.peco2282.obfaryn.api.Platform
-import com.peco2282.obfaryn.api.PlatformConfiguration
-import com.peco2282.obfaryn.api.PlatformContext
+import com.peco2282.obfaryn.api.*
+import com.peco2282.obfaryn.api.PlatformProvider.Companion.metadata
 import com.peco2282.obfaryn.api.context.ResourceEntry
 import com.peco2282.obfaryn.core.keep.KeepRules
 import com.peco2282.obfaryn.core.platform.GenericPlatform
@@ -31,11 +30,9 @@ class PlatformTest {
   }
 
   @Test fun configurationDslExecutes() {
-    var called = false
-    val config = GenericPlatform().configure { called = true; keepClass("sample.Api") }
-    assertTrue(called)
-    assertTrue(config.className("sample/Api"))
-    assertNotSame(config, GenericPlatform().createConfiguration())
+    val options = MapPlatformOptions(mapOf("enabled" to "true"))
+    assertTrue(options.boolean("enabled", false))
+    assertEquals("true", options.require("enabled"))
   }
 
   @Test fun genericIsFallback() {
@@ -53,9 +50,9 @@ class PlatformTest {
         main: not.an.Entrypoint
     """.trimIndent().toByteArray()))
     val platform = PaperPlatform()
-    assertEquals(setOf("sample/Main", "sample/Bootstrap", "sample/Loader"), platform.entrypoints(context))
+    assertEquals(setOf("sample/Main", "sample/Bootstrap", "sample/Loader"), platform.entrypoints(context, MapPlatformOptions()))
     val keep = KeepRules()
-    platform.configureResources(context, keep)
+    platform.configure(context, MapPlatformOptions(), keep)
     assertTrue(keep.resource("paper-plugin.yml"))
     assertTrue(keep.className("sample/Main"))
     assertFalse(keep.method("sample/Main", "privateHelper", "()V"))
@@ -98,7 +95,7 @@ class PlatformTest {
       override val resources = mapOf("plugin.yml" to ResourceEntry("plugin.yml", "main: sample.Main".toByteArray()))
     }
     val keep = KeepRules()
-    PaperPlatform().configureResources(context, keep)
+    PaperPlatform().configure(context, MapPlatformOptions(), keep)
     val excluded = keep.virtualizationExclusions()
     assertEquals("paper scheduled callback", excluded["sample/TickTask.run()V"])
     assertEquals("paper hot callback dependency", excluded["sample/TickTask.hot()V"])
@@ -115,11 +112,11 @@ class PlatformTest {
     assertEquals("test-platform", platform.id)
     assertEquals("test-platform", Platforms.select("test-platform", context()).id)
     val keep = KeepRules().keepClass("sample.UserRule")
-    platform.applyConfiguration(context, keep)
+    platform.configure(context, MapPlatformOptions(), keep)
     assertTrue(keep.className("sample/DefaultRule"))
     assertTrue(keep.className("sample/UserRule"))
     assertTrue(keep.resource("test-platform.txt"))
-    assertEquals(setOf("sample/Main"), platform.entrypoints(context))
+    assertEquals(setOf("sample/Main"), platform.entrypoints(context, MapPlatformOptions()))
   }
 
   @Test fun duplicateIdsAreRejected() {
@@ -179,15 +176,22 @@ class PlatformTest {
   }
 }
 
-class TestPlatformConfiguration : PlatformConfiguration by KeepRules()
-
-class TestPlatform : Platform<TestPlatformConfiguration> {
-  override val id = "test-platform"
-  override fun detect(context: PlatformContext) = "test-platform.txt" in context.resources
-  override fun createConfiguration() = TestPlatformConfiguration()
-  override fun configure(config: TestPlatformConfiguration) { config.keepClass("sample.DefaultRule") }
-  override fun configureResources(context: PlatformContext, config: PlatformConfiguration) {
-    config.keepResource("test-platform.txt")
+class TestPlatformProvider : PlatformProvider {
+  override val metadata: PlatformMetadata = metadata {
+    id = "test-platform"
+    displayName = "Test Platform"
+    implementationVersion = "1.0"
   }
-  override fun entrypoints(context: PlatformContext) = setOf("sample/Main")
+  override fun create(): Platform = TestPlatform(metadata)
+}
+
+class TestPlatform(override val metadata: PlatformMetadata) : Platform {
+  override fun detect(context: PlatformContext): PlatformDetection = if ("test-platform.txt" in context.resources)
+    DefaultPlatformDetection(90, listOf("test-platform.txt found")) else DefaultPlatformDetection(0)
+
+  override fun configure(context: PlatformContext, options: PlatformOptions, target: PlatformConfiguration) {
+    target.keepClass("sample.DefaultRule")
+    target.keepResource("test-platform.txt")
+  }
+  override fun entrypoints(context: PlatformContext, options: PlatformOptions) = setOf("sample/Main")
 }

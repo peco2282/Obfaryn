@@ -104,6 +104,7 @@ open class VirtualizationOptions {
  */
 open class ObfarynExtension {
   var platform = "auto"
+  var platformOptions = mapOf<String, String>()
   var outputSuffix = "obfuscated"
 
   var stringEncryption = true
@@ -178,6 +179,7 @@ class ObfarynPlugin : Plugin<Project> {
               renameFields = extension.rename.fields,
               seed = extension.seed,
               platform = extension.platform,
+              platformOptions = extension.platformOptions,
               keep = extension.keep,
               excludeClasses = extension.excludeClasses,
               excludeResources = extension.excludeResources,

@@ -71,6 +71,7 @@ data class ObfuscationConfig(
   val controlFlow: Boolean = false,
   val seed: Long? = null,
   val platform: String = "auto",
+  val platformOptions: Map<String, String> = emptyMap(),
   val keep: List<String> = emptyList(),
   val reproducible: Boolean = true,
   val stripGenericSignatures: Boolean = false,

@@ -117,7 +117,43 @@ val config = ObfuscationConfig(
 Obfuscator(config).obfuscate(input, output)
 ```
 
-`Platform<C : PlatformConfiguration>` provides detection, fresh configuration, resource and performance policies, and entrypoints. Register custom platforms in `META-INF/services/com.peco2282.obfaryn.api.Platform`. IDs must be unique and nonempty; `auto` is reserved. Automatic selection checks Paper, external providers, then generic. Custom configurations must implement `applyTo` to copy keep rules into the active run. `excludeMethodFromVirtualization` retains normal JVM bytecode for a method while allowing other obfuscation passes. External platform implementations should be recompiled after API contract changes.
+The platform SPI is framework-neutral: Paper, Velocity, private runtimes, and project-specific conventions all implement the same `Platform` interface. A `PlatformProvider` supplies metadata and creates a fresh platform for each run. Register it in `META-INF/services/com.peco2282.obfaryn.api.PlatformProvider`. `detect` returns a confidence score and reasons, while `configure` contributes keep, resource, reflection, and virtualization-performance policies. `entrypoints` reports externally invoked lifecycle classes. IDs must be unique and nonempty; `auto` is reserved, and provider API versions must match `PlatformApi.VERSION`.
+
+Platform discovery locations are deliberately not part of the SPI. A future loader may receive any number of JAR files or directories from the CLI; implementations must not assume a directory named `platforms`. Platform-specific frontend settings use `PlatformOptions`, supplied by CLI as repeatable `--platform-option key=value` arguments or by Gradle through `platformOptions`.
+
+```kotlin
+class CustomPlatformProvider : PlatformProvider {
+  override val metadata: PlatformMetadata = DefaultPlatformMetadata(
+    id = "custom",
+    displayName = "Custom Runtime",
+    implementationVersion = "1.0.0",
+  )
+
+  override fun create(): Platform = CustomPlatform(metadata)
+}
+
+class CustomPlatform(
+  override val metadata: PlatformMetadata,
+) : Platform {
+  override fun detect(context: PlatformContext): PlatformDetection =
+    if ("custom-runtime.json" in context.resources)
+      DefaultPlatformDetection(100, listOf("custom-runtime.json found"))
+    else DefaultPlatformDetection(0)
+
+  override fun entrypoints(context: PlatformContext, options: PlatformOptions): Set<String> =
+    setOf("example/Bootstrap")
+
+  override fun configure(
+    context: PlatformContext,
+    options: PlatformOptions,
+    target: PlatformConfiguration,
+  ) {
+    target.keepResource("custom-runtime.json")
+    target.keepClassNameOnly("example/Bootstrap")
+    target.excludeMethodFromVirtualization("example/Bootstrap", "tick", "()V", "custom hot loop")
+  }
+}
+```
 
 ## Exclusions and control flow
 
