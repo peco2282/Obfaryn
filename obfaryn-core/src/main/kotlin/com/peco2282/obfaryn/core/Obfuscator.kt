@@ -8,6 +8,7 @@ import com.peco2282.obfaryn.core.jar.JarReader
 import com.peco2282.obfaryn.core.jar.JarWriter
 import com.peco2282.obfaryn.core.keep.KeepRules
 import com.peco2282.obfaryn.core.platform.Platforms
+import com.peco2282.obfaryn.core.platform.PlatformExtensionApplier
 import com.peco2282.obfaryn.core.rename.RenameTransformer
 import com.peco2282.obfaryn.core.transformer.*
 import java.nio.file.Files
@@ -74,11 +75,12 @@ class Obfuscator(
     ) { "Input and output paths must be different." }
     require(Files.isRegularFile(input)) { "Input JAR does not exist: $input" }
     val context = jarReader.read(input)
-    ObfuscationAnnotationPolicy.validate(context.classes.values)
     val classesLoaded = context.classes.size
     val resourcesLoaded = context.resources.size
     val platform = Platforms.select(config.platform, context)
     val platformOptions = MapPlatformOptions(config.platformOptions)
+    val appliedPlatformExtensions = PlatformExtensionApplier.apply(platform, context, platformOptions)
+    ObfuscationAnnotationPolicy.validate(context.classes.values)
     val keep = KeepRules()
     config.keep.forEach(keep::add)
     platform.configure(context, platformOptions, keep)
@@ -113,6 +115,7 @@ class Obfuscator(
     val virtualizationWarnings = virtualizationAnalysis.requireEligible(
       if (analyzeOnly) VirtualizationSelectionMode.ANALYZE_ONLY else config.virtualizationSelectionMode)
     if (analyzeOnly) {
+      appliedPlatformExtensions.cleanup()
       return ObfuscationResult(classesLoaded, resourcesLoaded, platform.id, 0, 0, 0, 0, 0,
         output, null, virtualizationWarnings, virtualizationAnalysis = virtualizationAnalysis)
     }
@@ -213,6 +216,7 @@ class Obfuscator(
     if (virtualizationRequested && virtualization.count == 0)
       warnings += if (virtualizationAnalysis.selected == 0) "No methods virtualized: selectors matched no non-excluded methods"
         else "No methods virtualized: selectors matched ${virtualizationAnalysis.selected} methods, but none were eligible"
+    appliedPlatformExtensions.cleanup()
     if (!config.dryRun) jarWriter.write(
       context, output, config.reproducible, config.verifyOutput,
       config.recomputeFrames || config.controlFlow || virtualizationRequested, config.classpath
