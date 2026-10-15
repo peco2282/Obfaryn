@@ -37,7 +37,7 @@ class HierarchyTest {
     val appClasses = dir.resolve("app-classes")
     compile(appSrc, appClasses, dependency)
     val input = dir.resolve("input.jar")
-    pack(appClasses, input, "sample.A")
+    pack(appClasses, input)
 
     ClassHierarchyResolver(JarReader().read(input), listOf(dependency)).use { hierarchy ->
       assertEquals("dep/Base", hierarchy.commonSuperClass("sample/A", "sample/B"))
@@ -83,17 +83,12 @@ class HierarchyTest {
     assertEquals(0, ToolProvider.getSystemJavaCompiler().run(null, null, null, *args.toTypedArray()))
   }
 
-  private fun pack(classes: Path, output: Path, paperMain: String? = null) {
+  private fun pack(classes: Path, output: Path) {
     JarOutputStream(Files.newOutputStream(output)).use { jar ->
       Files.walk(classes).use { paths -> paths.filter(Files::isRegularFile).forEach { file ->
         jar.putNextEntry(JarEntry(classes.relativize(file).toString().replace('\\', '/')))
         jar.write(Files.readAllBytes(file)); jar.closeEntry()
       } }
-      if (paperMain != null) {
-        jar.putNextEntry(JarEntry("plugin.yml"))
-        jar.write("name: HierarchyTest\nmain: $paperMain\n".toByteArray())
-        jar.closeEntry()
-      }
     }
   }
 }
