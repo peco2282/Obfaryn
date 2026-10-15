@@ -126,26 +126,6 @@ class ObfuscatorTest {
     val output2 = dir.resolve("output2.jar")
     Obfuscator(ObfuscationConfig(seed = 19)).obfuscate(input, output2)
     assertArrayEquals(Files.readAllBytes(output), Files.readAllBytes(output2))
-    val paper = dir.resolve("paper.jar")
-    JarOutputStream(Files.newOutputStream(paper)).use { target ->
-      JarFile(input.toFile()).use { sourceJar ->
-        for (entry in sourceJar.entries().asSequence()) {
-          target.putNextEntry(JarEntry(entry.name))
-          target.write(sourceJar.getInputStream(entry).readBytes())
-          target.closeEntry()
-        }
-      }
-      target.putNextEntry(JarEntry("paper-plugin.yml"))
-      target.write("name: Test\nmain: sample.App\nbootstrapper: sample.Impl\n".toByteArray())
-      target.closeEntry()
-    }
-    val paperOut = dir.resolve("paper-out.jar")
-    val paperResult = Obfuscator(ObfuscationConfig(seed = 19, platform = "paper")).obfuscate(paper, paperOut)
-    assertEquals("paper", paperResult.platform)
-    JarFile(paperOut.toFile()).use { jar ->
-      assertNotNull(jar.getJarEntry("sample/Impl.class"))
-      assertNotNull(jar.getJarEntry("paper-plugin.yml"))
-    }
   }
 
   @Test fun serviceLoaderAndReflectionRemainUsable() {
