@@ -19,9 +19,9 @@ Obfaryn の独自ソースコード（API、アノテーション、core、CLI�
 .\obfaryn-cli\build\install\obfaryn\bin\obfaryn.bat input.jar -o output.jar --platform paper --seed 123 --keep com.example.PublicApi
 ```
 
-`--platform` は `auto`、`generic`、`paper` です。`--mapping path` でマッピング先を指定できます。省略すると名前変更が発生した場合に出力 JAR と同じ場所に `*.mapping.txt` を作成します。`--report report.json` は処理件数と警告を JSON で出力します。`--dry-run` は変換件数を調べますが JAR と Mapping を書きません。`--verify-output` は出力時に ASM の `CheckClassAdapter` を使用します。`--strip-generic-signatures`、`--keep-method-parameters`、`--no-string-encryption`、`--no-number-obfuscation`、`--no-rename` も指定できます。
+`--platform` は `auto`、`generic`、および導入済みPlatform ProviderのIDを受け付けます。`paper` を指定する例では、実行時classpathに `obfaryn-platform-paper` が必要です。`--mapping path` でマッピング先を指定できます。省略すると名前変更が発生した場合に出力 JAR と同じ場所に `*.mapping.txt` を作成します。`--report report.json` は処理件数と警告を JSON で出力します。`--dry-run` は変換件数を調べますが JAR と Mapping を書きません。`--verify-output` は出力時に ASM の `CheckClassAdapter` を使用します。`--strip-generic-signatures`、`--keep-method-parameters`、`--no-string-encryption`、`--no-number-obfuscation`、`--no-rename` も指定できます。
 
-Kotlin Metadata は既定で `AUTO` です。Paper の main/bootstrapper/loader または Manifest の Main-Class 等がある場合、そのパッケージ配下のアプリクラスだけ Metadata を除去して Rename します。JAR に同梱された他パッケージの依存ライブラリは名前を保持します。明示的に範囲を追加するには `--application-package com.example.app` を指定します。`--preserve-kotlin-metadata` は Metadata を保持し、対象 Kotlin クラスの Rename を抑制します。`--strip-kotlin-metadata` は JAR 全体を対象にします。Metadata 除去は Kotlin reflection や kotlinx.serialization 等に影響する可能性があり、実行時の互換性を要確認です。
+Kotlin Metadata は既定で `AUTO` です。選択されたPlatform Providerが報告するエントリポイント、または Manifest の Main-Class 等がある場合、そのパッケージ配下のアプリクラスだけ Metadata を除去して Rename します。JAR に同梱された他パッケージの依存ライブラリは名前を保持します。明示的に範囲を追加するには `--application-package com.example.app` を指定します。`--preserve-kotlin-metadata` は Metadata を保持し、対象 Kotlin クラスの Rename を抑制します。`--strip-kotlin-metadata` は JAR 全体を対象にします。Metadata 除去は Kotlin reflection や kotlinx.serialization 等に影響する可能性があり、実行時の互換性を要確認です。
 
 `--recompute-frames` は ASM の StackMap Frame を再計算します。外部型が必要な JAR では `--classpath dependency.jar` を複数回指定できます。CLI は依存クラスが不明なメソッドを保守的に Keep します。階層を解決できない状態で Frame 再計算を要求した場合は、誤った Frame を推測せず対象クラス名を含むエラーにします。Frame 再計算を指定しない場合は既存 Frame を保持します。
 
@@ -97,7 +97,9 @@ val config = ObfuscationConfig(
 Obfuscator(config).obfuscate(input, output)
 ```
 
-独自プラットフォームは `META-INF/services/com.peco2282.obfaryn.api.Platform` に実装クラス名を登録します。自動検出は Paper、外部実装、generic の順です。ID は一意かつ空でない文字列とし、`auto` は予約済みです。設定生成は実行ごとに行われ、ユーザーの Keep 指定と合成されます。API の設定契約変更に伴い、既存の外部実装は再コンパイルと `applyTo` の実装が必要です。
+独自プラットフォームは `PlatformProvider` を実装し、`META-INF/services/com.peco2282.obfaryn.api.PlatformProvider` にProviderクラス名を登録します。Providerはメタデータを公開し、実行ごとに新しい `Platform` を生成します。自動選択では導入済みProviderの検出結果を比較し、該当しなければ `generic` を使用します。ID は一意かつ空でない文字列とし、`auto` は予約済みです。ProviderのAPIバージョンは `PlatformApi.VERSION` と一致する必要があります。
+
+Paper対応はcore外の `platforms/paper` にあり、`com.peco2282.obfaryn:obfaryn-platform-paper` として公開します。このProviderが存在しない場合、coreは `plugin.yml` を通常のリソースとして扱い、Paper固有のKeep・ホットパス判定を行いません。
 
 ## 正規表現除外・集約・制御フロー・仮想化
 

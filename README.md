@@ -15,6 +15,7 @@ The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The `obfaryn-api`, `obfar
 | `obfaryn-core` | Obfuscation engine |
 | `obfaryn-cli` | Command-line application |
 | `obfaryn-gradle-plugin` | Gradle integration |
+| `platforms/paper` | External Paper platform provider (`obfaryn-platform-paper`) |
 
 ## License
 
@@ -29,7 +30,7 @@ On Windows, build and run the application distribution:
 .\obfaryn-cli\build\install\obfaryn\bin\obfaryn.bat input.jar -o output.jar --platform paper --seed 123 --keep com.example.PublicApi
 ```
 
-On other platforms, use `./gradlew` and the generated `bin/obfaryn` script. `--platform` accepts `auto` (default), `generic`, and `paper`.
+On other platforms, use `./gradlew` and the generated `bin/obfaryn` script. `--platform` accepts `auto` (default), `generic`, and IDs supplied by installed platform providers such as `paper`. The Paper example requires `obfaryn-platform-paper` on the runtime classpath.
 
 | Option | Effect |
 | --- | --- |
@@ -55,7 +56,7 @@ Class names and unambiguous method names can be restored. Removed line numbers c
 
 ### Compatibility rules
 
-Kotlin metadata mode defaults to `AUTO`. Paper or manifest entrypoints establish application package roots: metadata is stripped from application classes under those roots, while bundled classes in other packages keep their names. Add roots with `--application-package`. `--preserve-kotlin-metadata` keeps metadata and suppresses renaming of affected Kotlin classes. `--strip-kotlin-metadata` strips it throughout the JAR. Stripping may break Kotlin reflection or `kotlinx.serialization`; test in the target runtime.
+Kotlin metadata mode defaults to `AUTO`. Entrypoints reported by the selected platform provider, or manifest entrypoints, establish application package roots: metadata is stripped from application classes under those roots, while bundled classes in other packages keep their names. Add roots with `--application-package`. `--preserve-kotlin-metadata` keeps metadata and suppresses renaming of affected Kotlin classes. `--strip-kotlin-metadata` strips it throughout the JAR. Stripping may break Kotlin reflection or `kotlinx.serialization`; test in the target runtime.
 
 Virtual methods are renamed together with their override family inside the JAR. Families overriding an external API (such as `Runnable.run`) or depending on an unresolved external superclass are kept. Supply dependencies with `--classpath` to improve hierarchy and access analysis. If frame recomputation requires an unresolved external type, Obfaryn fails instead of guessing frames; otherwise existing frames are retained.
 
@@ -119,6 +120,8 @@ Obfuscator(config).obfuscate(input, output)
 
 The platform SPI is framework-neutral: Paper, Velocity, private runtimes, and project-specific conventions all implement the same `Platform` interface. A `PlatformProvider` supplies metadata and creates a fresh platform for each run. Register it in `META-INF/services/com.peco2282.obfaryn.api.PlatformProvider`. `detect` returns a confidence score and reasons, while `configure` contributes keep, resource, reflection, and virtualization-performance policies. `entrypoints` reports externally invoked lifecycle classes. IDs must be unique and nonempty; `auto` is reserved, and provider API versions must match `PlatformApi.VERSION`.
 
+Paper support lives outside core in `platforms/paper` and is published as `com.peco2282.obfaryn:obfaryn-platform-paper`. Core treats `plugin.yml` as an ordinary resource unless that provider is present.
+
 Platform discovery locations are deliberately not part of the SPI. A future loader may receive any number of JAR files or directories from the CLI; implementations must not assume a directory named `platforms`. Platform-specific frontend settings use `PlatformOptions`, supplied by CLI as repeatable `--platform-option key=value` arguments or by Gradle through `platformOptions`.
 
 ```kotlin
@@ -154,6 +157,18 @@ class CustomPlatform(
   }
 }
 ```
+
+Platforms may return constrained extensions from `Platform.extensions()`. `AnnotationPolicyProvider`
+maps third-party binary annotations to `NO_OBFUSCATION`, `RENAME_ONLY`, `KEEP_NAME`, `VIRTUALIZE`,
+or `HOT_PATH` without adding them to `obfaryn-annotations`. `ResourceContributor` adds non-class JAR
+entries, while `ClassContributor` adds complete compiled class files. Added classes enter the normal
+Obfaryn pipeline and therefore participate in renaming, package flattening, body transforms, frame
+calculation, and verification.
+
+`ArchiveContributor` supports `MERGE` and `EMBED_AS_RESOURCE`. Merge rejects duplicate entries,
+signed archives, `module-info.class`, and multi-release entries; manifests are not copied. Embedded
+archives require an explicit resource path and are treated as data. Source compilation and arbitrary
+ASM transformers are intentionally not part of the platform extension API.
 
 ## Exclusions and control flow
 
