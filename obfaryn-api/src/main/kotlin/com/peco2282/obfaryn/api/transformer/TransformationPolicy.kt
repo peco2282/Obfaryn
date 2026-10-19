@@ -1,6 +1,7 @@
 package com.peco2282.obfaryn.api.transformer
 
 import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.FieldNode
 import org.objectweb.asm.tree.MethodNode
 
 
@@ -10,7 +11,7 @@ import org.objectweb.asm.tree.MethodNode
  * Obfuscation and optimization passes consult this policy prior to mutating method bodies,
  * ensuring exclusions, annotations, and filtering rules are consistently respected across all transformers.
  * This is a permission check, not a transformation or an automatic guard around ASM mutations.
- * It governs method bodies only; name preservation and virtualization selection are separate concerns.
+ * Name preservation and virtualization selection are separate concerns.
  */
 fun interface TransformationPolicy {
   /**
@@ -24,6 +25,12 @@ fun interface TransformationPolicy {
    * @return `true` if the transformer is permitted to rewrite or mutate the method body, `false` otherwise.
    */
   fun canTransformBody(owner: ClassNode, method: MethodNode): Boolean
+
+  /** Permission to strip class and field metadata, independent of method-body decisions. */
+  fun canTransformMetadata(owner: ClassNode): Boolean = true
+
+  /** Permission to move a ConstantValue into executable initialization code. */
+  fun canTransformConstant(owner: ClassNode, field: FieldNode): Boolean = true
 
   companion object {
     /**

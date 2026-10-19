@@ -170,6 +170,37 @@ signed archives, `module-info.class`, and multi-release entries; manifests are n
 archives require an explicit resource path and are treated as data. Source compilation and arbitrary
 ASM transformers are intentionally not part of the platform extension API.
 
+## Transformer extension API
+
+External extensions implement `Transformer` and `PipelineConfigurer` from `obfaryn-api`; the launcher passes them to core. String encryption, number obfuscation, control flow, constant-field conversion, and metadata stripping live in `obfaryn-transformer`. Its only project dependency is API (it also uses ASM). Existing package names are retained, and core exposes the module transitively.
+
+Renaming, virtualization, and standard pipeline assembly remain in core pending API contracts for their configuration, name preservation, and analysis results. This is incremental separation, not yet a fully independent execution engine.
+
+```kotlin
+import com.peco2282.obfaryn.api.transformer.PipelineConfigurer
+
+val extension = PipelineConfigurer {
+  // Create stateful passes here to avoid sharing state across runs.
+  val customTransformer = CustomStringTransformer() // id = "string-encryption"
+  if (this[customTransformer.id] != null) {
+    replace(customTransformer.id, customTransformer)
+  } else {
+    this += customTransformer
+  }
+}
+
+Obfuscator(config = config, pipelineConfigurers = listOf(extension))
+  .obfuscate(input, output)
+```
+
+`registry["id"]` returns a registered pass or `null`. `add` / `+=` reject duplicate IDs; `disable` rejects unknown IDs; `replace` requires an existing ID and a matching replacement ID. Disabled standard passes are not registered. Configurers run in list order after the legacy `configurePipeline` callback, before missing dependencies and cycles are validated. Dependencies take precedence over numeric order; ready passes are selected by `order`, then ID. The last replacement wins.
+
+Custom body transforms should consult `context.transformationPolicy.canTransformBody(owner, method)`, as the standard body transforms and method metadata stripping do. Class/field metadata stripping consults `canTransformMetadata(owner)`; constant conversion consults `canTransformConstant(owner, field)`. The two additional methods default to allowing changes and preserve SAM construction. Custom contexts allow all transformations by default. Policies are advisory, not enforced guards around ASM mutation. Existing annotation semantics, including `@HotPath`, are unchanged.
+
+`ConstantFieldTransformer` now takes a `(String, String) -> Boolean` `keep` predicate (owner name, field name), rather than core's `KeepRules`; core supplies `keep::field`.
+
+Virtualization selection and name preservation are not yet part of this shared policy. Replacing `rename` is unsupported until mapping, counts, and reference updates in excluded classes have a common reporting contract. Paper-specific tick detection remains in `platforms/paper`.
+
 ## Exclusions and control flow
 
 The CLI accepts repeated `--exclude-class regex`, `--exclude-resource regex`, `--exclude-renaming regex`, and `--exclude-virtualization regex`. Regexes are **full matches** against original JVM internal class names (`com/example/Type`), resource paths, or `owner.method(descriptor)`. Invalid patterns fail before transformation.

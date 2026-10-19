@@ -30,8 +30,16 @@ class ObfuscationContext(
   override val classes: Map<String, ClassNode> = Collections.unmodifiableMap(classMap)
   override val resources: Map<String, ResourceEntry> = Collections.unmodifiableMap(resourceMap)
   /** Evaluates the current annotations on each query; it is not a cached eligibility result. */
-  override val transformationPolicy = TransformationPolicy { owner, method ->
-    !ObfuscationAnnotationPolicy.skipBody(owner, method)
+  override val transformationPolicy = object : TransformationPolicy {
+    override fun canTransformBody(owner: ClassNode, method: org.objectweb.asm.tree.MethodNode) =
+      !ObfuscationAnnotationPolicy.skipBody(owner, method)
+
+    override fun canTransformMetadata(owner: ClassNode) =
+      !ObfuscationAnnotationPolicy.noObfuscation(owner) && !ObfuscationAnnotationPolicy.renameOnly(owner)
+
+    override fun canTransformConstant(owner: ClassNode, field: org.objectweb.asm.tree.FieldNode) =
+      canTransformMetadata(owner) && !ObfuscationAnnotationPolicy.has(owner, ObfuscationAnnotationPolicy.HOT_PATH) &&
+        !ObfuscationAnnotationPolicy.noObfuscation(field)
   }
 
   override fun findClass(internalName: String): ClassNode? = classes[internalName]

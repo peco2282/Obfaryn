@@ -28,6 +28,7 @@ repositories {
 
 dependencies {
   api(project(":obfaryn-api"))
+  api(project(":obfaryn-transformer"))
   implementation(project(":obfaryn-annotations"))
 
   implementation("org.ow2.asm:asm:9.10.1")

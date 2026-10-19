@@ -103,7 +103,9 @@ Paper対応はcore外の `platforms/paper` にあり、`com.peco2282.obfaryn:obf
 
 ## Transformer 拡張 API
 
-外部拡張は `obfaryn-api` の `Transformer` と `PipelineConfigurer` を実装し、起動側が core に渡します。標準処理は当面 core に残します。
+外部拡張は `obfaryn-api` の `Transformer` と `PipelineConfigurer` を実装し、起動側が core に渡します。文字列暗号化・数値難読化・制御フロー変換・定数フィールド処理・メタデータ削除は `obfaryn-transformer` に分離しています。このモジュールのプロジェクト依存は API のみです（バイトコード解析には ASM も使用します）。互換性のため既存のパッケージ名を維持し、core から推移的に提供します。
+
+名前変更・VM関連は、設定・名前保持・解析結果などの core 依存を API 契約へ移すまで core に残します。標準構成の組み立ても現段階では core が担当します。これは段階的な分離であり、実行エンジンと標準構成の完全分離ではありません。
 
 ```kotlin
 import com.peco2282.obfaryn.api.transformer.PipelineConfigurer
@@ -126,7 +128,9 @@ Obfuscator(config = config, pipelineConfigurers = listOf(extension))
 
 独自の本体変換は `context.transformationPolicy.canTransformBody(owner, method)` を確認してください。文字列・数値・制御フロー変換とメソッドのメタデータ削除も同じAPIを参照します。core の既存アノテーション動作（`@HotPath` を含む）は変更していません。ポリシーは問い合わせ用であり、ASMノードへの変更を強制的に禁止するものではありません。独自コンテキストの既定値は全許可です。
 
-この段階ではVM選択、名前保持、定数フィールドの判定はまだ共通ポリシーへ移行していません。特に `rename` の差し替えは、マッピング・件数・除外クラス内の参照更新の共通化が済むまでサポート対象外です。Paper固有のtick検出は引き続き `platforms/paper` に置きます。
+クラス・フィールドのメタデータ削除は `canTransformMetadata(owner)`、定数フィールドのコード化は `canTransformConstant(owner, field)` を同じポリシーに問い合わせます。追加した2つのメソッドは既定で許可し、既存のSAM形式を維持します。`ConstantFieldTransformer` の `keep` 引数は `KeepRules` ではなく `(String, String) -> Boolean`（所有クラス名・フィールド名）になり、core は `keep::field` を渡します。アノテーションの意味は従来どおりです。
+
+この段階ではVM選択、名前保持はまだ共通ポリシーへ移行していません。特に `rename` の差し替えは、マッピング・件数・除外クラス内の参照更新の共通化が済むまでサポート対象外です。Paper固有のtick検出は引き続き `platforms/paper` に置きます。
 
 ## 正規表現除外・集約・制御フロー・仮想化
 

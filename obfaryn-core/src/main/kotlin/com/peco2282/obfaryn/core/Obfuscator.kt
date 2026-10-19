@@ -13,6 +13,11 @@ import com.peco2282.obfaryn.core.platform.Platforms
 import com.peco2282.obfaryn.core.platform.PlatformExtensionApplier
 import com.peco2282.obfaryn.core.rename.RenameTransformer
 import com.peco2282.obfaryn.core.transformer.*
+import com.peco2282.obfaryn.transformer.ConstantFieldTransformer
+import com.peco2282.obfaryn.transformer.ControlFlowTransformer
+import com.peco2282.obfaryn.transformer.MetadataStripTransformer
+import com.peco2282.obfaryn.transformer.NumberObfuscationTransformer
+import com.peco2282.obfaryn.transformer.StringEncryptionTransformer
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.SecureRandom
@@ -199,7 +204,7 @@ class Obfuscator(
     val strings = StringEncryptionTransformer(random)
     val numbers = NumberObfuscationTransformer(random)
     val constantFields =
-      ConstantFieldTransformer(applicationRoots, config.stringEncryption, config.numberObfuscation, keep)
+      ConstantFieldTransformer(applicationRoots, config.stringEncryption, config.numberObfuscation, keep::field)
     val rename = RenameTransformer(config, keep)
     val flow = ControlFlowTransformer(random)
     val virtualization = VirtualizationTransformer(

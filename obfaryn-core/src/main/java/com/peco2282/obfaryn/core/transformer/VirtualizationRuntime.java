@@ -282,13 +282,13 @@ public final class VirtualizationRuntime {
           double doubleRight = Double.longBitsToDouble(doubleStack[--sp]);
           double doubleLeft = Double.longBitsToDouble(doubleStack[sp - 1]);
           kinds[sp - 1] = 1; stack[sp - 1] = Double.isNaN(doubleLeft) || Double.isNaN(doubleRight) ? -1 :
-            Double.compare(doubleLeft, doubleRight); break;
+            (doubleLeft == doubleRight ? 0 : Double.compare(doubleLeft, doubleRight)); break;
         }
         case 61: {
           double doubleRight = Double.longBitsToDouble(doubleStack[--sp]);
           double doubleLeft = Double.longBitsToDouble(doubleStack[sp - 1]);
           kinds[sp - 1] = 1; stack[sp - 1] = Double.isNaN(doubleLeft) || Double.isNaN(doubleRight) ? 1 :
-            Double.compare(doubleLeft, doubleRight); break;
+            (doubleLeft == doubleRight ? 0 : Double.compare(doubleLeft, doubleRight)); break;
         }
         case 62:
           doubleStack[sp - 1] = Double.doubleToRawLongBits(stack[sp - 1]); kinds[sp - 1] = 3; break;
@@ -396,12 +396,12 @@ public final class VirtualizationRuntime {
         case 113: {
           float floatRight = Float.intBitsToFloat(stack[--sp]), floatLeft = Float.intBitsToFloat(stack[sp - 1]);
           kinds[sp - 1] = 1; stack[sp - 1] = Float.isNaN(floatLeft) || Float.isNaN(floatRight) ? -1 :
-            Float.compare(floatLeft, floatRight); break;
+            (floatLeft == floatRight ? 0 : Float.compare(floatLeft, floatRight)); break;
         }
         case 114: {
           float floatRight = Float.intBitsToFloat(stack[--sp]), floatLeft = Float.intBitsToFloat(stack[sp - 1]);
           kinds[sp - 1] = 1; stack[sp - 1] = Float.isNaN(floatLeft) || Float.isNaN(floatRight) ? 1 :
-            Float.compare(floatLeft, floatRight); break;
+            (floatLeft == floatRight ? 0 : Float.compare(floatLeft, floatRight)); break;
         }
         case 115: stack[sp - 1] = Float.floatToRawIntBits((float) stack[sp - 1]); kinds[sp - 1] = 5; break;
         case 116: stack[sp - 1] = (int) Float.intBitsToFloat(stack[sp - 1]); kinds[sp - 1] = 1; break;
