@@ -4,6 +4,8 @@ import com.peco2282.obfaryn.api.*
 import org.objectweb.asm.tree.MethodInsnNode
 
 class PaperPlatform(override val metadata: PlatformMetadata) : Platform {
+  override fun extensions(): Collection<PlatformExtension> = listOf(PaperCacheContributor())
+
   override fun detect(context: PlatformContext): PlatformDetection = when {
     context.resources.containsKey("paper-plugin.yml") ->
       DefaultPlatformDetection(100, listOf("paper-plugin.yml found"))
