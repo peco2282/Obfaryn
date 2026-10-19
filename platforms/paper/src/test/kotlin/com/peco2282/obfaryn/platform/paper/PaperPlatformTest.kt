@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Type
 import org.objectweb.asm.tree.*
 import java.nio.file.Files
 import java.nio.file.Path
@@ -70,9 +71,9 @@ class PaperPlatformTest {
         call?.let { instructions.add(MethodInsnNode(Opcodes.INVOKESTATIC, it.first, it.second, it.third, false)) }
         instructions.add(
           InsnNode(
-            when (org.objectweb.asm.Type.getReturnType(descriptor).sort) {
-              org.objectweb.asm.Type.VOID -> Opcodes.RETURN
-              org.objectweb.asm.Type.OBJECT, org.objectweb.asm.Type.ARRAY -> Opcodes.ARETURN
+            when (Type.getReturnType(descriptor).sort) {
+              Type.VOID -> Opcodes.RETURN
+              Type.OBJECT, Type.ARRAY -> Opcodes.ARETURN
               else -> Opcodes.IRETURN
             }
           )

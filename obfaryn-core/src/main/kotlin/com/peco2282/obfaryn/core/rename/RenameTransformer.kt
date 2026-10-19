@@ -11,6 +11,8 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.commons.ClassRemapper
 import org.objectweb.asm.commons.Remapper
 import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.FieldInsnNode
+import org.objectweb.asm.tree.MethodInsnNode
 
 /** Original member identity used for mapping and reference rewriting. */
 data class MemberKey(val owner: String, val name: String, val desc: String)
@@ -43,10 +45,10 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
       } || node.methods.any { method ->
         (method.access and (Opcodes.ACC_PUBLIC or Opcodes.ACC_PROTECTED or Opcodes.ACC_PRIVATE) == 0 &&
           !method.name.startsWith('<')) || method.instructions.toArray().any { insn ->
-          insn is org.objectweb.asm.tree.MethodInsnNode &&
+          insn is MethodInsnNode &&
             ((insn.owner == "java/lang/Class" && insn.name in setOf("getResource", "getResourceAsStream")) ||
               (insn.owner !in context.classes && insn.owner.substringBeforeLast('/', "") == node.name.substringBeforeLast('/', ""))) ||
-            insn is org.objectweb.asm.tree.FieldInsnNode && insn.owner !in context.classes &&
+            insn is FieldInsnNode && insn.owner !in context.classes &&
               insn.owner.substringBeforeLast('/', "") == node.name.substringBeforeLast('/', "")
         }
       } || node.fields.any { it.access and (Opcodes.ACC_PUBLIC or Opcodes.ACC_PROTECTED or Opcodes.ACC_PRIVATE) == 0 }

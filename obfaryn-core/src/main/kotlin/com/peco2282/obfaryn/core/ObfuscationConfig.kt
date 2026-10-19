@@ -1,6 +1,7 @@
 package com.peco2282.obfaryn.core
 
 import com.peco2282.obfaryn.api.PlatformConfiguration
+import com.peco2282.obfaryn.api.transformer.TransformerReport
 import com.peco2282.obfaryn.core.transformer.VirtualizationAnalysisReport
 import com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode
 import java.nio.file.Path
@@ -145,5 +146,5 @@ data class ObfuscationResult(
   val branchesObfuscated: Int = 0,
   val methodsVirtualized: Int = 0,
   val virtualizationAnalysis: VirtualizationAnalysisReport? = null,
-  val transformerReports: List<com.peco2282.obfaryn.api.transformer.TransformerReport> = emptyList(),
+  val transformerReports: List<TransformerReport> = emptyList(),
 )

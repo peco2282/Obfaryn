@@ -4,6 +4,7 @@ import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import com.peco2282.obfaryn.core.context.ObfuscationContext
 import com.peco2282.obfaryn.core.transformer.NumberObfuscationTransformer
 import com.peco2282.obfaryn.core.transformer.VirtualizationAnalyzer
+import com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -93,7 +94,7 @@ class ObfuscationPolicyAnnotationTest {
       applicationPackages = listOf("sample"),
       numberObfuscation = false,
       controlFlow = false,
-      virtualizationSelectionMode = com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode.ELIGIBLE,
+      virtualizationSelectionMode = VirtualizationSelectionMode.ELIGIBLE,
       seed = 4,
     )).obfuscate(input, output, mapping)
 

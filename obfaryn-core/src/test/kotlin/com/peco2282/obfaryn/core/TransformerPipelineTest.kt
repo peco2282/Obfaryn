@@ -3,20 +3,24 @@ package com.peco2282.obfaryn.core
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.transformer.Transformer
 import com.peco2282.obfaryn.api.transformer.PipelineConfigurer
+import com.peco2282.obfaryn.api.transformer.TransformerReport
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.jar.JarOutputStream
 
 class TransformerPipelineTest {
-  @org.junit.jupiter.api.io.TempDir lateinit var dir: java.nio.file.Path
+  @org.junit.jupiter.api.io.TempDir lateinit var dir: Path
 
   @Test fun `configuration and custom pass reports work together`() {
     val input = dir.resolve("input.jar")
-    java.util.jar.JarOutputStream(java.nio.file.Files.newOutputStream(input)).use { }
+    JarOutputStream(Files.newOutputStream(input)).use { }
     var executed = false
     val custom = object : Transformer {
       override val id = "custom"
       override fun transform(context: ObfuscationContext) { executed = true }
-      override fun report() = com.peco2282.obfaryn.api.transformer.TransformerReport(
+      override fun report() = TransformerReport(
         id, mapOf("visited" to 7L), listOf("custom warning"),
       )
     }
@@ -28,7 +32,7 @@ class TransformerPipelineTest {
     assertEquals(7L, result.transformerReports.single { it.id == "custom" }.metrics["visited"])
     assertTrue("custom warning" in result.warnings)
     assertEquals(0, result.stringsEncrypted)
-    assertFalse(java.nio.file.Files.exists(dir.resolve("output.jar")))
+    assertFalse(Files.exists(dir.resolve("output.jar")))
   }
 
   private fun pass(name: String, priority: Int = 0, dependencies: Set<String> = emptySet()) = object : Transformer {
@@ -40,7 +44,7 @@ class TransformerPipelineTest {
 
   @Test fun `API configurer supports receiver DSL lookup and fresh passes per run`() {
     val input = dir.resolve("api-input.jar")
-    java.util.jar.JarOutputStream(java.nio.file.Files.newOutputStream(input)).use { }
+    JarOutputStream(Files.newOutputStream(input)).use { }
     val instances = mutableListOf<Transformer>()
     val configurer = PipelineConfigurer {
       assertNotNull(this["rename"])

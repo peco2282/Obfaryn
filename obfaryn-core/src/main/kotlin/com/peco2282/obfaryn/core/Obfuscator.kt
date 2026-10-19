@@ -3,6 +3,7 @@ package com.peco2282.obfaryn.core
 import com.peco2282.obfaryn.api.MapPlatformOptions
 import com.peco2282.obfaryn.api.transformer.Transformer
 import com.peco2282.obfaryn.api.transformer.PipelineConfigurer
+import com.peco2282.obfaryn.api.transformer.TransformerReport
 import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import com.peco2282.obfaryn.core.integrity.IntegrityProtection
 import com.peco2282.obfaryn.core.jar.JarReader
@@ -224,7 +225,7 @@ class Obfuscator(
       configurePipeline?.invoke(this)
       pipelineConfigurers.forEach { it.configure(this) }
     }.ordered()
-    val transformerReports = mutableListOf<com.peco2282.obfaryn.api.transformer.TransformerReport>()
+    val transformerReports = mutableListOf<TransformerReport>()
     for (transformer in orderedPipeline) {
       try {
         transformer.transform(

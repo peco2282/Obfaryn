@@ -15,6 +15,7 @@ import java.nio.file.StandardCopyOption
 import java.security.KeyFactory
 import java.security.MessageDigest
 import java.security.Signature
+import java.security.interfaces.RSAKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 import java.util.Base64
@@ -30,13 +31,14 @@ import java.util.jar.JarOutputStream
  * This detects changes to the file-backed JAR when verification runs, but does not protect a
  * replaced verifier or continuously monitor the process.
  */
+@Suppress("SpellCheckingInspection")
 class IntegrityProtection(privateKey: Path, publicKey: Path) {
   private val factory = KeyFactory.getInstance("RSA")
   private val secret = factory.generatePrivate(PKCS8EncodedKeySpec(readKey(privateKey)))
   private val public = factory.generatePublic(X509EncodedKeySpec(readKey(publicKey)))
 
   init {
-    require((public as java.security.interfaces.RSAKey).modulus.bitLength() >= 2048) { "Integrity RSA key must be at least 2048 bits" }
+    require((public as RSAKey).modulus.bitLength() >= 2048) { "Integrity RSA key must be at least 2048 bits" }
     val probe = byteArrayOf(1, 2, 3)
     require(Signature.getInstance("SHA256withRSA").run {
       initVerify(public); update(probe); verify(sign(probe))

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.io.TempDir
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.tree.ClassNode
+import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
 import java.nio.file.Files
 import java.nio.file.Path
@@ -104,7 +105,7 @@ class VirtualFloatThrowTest {
         for (v in listOf(Double.NaN, Double.NEGATIVE_INFINITY, -0.0, 2.5, Double.POSITIVE_INFINITY))
           assertEquals(raw(before.getMethod("fromDouble", d).invoke(null, v)), raw(after.getMethod("fromDouble", d).invoke(null, v)))
         assertEquals(7, after.getMethod("throwing", z).invoke(null, false))
-        val thrown = assertThrows(java.lang.reflect.InvocationTargetException::class.java) {
+        val thrown = assertThrows(InvocationTargetException::class.java) {
           after.getMethod("throwing", z).invoke(null, true)
         }
         assertInstanceOf(IllegalArgumentException::class.java, thrown.cause)

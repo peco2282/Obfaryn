@@ -1,6 +1,5 @@
 package com.peco2282.obfaryn.core.mapping
 
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.readText
 

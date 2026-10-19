@@ -1,5 +1,7 @@
 package com.peco2282.obfaryn.core
 
+import com.peco2282.obfaryn.core.jar.JarReader
+import com.peco2282.obfaryn.core.jar.JarWriter
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -110,10 +112,10 @@ class ProtectionTest {
   }
 
   @Test fun packageAccessKeepsOriginalPackageAndSeedMakesOutputReproducible() {
-    val context = com.peco2282.obfaryn.core.jar.JarReader().read(input())
+    val context = JarReader().read(input())
     context.classes.getValue("logic/Calc").methods.single { it.name == "calc" }.access = ACC_STATIC
     val source = dir.resolve("access.jar")
-    com.peco2282.obfaryn.core.jar.JarWriter().write(context, source)
+    JarWriter().write(context, source)
     val config = ObfuscationConfig(seed = 55, targetPackage = "hidden", flattenPackages = true, controlFlow = true,
       virtualizeMethods = listOf("logic/Calc\\.calc\\(I\\)I"))
     val first = dir.resolve("first.jar")

@@ -1,5 +1,6 @@
 package com.peco2282.obfaryn.core.transformer;
 
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -25,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * - A local variable array for holding variables.
  * - A stack for intermediate computations.
  * - A program counter to track the current instruction.
- *
  * The virtual machine continues execution until a termination instruction is
  * encountered or an exception is thrown for invalid operations.
  *
@@ -35,14 +35,14 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @see VirtualizationTransformer#transform
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnnecessaryUnboxing", "DataFlowIssue"})
 /* Build-time template. Generated runtimes have invocation-local execution state. */
 public final class VirtualizationRuntime {
   private VirtualizationRuntime() {}
 
   /* Each generated runtime serves only a small method group, so this cache is bounded by that group. */
-  private static final ConcurrentHashMap<String, int[]> PROGRAMS = new ConcurrentHashMap<String, int[]>();
-  private static final ThreadLocal<ArrayDeque<Object[]>> FRAMES = new ThreadLocal<ArrayDeque<Object[]>>();
+  private static final ConcurrentHashMap<String, int[]> PROGRAMS = new ConcurrentHashMap<>();
+  private static final ThreadLocal<ArrayDeque<Object[]>> FRAMES = new ThreadLocal<>();
   private static final Object[] EMPTY_REFERENCES = new Object[0];
   private static final long[] EMPTY_WIDE = new long[0];
 
@@ -116,7 +116,7 @@ public final class VirtualizationRuntime {
   private static Object[] acquireFrame(int localCount, int stackCount) {
     ArrayDeque<Object[]> frames = FRAMES.get();
     if (frames == null) {
-      frames = new ArrayDeque<Object[]>();
+      frames = new ArrayDeque<>();
       FRAMES.set(frames);
     }
     Object[] frame = frames.pollFirst();
@@ -136,6 +136,7 @@ public final class VirtualizationRuntime {
     if (frames.size() < 4) frames.addFirst(frame);
   }
 
+  @SuppressWarnings({"LocalVariableUsedAndDeclaredInDifferentSwitchBranches", "DuplicateBranchesInSwitch"})
   private static Object executeTyped(String encoded, int[] arguments, Object[] references, long[] doubles) {
     int width = configuration(0), opSlot = configuration(1), operandSlot = configuration(2), extraSlot = configuration(3);
     int[] program = PROGRAMS.get(encoded);
@@ -247,11 +248,11 @@ public final class VirtualizationRuntime {
           if ((extra & 7) == 1) { kinds[sp] = 1; stack[sp++] = ((Integer) result).intValue(); }
           else if ((extra & 7) == 2) { kinds[sp] = 2; referenceStack[sp++] = result; }
           else if ((extra & 7) == 3) {
-            kinds[sp] = 3; doubleStack[sp++] = Double.doubleToRawLongBits(((Double) result).doubleValue());
+            kinds[sp] = 3; doubleStack[sp++] = Double.doubleToRawLongBits((Double) result);
           }
-          else if ((extra & 7) == 4) { kinds[sp] = 4; doubleStack[sp++] = ((Long) result).longValue(); }
+          else if ((extra & 7) == 4) { kinds[sp] = 4; doubleStack[sp++] = (Long) result; }
           else if ((extra & 7) == 5) {
-            kinds[sp] = 5; stack[sp++] = Float.floatToRawIntBits(((Float) result).floatValue());
+            kinds[sp] = 5; stack[sp++] = Float.floatToRawIntBits((Float) result);
           }
           break;
         case 49:
@@ -281,19 +282,19 @@ public final class VirtualizationRuntime {
           double doubleRight = Double.longBitsToDouble(doubleStack[--sp]);
           double doubleLeft = Double.longBitsToDouble(doubleStack[sp - 1]);
           kinds[sp - 1] = 1; stack[sp - 1] = Double.isNaN(doubleLeft) || Double.isNaN(doubleRight) ? -1 :
-            doubleLeft > doubleRight ? 1 : doubleLeft == doubleRight ? 0 : -1; break;
+            Double.compare(doubleLeft, doubleRight); break;
         }
         case 61: {
           double doubleRight = Double.longBitsToDouble(doubleStack[--sp]);
           double doubleLeft = Double.longBitsToDouble(doubleStack[sp - 1]);
           kinds[sp - 1] = 1; stack[sp - 1] = Double.isNaN(doubleLeft) || Double.isNaN(doubleRight) ? 1 :
-            doubleLeft > doubleRight ? 1 : doubleLeft == doubleRight ? 0 : -1; break;
+            Double.compare(doubleLeft, doubleRight); break;
         }
         case 62:
-          doubleStack[sp - 1] = Double.doubleToRawLongBits((double) stack[sp - 1]); kinds[sp - 1] = 3; break;
+          doubleStack[sp - 1] = Double.doubleToRawLongBits(stack[sp - 1]); kinds[sp - 1] = 3; break;
         case 63:
           stack[sp - 1] = (int) Double.longBitsToDouble(doubleStack[sp - 1]); kinds[sp - 1] = 1; break;
-        case 64: return Double.valueOf(Double.longBitsToDouble(doubleStack[--sp]));
+        case 64: return Double.longBitsToDouble(doubleStack[--sp]);
         case 65:
           kinds[sp] = 4; doubleStack[sp++] = ((long) operand << 32) | (extra & 0xffffffffL); break;
         case 66: kinds[sp] = 4; doubleStack[sp++] = doubleLocals[operand]; break;
@@ -315,16 +316,16 @@ public final class VirtualizationRuntime {
         case 82:
           long longRight = doubleStack[--sp], longLeft = doubleStack[sp - 1];
           kinds[sp - 1] = 1; stack[sp - 1] = Long.compare(longLeft, longRight); break;
-        case 83: doubleStack[sp - 1] = (long) stack[sp - 1]; kinds[sp - 1] = 4; break;
+        case 83: doubleStack[sp - 1] = stack[sp - 1]; kinds[sp - 1] = 4; break;
         case 84: stack[sp - 1] = (int) doubleStack[sp - 1]; kinds[sp - 1] = 1; break;
         case 85:
           doubleStack[sp - 1] = Double.doubleToRawLongBits((double) doubleStack[sp - 1]); kinds[sp - 1] = 3; break;
         case 86:
           doubleStack[sp - 1] = (long) Double.longBitsToDouble(doubleStack[sp - 1]); kinds[sp - 1] = 4; break;
-        case 87: return Long.valueOf(doubleStack[--sp]);
+        case 87: return doubleStack[--sp];
         case 88:
           value = referenceStack[sp - 1]; referenceStack[sp - 1] = null;
-          stack[sp - 1] = java.lang.reflect.Array.getLength(value); kinds[sp - 1] = 1; break;
+          stack[sp - 1] = Array.getLength(value); kinds[sp - 1] = 1; break;
         case 89:
           b = stack[--sp]; value = referenceStack[sp - 1]; referenceStack[sp - 1] = null;
           stack[sp - 1] = ((int[]) value)[b]; kinds[sp - 1] = 1; break;
@@ -371,7 +372,7 @@ public final class VirtualizationRuntime {
           ((short[]) value)[b] = (short) a; break;
         case 103:
           value = referenceStack[--sp]; referenceStack[sp] = null;
-          VirtualizationRuntime.<RuntimeException>throwUnchecked((Throwable) value); break;
+          VirtualizationRuntime.throwUnchecked((Throwable) value); break;
         case 104: kinds[sp] = 5; stack[sp++] = operand; break;
         case 105: kinds[sp] = 5; stack[sp++] = locals[operand]; break;
         case 106: locals[operand] = stack[--sp]; break;
@@ -395,12 +396,12 @@ public final class VirtualizationRuntime {
         case 113: {
           float floatRight = Float.intBitsToFloat(stack[--sp]), floatLeft = Float.intBitsToFloat(stack[sp - 1]);
           kinds[sp - 1] = 1; stack[sp - 1] = Float.isNaN(floatLeft) || Float.isNaN(floatRight) ? -1 :
-            floatLeft > floatRight ? 1 : floatLeft == floatRight ? 0 : -1; break;
+            Float.compare(floatLeft, floatRight); break;
         }
         case 114: {
           float floatRight = Float.intBitsToFloat(stack[--sp]), floatLeft = Float.intBitsToFloat(stack[sp - 1]);
           kinds[sp - 1] = 1; stack[sp - 1] = Float.isNaN(floatLeft) || Float.isNaN(floatRight) ? 1 :
-            floatLeft > floatRight ? 1 : floatLeft == floatRight ? 0 : -1; break;
+            Float.compare(floatLeft, floatRight); break;
         }
         case 115: stack[sp - 1] = Float.floatToRawIntBits((float) stack[sp - 1]); kinds[sp - 1] = 5; break;
         case 116: stack[sp - 1] = (int) Float.intBitsToFloat(stack[sp - 1]); kinds[sp - 1] = 1; break;
@@ -409,10 +410,10 @@ public final class VirtualizationRuntime {
         case 118:
           doubleStack[sp - 1] = (long) Float.intBitsToFloat(stack[sp - 1]); kinds[sp - 1] = 4; break;
         case 119:
-          doubleStack[sp - 1] = Double.doubleToRawLongBits((double) Float.intBitsToFloat(stack[sp - 1])); kinds[sp - 1] = 3; break;
+          doubleStack[sp - 1] = Double.doubleToRawLongBits(Float.intBitsToFloat(stack[sp - 1])); kinds[sp - 1] = 3; break;
         case 120:
           stack[sp - 1] = Float.floatToRawIntBits((float) Double.longBitsToDouble(doubleStack[sp - 1])); kinds[sp - 1] = 5; break;
-        case 121: return Float.valueOf(Float.intBitsToFloat(stack[--sp]));
+        case 121: return Float.intBitsToFloat(stack[--sp]);
         case 122:
           b = stack[--sp]; value = referenceStack[sp - 1]; referenceStack[sp - 1] = null;
           stack[sp - 1] = Float.floatToRawIntBits(((float[]) value)[b]); kinds[sp - 1] = 5; break;
