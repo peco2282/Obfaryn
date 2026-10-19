@@ -29,6 +29,7 @@ class Obfuscator(
   private val config: ObfuscationConfig = ObfuscationConfig(),
   private val jarReader: JarReader = JarReader(),
   private val jarWriter: JarWriter = JarWriter(),
+  private val configurePipeline: (TransformerPipeline.() -> Unit)? = null,
 ) {
   /**
    * Uses a custom transformer pipeline instead of the built-in transformation passes.
@@ -201,16 +202,33 @@ class Obfuscator(
       flow.takeIf { config.controlFlow },
       rename.takeIf { config.renameClasses || config.renameMethods || config.renameFields },
     )
-    for (transformer in pipeline.sortedWith(compareBy<Transformer> { it.order }.thenBy { it.id })) {
+    val orderedPipeline = TransformerPipeline(emptyList()).apply {
+      pipeline.forEach(::add)
+      configurePipeline?.invoke(this)
+    }.ordered()
+    val transformerReports = mutableListOf<com.peco2282.obfaryn.api.transformer.TransformerReport>()
+    for (transformer in orderedPipeline) {
       try {
         transformer.transform(
           if (transformer === rename) context else
             FilteredContext(context, excludedClasses, excludedResources)
         )
+        val report = transformer.report()
+        val count = when (transformer) {
+          strings -> strings.count
+          numbers -> numbers.count
+          constantFields -> constantFields.count
+          flow -> flow.count
+          virtualization -> virtualization.count
+          rename -> rename.classMapping.size + rename.methodMapping.size + rename.fieldMapping.size
+          else -> null
+        }
+        transformerReports += if (count == null) report else report.copy(metrics = report.metrics + ("transformed" to count.toLong()))
       } catch (cause: Exception) {
         throw IllegalStateException("Failed transforming with ${transformer.id}", cause)
       }
     }
+    warnings += transformerReports.flatMap { it.warnings }
     warnings += rename.warnings
     integrity?.inject(context, excludedClasses, random)
     if (virtualizationRequested && virtualization.count == 0)
@@ -222,8 +240,9 @@ class Obfuscator(
       config.recomputeFrames || config.controlFlow || virtualizationRequested, config.classpath
     )
     if (!config.dryRun) integrity?.seal(output, config.reproducible)
+    val renameExecuted = orderedPipeline.any { it === rename }
     val mappingOutput = if (config.dryRun) null else mapping
-      ?: if (rename.classMapping.isNotEmpty() || rename.methodMapping.isNotEmpty() || rename.fieldMapping.isNotEmpty())
+      ?: if (renameExecuted && (rename.classMapping.isNotEmpty() || rename.methodMapping.isNotEmpty() || rename.fieldMapping.isNotEmpty()))
         output.resolveSibling(output.fileName.toString().removeSuffix(".jar") + ".mapping.txt") else null
     if (mappingOutput != null) {
       mappingOutput.parent?.let(Files::createDirectories)
@@ -232,7 +251,7 @@ class Obfuscator(
     return ObfuscationResult(
       classesLoaded, resourcesLoaded, platform.id, strings.count, numbers.count,
       rename.classMapping.size, rename.methodMapping.size, rename.fieldMapping.size, output, mappingOutput, warnings,
-      if (config.dryRun) rename.mappingText() else null, flow.count, virtualization.count, virtualizationAnalysis
+      if (config.dryRun) rename.mappingText() else null, flow.count, virtualization.count, virtualizationAnalysis, transformerReports
     )
   }
 }

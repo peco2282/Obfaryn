@@ -28,7 +28,8 @@ class ConstantFieldTransformer(
     for (node in context.classes.values) {
       if (node.version < Opcodes.V1_8 || node.access and (Opcodes.ACC_ANNOTATION or Opcodes.ACC_MODULE) != 0 ||
         applicationRoots.none { node.name.startsWith("$it/") } || ObfuscationAnnotationPolicy.renameOnly(node) ||
-        ObfuscationAnnotationPolicy.noObfuscation(node)) continue
+        ObfuscationAnnotationPolicy.noObfuscation(node) ||
+        ObfuscationAnnotationPolicy.has(node, ObfuscationAnnotationPolicy.HOT_PATH)) continue
       val initializers = InsnList()
       for (field in node.fields) {
         if (ObfuscationAnnotationPolicy.noObfuscation(field)) continue
