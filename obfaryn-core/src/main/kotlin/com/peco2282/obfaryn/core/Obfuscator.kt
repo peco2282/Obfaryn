@@ -4,6 +4,7 @@ import com.peco2282.obfaryn.api.MapPlatformOptions
 import com.peco2282.obfaryn.api.transformer.Transformer
 import com.peco2282.obfaryn.api.transformer.PipelineConfigurer
 import com.peco2282.obfaryn.api.transformer.TransformerReport
+import com.peco2282.obfaryn.api.transformer.TransformationInputs
 import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import com.peco2282.obfaryn.core.integrity.IntegrityProtection
 import com.peco2282.obfaryn.core.jar.JarReader
@@ -201,10 +202,16 @@ class Obfuscator(
     val signatures = context.resources.keys.filter { Regex("(?i)^META-INF/[^/]+\\.(SF|RSA|DSA|EC)$").matches(it) }
     if (signatures.isNotEmpty()) warnings += "Removed invalid JAR signatures: ${signatures.joinToString()}"
     val random = Random(config.seed ?: SecureRandom().nextLong())
+    context.transformationInputs = object : TransformationInputs {
+      override fun isApplicationClass(internalName: String) =
+        applicationRoots.any { internalName.startsWith("$it/") }
+      override fun keepConstant(owner: String, field: String) = keep.field(owner, field)
+      override fun shouldStripKotlinMetadata(internalName: String) = internalName in autoStrip
+    }
     val strings = StringEncryptionTransformer(random)
     val numbers = NumberObfuscationTransformer(random)
     val constantFields =
-      ConstantFieldTransformer(applicationRoots, config.stringEncryption, config.numberObfuscation, keep::field)
+      ConstantFieldTransformer(strings = config.stringEncryption, numbers = config.numberObfuscation)
     val rename = RenameTransformer(config, keep)
     val flow = ControlFlowTransformer(random)
     val virtualization = VirtualizationTransformer(
@@ -215,7 +222,7 @@ class Obfuscator(
       virtualization.takeIf { virtualizationRequested },
       MetadataStripTransformer(
         stripDebugInfo = config.stripDebugInfo, stripKotlinMetadata = stripAllMetadata,
-        kotlinMetadataClasses = autoStrip, stripGenericSignatures = config.stripGenericSignatures,
+        stripGenericSignatures = config.stripGenericSignatures,
         stripMethodParameters = config.stripMethodParameters
       )
         .takeIf { config.stripDebugInfo || stripAllMetadata || autoStrip.isNotEmpty() || config.stripGenericSignatures || config.stripMethodParameters },

@@ -128,7 +128,29 @@ Obfuscator(config = config, pipelineConfigurers = listOf(extension))
 
 独自の本体変換は `context.transformationPolicy.canTransformBody(owner, method)` を確認してください。文字列・数値・制御フロー変換とメソッドのメタデータ削除も同じAPIを参照します。core の既存アノテーション動作（`@HotPath` を含む）は変更していません。ポリシーは問い合わせ用であり、ASMノードへの変更を強制的に禁止するものではありません。独自コンテキストの既定値は全許可です。
 
-クラス・フィールドのメタデータ削除は `canTransformMetadata(owner)`、定数フィールドのコード化は `canTransformConstant(owner, field)` を同じポリシーに問い合わせます。追加した2つのメソッドは既定で許可し、既存のSAM形式を維持します。`ConstantFieldTransformer` の `keep` 引数は `KeepRules` ではなく `(String, String) -> Boolean`（所有クラス名・フィールド名）になり、core は `keep::field` を渡します。アノテーションの意味は従来どおりです。
+クラス・フィールドのメタデータ削除は `canTransformMetadata(owner)`、定数フィールドのコード化は `canTransformConstant(owner, field)` を同じポリシーに問い合わせます。追加した2つのメソッドは既定で許可し、既存のSAM形式を維持します。アノテーションの意味は従来どおりです。
+
+### 標準変換のビルダー
+
+`obfaryn-transformer` に `TransformersBuilder` と、公開インターフェース `StringBuilder` / `NumberBuilder` / `MetadataBuilder` および内部実装を用意しています。
+
+```kotlin
+import com.peco2282.obfaryn.transformer.builder.transformers
+
+val passes = transformers {
+  string {
+    strategy = com.peco2282.obfaryn.transformer.XorStringEncryptionStrategy()
+    includeConstantFields = true
+    random = java.util.Random(10)
+  }
+  number { includeConstantFields = false }
+  metadata { stripDebugInfo = true }
+}
+```
+
+`string()`・`number()` は登録時に設定をコピーします。`includeConstantFields` の既定値は `true` で、`build()` が要求された値の種類だけを対象とする定数フィールド前処理を最大1つ追加します。指定していない種類の変換は追加しません。文字列・数値の重複登録や、手動追加した定数前処理との競合はエラーになります。旧 `constants {}` / `ConstantsBuilder` / `ObfTransformers.constants*` はこの設定に置き換え、方式・乱数の引数も `string {}` / `number {}` 内へ移してください。ビルダーと変換は実行ごとに生成してください。繰り返しの `build()` はリストをコピーしますが、登録済み変換インスタンスは共有します。乱数の既定値は実行側のシードとは連動しないため、再現性が必要ならシード付き `java.util.Random` を指定してください。順序の検証・並べ替えは引き続きcoreが担当します。標準構成への差し替えは、上記の `PipelineConfigurer` 内で前処理も含めて `replace`（未登録なら `add`）で渡します。
+
+対象範囲・定数の保持判定・クラス別Kotlinメタデータ削除判定は、`context.transformationInputs` を通してcoreが実行ごとに提供します。独自変換や除外適用後のコンテキストでも利用できます。対象範囲が不明なら定数変換は全クラスではなく対象なしになります。従来のコンストラクタ引数は互換用に残し、新しいビルダーでは利用者設定だけを指定します。明示的なルートはコンテキストの範囲より優先し、保持判定とメタデータ削除要求は両方を反映します。標準構成の生成とcoreからtransformerへの依存は、まだ残っています。
 
 この段階ではVM選択、名前保持はまだ共通ポリシーへ移行していません。特に `rename` の差し替えは、マッピング・件数・除外クラス内の参照更新の共通化が済むまでサポート対象外です。Paper固有のtick検出は引き続き `platforms/paper` に置きます。
 

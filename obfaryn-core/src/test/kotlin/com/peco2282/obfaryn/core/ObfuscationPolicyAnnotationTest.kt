@@ -2,7 +2,7 @@ package com.peco2282.obfaryn.core
 
 import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import com.peco2282.obfaryn.core.context.ObfuscationContext
-import com.peco2282.obfaryn.core.transformer.NumberObfuscationTransformer
+import com.peco2282.obfaryn.transformer.NumberObfuscationTransformer
 import com.peco2282.obfaryn.core.transformer.VirtualizationAnalyzer
 import com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode
 import org.junit.jupiter.api.Assertions.assertEquals

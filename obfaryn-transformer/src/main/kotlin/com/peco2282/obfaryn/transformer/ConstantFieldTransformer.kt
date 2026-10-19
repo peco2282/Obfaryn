@@ -11,10 +11,10 @@ import org.objectweb.asm.tree.MethodNode
 
 /** Moves application ConstantValue attributes into code for the string/number transformers. */
 class ConstantFieldTransformer(
-  private val applicationRoots: List<String>,
-  private val strings: Boolean,
-  private val numbers: Boolean,
-  private val keep: (String, String) -> Boolean,
+  private val applicationRoots: List<String>? = null,
+  private val strings: Boolean = true,
+  private val numbers: Boolean = true,
+  private val keep: ((String, String) -> Boolean)? = null,
 ) : Transformer {
   override val id = "constant-fields"
   override val order = 15
@@ -25,12 +25,14 @@ class ConstantFieldTransformer(
   override fun transform(context: ObfuscationContext) {
     for (node in context.classes.values) {
       if (node.version < Opcodes.V1_8 || node.access and (Opcodes.ACC_ANNOTATION or Opcodes.ACC_MODULE) != 0 ||
-        applicationRoots.none { node.name.startsWith("$it/") }) continue
+        !(applicationRoots?.any { node.name.startsWith("$it/") }
+          ?: context.transformationInputs.isApplicationClass(node.name))) continue
       val initializers = InsnList()
       for (field in node.fields) {
         if (!context.transformationPolicy.canTransformConstant(node, field)) continue
         if (field.access and (Opcodes.ACC_STATIC or Opcodes.ACC_FINAL) != (Opcodes.ACC_STATIC or Opcodes.ACC_FINAL)) continue
-        if (keep(node.name, field.name)) continue
+        if (keep?.invoke(node.name, field.name) == true ||
+          context.transformationInputs.keepConstant(node.name, field.name)) continue
         val value = field.value ?: continue
         val eligible = when (value) {
           is String -> strings

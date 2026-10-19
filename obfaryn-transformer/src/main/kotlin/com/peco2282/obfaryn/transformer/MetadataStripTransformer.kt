@@ -28,7 +28,8 @@ class MetadataStripTransformer(
         classNode.fields.forEach { it.signature = null }
         classNode.recordComponents?.forEach { it.signature = null }
       }
-      if (stripKotlinMetadata || classNode.name in kotlinMetadataClasses) {
+      if (stripKotlinMetadata || classNode.name in kotlinMetadataClasses ||
+        context.transformationInputs.shouldStripKotlinMetadata(classNode.name)) {
         classNode.visibleAnnotations?.removeIf { it.desc == "Lkotlin/Metadata;" }
         classNode.invisibleAnnotations?.removeIf { it.desc == "Lkotlin/Metadata;" }
       }

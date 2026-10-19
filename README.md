@@ -197,7 +197,27 @@ Obfuscator(config = config, pipelineConfigurers = listOf(extension))
 
 Custom body transforms should consult `context.transformationPolicy.canTransformBody(owner, method)`, as the standard body transforms and method metadata stripping do. Class/field metadata stripping consults `canTransformMetadata(owner)`; constant conversion consults `canTransformConstant(owner, field)`. The two additional methods default to allowing changes and preserve SAM construction. Custom contexts allow all transformations by default. Policies are advisory, not enforced guards around ASM mutation. Existing annotation semantics, including `@HotPath`, are unchanged.
 
-`ConstantFieldTransformer` now takes a `(String, String) -> Boolean` `keep` predicate (owner name, field name), rather than core's `KeepRules`; core supplies `keep::field`.
+### Standard pass builders
+
+`obfaryn-transformer` provides `TransformersBuilder` and public `StringBuilder` / `NumberBuilder` / `MetadataBuilder` interfaces with internal implementations:
+
+```kotlin
+import com.peco2282.obfaryn.transformer.builder.transformers
+
+val passes = transformers {
+  string {
+    strategy = com.peco2282.obfaryn.transformer.XorStringEncryptionStrategy()
+    includeConstantFields = true
+    random = java.util.Random(10)
+  }
+  number { includeConstantFields = false }
+  metadata { stripDebugInfo = true }
+}
+```
+
+`string()` and `number()` snapshot their options when registered. `includeConstantFields` defaults to `true`; `build()` adds at most one shared constant-field preprocessor for the requested value types. No pass is added for an unrequested type. Duplicate string/number registrations and conflicting manual constant preprocessors are rejected. The old `constants {}` / `ConstantsBuilder` / `ObfTransformers.constants*` entry points are replaced by these options; move strategy/random arguments into `string {}` or `number {}`. Create a builder and passes per execution; repeated `build()` calls snapshot the list but reuse registered pass instances. Random defaults are not tied to the host seed; supply seeded `java.util.Random` instances for reproducibility. Core still validates dependencies and orders passes. To replace standard passes, use `PipelineConfigurer` and `replace` (or `add` when absent), including the preprocessor as needed.
+
+`context.transformationInputs` supplies application scope, constant preservation and per-class Kotlin metadata stripping decisions. Core populates it from the current run, including for custom passes and filtered contexts. Unknown scope defaults to no application classes, not all classes. The legacy constructor arguments for roots, keep predicates and metadata class sets remain available; new builders need only user options. Explicit roots override context scope, keep decisions are combined, and metadata strip requests are additive. Existing annotation policy checks remain unchanged. Standard assembly and the core-to-transformer dependency have not yet been removed.
 
 Virtualization selection and name preservation are not yet part of this shared policy. Replacing `rename` is unsupported until mapping, counts, and reference updates in excluded classes have a common reporting contract. Paper-specific tick detection remains in `platforms/paper`.
 

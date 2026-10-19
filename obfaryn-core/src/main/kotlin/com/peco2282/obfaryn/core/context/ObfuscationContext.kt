@@ -4,6 +4,7 @@ package com.peco2282.obfaryn.core.context
 import com.peco2282.obfaryn.api.PlatformContext
 import com.peco2282.obfaryn.api.context.ResourceEntry
 import com.peco2282.obfaryn.api.transformer.TransformationPolicy
+import com.peco2282.obfaryn.api.transformer.TransformationInputs
 import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import org.objectweb.asm.tree.ClassNode
 import java.util.*
@@ -25,6 +26,8 @@ class ObfuscationContext(
   classes: MutableMap<String, ClassNode>,
   resources: MutableMap<String, ResourceEntry>,
 ) : ObfuscationContextApi, PlatformContext {
+  override var transformationInputs: TransformationInputs = TransformationInputs.EMPTY
+    internal set
   private val classMap = LinkedHashMap(classes)
   private val resourceMap = LinkedHashMap(resources)
   override val classes: Map<String, ClassNode> = Collections.unmodifiableMap(classMap)

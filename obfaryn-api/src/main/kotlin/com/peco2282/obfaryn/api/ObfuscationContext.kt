@@ -2,6 +2,7 @@ package com.peco2282.obfaryn.api
 
 import com.peco2282.obfaryn.api.context.ResourceEntry
 import com.peco2282.obfaryn.api.transformer.TransformationPolicy
+import com.peco2282.obfaryn.api.transformer.TransformationInputs
 import org.objectweb.asm.tree.ClassNode
 
 /**
@@ -17,6 +18,9 @@ import org.objectweb.asm.tree.ClassNode
  * and consult [transformationPolicy] before modifying method bodies.
  */
 interface ObfuscationContext {
+  /** Scope and analysis for this execution; unavailable scope defaults to no application classes. */
+  val transformationInputs: TransformationInputs
+    get() = TransformationInputs.EMPTY
   /**
    * Permission check for method-body changes, including changes made by custom transformers.
    *

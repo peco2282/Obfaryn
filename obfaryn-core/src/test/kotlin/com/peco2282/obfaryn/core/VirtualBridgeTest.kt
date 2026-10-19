@@ -5,7 +5,7 @@ import com.peco2282.obfaryn.core.keep.KeepRules
 import com.peco2282.obfaryn.core.rename.MemberKey
 import com.peco2282.obfaryn.core.rename.RenameTransformer
 import com.peco2282.obfaryn.core.transformer.VirtualizationTransformer
-import com.peco2282.obfaryn.core.transformer.StringEncryptionTransformer
+import com.peco2282.obfaryn.transformer.StringEncryptionTransformer
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
