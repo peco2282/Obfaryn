@@ -134,6 +134,7 @@ class TestPlatformProvider : PlatformProvider {
   override val metadata: PlatformMetadata = metadata {
     id = "test-platform"
     displayName = "Test Platform"
+    description = "Platform provider for integration tests"
     implementationVersion = "1.0"
   }
   override fun create(): Platform = TestPlatform(metadata)

@@ -101,6 +101,33 @@ Obfuscator(config).obfuscate(input, output)
 
 Paper対応はcore外の `platforms/paper` にあり、`com.peco2282.obfaryn:obfaryn-platform-paper` として公開します。このProviderが存在しない場合、coreは `plugin.yml` を通常のリソースとして扱い、Paper固有のKeep・ホットパス判定を行いません。
 
+## Transformer 拡張 API
+
+外部拡張は `obfaryn-api` の `Transformer` と `PipelineConfigurer` を実装し、起動側が core に渡します。標準処理は当面 core に残します。
+
+```kotlin
+import com.peco2282.obfaryn.api.transformer.PipelineConfigurer
+
+val extension = PipelineConfigurer {
+  // customTransformer はここで生成すると、実行間の状態共有を避けられる
+  val customTransformer = CustomStringTransformer() // id = "string-encryption"
+  if (this[customTransformer.id] != null) {
+    replace(customTransformer.id, customTransformer)
+  } else {
+    this += customTransformer
+  }
+}
+
+Obfuscator(config = config, pipelineConfigurers = listOf(extension))
+  .obfuscate(input, output)
+```
+
+`registry["id"]` は登録済みの処理、未登録なら `null` を返します。`add` / `+=` は重複ID、`disable` は未登録ID、`replace` は未登録IDや異なる置換IDをエラーにします。設定で無効な標準処理は未登録です。既存の `configurePipeline` の後に `pipelineConfigurers` をリスト順で適用し、その後に依存欠落・循環を検証します。`requires` が実行順を優先し、実行可能な処理を `order`・ID順で選びます。複数の設定による同一IDの再置換は後勝ちです。
+
+独自の本体変換は `context.transformationPolicy.canTransformBody(owner, method)` を確認してください。文字列・数値・制御フロー変換とメソッドのメタデータ削除も同じAPIを参照します。core の既存アノテーション動作（`@HotPath` を含む）は変更していません。ポリシーは問い合わせ用であり、ASMノードへの変更を強制的に禁止するものではありません。独自コンテキストの既定値は全許可です。
+
+この段階ではVM選択、名前保持、定数フィールドの判定はまだ共通ポリシーへ移行していません。特に `rename` の差し替えは、マッピング・件数・除外クラス内の参照更新の共通化が済むまでサポート対象外です。Paper固有のtick検出は引き続き `platforms/paper` に置きます。
+
 ## 正規表現除外・集約・制御フロー・仮想化
 
 core の `ObfuscationConfig` と Gradle の `obfaryn` に次の設定を追加しています。

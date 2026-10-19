@@ -2,7 +2,6 @@ package com.peco2282.obfaryn.core.transformer
 
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.transformer.Transformer
-import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.*
@@ -39,7 +38,7 @@ class StringEncryptionTransformer(
       val helper = uniqueName(node)
       var used = false
       for (method in node.methods) {
-        if (ObfuscationAnnotationPolicy.skipBody(node, method)) continue
+        if (!context.transformationPolicy.canTransformBody(node, method)) continue
         desugarStringConcats(method)
         for (insn in method.instructions.toArray()) {
           if (insn !is LdcInsnNode || insn.cst !is String) continue

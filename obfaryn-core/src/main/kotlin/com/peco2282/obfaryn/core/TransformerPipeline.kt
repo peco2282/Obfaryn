@@ -1,23 +1,30 @@
 package com.peco2282.obfaryn.core
 
 import com.peco2282.obfaryn.api.transformer.Transformer
+import com.peco2282.obfaryn.api.transformer.TransformerRegistry
 
 /** Edits a fresh set of built-in passes for each invocation. Unknown IDs fail fast. */
-class TransformerPipeline internal constructor(defaults: List<Transformer>) {
-  private val passes = defaults.associateByTo(linkedMapOf()) { it.id }
+class TransformerPipeline internal constructor(defaults: List<Transformer>) : TransformerRegistry {
+  private val passes = linkedMapOf<String, Transformer>()
 
-  fun add(transformer: Transformer) {
+  init {
+    defaults.forEach(::add)
+  }
+
+  override operator fun get(id: String): Transformer? = passes[id]
+
+  override fun add(transformer: Transformer) {
     require(transformer.id.isNotBlank()) { "Transformer ID must not be blank" }
     require(transformer.id !in passes) { "Duplicate transformer: ${transformer.id}" }
     passes[transformer.id] = transformer
   }
 
-  fun disable(id: String) {
+  override fun disable(id: String) {
     require(passes.remove(id) != null) { "Unknown or disabled transformer: $id" }
   }
 
   /** Replacement retains the module ID; its order and requirements belong to the replacement. */
-  fun replace(id: String, transformer: Transformer) {
+  override fun replace(id: String, transformer: Transformer) {
     require(id in passes) { "Unknown or disabled transformer: $id" }
     require(transformer.id == id) { "Replacement must retain transformer ID $id" }
     passes[id] = transformer

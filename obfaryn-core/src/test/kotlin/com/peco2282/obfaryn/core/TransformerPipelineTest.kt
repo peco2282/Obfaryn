@@ -2,6 +2,7 @@ package com.peco2282.obfaryn.core
 
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.transformer.Transformer
+import com.peco2282.obfaryn.api.transformer.PipelineConfigurer
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -35,6 +36,36 @@ class TransformerPipelineTest {
     override val order = priority
     override val requires = dependencies
     override fun transform(context: ObfuscationContext) = Unit
+  }
+
+  @Test fun `API configurer supports receiver DSL lookup and fresh passes per run`() {
+    val input = dir.resolve("api-input.jar")
+    java.util.jar.JarOutputStream(java.nio.file.Files.newOutputStream(input)).use { }
+    val instances = mutableListOf<Transformer>()
+    val configurer = PipelineConfigurer {
+      assertNotNull(this["rename"])
+      disable("rename")
+      assertNull(this["rename"])
+      val custom = pass("api-custom")
+      instances += custom
+      this += custom
+      assertSame(custom, this["api-custom"])
+    }
+    val obfuscator = Obfuscator(
+      config = ObfuscationConfig.lightweight().copy(dryRun = true),
+      pipelineConfigurers = listOf(configurer),
+    )
+    repeat(2) {
+      val result = obfuscator.obfuscate(input, dir.resolve("api-output.jar"))
+      assertTrue(result.transformerReports.any { it.id == "api-custom" })
+    }
+    assertEquals(2, instances.size)
+    assertNotSame(instances[0], instances[1])
+  }
+
+  @Test fun `initial registrations validate IDs instead of silently discarding duplicates`() {
+    assertThrows(IllegalArgumentException::class.java) { TransformerPipeline(listOf(pass("a"), pass("a"))) }
+    assertThrows(IllegalArgumentException::class.java) { TransformerPipeline(listOf(pass(" "))) }
   }
 
   @Test fun `dependencies override numeric order and replacements are supported`() {

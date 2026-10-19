@@ -1,6 +1,7 @@
 package com.peco2282.obfaryn.api
 
 import com.peco2282.obfaryn.api.context.ResourceEntry
+import com.peco2282.obfaryn.api.transformer.TransformationPolicy
 import org.objectweb.asm.tree.ClassNode
 
 /**
@@ -10,6 +11,9 @@ import org.objectweb.asm.tree.ClassNode
  * allowing transformers to inspect, insert, update, or remove bytecode definitions and resource files.
  */
 interface ObfuscationContext {
+  /** Consult before rewriting a method body; custom contexts may supply their own policy. */
+  val transformationPolicy: TransformationPolicy
+    get() = TransformationPolicy.ALLOW_ALL
   /**
    * An immutable view of all loaded classes in this context, keyed by their internal names (e.g. `com/example/MyClass`).
    */

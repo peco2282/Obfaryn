@@ -3,6 +3,8 @@ package com.peco2282.obfaryn.core.context
 
 import com.peco2282.obfaryn.api.PlatformContext
 import com.peco2282.obfaryn.api.context.ResourceEntry
+import com.peco2282.obfaryn.api.transformer.TransformationPolicy
+import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import org.objectweb.asm.tree.ClassNode
 import java.util.*
 import com.peco2282.obfaryn.api.ObfuscationContext as ObfuscationContextApi
@@ -21,6 +23,9 @@ class ObfuscationContext(
   private val resourceMap = LinkedHashMap(resources)
   override val classes: Map<String, ClassNode> = Collections.unmodifiableMap(classMap)
   override val resources: Map<String, ResourceEntry> = Collections.unmodifiableMap(resourceMap)
+  override val transformationPolicy = TransformationPolicy { owner, method ->
+    !ObfuscationAnnotationPolicy.skipBody(owner, method)
+  }
 
   override fun findClass(internalName: String): ClassNode? = classes[internalName]
 

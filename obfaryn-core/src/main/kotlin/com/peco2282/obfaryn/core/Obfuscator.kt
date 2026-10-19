@@ -2,6 +2,7 @@ package com.peco2282.obfaryn.core
 
 import com.peco2282.obfaryn.api.MapPlatformOptions
 import com.peco2282.obfaryn.api.transformer.Transformer
+import com.peco2282.obfaryn.api.transformer.PipelineConfigurer
 import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import com.peco2282.obfaryn.core.integrity.IntegrityProtection
 import com.peco2282.obfaryn.core.jar.JarReader
@@ -30,6 +31,7 @@ class Obfuscator(
   private val jarReader: JarReader = JarReader(),
   private val jarWriter: JarWriter = JarWriter(),
   private val configurePipeline: (TransformerPipeline.() -> Unit)? = null,
+  private val pipelineConfigurers: List<PipelineConfigurer> = emptyList(),
 ) {
   /**
    * Uses a custom transformer pipeline instead of the built-in transformation passes.
@@ -205,6 +207,7 @@ class Obfuscator(
     val orderedPipeline = TransformerPipeline(emptyList()).apply {
       pipeline.forEach(::add)
       configurePipeline?.invoke(this)
+      pipelineConfigurers.forEach { it.configure(this) }
     }.ordered()
     val transformerReports = mutableListOf<com.peco2282.obfaryn.api.transformer.TransformerReport>()
     for (transformer in orderedPipeline) {

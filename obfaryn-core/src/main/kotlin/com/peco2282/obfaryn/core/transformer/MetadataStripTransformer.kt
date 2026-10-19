@@ -36,7 +36,7 @@ class MetadataStripTransformer(
       }
 
       classNode.methods.forEach { method ->
-        if (ObfuscationAnnotationPolicy.skipBody(classNode, method)) return@forEach
+        if (!context.transformationPolicy.canTransformBody(classNode, method)) return@forEach
         if (stripGenericSignatures) method.signature = null
         if (stripMethodParameters) method.parameters = null
         if (!stripDebugInfo) return@forEach

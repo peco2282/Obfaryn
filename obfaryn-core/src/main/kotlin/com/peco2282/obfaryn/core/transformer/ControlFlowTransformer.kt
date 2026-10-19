@@ -2,7 +2,6 @@ package com.peco2282.obfaryn.core.transformer
 
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.transformer.Transformer
-import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.*
@@ -19,7 +18,7 @@ class ControlFlowTransformer(private val random: Random) : Transformer {
 
   override fun transform(context: ObfuscationContext) {
     for (owner in context.classes.values) for (method in owner.methods) {
-      if (!ObfuscationAnnotationPolicy.skipBody(owner, method)) flatten(owner.name, method)
+      if (context.transformationPolicy.canTransformBody(owner, method)) flatten(owner.name, method)
     }
   }
 
