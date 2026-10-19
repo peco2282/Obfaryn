@@ -32,6 +32,7 @@ class PaperPlatformTest {
   fun providerAndImplementationShareMetadata() {
     val provider = PaperPlatformProvider()
     assertEquals("paper", provider.metadata.id)
+    assertTrue(provider.metadata.description.isNotBlank())
     assertSame(provider.metadata, provider.create().metadata)
   }
 

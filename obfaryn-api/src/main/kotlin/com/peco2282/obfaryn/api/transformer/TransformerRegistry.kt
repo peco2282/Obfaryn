@@ -45,7 +45,7 @@ interface TransformerRegistry {
  * The core host registers its selected initial passes before invoking configuration callbacks,
  * so they can be inspected, disabled, or replaced. Earlier callbacks' changes are visible to later ones.
  */
-fun interface PipelineConfigurer {
+interface PipelineConfigurer {
   /** Adds, disables, or replaces passes in [registry] before dependency validation and execution. */
   fun configure(registry: TransformerRegistry)
 
@@ -60,6 +60,8 @@ fun interface PipelineConfigurer {
      * @return A callback that applies [configure] when the host configures a pipeline.
      */
     operator fun invoke(configure: TransformerRegistry.() -> Unit): PipelineConfigurer =
-      PipelineConfigurer { registry -> registry.configure() }
+      object : PipelineConfigurer {
+        override fun configure(registry: TransformerRegistry) = registry.configure()
+      }
   }
 }

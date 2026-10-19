@@ -12,6 +12,7 @@ class PaperPlatformProvider : PlatformProvider {
     displayName = "Paper platform obfuscate"
     implementationVersion = "1.0"
     apiVersion = PlatformApi.VERSION
+    description = "Obfuscation support for Paper plugins"
   }
 
   override fun create(): Platform = PaperPlatform(metadata)
