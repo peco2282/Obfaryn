@@ -10,6 +10,7 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.Type
+import org.objectweb.asm.tree.ClassNode
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.jar.JarEntry
@@ -25,7 +26,7 @@ class PaperCacheIntegrationTest {
   private fun factory(): ByteArray {
     val writer = ClassWriter(ClassWriter.COMPUTE_FRAMES or ClassWriter.COMPUTE_MAXS)
     writer.visit(V1_8, ACC_PUBLIC, "sample/Table", null, "java/lang/Object", arrayOf("java/util/function/Supplier"))
-    writer.visitAnnotation("Lcom/peco2282/obfaryn/platform/paper/cache/PaperCache;", false).visitEnd()
+    writer.visitAnnotation("Lcom/peco2282/obfaryn/platform/paper/annotation/PaperCache;", false).visitEnd()
     writer.visitField(ACC_PUBLIC or ACC_STATIC, "calls", "I", null, null).visitEnd()
     writer.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null).apply {
       visitCode()
@@ -110,8 +111,14 @@ class PaperCacheIntegrationTest {
     val classes = JarFile(output.toFile()).use { jar ->
       assertNull(jar.getJarEntry("sample/Table.class"))
       assertNull(jar.getJarEntry("$runtime.class"))
+      assertNull(jar.getJarEntry("com/peco2282/obfaryn/platform/paper/annotation/PaperCache.class"))
       jar.entries().asSequence().filter { it.name.endsWith(".class") }.associate { entry ->
         val bytes = jar.getInputStream(entry).use { it.readBytes() }
+        val node = ClassNode()
+        ClassReader(bytes).accept(node, ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES)
+        assertTrue((node.visibleAnnotations.orEmpty() + node.invisibleAnnotations.orEmpty()).none {
+          it.desc == "Lcom/peco2282/obfaryn/platform/paper/annotation/PaperCache;"
+        })
         ClassReader(bytes).className.replace('/', '.') to bytes
       }
     }

@@ -50,8 +50,11 @@ internal class PaperCacheContributor : ClassContributor {
     require(runtime.keys.none { it in context.classes }) {
       "Paper cache runtime conflicts with input classes; use a compile-only Paper platform dependency"
     }
-    if (ANNOTATION_NAME !in context.classes) readRuntime(ANNOTATION_NAME)
     runtime.values.forEach(sink::add)
+    for (factory in factories) {
+      factory.visibleAnnotations?.removeAll { it.desc == ANNOTATION }
+      factory.invisibleAnnotations?.removeAll { it.desc == ANNOTATION }
+    }
   }
 
   private companion object {

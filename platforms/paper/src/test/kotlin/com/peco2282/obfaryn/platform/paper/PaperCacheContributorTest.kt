@@ -12,7 +12,7 @@ import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
 
 class PaperCacheContributorTest {
-  private val annotation = "Lcom/peco2282/obfaryn/platform/paper/cache/PaperCache;"
+  private val annotation = "Lcom/peco2282/obfaryn/platform/paper/annotation/PaperCache;"
   private val runtime = "com/peco2282/obfaryn/platform/paper/cache/PaperCaches"
 
   private fun factory(visible: Boolean = false) = ClassNode().apply {
@@ -46,10 +46,16 @@ class PaperCacheContributorTest {
   @Test
   fun contributesCompleteRuntimeForVisibleAndInvisibleAnnotations() {
     for (visible in listOf(false, true)) {
-      val classes = contribute(factory(visible))
+      val node = factory(visible).apply {
+        visibleAnnotations = visibleAnnotations.orEmpty().toMutableList().apply { add(AnnotationNode("Lsample/Keep;")) }
+        invisibleAnnotations = invisibleAnnotations.orEmpty().toMutableList().apply { add(AnnotationNode("Lsample/Hidden;")) }
+      }
+      val classes = contribute(node)
       assertTrue(runtime in classes)
       assertTrue(classes.keys.any { it.startsWith("$runtime$") })
-      assertTrue(annotation.substring(1, annotation.length - 1) in classes)
+      assertFalse(annotation.substring(1, annotation.length - 1) in classes)
+      assertEquals(listOf("Lsample/Keep;"), node.visibleAnnotations.map { it.desc })
+      assertEquals(listOf("Lsample/Hidden;"), node.invisibleAnnotations.map { it.desc })
       val loader = object : ClassLoader(null) {
         override fun findClass(name: String): Class<*> {
           val bytes = classes[name.replace('.', '/')] ?: throw ClassNotFoundException(name)

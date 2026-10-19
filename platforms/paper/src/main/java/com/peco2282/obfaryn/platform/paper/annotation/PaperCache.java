@@ -8,7 +8,9 @@ import java.util.function.Supplier;
 
 /**
  * Marks a public concrete {@link Supplier} with a public no-argument
- * constructor as a cache factory. Factory contracts are validated at build time.
+ * constructor as a cache factory during obfuscation. The marker is consumed and
+ * removed by the Paper platform; it is not used at runtime. CLASS retention keeps
+ * it available in the input bytecode for build-time validation.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
