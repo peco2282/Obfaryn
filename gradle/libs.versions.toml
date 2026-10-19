@@ -1,0 +1,25 @@
+[versions]
+asm = "9.11"
+junit5 = "5.6.0"
+junit6 = "6.0.0"
+kotlin = "2.1.21"
+picocli = "4.7.7"
+
+[libraries]
+asm = { group = "org.ow2.asm", name = "asm", version.ref = "asm" }
+asm-analysis = { group = "org.ow2.asm", name = "asm-analysis", version.ref = "asm" }
+asm-commons = { group = "org.ow2.asm", name = "asm-commons", version.ref = "asm" }
+asm-tree = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }
+asm-util = { group = "org.ow2.asm", name = "asm-util", version.ref = "asm" }
+
+junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit6" }
+junit5-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit5" }
+junit6-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit6" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
+
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+
+picocli = { group = "info.picocli", name = "picocli", version.ref = "picocli" }
+
+

@@ -19,11 +19,11 @@ repositories {
 
 dependencies {
   api(project(":obfaryn-api"))
-  implementation("org.ow2.asm:asm-analysis:9.10.1")
+  implementation(libs.asm.analysis)
 
-  testImplementation(platform("org.junit:junit-bom:5.6.0"))
-  testImplementation("org.junit.jupiter:junit-jupiter")
-  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+  testImplementation(platform(libs.junit5.bom))
+  testImplementation(libs.junit.jupiter)
+  testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.test {

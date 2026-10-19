@@ -31,14 +31,14 @@ dependencies {
   api(project(":obfaryn-transformer"))
   implementation(project(":obfaryn-annotations"))
 
-  implementation("org.ow2.asm:asm:9.10.1")
-  implementation("org.ow2.asm:asm-tree:9.10.1")
-  implementation("org.ow2.asm:asm-commons:9.10.1")
-  implementation("org.ow2.asm:asm-util:9.10.1")
+  implementation(libs.asm)
+  implementation(libs.asm.tree)
+  implementation(libs.asm.commons)
+  implementation(libs.asm.util)
 
-  testImplementation(platform("org.junit:junit-bom:5.6.0"))
-  testImplementation("org.junit.jupiter:junit-jupiter")
-  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+  testImplementation(platform(libs.junit5.bom))
+  testImplementation(libs.junit.jupiter)
+  testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 publishing {

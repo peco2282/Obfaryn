@@ -43,14 +43,14 @@ subprojects {
         freeCompilerArgs.add("-Xjdk-release=${targetJava.first}")
       }
     }
-    dependencies.add("implementation", "org.jetbrains.kotlin:kotlin-stdlib:2.1.21")
+    dependencies.add("implementation", libs.kotlin.stdlib)
   }
 }
 
 dependencies {
-  testImplementation(platform("org.junit:junit-bom:6.0.0"))
-  testImplementation("org.junit.jupiter:junit-jupiter")
-  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+  testImplementation(platform(libs.junit.bom))
+  testImplementation(libs.junit.jupiter)
+  testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.test {

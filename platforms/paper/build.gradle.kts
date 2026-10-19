@@ -34,9 +34,9 @@ dependencies {
   compileOnly(project(":obfaryn-api"))
 
   testImplementation(project(":obfaryn-core"))
-  testImplementation(platform("org.junit:junit-bom:5.6.0"))
-  testImplementation("org.junit.jupiter:junit-jupiter")
-  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+  testImplementation(platform(libs.junit5.bom))
+  testImplementation(libs.junit.jupiter)
+  testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 publishing {
