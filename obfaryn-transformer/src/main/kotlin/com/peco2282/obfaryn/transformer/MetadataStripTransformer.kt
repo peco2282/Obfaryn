@@ -1,8 +1,7 @@
-package com.peco2282.obfaryn.core.transformer
+package com.peco2282.obfaryn.transformer
 
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.transformer.Transformer
-import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import org.objectweb.asm.tree.AbstractInsnNode
 
 
@@ -19,8 +18,7 @@ class MetadataStripTransformer(
 
   override fun transform(context: ObfuscationContext) {
     context.classes.values.forEach { classNode ->
-      if (ObfuscationAnnotationPolicy.noObfuscation(classNode) ||
-        ObfuscationAnnotationPolicy.renameOnly(classNode)) return@forEach
+      if (!context.transformationPolicy.canTransformMetadata(classNode)) return@forEach
       if (stripDebugInfo) {
         classNode.sourceFile = null
         classNode.sourceDebug = null

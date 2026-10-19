@@ -1,4 +1,4 @@
-package com.peco2282.obfaryn.core.transformer
+package com.peco2282.obfaryn.transformer
 
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.transformer.Transformer

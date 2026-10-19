@@ -1,9 +1,7 @@
-package com.peco2282.obfaryn.core.transformer
+package com.peco2282.obfaryn.transformer
 
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.transformer.Transformer
-import com.peco2282.obfaryn.core.keep.KeepRules
-import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.FieldInsnNode
 import org.objectweb.asm.tree.InsnList
@@ -16,7 +14,7 @@ class ConstantFieldTransformer(
   private val applicationRoots: List<String>,
   private val strings: Boolean,
   private val numbers: Boolean,
-  private val keep: KeepRules,
+  private val keep: (String, String) -> Boolean,
 ) : Transformer {
   override val id = "constant-fields"
   override val order = 15
@@ -27,14 +25,12 @@ class ConstantFieldTransformer(
   override fun transform(context: ObfuscationContext) {
     for (node in context.classes.values) {
       if (node.version < Opcodes.V1_8 || node.access and (Opcodes.ACC_ANNOTATION or Opcodes.ACC_MODULE) != 0 ||
-        applicationRoots.none { node.name.startsWith("$it/") } || ObfuscationAnnotationPolicy.renameOnly(node) ||
-        ObfuscationAnnotationPolicy.noObfuscation(node) ||
-        ObfuscationAnnotationPolicy.has(node, ObfuscationAnnotationPolicy.HOT_PATH)) continue
+        applicationRoots.none { node.name.startsWith("$it/") }) continue
       val initializers = InsnList()
       for (field in node.fields) {
-        if (ObfuscationAnnotationPolicy.noObfuscation(field)) continue
+        if (!context.transformationPolicy.canTransformConstant(node, field)) continue
         if (field.access and (Opcodes.ACC_STATIC or Opcodes.ACC_FINAL) != (Opcodes.ACC_STATIC or Opcodes.ACC_FINAL)) continue
-        if (keep.field(node.name, field.name)) continue
+        if (keep(node.name, field.name)) continue
         val value = field.value ?: continue
         val eligible = when (value) {
           is String -> strings
