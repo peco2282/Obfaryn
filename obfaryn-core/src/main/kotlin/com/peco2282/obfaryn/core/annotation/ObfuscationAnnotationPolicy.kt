@@ -27,8 +27,9 @@ object ObfuscationAnnotationPolicy {
 
   fun skipBody(owner: ClassNode, method: MethodNode): Boolean {
     if (noObfuscation(owner) || noObfuscation(method) || renameOnly(method)) return true
+    if (has(method, HOT_PATH)) return true
     if (has(method, VIRTUALIZE)) return false
-    return renameOnly(owner)
+    return renameOnly(owner) || has(owner, HOT_PATH)
   }
 
   fun validate(classes: Collection<ClassNode>) {
