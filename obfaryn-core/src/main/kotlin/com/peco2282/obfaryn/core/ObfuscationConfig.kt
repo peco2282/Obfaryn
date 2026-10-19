@@ -4,7 +4,10 @@ import com.peco2282.obfaryn.api.PlatformConfiguration
 import com.peco2282.obfaryn.api.transformer.TransformerReport
 import com.peco2282.obfaryn.core.transformer.VirtualizationAnalysisReport
 import com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode
+import com.peco2282.obfaryn.transformer.StringEncryptionStrategy
+import com.peco2282.obfaryn.transformer.XorStringEncryptionStrategy
 import java.nio.file.Path
+import java.util.Random
 
 /**
  * Controls handling of the `kotlin.Metadata` annotation.
@@ -69,6 +72,11 @@ enum class KotlinMetadataMode { AUTO, PRESERVE, STRIP }
  * @property virtualizationReport Optional JSON eligibility-report destination.
  * @property virtualizationSelectionMode Strict failure, eligible-only conversion, or analysis-only mode.
  * @property virtualizationAnalyzeOnly Produce analysis without writing transformed artifacts.
+ * @property stringConstantFields Extract eligible string constant fields before encryption.
+ * @property numberConstantFields Extract eligible numeric constant fields before obfuscation.
+ * @property stringEncryptionStrategy Strategy compatible with the string transformer's runtime decoder.
+ * @property stringRandom Optional string-specific generator; defaults to the run's seeded generator.
+ * @property numberRandom Optional number-specific generator; defaults to the run's seeded generator.
  */
 data class ObfuscationConfig(
   val stripDebugInfo: Boolean = true,
@@ -107,6 +115,11 @@ data class ObfuscationConfig(
   val virtualizationReport: Path? = null,
   val virtualizationSelectionMode: VirtualizationSelectionMode = virtualizationMode,
   val virtualizationAnalyzeOnly: Boolean = false,
+  val stringConstantFields: Boolean = true,
+  val numberConstantFields: Boolean = true,
+  val stringEncryptionStrategy: StringEncryptionStrategy = XorStringEncryptionStrategy(),
+  val stringRandom: Random? = null,
+  val numberRandom: Random? = null,
 ) {
   companion object {
     /** Keeps runtime body transformations disabled; callers can opt in with copy(). */

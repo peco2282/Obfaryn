@@ -32,6 +32,46 @@ On Windows, build and run the application distribution:
 
 On other platforms, use `./gradlew` and the generated `bin/obfaryn` script. `--platform` accepts `auto` (default), `generic`, and IDs supplied by installed platform providers such as `paper`. The Paper example requires `obfaryn-platform-paper` on the runtime classpath.
 
+With the installed distribution's `bin` directory on `PATH`:
+
+```shell
+obfaryn input.jar                         # Defaults to input-obfuscated.jar beside the input
+obfaryn --seed=42 input.jar --keep-debug-info
+obfaryn obfuscate input.jar -o output.jar  # Explicit command is optional
+obfaryn @obfaryn.args
+obfaryn --help
+```
+
+Options can appear before or after the input, and accept `--option=value`. Reuse long configurations with argument files. For example, `obfaryn.args`:
+
+```text
+input.jar
+--output "build/protected jars/output.jar"
+--seed 42
+--keep 'com.example.api.**'
+--keep-debug-info
+```
+
+Quote values containing spaces or `#`. `--keep-debug-info` preserves source/debug data. `--no-string-constant-fields` and `--no-number-constant-fields` disable field extraction independently without disabling method literal transformations.
+
+### Shell completion
+
+Generate and source the completion script in your shell to complete commands, options, choices, and file paths:
+
+```bash
+obfaryn completion bash > obfaryn-completion.bash
+source ./obfaryn-completion.bash
+```
+
+For Zsh (the generated script initializes `compinit` / `bashcompinit`):
+
+```zsh
+obfaryn completion zsh > obfaryn-completion.zsh
+source ./obfaryn-completion.zsh
+```
+
+Keep the generated file and source it from `.bashrc` / `.zshrc` for subsequent sessions. Regenerate it after CLI upgrades.
+
 | Option | Effect |
 | --- | --- |
 | `--mapping path` | Set the mapping path. By default, renaming creates `*.mapping.txt` beside the output JAR. |
@@ -89,7 +129,23 @@ obfaryn {
   seed = 123L
   verifyOutput = true
   recomputeFrames = true
-  kotlinMetadataMode = "auto" // auto, preserve, strip
+  string {
+    enabled = true
+    includeConstantFields = true
+    // strategy = XorStringEncryptionStrategy() // Import the strategy when needed
+  }
+  number { enabled = true; includeConstantFields = true }
+  metadata {
+    stripDebugInfo = true
+    kotlinMetadataMode = "auto" // auto, preserve, strip
+    stripGenericSignatures = false
+    stripMethodParameters = true
+  }
+  output {
+    directory = "build/obfaryn"
+    fileName = "app-obfuscated.jar"
+    mapping = "build/mappings/app.txt"
+  }
   applicationPackages = listOf("com.example.app")
   keep = listOf("com.example.api.*")
   rename {
@@ -100,7 +156,11 @@ obfaryn {
 }
 ```
 
-`obfuscateJar` uses `shadowJar` when available, otherwise `jar`, and writes `build/libs/*-obfuscated.jar` with a mapping. The plugin automatically supplies `runtimeClasspath` and `compileClasspath` for method renaming, frame recomputation, and annotation-selected virtualization.
+`obfuscateJar` uses `shadowJar` when available, otherwise `jar`. Without output settings it writes `build/libs/*-obfuscated.jar` with a mapping. The plugin automatically supplies `runtimeClasspath` and `compileClasspath` for method renaming, frame recomputation, and annotation-selected virtualization.
+
+The nested `string` / `number` `enabled` flags and `metadata` properties share values with the existing flat properties (`stringEncryption`, `numberObfuscation`, `stripDebugInfo`, etc.); the last assignment wins. The same blocks work in Groovy DSL. `includeConstantFields = false` disables extraction only for that constant type. Both literal blocks accept an optional `random` generator; omitted generators follow the existing `seed`. To customize one, add `import java.util.Random` and set `random = Random(10)`. `string.strategy` accepts an existing `StringEncryptionStrategy` compatible with the generated XOR decoder.
+
+`output.directory` / `fileName` customize the output folder and name. An explicit `output.file = "dist/protected.jar"` takes precedence over both. An omitted `mapping` is placed beside the output JAR. Paths are project-relative or absolute. The default directory follows Gradle's `buildDirectory`, and the existing `outputSuffix` still applies to default names. Input, output, and mapping paths must differ. Because custom strategy and random-generator state cannot be reliably fingerprinted, `obfuscateJar` runs on every invocation.
 
 ## Core and platform API
 

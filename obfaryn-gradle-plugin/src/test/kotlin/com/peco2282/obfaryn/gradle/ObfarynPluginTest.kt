@@ -14,6 +14,145 @@ import javax.tools.ToolProvider
 class ObfarynPluginTest {
   @TempDir lateinit var dir: Path
 
+  @Test fun nestedOptionsShareLegacyValues() {
+    val extension = ObfarynExtension()
+    extension.string { it.enabled = false; it.includeConstantFields = false }
+    extension.number { it.enabled = false }
+    extension.metadata {
+      it.stripDebugInfo = false
+      it.stripKotlinMetadata = true
+      it.kotlinMetadataMode = "preserve"
+      it.stripGenericSignatures = true
+      it.stripMethodParameters = false
+    }
+    assertFalse(extension.stringEncryption)
+    assertFalse(extension.numberObfuscation)
+    assertFalse(extension.stripDebugInfo)
+    assertTrue(extension.stripKotlinMetadata)
+    assertEquals("preserve", extension.kotlinMetadataMode)
+    assertTrue(extension.stripGenericSignatures)
+    assertFalse(extension.stripMethodParameters)
+    extension.stringEncryption = true
+    extension.stripDebugInfo = true
+    assertTrue(extension.string.enabled)
+    assertTrue(extension.metadata.stripDebugInfo)
+  }
+
+  @Test fun nestedDslConfiguresTransformationsAndOutputPaths() {
+    Files.writeString(dir.resolve("settings.gradle.kts"), "rootProject.name = \"sample\"")
+    Files.writeString(dir.resolve("build.gradle.kts"), """
+      import com.peco2282.obfaryn.transformer.EncryptedString
+      import com.peco2282.obfaryn.transformer.StringEncryptionStrategy
+      import com.peco2282.obfaryn.transformer.XorStringEncryptionStrategy
+      import java.util.Random
+      plugins { java; id("com.peco2282.obfaryn") }
+      tasks.withType<JavaCompile>().configureEach { options.compilerArgs.add("-parameters") }
+      obfaryn {
+        platform = "generic"
+        seed = 4L
+        applicationPackages = listOf("example")
+        string {
+          enabled = true
+          includeConstantFields = false
+          random = Random(12)
+          strategy = object : StringEncryptionStrategy {
+            override fun encrypt(value: String, key: Int): EncryptedString {
+              project.file("strategy-used").writeText("yes")
+              return XorStringEncryptionStrategy().encrypt(value, key)
+            }
+          }
+        }
+        number { enabled = false; includeConstantFields = false }
+        metadata {
+          stripDebugInfo = false
+          kotlinMetadataMode = "preserve"
+          stripGenericSignatures = true
+          stripMethodParameters = true
+        }
+        rename { classes = false; methods = false; fields = false }
+        output {
+          directory = "build/protected jars"
+          fileName = "release.jar"
+          mapping = "build/maps/release.txt"
+        }
+      }
+    """.trimIndent())
+    val source = dir.resolve("src/main/java/example/App.java")
+    Files.createDirectories(source.parent)
+    Files.writeString(source, """
+      package example;
+      public class App<T> {
+        public static final String TEXT = "field secret";
+        public static String message(String input) { return "method secret"; }
+      }
+    """.trimIndent())
+    val runner = GradleRunner.create().withProjectDir(dir.toFile()).withPluginClasspath()
+      .withArguments("obfuscateJar", "--stacktrace")
+    runner.build()
+    val output = dir.resolve("build/protected jars/release.jar")
+    assertTrue(Files.exists(output))
+    assertTrue(Files.exists(dir.resolve("build/maps/release.txt")))
+    assertTrue(Files.exists(dir.resolve("strategy-used")))
+    assertFalse(Files.exists(dir.resolve("build/libs/sample-obfuscated.jar")))
+    JarFile(output.toFile()).use { jar ->
+      val bytes = jar.getInputStream(jar.getJarEntry("example/App.class")).readBytes()
+      val text = String(bytes, Charsets.ISO_8859_1)
+      assertTrue(text.contains("field secret"))
+      assertFalse(text.contains("method secret"))
+      assertTrue(text.contains("SourceFile"))
+    }
+    java.net.URLClassLoader(arrayOf(output.toUri().toURL()), ClassLoader.getPlatformClassLoader()).use { loader ->
+      val type = loader.loadClass("example.App")
+      assertEquals(0, type.typeParameters.size)
+      val method = type.getMethod("message", String::class.java)
+      assertFalse(method.parameters.single().isNamePresent)
+      assertEquals("method secret", method.invoke(null, "ignored"))
+    }
+    val script = dir.resolve("build.gradle.kts")
+    Files.writeString(script, Files.readString(script).replace(
+      "directory = \"build/protected jars\"", "file = \"build/explicit/output.jar\""))
+    runner.build()
+    assertTrue(Files.exists(dir.resolve("build/explicit/output.jar")))
+  }
+
+  @Test fun groovyDslAcceptsNestedBlocks() {
+    Files.writeString(dir.resolve("settings.gradle"), "rootProject.name = 'sample'")
+    Files.writeString(dir.resolve("build.gradle"), """
+      plugins { id 'java'; id 'com.peco2282.obfaryn' }
+      obfaryn {
+        string { enabled = false; includeConstantFields = false }
+        number { enabled = false }
+        metadata { stripDebugInfo = false }
+        output { directory = 'build/secure'; fileName = 'app.jar' }
+      }
+    """.trimIndent())
+    GradleRunner.create().withProjectDir(dir.toFile()).withPluginClasspath()
+      .withArguments("obfuscateJar", "--stacktrace").build()
+    assertTrue(Files.exists(dir.resolve("build/secure/app.jar")))
+    assertTrue(Files.exists(dir.resolve("build/secure/app.mapping.txt")))
+  }
+
+  @Test fun outputCannotOverwriteTheInputOrMapping() {
+    Files.writeString(dir.resolve("settings.gradle.kts"), "rootProject.name = \"sample\"")
+    val script = dir.resolve("build.gradle.kts")
+    Files.writeString(script, """
+      plugins { java; id("com.peco2282.obfaryn") }
+      obfaryn { output { file = "build/libs/sample.jar" } }
+    """.trimIndent())
+    val runner = GradleRunner.create().withProjectDir(dir.toFile()).withPluginClasspath()
+      .withArguments("obfuscateJar", "--stacktrace")
+    assertTrue(runner.buildAndFail().output.contains("must use different paths"))
+    JarFile(dir.resolve("build/libs/sample.jar").toFile()).use { jar ->
+      assertNotNull(jar.getJarEntry("META-INF/MANIFEST.MF"))
+    }
+    Files.writeString(script, """
+      plugins { java; id("com.peco2282.obfaryn") }
+      obfaryn { output { file = "build/result.jar"; mapping = "build/result.jar" } }
+    """.trimIndent())
+    assertTrue(runner.buildAndFail().output.contains("must use different paths"))
+    assertFalse(Files.exists(dir.resolve("build/result.jar")))
+  }
+
   @Test fun producesObfuscatedJarAndMapping() {
     val parentSource = dir.resolve("dependency-src/dep/Parent.java")
     Files.createDirectories(parentSource.parent)

@@ -19,6 +19,46 @@ Obfaryn の独自ソースコード（API、アノテーション、core、CLI�
 .\obfaryn-cli\build\install\obfaryn\bin\obfaryn.bat input.jar -o output.jar --platform paper --seed 123 --keep com.example.PublicApi
 ```
 
+Linux / macOS では `./gradlew :obfaryn-cli:installDist` で生成した `obfaryn-cli/build/install/obfaryn/bin/obfaryn` を使います。以下の例ではその `bin` を `PATH` に追加しています。
+
+```shell
+obfaryn input.jar                         # 出力省略時は隣に input-obfuscated.jar
+obfaryn --seed=42 input.jar --keep-debug-info
+obfaryn obfuscate input.jar -o output.jar  # obfuscate は省略可能
+obfaryn @obfaryn.args
+obfaryn --help
+```
+
+オプションは入力 JAR の前後に書け、`--output=output.jar` 形式も使えます。長い設定は引数ファイルへ移せます（空白や `#` を含む値は引用符で囲んでください）。例えば `obfaryn.args`:
+
+```text
+input.jar
+--output "build/protected jars/output.jar"
+--seed 42
+--keep 'com.example.api.**'
+--keep-debug-info
+```
+
+`--keep-debug-info` で行番号等を保持し、`--no-string-constant-fields` / `--no-number-constant-fields` で種類ごとに定数フィールドのコード化を止められます。メソッド内のリテラル変換は引き続き有効です。
+
+### シェルの Tab 補完
+
+コマンド・オプション・選択肢・ファイル名の補完を有効にするには、使用するシェルで一度生成して読み込みます。
+
+```bash
+obfaryn completion bash > obfaryn-completion.bash
+source ./obfaryn-completion.bash
+```
+
+Zsh の場合（生成スクリプトが `compinit` / `bashcompinit` を初期化します）:
+
+```zsh
+obfaryn completion zsh > obfaryn-completion.zsh
+source ./obfaryn-completion.zsh
+```
+
+毎回有効にするには、生成したファイルを保管して `.bashrc` / `.zshrc` から読み込んでください。CLI 更新時は再生成してください。
+
 `--platform` は `auto`、`generic`、および導入済みPlatform ProviderのIDを受け付けます。`paper` を指定する例では、実行時classpathに `obfaryn-platform-paper` が必要です。`--mapping path` でマッピング先を指定できます。省略すると名前変更が発生した場合に出力 JAR と同じ場所に `*.mapping.txt` を作成します。`--report report.json` は処理件数と警告を JSON で出力します。`--dry-run` は変換件数を調べますが JAR と Mapping を書きません。`--verify-output` は出力時に ASM の `CheckClassAdapter` を使用します。`--strip-generic-signatures`、`--keep-method-parameters`、`--no-string-encryption`、`--no-number-obfuscation`、`--no-rename` も指定できます。
 
 Kotlin Metadata は既定で `AUTO` です。選択されたPlatform Providerが報告するエントリポイント、または Manifest の Main-Class 等がある場合、そのパッケージ配下のアプリクラスだけ Metadata を除去して Rename します。JAR に同梱された他パッケージの依存ライブラリは名前を保持します。明示的に範囲を追加するには `--application-package com.example.app` を指定します。`--preserve-kotlin-metadata` は Metadata を保持し、対象 Kotlin クラスの Rename を抑制します。`--strip-kotlin-metadata` は JAR 全体を対象にします。Metadata 除去は Kotlin reflection や kotlinx.serialization 等に影響する可能性があり、実行時の互換性を要確認です。
@@ -61,12 +101,26 @@ dependencies {
 obfaryn {
   platform = "paper"
   seed = 123L
-  stringEncryption = true
-  numberObfuscation = true
+  string {
+    enabled = true
+    includeConstantFields = true
+    // strategy = XorStringEncryptionStrategy() // 必要なら import して指定
+  }
+  number { enabled = true; includeConstantFields = true }
+  metadata {
+    stripDebugInfo = true
+    kotlinMetadataMode = "auto" // auto, preserve, strip
+    stripGenericSignatures = false
+    stripMethodParameters = true
+  }
+  output {
+    directory = "build/obfaryn"
+    fileName = "app-obfuscated.jar"
+    mapping = "build/mappings/app.txt"
+  }
   verifyOutput = true
   reproducible = true
   recomputeFrames = true // runtimeClasspath と compileClasspath を参照
-  kotlinMetadataMode = "auto" // auto, preserve, strip
   applicationPackages = listOf("com.example.app")
   keep = listOf("com.example.api.*")
   rename {
@@ -77,7 +131,11 @@ obfaryn {
 }
 ```
 
-`obfuscateJar` は `shadowJar` が存在すればそれを、なければ `jar` を入力にし、`build/libs/*-obfuscated.jar` と対応するマッピングを生成します。Gradle の `runtimeClasspath` と `compileClasspath` は、メソッド Rename、Frame 再計算、およびアノテーションで選択されたVM化の階層・アクセス解析に自動で使います。CLI より多くの内部メソッドを安全に改名できます。
+`obfuscateJar` は `shadowJar` が存在すればそれを、なければ `jar` を入力にします。出力設定を省略した場合は `build/libs/*-obfuscated.jar` と対応するマッピングを生成します。Gradle の `runtimeClasspath` と `compileClasspath` は、メソッド Rename、Frame 再計算、およびアノテーションで選択されたVM化の階層・アクセス解析に自動で使います。CLI より多くの内部メソッドを安全に改名できます。
+
+`string` / `number` の `enabled` と `metadata` の各項目は、既存の `stringEncryption` / `numberObfuscation` / `stripDebugInfo` 等と同じ値を参照し、後の代入が優先されます。Groovy DSL からも同名のブロックを使えます。`includeConstantFields = false` はその種類の定数フィールド前処理だけを無効にします。両ブロックの `random` は省略すると既存の `seed` に従います。個別指定は `import java.util.Random` の上で `random = Random(10)` と書けます。`string.strategy` は既存の `StringEncryptionStrategy` を受け付け、生成される XOR デコーダーと互換な方式を指定してください。
+
+`output.directory` / `fileName` で出力フォルダー・ファイル名を変更できます。`output.file = "dist/protected.jar"` で直接指定すると両方に優先します。`mapping` を省略すると出力 JAR の隣に作成します。パスはプロジェクトからの相対パスまたは絶対パスです。既定フォルダーは Gradle の `buildDirectory` に追従し、既存の `outputSuffix` も有効です。入出力 JAR とマッピングに同じパスは指定できません。カスタム方式や乱数の状態を安全に追跡できないため、`obfuscateJar` は呼び出すたびに実行します。
 
 ## Platform API / Core 設定
 

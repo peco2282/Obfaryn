@@ -208,10 +208,13 @@ class Obfuscator(
       override fun keepConstant(owner: String, field: String) = keep.field(owner, field)
       override fun shouldStripKotlinMetadata(internalName: String) = internalName in autoStrip
     }
-    val strings = StringEncryptionTransformer(random)
-    val numbers = NumberObfuscationTransformer(random)
+    val strings = StringEncryptionTransformer(config.stringRandom ?: random, config.stringEncryptionStrategy)
+    val numbers = NumberObfuscationTransformer(config.numberRandom ?: random)
     val constantFields =
-      ConstantFieldTransformer(strings = config.stringEncryption, numbers = config.numberObfuscation)
+      ConstantFieldTransformer(
+        strings = config.stringEncryption && config.stringConstantFields,
+        numbers = config.numberObfuscation && config.numberConstantFields,
+      )
     val rename = RenameTransformer(config, keep)
     val flow = ControlFlowTransformer(random)
     val virtualization = VirtualizationTransformer(
@@ -226,7 +229,10 @@ class Obfuscator(
         stripMethodParameters = config.stripMethodParameters
       )
         .takeIf { config.stripDebugInfo || stripAllMetadata || autoStrip.isNotEmpty() || config.stripGenericSignatures || config.stripMethodParameters },
-      constantFields.takeIf { applicationRoots.isNotEmpty() && (config.stringEncryption || config.numberObfuscation) },
+      constantFields.takeIf {
+        applicationRoots.isNotEmpty() &&
+          (config.stringEncryption && config.stringConstantFields || config.numberObfuscation && config.numberConstantFields)
+      },
       strings.takeIf { config.stringEncryption },
       numbers.takeIf { config.numberObfuscation },
       flow.takeIf { config.controlFlow },

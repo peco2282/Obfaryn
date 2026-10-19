@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
   implementation(project(":obfaryn-core"))
+  implementation("info.picocli:picocli:4.7.7")
   testImplementation(platform("org.junit:junit-bom:5.6.0"))
   testImplementation("org.junit.jupiter:junit-jupiter")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")

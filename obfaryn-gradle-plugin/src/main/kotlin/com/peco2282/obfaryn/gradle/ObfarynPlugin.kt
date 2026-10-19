@@ -4,11 +4,14 @@ import com.peco2282.obfaryn.core.ObfuscationConfig
 import com.peco2282.obfaryn.core.KotlinMetadataMode
 import com.peco2282.obfaryn.core.Obfuscator
 import com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode
+import com.peco2282.obfaryn.transformer.StringEncryptionStrategy
+import com.peco2282.obfaryn.transformer.XorStringEncryptionStrategy
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import java.nio.file.Path
+import java.util.Random
 
 
 /**
@@ -45,6 +48,57 @@ open class RenameOptions {
   var classes = true
   var methods = true
   var fields = true
+}
+
+/** String options; [enabled] shares its value with the legacy extension property. */
+open class StringOptions internal constructor(private val extension: ObfarynExtension) {
+  var enabled: Boolean
+    get() = extension.stringEncryption
+    set(value) { extension.stringEncryption = value }
+  var includeConstantFields = true
+  var strategy: StringEncryptionStrategy = XorStringEncryptionStrategy()
+  /** Null uses the shared generator controlled by `obfaryn.seed`. */
+  var random: Random? = null
+}
+
+/** Number options; null [random] uses the shared generator controlled by `obfaryn.seed`. */
+open class NumberOptions internal constructor(private val extension: ObfarynExtension) {
+  var enabled: Boolean
+    get() = extension.numberObfuscation
+    set(value) { extension.numberObfuscation = value }
+  var includeConstantFields = true
+  var random: Random? = null
+}
+
+/** Metadata options are aliases of the extension's existing flat properties. */
+open class MetadataOptions internal constructor(private val extension: ObfarynExtension) {
+  var stripDebugInfo: Boolean
+    get() = extension.stripDebugInfo
+    set(value) { extension.stripDebugInfo = value }
+  var stripKotlinMetadata: Boolean
+    get() = extension.stripKotlinMetadata
+    set(value) { extension.stripKotlinMetadata = value }
+  var kotlinMetadataMode: String
+    get() = extension.kotlinMetadataMode
+    set(value) { extension.kotlinMetadataMode = value }
+  var stripGenericSignatures: Boolean
+    get() = extension.stripGenericSignatures
+    set(value) { extension.stripGenericSignatures = value }
+  var stripMethodParameters: Boolean
+    get() = extension.stripMethodParameters
+    set(value) { extension.stripMethodParameters = value }
+}
+
+/** Output paths resolve relative to the project, not the shell's working directory. */
+open class OutputOptions {
+  /** Null uses `build/libs`, including a customized Gradle build directory. */
+  var directory: String? = null
+  /** Optional JAR name within [directory]; defaults to the input name plus outputSuffix. */
+  var fileName: String? = null
+  /** Explicit JAR path, taking precedence over [directory] and [fileName]. */
+  var file: String? = null
+  /** Explicit mapping path; null puts the mapping beside the output JAR. */
+  var mapping: String? = null
 }
 
 /**
@@ -130,8 +184,16 @@ open class ObfarynExtension {
   var integrityPrivateKey: String? = null
   var integrityPublicKey: String? = null
   val rename = RenameOptions()
+  val string = StringOptions(this)
+  val number = NumberOptions(this)
+  val metadata = MetadataOptions(this)
+  val output = OutputOptions()
   internal val virtualization = VirtualizationOptions()
   fun rename(action: Action<RenameOptions>) = action.execute(rename)
+  fun string(action: Action<StringOptions>) = action.execute(string)
+  fun number(action: Action<NumberOptions>) = action.execute(number)
+  fun metadata(action: Action<MetadataOptions>) = action.execute(metadata)
+  fun output(action: Action<OutputOptions>) = action.execute(output)
 
   @VirtualizeOptIn
   fun virtualize(action: Action<VirtualizationOptions>) = action.execute(virtualization)
@@ -150,12 +212,35 @@ class ObfarynPlugin : Plugin<Project> {
           task.group = "build"
           task.description = "Obfuscates the output of ${source.name}"
           task.dependsOn(source)
-          val outDir = project.layout.buildDirectory.dir("libs")
-          task.outputs.dir(outDir)
+          val outDir = project.provider {
+            extension.output.directory?.let(project::file) ?: project.layout.buildDirectory.dir("libs").get().asFile
+          }
+          val outputFile = project.provider {
+            extension.output.file?.let { path ->
+              require(path.isNotBlank()) { "output.file must not be blank" }
+              return@provider project.file(path)
+            }
+            val fileName = extension.output.fileName
+              ?: source.archiveFile.get().asFile.name.removeSuffix(".jar") + "-${extension.outputSuffix}.jar"
+            require(fileName.isNotBlank() && '/' !in fileName && '\\' !in fileName && fileName.endsWith(".jar")) {
+              "output.fileName must be a JAR file name; use output.file for a full path"
+            }
+            outDir.get().resolve(fileName)
+          }
+          val mappingFile = project.provider {
+            extension.output.mapping?.let(project::file)
+              ?: outputFile.get().parentFile.resolve(outputFile.get().name.removeSuffix(".jar") + ".mapping.txt")
+          }
+          task.inputs.file(source.archiveFile)
+          task.outputs.files(outputFile, mappingFile)
+          // Custom strategies and mutable Random instances cannot be fingerprinted reliably.
+          task.outputs.upToDateWhen { false }
           task.doLast {
             val input = source.archiveFile.get().asFile.toPath()
-            val output = outDir.get().asFile.toPath().resolve(input.fileName.toString().removeSuffix(".jar") + "-${extension.outputSuffix}.jar")
-            val mapping = output.resolveSibling(output.fileName.toString().removeSuffix(".jar") + ".mapping.txt")
+            val output = outputFile.get().toPath()
+            val mapping = mappingFile.get().toPath()
+            val paths = listOf(input, output, mapping).map { it.toAbsolutePath().normalize() }
+            require(paths.distinct().size == paths.size) { "Input JAR, output JAR and mapping must use different paths" }
             // Annotation-selected virtualization is only visible after the input JAR is read, so the
             // dependency classpath must be available even when virtualizeMethods is empty.
             val dependencyClasspath = (listOf("runtimeClasspath", "compileClasspath")
@@ -174,6 +259,11 @@ class ObfarynPlugin : Plugin<Project> {
               classpath = dependencyClasspath,
               stringEncryption = extension.stringEncryption,
               numberObfuscation = extension.numberObfuscation,
+              stringConstantFields = extension.string.includeConstantFields,
+              numberConstantFields = extension.number.includeConstantFields,
+              stringEncryptionStrategy = extension.string.strategy,
+              stringRandom = extension.string.random,
+              numberRandom = extension.number.random,
               renameClasses = extension.rename.classes,
               renameMethods = extension.rename.methods,
               renameFields = extension.rename.fields,
