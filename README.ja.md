@@ -225,3 +225,31 @@ Java 8 以降で動作し、Obfaryn/Kotlin ランタイムやネットワーク�
 - 外部 API との契約が不明な仮想メソッドは名前変更しません。reflection や設定ファイル経由で参照される追加の API は `keep` で指定してください。
 - `plugin.yml` / `paper-plugin.yml` の main、bootstrapper、loader、manifest のエントリポイント、ServiceLoader のクラス名は保護します。
 - Kotlin Metadata の書き換えは今後の課題です。multi-release JAR はアプリパッケージ外の versioned class を無変更で保持します。versioned class が Rename 対象パッケージにある場合や参照する可能性がある場合は、破損を避けるため拒否します。
+
+### 標準パイプラインのカスタマイズ
+
+設定とモジュール編集を同時に指定できます。編集は実行ごとに新しい標準パイプラインへ適用します。
+
+```kotlin
+val obfuscator = Obfuscator(
+  config = ObfuscationConfig.lightweight().copy(seed = 42),
+  configurePipeline = {
+    // lightweight は文字列・数値変換を無効化し、Renameとメタデータ整理を使用します。
+    add(MyTransformer())
+    // 有効な標準パスを差し替える場合、置換先も同じidを使用してください。
+    // replace("rename", MyRenameTransformer())
+    // disable("rename")
+  },
+)
+val result = obfuscator.obfuscate(input, output)
+println(result.transformerReports)
+```
+
+`add` はID重複を、`replace` / `disable` は存在しないIDをエラーにします。設定で無効なパスは一覧に存在しません。
+`Transformer.requires` に必要なパスのIDを指定すると、数値の `order` より優先して依存順で実行します。
+依存先の欠落と循環は、パスの実行前に失敗します。同順位ではID順に処理します。
+独自パスは `report()` で `TransformerReport`（件数等のmetricsとwarnings）を返せます。
+従来の結果件数とmappingは組み込みパス専用です。独自Renameパスはmappingの生成も担当してください。
+従来の `Obfuscator(transformers = ...)` による全置換も利用できます。
+
+`@HotPath` はVM化だけでなく文字列・数値・制御フローの本体変換も除外します。クラス指定は定数フィールド移動も抑止します。メソッドの明示的な `@Virtualize` はクラスの `@HotPath` を上書きします。

@@ -260,3 +260,31 @@ Environments that transform JARs after Obfaryn writes them must sign the final d
 - Multi-release JAR versioned classes are retained only when Obfaryn can rule out references to renamed application packages; otherwise processing fails.
 - VM support covers selected bytecode patterns, not every JVM instruction. VM hardening, performance budgets, and resistance evaluation remain future work.
 - Integrity protection detects changes according to its signed manifest; a self-contained JAR cannot guarantee that modification or reverse engineering is impossible.
+
+### Customizing the built-in pipeline
+
+```kotlin
+val obfuscator = Obfuscator(
+  config = ObfuscationConfig.lightweight().copy(seed = 42),
+  configurePipeline = {
+    add(MyTransformer())
+    // replace("rename", MyRenameTransformer()) // retain the same ID
+    // disable("rename")
+  },
+)
+val result = obfuscator.obfuscate(input, output)
+println(result.transformerReports)
+```
+
+`lightweight()` disables string and number body transformations while retaining renaming
+and metadata cleanup. Existing constructor defaults remain unchanged. Pipeline edits apply
+to fresh built-in passes on each invocation; disabled configuration options do not create passes.
+Duplicate IDs, unknown replacement/removal IDs, missing `Transformer.requires` dependencies,
+and dependency cycles fail before passes execute. Dependencies take priority over numeric
+`order`; otherwise ordering uses `order` then ID. Custom passes can return metrics and warnings
+from `report()`. Built-in result counters and mapping output describe built-in passes only;
+a custom renamer must provide its own mapping. The existing full-list constructor remains available.
+
+`@HotPath` now excludes string, number, control-flow, and virtualization body transformations.
+On a class it also prevents constant-field extraction. A method-level `@Virtualize` can override
+a class-level `@HotPath`. Platform callback detection continues to exclude virtualization only.
