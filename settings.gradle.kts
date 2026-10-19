@@ -12,6 +12,7 @@ include("obfaryn-core")
 include("obfaryn-cli")
 include("obfaryn-gradle-plugin")
 include("obfaryn-annotations")
+include("obfaryn-transformer")
 
 // external platform
 include("platforms:paper")
