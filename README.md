@@ -6,13 +6,14 @@ Obfaryn is an ASM-based obfuscator for Kotlin/JVM and Java JARs. It strips debug
 
 ## Requirements
 
-The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The `obfaryn-api`, `obfaryn-annotations`, `obfaryn-core`, and CLI modules use Kotlin language/API version 2.1 and Java 8 bytecode. The Gradle plugin requires Java 17 or later. The Java version needed by an obfuscated JAR also depends on the input and enabled transformations.
+The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The `obfaryn-api`, `obfaryn-annotations`, `obfaryn-core`, `obfaryn-transformer`, and CLI modules use Kotlin language/API version 2.1 and Java 8 bytecode. The Gradle plugin requires Java 17 or later. The Java version needed by an obfuscated JAR also depends on the input and enabled transformations.
 
 | Module | Purpose |
 | --- | --- |
 | `obfaryn-api` | Platform and transformer interfaces |
 | `obfaryn-annotations` | Source-level transformation policies |
 | `obfaryn-core` | Obfuscation engine |
+| `obfaryn-transformer` | Standard transformers (strings, numbers, control flow, metadata) |
 | `obfaryn-cli` | Command-line application |
 | `obfaryn-gradle-plugin` | Gradle integration |
 | `platforms/paper` | External Paper platform provider (`obfaryn-platform-paper`) |
