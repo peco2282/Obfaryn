@@ -24,6 +24,12 @@ interface Transformer {
    */
   val order: Int get() = 0
 
+  /** IDs that must exist and execute before this pass. Cycles fail before transformation. */
+  val requires: Set<String> get() = emptySet()
+
+  /** Diagnostics for the most recent invocation; custom passes may override this. */
+  fun report(): TransformerReport = TransformerReport(id)
+
   /**
    * Executes the transformation on the provided [context].
    *
@@ -31,3 +37,10 @@ interface Transformer {
    */
   fun transform(context: ObfuscationContext)
 }
+
+/** Per-pass diagnostics, also exposed for custom transformations. */
+data class TransformerReport(
+  val id: String,
+  val metrics: Map<String, Long> = emptyMap(),
+  val warnings: List<String> = emptyList(),
+)

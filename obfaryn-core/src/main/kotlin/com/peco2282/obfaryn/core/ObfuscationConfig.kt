@@ -95,7 +95,15 @@ data class ObfuscationConfig(
   val virtualizationReport: Path? = null,
   val virtualizationSelectionMode: VirtualizationSelectionMode = virtualizationMode,
   val virtualizationAnalyzeOnly: Boolean = false,
-)
+) {
+  companion object {
+    /** Keeps runtime body transformations disabled; callers can opt in with copy(). */
+    @JvmStatic
+    fun lightweight(): ObfuscationConfig = ObfuscationConfig(
+      stringEncryption = false, numberObfuscation = false,
+    )
+  }
+}
 
 /**
  * Summary returned by [Obfuscator.obfuscate].
@@ -123,4 +131,5 @@ data class ObfuscationResult(
   val branchesObfuscated: Int = 0,
   val methodsVirtualized: Int = 0,
   val virtualizationAnalysis: VirtualizationAnalysisReport? = null,
+  val transformerReports: List<com.peco2282.obfaryn.api.transformer.TransformerReport> = emptyList(),
 )
