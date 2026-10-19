@@ -5,6 +5,12 @@ package com.peco2282.obfaryn.api
  *
  * `PlatformConfiguration` provides a fluent API for platforms and plugins to define which classes,
  * members (methods and fields), packages, and resources should be preserved from obfuscation.
+ * Class and owner names may use dotted or JVM internal form; method descriptors must use JVM
+ * descriptor syntax. Keep rules describe preservation requirements, not byte-for-byte output guarantees:
+ * references may still need updating when other declarations are renamed.
+ * In the core implementation, keep rules preserve names but do not disable method-body passes
+ * or virtualization. Keeping fields also prevents their constant values from being moved into
+ * class initialization. Use [excludeMethodFromVirtualization] for virtualization-specific exclusions.
  */
 interface PlatformConfiguration {
   /**
@@ -15,7 +21,7 @@ interface PlatformConfiguration {
   fun applyTo(target: PlatformConfiguration)
 
   /**
-   * Preserves the specified class and all its members (methods and fields) from obfuscation.
+   * Preserves the name of the specified class and the names of all its methods and fields.
    *
    * @param name The fully qualified class name in dot format (e.g., `com.example.MyClass`)
    *             or internal binary format (e.g., `com/example/MyClass`).
@@ -27,6 +33,8 @@ interface PlatformConfiguration {
    * Preserves only the class name from obfuscation, allowing its members to be obfuscated.
    *
    * Default implementation delegates to [keepClass].
+   * Implementations must override this method to provide name-only preservation; otherwise
+   * members receive the broader protection of [keepClass] as a compatibility fallback.
    *
    * @param name The fully qualified class name in dot format (e.g., `com.example.MyClass`)
    *             or internal binary format (e.g., `com/example/MyClass`).
@@ -35,7 +43,8 @@ interface PlatformConfiguration {
   fun keepClassNameOnly(name: String): PlatformConfiguration = keepClass(name)
 
   /**
-   * Preserves all classes and their members within the specified package from obfuscation.
+   * Preserves class and member names within the specified package.
+   * The core implementation includes subpackages as well as the named package itself.
    *
    * @param name The package name in dot format (e.g., `com.example.pkg`) or slash format (e.g., `com/example/pkg`).
    * @return This configuration instance for method chaining.
@@ -51,7 +60,8 @@ interface PlatformConfiguration {
   fun keepResource(name: String): PlatformConfiguration
 
   /**
-   * Preserves a specific method from obfuscation.
+   * Preserves the name of a specific method, identified by owner, name, and descriptor.
+   * This does not automatically preserve the owner class name or suppress body transformations.
    *
    * @param owner The internal binary or dot-separated name of the class that declares the method.
    * @param name The name of the method to keep.
@@ -61,7 +71,7 @@ interface PlatformConfiguration {
   fun keepMethod(owner: String, name: String, descriptor: String): PlatformConfiguration
 
   /**
-   * Preserves a specific field from obfuscation.
+   * Preserves a specific field's name without automatically preserving its owner class name.
    *
    * @param owner The internal binary or dot-separated name of the class that declares the field.
    * @param name The name of the field to keep.
@@ -72,6 +82,17 @@ interface PlatformConfiguration {
   /**
    * Keeps a method as normal JVM bytecode while allowing all other enabled obfuscation passes.
    * Platforms use this for latency-sensitive callbacks that should not pay interpreter overhead.
+   *
+   * The default implementation is a no-op for configurations that do not support virtualization
+   * policy. This rule does not preserve the method's name or exclude other body transformations.
+   * In the core implementation, an explicit virtualization annotation can override this platform
+   * exclusion; user-configured virtualization exclusion patterns still take precedence.
+   *
+   * @param owner The declaring class name in dotted or JVM internal form.
+   * @param name The exact method name, without a descriptor.
+   * @param descriptor The JVM method descriptor, such as `(I)V`, identifying the overload.
+   * @param reason Human-readable explanation for diagnostics; defaults to a platform performance policy.
+   * @return This configuration instance for method chaining.
    */
   fun excludeMethodFromVirtualization(
     owner: String,

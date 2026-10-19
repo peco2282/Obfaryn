@@ -13,7 +13,13 @@ import com.peco2282.obfaryn.api.ObfuscationContext as ObfuscationContextApi
  * Mutable archive state shared by platform detection and transformation passes.
  *
  * [classes] and [resources] expose unmodifiable map views; contained ASM nodes remain mutable.
- * Additions and removals go through the interface methods to keep lookup keys in sync.
+ * Constructor maps are shallow-copied into insertion-ordered maps: later changes to the supplied
+ * maps are not reflected, but nodes and resource entries are shared. The exposed views reflect
+ * subsequent additions and removals through this context.
+ *
+ * Classes are keyed by JVM internal name and resources by archive path. Put operations replace
+ * entries with the same key. Changing a node's name directly does not reindex it: remove the old
+ * entry and put the renamed node. This mutable context provides no synchronization.
  */
 class ObfuscationContext(
   classes: MutableMap<String, ClassNode>,
@@ -23,6 +29,7 @@ class ObfuscationContext(
   private val resourceMap = LinkedHashMap(resources)
   override val classes: Map<String, ClassNode> = Collections.unmodifiableMap(classMap)
   override val resources: Map<String, ResourceEntry> = Collections.unmodifiableMap(resourceMap)
+  /** Evaluates the current annotations on each query; it is not a cached eligibility result. */
   override val transformationPolicy = TransformationPolicy { owner, method ->
     !ObfuscationAnnotationPolicy.skipBody(owner, method)
   }

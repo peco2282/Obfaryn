@@ -8,7 +8,9 @@ import org.objectweb.asm.tree.ClassNode
  *
  * Class-wide rules preserve both the name and members; [keepClassNameOnly] preserves the class
  * name alone. [applyTo] copies every rule category into another [KeepRules] instance.
- * Names passed to the API may use dots or JVM slashes and are stored as internal names.
+ * Class and owner names passed to mutators may use dots or JVM slashes and are stored as internal
+ * names. Query methods expect internal names; resource paths and JVM descriptors are used verbatim.
+ * These rules protect names and members from renaming, not method bodies from transformation.
  */
 class KeepRules : PlatformConfiguration {
   private val classes = mutableSetOf<String>()
@@ -23,9 +25,12 @@ class KeepRules : PlatformConfiguration {
   private val reflectiveFields = mutableSetOf<String>()
   private val virtualizationExclusions = linkedMapOf<Triple<String, String, String>, String>()
 
+  /** Protects every method with this simple name, regardless of owner or descriptor. */
   fun keepReflectiveMethod(name: String) { reflectiveMethods += name }
+  /** Protects every field with this simple name, regardless of owner or descriptor. */
   fun keepReflectiveField(name: String) { reflectiveFields += name }
 
+  /** Merges into another [KeepRules]; self-application is a no-op and other implementations are rejected. */
   override fun applyTo(target: PlatformConfiguration) {
     require(target is KeepRules) { "KeepRules requires a KeepRules target" }
     if (target === this) return
@@ -55,17 +60,22 @@ class KeepRules : PlatformConfiguration {
     methods += Triple(owner.replace('.', '/'), name, descriptor)
   }
   override fun keepField(owner: String, name: String) = apply { fields += owner.replace('.', '/') to name }
+  /** Records an exact method exclusion; the first reason for that identity is retained. */
   override fun excludeMethodFromVirtualization(owner: String, name: String, descriptor: String, reason: String) = apply {
     virtualizationExclusions.putIfAbsent(Triple(owner.replace('.', '/'), name, descriptor), reason)
   }
 
+  /** Returns a snapshot keyed by `owner.name` followed immediately by the JVM method descriptor. */
   fun virtualizationExclusions(): Map<String, String> = virtualizationExclusions.mapKeys { (method, _) ->
     method.first + "." + method.second + method.third
   }
 
   /**
-   * Parses an explicit keep rule: exact class, one-level `package.*`, recursive
-   * `package.**`, `Class#method(JvmDescriptor)`, or `Class#field`.
+   * Adds an exact class, `package.*`, `package.**`, `Class#method(JvmDescriptor)`, or `Class#field` rule.
+   * Both package suffix forms include subpackages: `.*` uses a package-prefix rule and `.**`
+   * uses a recursive class glob. Method descriptors include the return type, for example
+   * `example.Service#run()V`. Field rules match the name without a descriptor.
+   * This parser does not validate that a named class/member exists or that a descriptor is valid.
    */
   fun add(spec: String) {
     when {

@@ -3,7 +3,15 @@ package com.peco2282.obfaryn.core
 import com.peco2282.obfaryn.api.transformer.Transformer
 import com.peco2282.obfaryn.api.transformer.TransformerRegistry
 
-/** Edits a fresh set of built-in passes for each invocation. Unknown IDs fail fast. */
+/**
+ * Mutable, ID-keyed registry used to configure the passes for one invocation.
+ *
+ * IDs must be non-blank and unique. Disabling or replacing an absent ID fails immediately;
+ * dependency existence and cycles are checked only after all configuration callbacks finish.
+ * Execution repeatedly selects the first dependency-ready pass from ascending [Transformer.order]
+ * and then ID order. Dependencies therefore take precedence over numeric order, and registration
+ * order does not break ties. Disabling a pass does not automatically disable its dependants.
+ */
 class TransformerPipeline internal constructor(defaults: List<Transformer>) : TransformerRegistry {
   private val passes = linkedMapOf<String, Transformer>()
 
@@ -13,12 +21,14 @@ class TransformerPipeline internal constructor(defaults: List<Transformer>) : Tr
 
   override operator fun get(id: String): Transformer? = passes[id]
 
+  /** Registers [transformer] without replacing an existing pass with the same ID. */
   override fun add(transformer: Transformer) {
     require(transformer.id.isNotBlank()) { "Transformer ID must not be blank" }
     require(transformer.id !in passes) { "Duplicate transformer: ${transformer.id}" }
     passes[transformer.id] = transformer
   }
 
+  /** Removes [id]; a later [add] may register that ID again. */
   override fun disable(id: String) {
     require(passes.remove(id) != null) { "Unknown or disabled transformer: $id" }
   }

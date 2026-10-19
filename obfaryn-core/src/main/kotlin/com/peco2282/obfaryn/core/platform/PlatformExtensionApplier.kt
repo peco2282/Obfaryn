@@ -10,11 +10,24 @@ import org.objectweb.asm.tree.ClassNode
 import java.io.ByteArrayInputStream
 import java.util.jar.JarInputStream
 
+/** Removes only synthesized policy annotations, in reverse insertion order, when cleaned up. */
 internal class AppliedPlatformExtensions(private val cleanupActions: List<() -> Unit>) {
   fun cleanup() = cleanupActions.asReversed().forEach { it() }
 }
 
+/** Applies platform content contributions before translating platform annotation policies. */
 internal object PlatformExtensionApplier {
+  /**
+   * Mutates [context] in extension order, rejecting existing class/resource keys rather than
+   * overwriting them. Contributions already applied are not rolled back if a later one fails.
+   * Resource bytes are copied; class contributions are parsed into fresh ASM nodes.
+   *
+   * Merged archives cannot contain modules, versioned entries, or signature files, and their
+   * manifests are not contributed. Embedded archives remain uninterpreted resource bytes.
+   * Policy providers run after contributions so contributed classes are also covered. Their
+   * aliases add temporary invisible Obfaryn annotations; the returned cleanup removes only
+   * those additions, preserving original annotations and contributed content.
+   */
   fun apply(platform: Platform, context: ObfuscationContext,
     options: PlatformOptions): AppliedPlatformExtensions {
     val extensions = platform.extensions().toList()

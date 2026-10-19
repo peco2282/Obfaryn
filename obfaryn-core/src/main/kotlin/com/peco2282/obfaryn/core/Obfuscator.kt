@@ -22,9 +22,13 @@ import kotlin.io.path.writeText
  * Runs the JAR transformation pipeline with one immutable [config].
  *
  * The pipeline resolves platform and keep policies, analyzes virtualization eligibility,
- * transforms classes in [Transformer.order] order, writes the output and mapping, and finally
- * seals integrity metadata when requested. The reader and writer can be replaced for integration
- * tests or alternate archive handling.
+ * transforms classes in dependency-aware [Transformer.order] order, writes and optionally seals
+ * the output, then writes the mapping. Each call reads a fresh archive context.
+ *
+ * [configurePipeline] edits the selected passes before [pipelineConfigurers] are applied in list
+ * order. Disabling a pass does not disable archive loading, platform setup, or output processing.
+ * Platform contributions are applied before annotation validation and keep-rule configuration;
+ * the configured [ObfuscationConfig.platformConfiguration] callback runs after platform configuration.
  */
 class Obfuscator(
   private val config: ObfuscationConfig = ObfuscationConfig(),
@@ -57,7 +61,18 @@ class Obfuscator(
    * the output. With dry-run or analysis-only settings, the result is returned without a JAR or
    * mapping. A virtualization report may still be written when configured.
    *
+   * A dry run still executes transformations and integrity injection in memory; analysis-only
+   * mode returns before those steps and before pipeline configuration callbacks. Loaded counts
+   * exclude classes and resources subsequently contributed by the platform.
+   *
+   * If [mapping] is omitted, a sibling `<output-name>.mapping.txt` is written only when the
+   * built-in renamer ran and produced changes. An explicit mapping destination is written even
+   * when its contents are empty. Output, integrity sealing, and mapping writes are not a single
+   * atomic operation: a failure can leave a partial JAR or a JAR without its mapping.
+   *
    * @return Counts, diagnostics, paths, and optional virtualization analysis.
+   * @throws IllegalArgumentException If path, configuration, or policy validation fails.
+   * @throws IllegalStateException If a transformation pass fails, with its ID and original cause.
    */
   fun obfuscate(input: Path, output: Path, mapping: Path? = null): ObfuscationResult {
     val classExclusions = config.excludeClasses.map(::Regex)

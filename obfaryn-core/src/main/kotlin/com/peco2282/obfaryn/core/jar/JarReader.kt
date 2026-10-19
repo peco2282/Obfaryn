@@ -16,7 +16,14 @@ import java.util.jar.JarFile
  * whether those bytes can safely be preserved when application classes are renamed.
  */
 class JarReader {
-  /** Reads non-directory entries in path order and rejects duplicate class definitions. */
+  /**
+   * Reads non-directory entries in path order, expanding ASM frames for base class entries.
+   * Class keys come from the bytecode's internal name, not the ZIP entry path; two entries
+   * defining the same class are rejected. Resource bytes and paths, including manifests and
+   * signatures, are retained without interpretation. The archive is closed before returning.
+   *
+   * @throws IllegalArgumentException If duplicate class definitions are encountered.
+   */
   fun read(path: Path): ObfuscationContext {
     val classes = linkedMapOf<String, ClassNode>()
     val resources = linkedMapOf<String, ResourceEntry>()

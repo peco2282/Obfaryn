@@ -9,18 +9,31 @@ import org.objectweb.asm.tree.ClassNode
  *
  * Provides access to all classes and non-class resources within the target archive or project,
  * allowing transformers to inspect, insert, update, or remove bytecode definitions and resource files.
+ * Class names use JVM internal form (`com/example/MyClass`, without `.class`); resource names
+ * use archive-relative paths (`META-INF/services/com.example.Service`).
+ *
+ * The maps are read-only interfaces, not deep immutable snapshots. Their [ClassNode] values and
+ * resource byte arrays remain mutable. Use the mutation methods to add, replace, or remove entries,
+ * and consult [transformationPolicy] before modifying method bodies.
  */
 interface ObfuscationContext {
-  /** Consult before rewriting a method body; custom contexts may supply their own policy. */
+  /**
+   * Permission check for method-body changes, including changes made by custom transformers.
+   *
+   * Defaults to [TransformationPolicy.ALLOW_ALL]. The context does not automatically intercept
+   * mutations of ASM nodes; each transformer is responsible for consulting this policy.
+   */
   val transformationPolicy: TransformationPolicy
     get() = TransformationPolicy.ALLOW_ALL
   /**
-   * An immutable view of all loaded classes in this context, keyed by their internal names (e.g. `com/example/MyClass`).
+   * A read-only map of loaded classes keyed by internal name (e.g. `com/example/MyClass`).
+   * The nodes are mutable; this interface does not guarantee a snapshot of the map.
    */
   val classes: Map<String, ClassNode>
 
   /**
-   * An immutable view of all loaded non-class resource entries in this context, keyed by their relative file paths.
+   * A read-only map of non-class resources keyed by archive-relative path.
+   * Resource byte arrays are mutable; this interface does not guarantee a snapshot of the map.
    */
   val resources: Map<String, ResourceEntry>
 
@@ -60,6 +73,8 @@ interface ObfuscationContext {
    * Adds or updates a class in the context.
    *
    * The class is stored using its [ClassNode.name] as the lookup key.
+   * An existing entry at that key is replaced. Changing a node's name does not itself remove an
+   * entry under its old key; use [removeClass] when reindexing a renamed class.
    *
    * @param node The [ClassNode] to add or replace.
    */
@@ -77,6 +92,8 @@ interface ObfuscationContext {
    * Adds or updates a non-class resource in the context.
    *
    * The resource is stored using its [ResourceEntry.name] as the lookup key.
+   * An existing entry at that key is replaced. Use [removeResource] to remove a previous path
+   * when moving a resource to a different name.
    *
    * @param entry The [ResourceEntry] to add or replace.
    */

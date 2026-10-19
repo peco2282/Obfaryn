@@ -9,8 +9,9 @@ import java.nio.file.Path
  * Controls handling of the `kotlin.Metadata` annotation.
  *
  * [AUTO] strips metadata only from detected application packages, [PRESERVE] keeps it and
- * protects affected Kotlin class names, and [STRIP] removes it throughout the input JAR.
- * Obfaryn does not rewrite metadata after renaming.
+ * protects affected Kotlin class names, and [STRIP] requests removal throughout the input JAR.
+ * Class exclusions and annotation policies can still prevent metadata removal. Obfaryn does
+ * not rewrite metadata after renaming.
  */
 enum class KotlinMetadataMode { AUTO, PRESERVE, STRIP }
 
@@ -20,6 +21,13 @@ enum class KotlinMetadataMode { AUTO, PRESERVE, STRIP }
  * Defaults enable metadata/debug cleanup and conservative literal and name transformations.
  * Regex lists use full matches against original JVM internal names, resource paths, or
  * `owner.method(descriptor)` identities. Keep rules use the syntax described in the README.
+ *
+ * Application roots combine entrypoint packages with [applicationPackages]. When roots are known
+ * and global Kotlin metadata stripping is disabled, classes outside those roots are kept from
+ * renaming. In [KotlinMetadataMode.AUTO],
+ * no known roots means no automatic metadata stripping. [stripKotlinMetadata] overrides the mode.
+ * Package flattening requires class renaming and a non-null, valid [targetPackage]; specifying a
+ * target without flattening is rejected. These constraints are checked when obfuscation starts.
  *
  * @property stripDebugInfo Remove line numbers, source names, and local variable debug data.
  * @property stripKotlinMetadata Legacy switch to strip Kotlin metadata throughout the JAR;
@@ -34,6 +42,7 @@ enum class KotlinMetadataMode { AUTO, PRESERVE, STRIP }
  * @property controlFlow Apply lightweight branch and switch transformations.
  * @property seed Optional random seed; identical input, settings, seed, and tool version are reproducible.
  * @property platform Platform ID, or `auto` for detection.
+ * @property platformOptions String options passed to platform contributions, configuration, and entrypoint discovery.
  * @property keep Explicit class, package, method, and field keep rules.
  * @property reproducible Write deterministic JAR entry ordering and timestamps.
  * @property stripGenericSignatures Remove generic signature attributes.
@@ -41,9 +50,11 @@ enum class KotlinMetadataMode { AUTO, PRESERVE, STRIP }
  * @property verifyOutput Validate emitted classes with ASM.
  * @property dryRun Analyze and transform in memory without writing a JAR or mapping.
  * @property classpath External JARs or directories needed for hierarchy and frame resolution.
- * @property recomputeFrames Recalculate StackMap frames; unresolved required types cause failure.
+ * @property recomputeFrames Recalculate StackMap frames; also forced by control flow or selected virtualization.
+ *   Unresolved required types cause failure during output generation.
  * @property platformConfiguration Additional keep and virtualization policy rules for this run.
- * @property excludeClasses Full-match class regexes suppressing body and name transformations.
+ * @property excludeClasses Full-match class regexes hiding classes from ordinary passes and keeping
+ *   their names and members; the renaming pass still rewrites references inside these classes.
  * @property excludeResources Full-match resource-path regexes suppressing resource transformations.
  * @property excludeRenaming Full-match class regexes suppressing name changes only.
  * @property targetPackage Destination for eligible classes when [flattenPackages] is enabled.
@@ -114,6 +125,9 @@ data class ObfuscationConfig(
  *
  * @property warnings Compatibility, skipped-transformation, and policy diagnostics.
  * @property virtualizationAnalysis Eligibility details, including rejected methods and reasons.
+ * @property classesLoaded Class count immediately after reading the input, before platform contributions.
+ * @property resourcesLoaded Resource count immediately after reading the input, including versioned classes.
+ * @property transformerReports Reports from executed passes in execution order; absent in analysis-only mode.
  */
 data class ObfuscationResult(
   val classesLoaded: Int,

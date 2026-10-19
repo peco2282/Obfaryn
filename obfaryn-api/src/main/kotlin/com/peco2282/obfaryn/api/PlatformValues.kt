@@ -11,11 +11,13 @@ package com.peco2282.obfaryn.api
  * @property displayName A human-readable name of the platform for display purposes.
  * @property implementationVersion The implementation-specific version of the platform.
  * @property apiVersion The API version supported by the platform, defaulting to the predefined platform constant.
- * @property description A detailed description that combines key metadata for human readability.
+ * @property description A caller-supplied description; the four-argument constructor generates one.
  *
  * @constructor Creates an instance of `DefaultPlatformMetadata` with specified metadata properties.
  * Secondary constructors allow initialization using either a preconfigured `PlatformMetadataBuilder` or
  * by providing specific values for required properties.
+ * Direct constructors do not validate the values. Use [PlatformProvider.metadata] when
+ * non-blank strings and a positive API version must be enforced during construction.
  */
 class DefaultPlatformMetadata(
   override val id: String,
@@ -102,6 +104,12 @@ class MetadataBuilderImpl : PlatformMetadataBuilder {
    */
   override var description: String = ""
 
+  /**
+   * Validates the current fields and creates metadata independent of subsequent builder changes.
+   *
+   * @return A new [DefaultPlatformMetadata] containing the current property values.
+   * @throws IllegalStateException If any string property is blank or [apiVersion] is not positive.
+   */
   fun build(): PlatformMetadata = let {
     check(id.isNotBlank()) { "Platform metadata ID must not be blank" }
     check(displayName.isNotBlank()) { "Platform metadata display name must not be blank" }
@@ -126,6 +134,8 @@ class MetadataBuilderImpl : PlatformMetadataBuilder {
  *
  * @property reasons A list of strings that justify or explain the assessed confidence level.
  * These reasons provide context to the analysis and the final detection assessment.
+ * @param reasons Explanations copied into a list when this instance is constructed.
+ * @throws IllegalArgumentException If [confidence] is outside `0..100`.
  */
 class DefaultPlatformDetection(
   override val confidence: Int,
@@ -144,6 +154,8 @@ class DefaultPlatformDetection(
  *
  * This class allows retrieval of key-value option pairs, where the keys are option names
  * and the values are their corresponding string representations.
+ * The supplied map is copied at construction, so later changes to it do not affect these options.
+ * Keys are looked up exactly as supplied; values are neither trimmed nor otherwise normalized.
  *
  * @constructor Creates a new instance of `MapPlatformOptions` with the specified map
  * of option keys and values. If no map is provided, an empty map is used by default.

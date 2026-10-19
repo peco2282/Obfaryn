@@ -7,6 +7,9 @@ package com.peco2282.obfaryn.api
  * discovering entrypoints, and applying configuration rules for obfuscation or transformation.
  * It operates within a given context, utilizes platform options, and outputs configurations
  * tailored to its detected environment.
+ *
+ * Implement [PlatformProvider] to expose a platform to the host. Use [configure] for keep rules
+ * and [extensions] for annotation policies or generated classes, resources, and archives.
  */
 interface Platform {
   /**
@@ -47,7 +50,8 @@ interface Platform {
    *
    * @param context The execution environment context containing all loaded classes and resources.
    * @param options The platform options providing additional parameters or configurations.
-   * @return A set of strings representing the identified entrypoints, or an empty set if none are found.
+   * @return Entrypoint class names used to identify application code, or an empty set if none are found.
+   * Prefer JVM internal names such as `com/example/Main`, not method names or class descriptors.
    */
   fun entrypoints(context: PlatformContext, options: PlatformOptions): Set<String> = emptySet()
 
@@ -56,6 +60,8 @@ interface Platform {
    *
    * This method customizes the [PlatformConfiguration] for the target platform, using details
    * from the execution environment and additional configuration options.
+   * The default implementation leaves [target] unchanged. Add rules through [target] rather than
+   * modifying the class nodes exposed by [context].
    *
    * @param context The execution environment context containing all loaded classes and resources.
    * @param options The platform options providing additional parameters or configurations.
@@ -68,6 +74,8 @@ interface Platform {
    *
    * Platform extensions provide additional functionalities or behaviors that
    * can be integrated into the platform for specific customization or enhancement.
+   * Return implementations of the supported extension interfaces, such as [AnnotationPolicyProvider]
+   * or [ResourceContributor]; implementing the marker [PlatformExtension] alone adds no behavior.
    *
    * @return A collection of [PlatformExtension] instances, or an empty collection if no extensions are present.
    */
@@ -80,7 +88,7 @@ interface Platform {
  * This interface is intended to be used for creating implementations of platform metadata
  * with configurable properties that describe a platform's characteristics.
  *
- * @property id A unique identifier for the platform. Typically conforms to a reverse domain name notation (e.g., `com.example.platform`).
+ * @property id A unique identifier for the platform, such as `paper` or `com.example.platform`.
  * @property displayName A human-readable name for the platform.
  * @property implementationVersion The platform's implementation version, represented as a string.
  * @property apiVersion The API version of the platform. Determines compatibility with specific platform capabilities.
@@ -90,9 +98,8 @@ interface PlatformMetadataBuilder {
   /**
    * A unique identifier for the platform.
    *
-   * Typically conforms to a reverse domain name notation (e.g., `com.example.platform`)
-   * to ensure uniqueness and avoid conflicts. This value is immutable once assigned
-   * and serves as the primary means of identifying the platform in various contexts.
+   * Used for platform selection and lookup. It may be changed while building metadata;
+   * the resulting [PlatformMetadata.id] is read-only. Choose a stable, non-blank value.
    */
   var id: String
 
@@ -142,7 +149,8 @@ interface PlatformMetadataBuilder {
    * Provides additional context or details about the platform, often derived from other properties
    * such as `displayName`, `id`, `implementationVersion`, and `apiVersion`.
    *
-   * This value can be manually set or populated using defaults during the metadata building process.
+   * Set a non-blank value when using [PlatformProvider.metadata]; that builder does not
+   * generate a description automatically.
    */
   var description: String
 }
@@ -218,14 +226,17 @@ interface PlatformDetection {
    * A value between 0 and 100 (inclusive) that indicates the certainty of a platform's
    * suitability based on the detection process. Higher values indicate greater confidence.
    *
-   * A confidence of 0 signifies uncertainty or absence of detection, whereas a confidence*/
+   * A confidence of `0` means no match; any positive value makes [detected] true.
+   * [DefaultPlatformDetection] rejects values outside this range.
+   */
   val confidence: Int
 
   /**
    * Represents the list of reasons explaining the assessment of platform suitability.
    *
-   * Each reason provides additional context or justification for the determined confidence
-   **/
+   * Each reason describes evidence behind [confidence], such as the presence of a platform descriptor.
+   * An empty list is valid when no explanatory evidence is available.
+   */
   val reasons: List<String>
 
   /**
@@ -247,8 +258,8 @@ interface PlatformOptions {
   /**
    * Represents the set of option names available in the platform options.
    *
-   * This value provides a collection of all defined names for the current platform,
-   * allowing querying and validation of supported options.
+   * Lists supplied keys, not necessarily every key supported by a platform implementation.
+   * Option names and their interpretation are defined by the consuming platform.
    */
   val names: Set<String>
 
@@ -263,6 +274,7 @@ interface PlatformOptions {
   /**
    * Retrieves the value of the specified option, enforcing that the option must exist.
    * If the option is missing, an error is thrown with a message indicating the missing option.
+   * An empty string is considered present and is returned unchanged.
    *
    * @param name The name of the required option.
    * @return The value of the required option as a string.
@@ -271,12 +283,12 @@ interface PlatformOptions {
   fun require(name: String): String = get(name) ?: error("Missing platform option: $name")
 
   /**
-   * Retrieves the boolean value of the specified platform option, applying a default if the option
-   * is not present or is invalid. The option value must be explicitly "true" or "false", ignoring case.
+   * Retrieves a boolean option, using [default] only when the option is absent.
+   * Values must be `true` or `false`, ignoring case; whitespace is not trimmed.
    *
    * @param name The name of the option to retrieve.
    * @param default The default boolean value to return if the option is not present.
-   * @return The boolean value of the option if it is present and valid, otherwise the default value.
+   * @return The parsed value, or [default] when the option is absent.
    * @throws IllegalStateException If the option value is not "true", "false", or null.
    */
   fun boolean(name: String, default: Boolean): Boolean = get(name)?.let {
@@ -287,6 +299,17 @@ interface PlatformOptions {
     }
   } ?: default
 
+  /**
+   * Retrieves a decimal integer option, using [default] only when the option is absent.
+   *
+   * Parsing follows [String.toInt]: an optional sign is accepted, but whitespace, non-decimal
+   * values, and values outside the [Int] range are rejected. No platform-specific bounds are checked.
+   *
+   * @param name The option name to look up.
+   * @param default The value returned when no option with [name] exists.
+   * @return The parsed value, or [default] when the option is absent.
+   * @throws IllegalStateException If a supplied value cannot be parsed as an [Int].
+   */
   fun integer(name: String, default: Int): Int = get(name)?.let {
     try {
       it.toInt()
@@ -334,12 +357,15 @@ interface PlatformProvider {
      * such as the identifier, display name, implementation version, API version,
      * and description using a lambda configuration block. The resulting metadata
      * can be used to describe platform-specific characteristics and compatibility details.
+     * Set `id`, `displayName`, `implementationVersion`, and `description` to non-blank strings.
+     * `apiVersion` defaults to [PlatformApi.VERSION] and must be positive.
      *
      * @param builder A lambda function used to configure the platform metadata.
      *                The builder provides mutable properties for setting
      *                the platform's identifier, display name, versioning details,
      *                and description.
      * @return A new instance of [PlatformMetadata] containing the configured values.
+     * @throws IllegalStateException If a required string is blank or the API version is not positive.
      */
     @JvmStatic
     fun metadata(builder: PlatformMetadataBuilder.() -> Unit): PlatformMetadata = MetadataBuilderImpl().apply(builder).build()

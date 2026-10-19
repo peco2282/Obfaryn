@@ -5,6 +5,11 @@ import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldNode
 import org.objectweb.asm.tree.MethodNode
 
+/**
+ * Interprets Obfaryn policy annotations directly from ASM nodes without loading annotation classes.
+ * Both runtime-visible and runtime-invisible annotations are recognized by descriptor. Queries
+ * only inspect their supplied nodes; [validate] must be called separately to reject conflicts.
+ */
 object ObfuscationAnnotationPolicy {
   const val VIRTUALIZE = "Lcom/peco2282/obfaryn/annotations/Virtualize;"
   const val HOT_PATH = "Lcom/peco2282/obfaryn/annotations/HotPath;"
@@ -25,6 +30,14 @@ object ObfuscationAnnotationPolicy {
   fun keepName(node: MethodNode) = has(node, KEEP_NAME)
   fun keepName(node: FieldNode) = has(node, KEEP_NAME)
 
+  /**
+   * Whether annotation policy suppresses ordinary body transformations for [method].
+   *
+   * Class or method `NoObfuscation`, method `RenameOnly`, and method `HotPath` take precedence.
+   * Otherwise a method-level `Virtualize` overrides class-level `RenameOnly` or `HotPath`.
+   * `KeepName` does not suppress body changes. This query does not check whether virtualization
+   * itself is supported for the method.
+   */
   fun skipBody(owner: ClassNode, method: MethodNode): Boolean {
     if (noObfuscation(owner) || noObfuscation(method) || renameOnly(method)) return true
     if (has(method, HOT_PATH)) return true
@@ -32,6 +45,15 @@ object ObfuscationAnnotationPolicy {
     return renameOnly(owner) || has(owner, HOT_PATH)
   }
 
+  /**
+   * Rejects incompatible annotations on each class, method, or field independently.
+   *
+   * `NoObfuscation` cannot coexist with `RenameOnly`; `Virtualize` cannot coexist with
+   * `HotPath`, `RenameOnly`, or `NoObfuscation` on the same node. Owner/member combinations
+   * are not conflicts here and are resolved by queries such as [skipBody].
+   *
+   * @throws IllegalArgumentException If a conflicting combination is found.
+   */
   fun validate(classes: Collection<ClassNode>) {
     for (owner in classes) {
       validate(owner.name, annotations(owner.visibleAnnotations, owner.invisibleAnnotations))

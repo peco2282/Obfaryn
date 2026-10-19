@@ -14,8 +14,13 @@ package com.peco2282.obfaryn.api.context
  * This class is typically utilized in contexts where resources are identified by a string key
  * and need to be stored, retrieved, or modified in bulk.
  *
- * @property name The unique identifier for the resource.
- * @property data The binary data associated with the resource.
+ * [data] is retained and exposed without copying. Mutating it changes content-based equality
+ * and the hash code, so do not modify the array while this entry is a hash-based collection key.
+ * The generated `copy()` also shares the array unless a replacement is supplied; use
+ * `entry.copy(data = entry.data.copyOf())` for an independent byte array.
+ *
+ * @property name Archive-relative resource path, such as `META-INF/MANIFEST.MF`; no validation is performed here.
+ * @property data Raw resource bytes shared with the caller, without encoding assumptions.
  */
 data class ResourceEntry(
   val name: String,

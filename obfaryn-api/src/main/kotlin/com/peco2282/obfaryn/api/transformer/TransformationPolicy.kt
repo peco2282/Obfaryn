@@ -3,11 +3,32 @@ package com.peco2282.obfaryn.api.transformer
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
 
-/** Shared body-transformation decisions. This is not a virtualization eligibility check. */
+
+/**
+ * Defines a policy for determining whether specific bytecode elements may be transformed.
+ *
+ * Obfuscation and optimization passes consult this policy prior to mutating method bodies,
+ * ensuring exclusions, annotations, and filtering rules are consistently respected across all transformers.
+ * This is a permission check, not a transformation or an automatic guard around ASM mutations.
+ * It governs method bodies only; name preservation and virtualization selection are separate concerns.
+ */
 fun interface TransformationPolicy {
+  /**
+   * Determines whether the bytecode body of the given [method] within [owner] can be modified.
+   *
+   * Call this before editing instructions, exception handlers, or other method-body structures.
+   * Returning `true` permits a change but does not guarantee that a particular pass supports the method.
+   *
+   * @param owner The [ClassNode] declaring or containing the target method.
+   * @param method The [MethodNode] candidate for body transformation.
+   * @return `true` if the transformer is permitted to rewrite or mutate the method body, `false` otherwise.
+   */
   fun canTransformBody(owner: ClassNode, method: MethodNode): Boolean
 
   companion object {
+    /**
+     * A permissive [TransformationPolicy] instance that permits transformations on all method bodies.
+     */
     val ALLOW_ALL = TransformationPolicy { _, _ -> true }
   }
 }

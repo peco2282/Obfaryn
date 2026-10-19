@@ -7,12 +7,15 @@ import com.peco2282.obfaryn.api.ObfuscationContext
  *
  * Implementations of this interface inspect, modify, or rewrite class nodes
  * and resources present in the provided [ObfuscationContext].
+ * Body-changing passes must consult [ObfuscationContext.transformationPolicy] before editing
+ * a method. Use [PipelineConfigurer] to register custom passes without depending on the core engine.
  */
 interface Transformer {
   /**
    * The unique identifier for this transformer.
    *
-   * Typically used for identification, logging, and configuration purposes.
+   * Used by [requires], [TransformerRegistry], and [TransformerReport] to identify the pass.
+   * Choose a stable ID that does not collide with another registered transformer.
    */
   val id: String
 
@@ -20,25 +23,49 @@ interface Transformer {
    * The execution order/priority of this transformer in the pipeline.
    *
    * Transformers with lower order values are executed before transformers
-   * with higher values. Defaults to `0`.
+   * with higher values when dependencies allow it. [requires] takes precedence over this
+   * numeric preference. The core pipeline breaks equal-order ties by [id], not registration order.
+   * Defaults to `0`.
    */
   val order: Int get() = 0
 
-  /** IDs that must exist and execute before this pass. Cycles fail before transformation. */
+  /**
+   * IDs of transformers that must be registered and execute before this pass.
+   *
+   * The default is no dependencies. Missing dependencies and dependency cycles are rejected
+   * before any pass executes; disabling a required pass does not remove this requirement.
+   */
   val requires: Set<String> get() = emptySet()
 
-  /** Diagnostics for the most recent invocation; custom passes may override this. */
+  /**
+   * Returns diagnostics for the most recent [transform] invocation.
+   *
+   * The default report contains this pass's [id] with no metrics or warnings. Stateful passes
+   * should reset invocation-specific diagnostics when they run so reports do not accumulate stale data.
+   */
   fun report(): TransformerReport = TransformerReport(id)
 
   /**
    * Executes the transformation on the provided [context].
+   *
+   * Changes are made in place and are visible to subsequent passes. Register newly generated
+   * classes or resources through the context's mutation methods rather than casting its maps.
    *
    * @param context The obfuscation context containing the target classes and resources.
    */
   fun transform(context: ObfuscationContext)
 }
 
-/** Per-pass diagnostics, also exposed for custom transformations. */
+/**
+ * Diagnostics produced by a transformer for one invocation.
+ *
+ * Metric names and warning text are defined by the reporting pass, not by a shared schema.
+ * Collections are retained as supplied, so provide snapshots if they may later be mutated.
+ *
+ * @property id ID of the transformer that produced this report.
+ * @property metrics Named counters or measurements; empty when no metrics are reported.
+ * @property warnings Human-readable diagnostics that do not themselves signal a failed transformation.
+ */
 data class TransformerReport(
   val id: String,
   val metrics: Map<String, Long> = emptyMap(),
