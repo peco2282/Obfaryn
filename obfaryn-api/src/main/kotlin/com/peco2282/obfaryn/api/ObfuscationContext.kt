@@ -79,6 +79,7 @@ interface ObfuscationContext {
    * @param node The [ClassNode] to add or replace.
    */
   fun putClass(node: ClassNode)
+  operator fun plusAssign(node: ClassNode) = putClass(node)
 
   /**
    * Removes a class with the given [internalName] from the context.
@@ -98,6 +99,7 @@ interface ObfuscationContext {
    * @param entry The [ResourceEntry] to add or replace.
    */
   fun putResource(entry: ResourceEntry)
+  operator fun plusAssign(entry: ResourceEntry) = putResource(entry)
 
   /**
    * Removes a resource with the given [name] from the context.
