@@ -56,7 +56,40 @@ enum class AnnotationPolicyAction {
  * Declaration kinds on which a policy's annotation descriptor is recognized.
  * Policies are ignored on declarations outside their [AnnotationPolicy.targets].
  */
-enum class AnnotationPolicyTarget { CLASS, METHOD, FIELD }
+enum class AnnotationPolicyTarget {
+  /** Recognizes annotations on the class declaration, not on its individual members. */
+  CLASS,
+  /** Recognizes annotations on method declarations, including constructors in bytecode. */
+  METHOD,
+  /** Recognizes annotations on field declarations; body-only actions have no field effect. */
+  FIELD
+}
+
+/**
+ * Creates and configures an [AnnotationPolicy] instance using a builder lambda.
+ *
+ * This utility streamlines policy construction by applying the provided [policy] block
+ * to a fresh [AnnotationPolicy.Companion.Builder] and returning the built policy.
+ * It eliminates manual instantiation boilerplate and ensures clean, readable
+ * policy declarations when implementing an [AnnotationPolicyProvider].
+ *
+ * Example usage:
+ * ```kotlin
+ * val keepApi = annotationPolicy {
+ *   descriptor = "Lcom/example/PublicApi;"
+ *   action = AnnotationPolicyAction.NO_OBFUSCATION
+ *   targets = setOf(AnnotationPolicyTarget.CLASS, AnnotationPolicyTarget.METHOD)
+ *   reason = "Preserve public API entry points from obfuscation"
+ * }
+ * ```
+ *
+ * @param policy Lambda configuring the [AnnotationPolicy.Companion.Builder] properties.
+ * @return A fully initialized, immutable [AnnotationPolicy].
+ * @see AnnotationPolicy
+ * @see AnnotationPolicyProvider
+ */
+fun annotationPolicy(policy: AnnotationPolicy.Companion.Builder.() -> Unit): AnnotationPolicy =
+  AnnotationPolicy.Companion.Builder().apply(policy).build()
 
 /**
  * Maps a binary annotation to Obfaryn transformation intent without depending on its annotation class.
@@ -78,6 +111,26 @@ interface AnnotationPolicy {
 
   /** Human-readable explanation included in policy diagnostics. */
   val reason: String
+
+  companion object {
+    class Builder {
+      var descriptor: String = ""
+      var action: AnnotationPolicyAction = AnnotationPolicyAction.NO_OBFUSCATION
+      var targets: Set<AnnotationPolicyTarget> = emptySet()
+      var reason: String = ""
+
+      fun build(): AnnotationPolicy = object : AnnotationPolicy {
+        override val descriptor: String
+          get() = this@Builder.descriptor
+        override val action: AnnotationPolicyAction
+          get() = this@Builder.action
+        override val targets: Set<AnnotationPolicyTarget>
+          get() = this@Builder.targets
+        override val reason: String
+          get() = this@Builder.reason
+      }
+    }
+  }
 }
 
 /**
@@ -88,6 +141,20 @@ interface AnnotationPolicy {
  * runtime-visible and runtime-invisible annotations are recognized. Field policies support
  * [AnnotationPolicyAction.NO_OBFUSCATION] and [AnnotationPolicyAction.KEEP_NAME]; method-body
  * and virtualization actions have no field-level effect.
+ *
+ * For a binary-retained annotation already present in the input:
+ * ```kotlin
+ * val keepNames = AnnotationPolicyProvider {
+ *   listOf(object : AnnotationPolicy {
+ *     override val descriptor = "Lcom/example/FrameworkEntry;"
+ *     override val action = AnnotationPolicyAction.KEEP_NAME
+ *     override val targets = setOf(AnnotationPolicyTarget.CLASS, AnnotationPolicyTarget.METHOD)
+ *     override val reason = "Framework discovers annotated declarations by name"
+ *   })
+ * }
+ * ```
+ * Return `keepNames` from [Platform.extensions]. The policy maps an existing annotation;
+ * it does not inject that annotation or make a source-retained annotation visible in bytecode.
  */
 fun interface AnnotationPolicyProvider : PlatformExtension {
   /**
@@ -103,6 +170,15 @@ fun interface AnnotationPolicyProvider : PlatformExtension {
  * Contributes non-class archive entries, such as generated configuration or service descriptors.
  * Use [ClassContributor] for class files and [ArchiveContributor] for whole archives.
  * Contributions are applied before the transformation pipeline and are visible to later extensions.
+ * A contributor can generate a UTF-8 resource without modifying the context directly:
+ * ```kotlin
+ * val descriptor = ResourceContributor { _, options, sink ->
+ *   val mainClass = options.require("main-class")
+ *   sink.add("example.properties", "main=$mainClass\n".toByteArray(Charsets.UTF_8))
+ * }
+ * ```
+ * Return the contributor from [Platform.extensions] and choose a path absent from the input.
+ * Adding text that contains a class name does not itself register a keep rule for that class.
  */
 fun interface ResourceContributor : PlatformExtension {
   /**
@@ -184,11 +260,26 @@ fun interface ClassSink {
  * The core merge rejects duplicate class/resource keys, `module-info.class`, multi-release entries,
  * and JAR signature files; manifests are not imported. Embedded content is not parsed as an archive.
  */
-enum class ArchiveContributionMode { MERGE, EMBED_AS_RESOURCE }
+enum class ArchiveContributionMode {
+  /** Imports archive entries for normal transformation; no resource path is required. */
+  MERGE,
+  /** Stores opaque bytes at the supplied resource path; nested classes are not transformed. */
+  EMBED_AS_RESOURCE
+}
 
 /**
  * Contributes JAR/ZIP bytes either by merging entries or embedding the archive as a resource.
  * Select the behavior for each emitted archive through [ArchiveSink.add].
+ * For example, given bytes of an already compiled helper JAR:
+ * ```kotlin
+ * fun helperArchive(helperJar: ByteArray): ArchiveContributor =
+ *   ArchiveContributor { _, _, sink ->
+ *     sink.add(helperJar, ArchiveContributionMode.MERGE)
+ *   }
+ * ```
+ * To ship the same bytes without transforming them, instead call
+ * `sink.add(helperJar, ArchiveContributionMode.EMBED_AS_RESOURCE, "lib/helper.jar")`.
+ * Embedding does not add the nested JAR to the application's runtime classpath.
  */
 fun interface ArchiveContributor : PlatformExtension {
   /**
