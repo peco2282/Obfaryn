@@ -430,3 +430,41 @@ a custom renamer must provide its own mapping. The existing full-list constructo
 `@HotPath` now excludes string, number, control-flow, and virtualization body transformations.
 On a class it also prevents constant-field extraction. A method-level `@Virtualize` can override
 a class-level `@HotPath`. Platform callback detection continues to exclude virtualization only.
+# Extending transformations
+
+Custom passes can be registered directly in the Gradle DSL. The block runs against a fresh registry for each execution; construct stateful transformers inside it.
+
+```kotlin
+import com.peco2282.obfaryn.api.transformer.*
+
+obfaryn {
+  pipeline {
+    add(MyTransformer())
+    // disable("number-obfuscation")
+    // replace("string-encryption", MyStringTransformer()) // retain the ID
+  }
+}
+```
+
+Passes declare mandatory predecessors with `requires`, and optional ordering with `before` / `after`. Missing optional IDs are ignored; all ordering cycles are rejected before execution. Numeric `order` breaks ties between ready passes. Set `requiresFrameRecomputation = true` when a custom pass needs new stack map frames; supply dependency JARs through `classpath` when needed.
+
+Use `context.forEachTransformableMethod { owner, method -> ... }` to visit a snapshot of methods permitted by the body policy, and `owner.uniqueMethodName("helper")` to find an unused helper name. These helpers do not validate arbitrary bytecode edits or register runtime dependencies. Generated methods must still have valid bodies and stack/local limits.
+
+Mix numeric generators and sample eligible sites without replacing literal discovery:
+
+```kotlin
+import com.peco2282.obfaryn.api.transformer.*
+import com.peco2282.obfaryn.transformer.*
+
+obfaryn {
+  number {
+    strategy = WeightedNumberObfuscationStrategy(listOf(
+      WeightedNumberStrategy(DefaultNumberObfuscationStrategy(), 3),
+      WeightedNumberStrategy(MyNumberStrategy(), 1),
+    ))
+    selector = DefaultNumberObfuscationSelector() and NumberObfuscationSelector.probability(0.75)
+  }
+}
+```
+
+`MyTransformer`, `MyStringTransformer` and `MyNumberStrategy` above are user implementations. Weights must be positive; the selected strategy returning `null` skips the constant without retrying. Float/double overrides are preserved. Selection uses the supplied random source and is reproducible with a fixed seed and unchanged configuration. More variants alone do not guarantee stronger resistance to analysis.

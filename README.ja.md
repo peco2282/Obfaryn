@@ -413,3 +413,41 @@ println(result.transformerReports)
 `lightweight()` は文字列および数値の本体変換を無効化し、名前変更とメタデータのクリーンアップを維持します。既存のコンストラクタの既定値は変更されていません。パイプラインの編集は実行ごとに新しい組み込みパスに適用されます。設定で無効化されたオプションに対するパスは生成されません。重複 ID、未知の置換/削除 ID、欠落した `Transformer.requires` 依存関係、および依存関係の循環は、パスの実行前に失敗します。依存関係は数値の `order` より優先され、それ以外は `order`、次いで ID 順で並べ替えられます。カスタムパスは `report()` からメトリクスと警告を返すことができます。組み込みの結果カウンターとマッピング出力は組み込みパスのみを対象としています。カスタムの名前変更パスを導入する場合は、独自にマッピングを提供する必要があります。既存の全リスト指定コンストラクタも引き続き利用可能です。
 
 `@HotPath` は文字列、数値、制御フロー、および仮想化の本体変換を除外します。クラスレベルで指定した場合、定数フィールドの展開も抑止します。メソッドレベルの `@Virtualize` はクラスレベルの `@HotPath` を上書きできます。プラットフォームのコールバック検出は引き続き仮想化のみを除外します。
+# 変換の拡張
+
+Gradle DSLから独自パスを登録できます。実行ごとに新しいレジストリへ設定を適用するため、状態を持つTransformerはブロック内で生成してください。
+
+```kotlin
+import com.peco2282.obfaryn.api.transformer.*
+
+obfaryn {
+  pipeline {
+    add(MyTransformer())
+    // disable("number-obfuscation")
+    // replace("string-encryption", MyStringTransformer()) // 同じIDを使用
+  }
+}
+```
+
+パスの必須依存は`requires`、任意の実行順は`before` / `after`で指定します。任意の対象が未登録なら無視し、循環は実行前にエラーにします。実行可能なパスの優先順位には`order`を使用します。新しいスタックマップフレームが必要な独自パスは`requiresFrameRecomputation = true`を指定し、必要な依存JARを`classpath`へ追加してください。
+
+`context.forEachTransformableMethod { owner, method -> ... }`は、メソッド一覧のスナップショットに対して本体変更ポリシーを確認して走査します。`owner.uniqueMethodName("helper")`は未使用の補助メソッド名を返します。任意のバイトコード変更の検証やランタイム依存の登録は行いません。生成するメソッドには正しい本体とスタック・ローカル変数の上限を設定してください。
+
+数値の検出処理を書き直さずに、複数の生成方式と適用率を組み合わせられます。
+
+```kotlin
+import com.peco2282.obfaryn.api.transformer.*
+import com.peco2282.obfaryn.transformer.*
+
+obfaryn {
+  number {
+    strategy = WeightedNumberObfuscationStrategy(listOf(
+      WeightedNumberStrategy(DefaultNumberObfuscationStrategy(), 3),
+      WeightedNumberStrategy(MyNumberStrategy(), 1),
+    ))
+    selector = DefaultNumberObfuscationSelector() and NumberObfuscationSelector.probability(0.75)
+  }
+}
+```
+
+例の`MyTransformer`、`MyStringTransformer`、`MyNumberStrategy`は利用者が実装するクラスです。重みは正の整数で指定し、選択された方式が`null`を返すと再試行せずその定数を保持します。float/double専用実装も維持されます。選択には渡された乱数源を使い、シードと設定が同じなら再現できます。方式の種類を増やすだけで解析耐性が保証されるわけではありません。
