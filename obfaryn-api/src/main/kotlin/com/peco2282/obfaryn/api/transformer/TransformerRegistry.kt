@@ -8,7 +8,10 @@ package com.peco2282.obfaryn.api.transformer
  * must still be satisfied after all additions, replacements, and disabling operations.
  */
 interface TransformerRegistry {
-  /** Returns the currently registered pass with [id], or `null` if no such pass is registered. */
+  /**
+   * Returns the currently registered pass with [id], or `null` if absent or disabled.
+   * Use this to guard edits to optional standard passes, e.g. `if (this[id] != null) disable(id)`.
+   */
   operator fun get(id: String): Transformer?
 
   /**
@@ -46,9 +49,14 @@ interface TransformerRegistry {
  * so they can be inspected, disabled, or replaced. Earlier callbacks' changes are visible to later ones.
  */
 interface PipelineConfigurer {
-  /** Adds, disables, or replaces passes in [registry] before dependency validation and execution. */
+  /**
+   * Adds, disables, or replaces passes in [registry] before dependency validation and execution.
+   * This callback configures a run; it is not a transformation and receives no loaded class context.
+   * @param registry Fresh host registry, potentially already containing selected standard passes.
+   */
   fun configure(registry: TransformerRegistry)
 
+  /** Factory for Kotlin receiver-style pipeline configuration. */
   companion object {
     /**
      * Wraps a receiver-style registry configuration without exposing the execution engine.

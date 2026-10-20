@@ -18,6 +18,17 @@ package com.peco2282.obfaryn.api
  * by providing specific values for required properties.
  * Direct constructors do not validate the values. Use [PlatformProvider.metadata] when
  * non-blank strings and a positive API version must be enforced during construction.
+ *
+ * ```kotlin
+ * val metadata: PlatformMetadata = DefaultPlatformMetadata(
+ *   id = "example",
+ *   displayName = "Example framework",
+ *   implementationVersion = "1.0.0",
+ *   description = "Support for example applications",
+ * )
+ * ```
+ * These are ordinary implementation objects, not data classes; callers needing value comparison
+ * should compare the metadata properties rather than relying on structural equality.
  */
 class DefaultPlatformMetadata(
   override val id: String,
@@ -53,6 +64,17 @@ class DefaultPlatformMetadata(
  * descriptive details. It serves as a concrete builder for the platform metadata
  * configuration, adhering to the contract defined by the `PlatformMetadataBuilder`
  * interface.
+ * All string properties initially contain an empty string, including [description]. Assign
+ * each before [build]; unlike the four-argument [DefaultPlatformMetadata] constructor, this
+ * builder does not derive a description from the other properties.
+ * ```kotlin
+ * val metadata = MetadataBuilderImpl().apply {
+ *   id = "example"
+ *   displayName = "Example framework"
+ *   implementationVersion = "1.0.0"
+ *   description = "Example platform support"
+ * }.build()
+ * ```
  *
  * @see PlatformMetadataBuilder
  * @see PlatformMetadata
@@ -145,6 +167,7 @@ class DefaultPlatformDetection(
     require(confidence in 0..100) { "Platform detection confidence must be between 0 and 100" }
   }
 
+  /** Construction-time copy of the supplied explanations; later iterable changes are not reflected. */
   override val reasons: List<String> = reasons.toList()
 }
 
@@ -156,6 +179,14 @@ class DefaultPlatformDetection(
  * and the values are their corresponding string representations.
  * The supplied map is copied at construction, so later changes to it do not affect these options.
  * Keys are looked up exactly as supplied; values are neither trimmed nor otherwise normalized.
+ * ```kotlin
+ * val options = MapPlatformOptions(mapOf("enabled" to "TRUE", "limit" to "12"))
+ * val enabled = options.boolean("enabled", false) // true
+ * val limit = options.integer("limit", 1) // 12
+ * val missing = options["unknown"] // null
+ * ```
+ * Copying does not validate values. Parsing and missing-required-option errors occur when the
+ * corresponding [PlatformOptions] helper is called, not when this object is constructed.
  *
  * @constructor Creates a new instance of `MapPlatformOptions` with the specified map
  * of option keys and values. If no map is provided, an empty map is used by default.
@@ -165,6 +196,8 @@ class DefaultPlatformDetection(
  */
 class MapPlatformOptions(values: Map<String, String> = emptyMap()) : PlatformOptions {
   private val values = values.toMap()
+  /** Keys supplied at construction, including keys unknown to the consuming platform. */
   override val names: Set<String> get() = values.keys
+  /** Returns the exact stored string, or `null` for an absent, case-sensitive key. */
   override fun get(name: String): String? = values[name]
 }

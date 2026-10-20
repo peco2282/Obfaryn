@@ -11,10 +11,26 @@ package com.peco2282.obfaryn.api
  * In the core implementation, keep rules preserve names but do not disable method-body passes
  * or virtualization. Keeping fields also prevents their constant values from being moved into
  * class initialization. Use [excludeMethodFromVirtualization] for virtualization-specific exclusions.
+ *
+ * For a framework that reflects on a class name and one callback, configure both explicitly:
+ * ```kotlin
+ * fun keepCallback(target: PlatformConfiguration) {
+ *   target.keepClassNameOnly("com/example/Plugin")
+ *     .keepMethod("com/example/Plugin", "onStart", "()V")
+ *     .keepField("com/example/Plugin", "INSTANCE")
+ *     .keepResource("example-plugin.yml")
+ * }
+ * ```
+ * The method descriptor distinguishes overloads; the field rule identifies a field by name.
+ * These APIs do not define wildcard matching. Use [keepPackage] for package-wide preservation
+ * rather than passing patterns such as `com.example.*` as class names.
  */
 interface PlatformConfiguration {
   /**
    * Applies the keep rules defined in this configuration to the specified [target] configuration.
+   * This is a transfer into the target, not a replacement of this configuration with the target.
+   * Implementations define how rules are stored and combined; callers should not assume that
+   * the two instances share mutable rule collections afterward.
    *
    * @param target The destination configuration to copy the keep rules into.
    */
@@ -53,6 +69,9 @@ interface PlatformConfiguration {
 
   /**
    * Preserves the specified resource file from being obfuscated or renamed.
+   * Use an archive-relative path with `/` separators, not a filesystem path or class name.
+   * This rule does not create the resource, rewrite references in its contents, or preserve
+   * classes named inside it; add the corresponding class or member rules separately.
    *
    * @param name The path or name of the resource to keep (e.g., `plugin.yml`).
    * @return This configuration instance for method chaining.

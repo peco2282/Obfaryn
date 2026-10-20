@@ -83,6 +83,7 @@ interface ObfuscationContext {
    * @param node The [ClassNode] to add or replace.
    */
   fun putClass(node: ClassNode)
+  /** Adds or replaces [node] through [putClass]; `context += node` uses the node's current name. */
   operator fun plusAssign(node: ClassNode) = putClass(node)
 
   /**
@@ -103,6 +104,7 @@ interface ObfuscationContext {
    * @param entry The [ResourceEntry] to add or replace.
    */
   fun putResource(entry: ResourceEntry)
+  /** Adds or replaces [entry] through [putResource]; `context += entry` uses its archive path. */
   operator fun plusAssign(entry: ResourceEntry) = putResource(entry)
 
   /**

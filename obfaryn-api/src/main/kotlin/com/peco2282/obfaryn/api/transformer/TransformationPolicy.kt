@@ -26,15 +26,28 @@ fun interface TransformationPolicy {
    */
   fun canTransformBody(owner: ClassNode, method: MethodNode): Boolean
 
-  /** Permission to strip class and field metadata, independent of method-body decisions. */
+  /**
+   * Permission to strip metadata belonging to [owner] and its fields.
+   *
+   * Defaults to `true`, independently of [canTransformBody]. A lambda implementation only
+   * customizes body permission; implement an object and override this method to restrict metadata.
+   * @return Whether a metadata pass may edit this class's metadata.
+   */
   fun canTransformMetadata(owner: ClassNode): Boolean = true
 
-  /** Permission to move a ConstantValue into executable initialization code. */
+  /**
+   * Permission to move [field]'s ConstantValue into executable initialization code in [owner].
+   *
+   * Defaults to `true`. Also consult [TransformationInputs.keepConstant] and check that the
+   * destination initializer may be transformed; permission does not establish bytecode eligibility.
+   * @return Whether constant-field conversion is permitted for this declaration.
+   */
   fun canTransformConstant(owner: ClassNode, field: FieldNode): Boolean = true
 
   companion object {
     /**
-     * A permissive [TransformationPolicy] instance that permits transformations on all method bodies.
+     * Permits body, metadata, and constant-field transformations via the default method implementations.
+     * This does not override target selection, keep rules, or a pass's bytecode safety requirements.
      */
     val ALLOW_ALL = TransformationPolicy { _, _ -> true }
   }

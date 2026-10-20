@@ -10,6 +10,36 @@ package com.peco2282.obfaryn.api
  *
  * Implement [PlatformProvider] to expose a platform to the host. Use [configure] for keep rules
  * and [extensions] for annotation policies or generated classes, resources, and archives.
+ *
+ * A minimal descriptor-based implementation can keep a reflectively loaded entrypoint:
+ * ```kotlin
+ * class ExamplePlatform : Platform {
+ *   override val metadata = PlatformProvider.metadata {
+ *     id = "example"
+ *     displayName = "Example framework"
+ *     implementationVersion = "1.0.0"
+ *     description = "Support for example-plugin.yml applications"
+ *   }
+ *
+ *   override fun detect(context: PlatformContext): PlatformDetection =
+ *     if ("example-plugin.yml" in context.resources) {
+ *       DefaultPlatformDetection(100, listOf("Found example-plugin.yml"))
+ *     } else {
+ *       DefaultPlatformDetection(0)
+ *     }
+ *
+ *   override fun configure(
+ *     context: PlatformContext,
+ *     options: PlatformOptions,
+ *     target: PlatformConfiguration,
+ *   ) {
+ *     target.keepClass(options.require("main-class"))
+ *     target.keepResource("example-plugin.yml")
+ *   }
+ * }
+ * ```
+ * This example requires the caller to supply `main-class`; detecting a descriptor does not
+ * automatically parse it or populate options. Detection confidence is evidence, not a keep rule.
  */
 interface Platform {
   /**
@@ -253,6 +283,15 @@ interface PlatformDetection {
  *
  * This interface provides methods for retrieving option values, enforcing required options,
  * and handling boolean options with support for default values.
+ * Options are strings; the consuming platform must validate domain-specific constraints:
+ * ```kotlin
+ * val options: PlatformOptions = MapPlatformOptions(mapOf("workers" to "4"))
+ * val workers = options.integer("workers", 1)
+ * require(workers > 0) { "workers must be positive" }
+ * val generateDescriptor = options.boolean("generate-descriptor", false)
+ * ```
+ * Defaults handle absent keys, not malformed supplied values. Unknown keys are not rejected
+ * by this interface; use [names] if the platform needs to validate its supported option set.
  */
 interface PlatformOptions {
   /**
@@ -325,6 +364,16 @@ interface PlatformOptions {
  * The `PlatformProvider` is responsible for instantiating platforms and exposing
  * metadata that describes the platform's identity, versioning, and compatibility.
  * It serves as a factory and metadata accessor for platform-related operations.
+ * Keep [metadata] consistent with the metadata exposed by the platform returned from [create].
+ * For a platform class named `ExamplePlatform`, a provider can be implemented as follows:
+ * ```kotlin
+ * class ExamplePlatformProvider : PlatformProvider {
+ *   override val metadata: PlatformMetadata = ExamplePlatform().metadata
+ *   override fun create(): Platform = ExamplePlatform()
+ * }
+ * ```
+ * A factory implementation alone does not register the provider with a host; distribution
+ * must also supply the discovery or registration mechanism expected by that host.
  */
 interface PlatformProvider {
   /**

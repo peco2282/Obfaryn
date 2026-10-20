@@ -9,6 +9,25 @@ import com.peco2282.obfaryn.api.ObfuscationContext
  * and resources present in the provided [ObfuscationContext].
  * Body-changing passes must consult [ObfuscationContext.transformationPolicy] before editing
  * a method. Use [PipelineConfigurer] to register custom passes without depending on the core engine.
+ *
+ * A minimal inspection pass can be registered as follows (no core dependency is needed here):
+ * ```kotlin
+ * val extension = PipelineConfigurer {
+ *   add(object : Transformer {
+ *     override val id = "example-inspect"
+ *     override fun transform(context: ObfuscationContext) {
+ *       for (owner in context.classes.values) {
+ *         for (method in owner.methods) {
+ *           if (!context.transformationPolicy.canTransformBody(owner, method)) continue
+ *           // Inspect or safely rewrite this method's instructions here.
+ *         }
+ *       }
+ *     }
+ *   })
+ * }
+ * ```
+ * Pass the resulting configurer to the execution host; creating it alone does not execute a pass.
+ * Implementations are not automatically discovered through ServiceLoader.
  */
 interface Transformer {
   /**
@@ -50,6 +69,9 @@ interface Transformer {
    *
    * Changes are made in place and are visible to subsequent passes. Register newly generated
    * classes or resources through the context's mutation methods rather than casting its maps.
+   * Snapshot a collection before adding/removing its entries during traversal. The API does not
+   * recompute frames or repair references for arbitrary edits; the pass and host must coordinate
+   * valid output. Throw on an unrecoverable error rather than reporting success with invalid nodes.
    *
    * @param context The obfuscation context containing the target classes and resources.
    */

@@ -2,14 +2,30 @@ package com.peco2282.obfaryn.api.transformer
 
 import org.objectweb.asm.tree.MethodNode
 
-/** The constants passed to the generated decryptor, including the effective key. */
+/**
+ * Constants passed to the generated decryptor, including the effective key.
+ *
+ * @property payload Encoded string loaded as a JVM string constant; it must fit the class-file
+ * constant-pool string representation. Encryption can expand data, so account for that limit.
+ * @property key Actual key supplied to the runtime decryptor; it may differ from the requested key.
+ */
 data class StringEncryptionResult(val payload: String, val key: Int)
 
 /**
  * Couples build-time string encryption with runtime decryption bytecode generation.
  * Implementations need only depend on obfaryn-api, not on the standard transformers.
+ * The invariant is `decrypt(encrypt(value, key).payload, encrypt(value, key).key) == value`
+ * for one encryption result, including empty strings and Unicode UTF-16 code units.
+ * Both payload and key appear in output bytecode; this API does not guarantee cryptographic secrecy.
  */
 interface StringEncryptionCodec {
+  /**
+   * Encodes one literal at build time without modifying application bytecode.
+   *
+   * @param value Original JVM string, including any surrogate code units.
+   * @param key Host-selected key; use it or return a different effective key explicitly.
+   * @return Arguments understood by the body emitted by [generateDecryptor].
+   */
   fun encrypt(value: String, key: Int): StringEncryptionResult
 
   /**
@@ -21,6 +37,9 @@ interface StringEncryptionCodec {
    * The method belongs to [owner], which can also be an interface. It is generated once
    * per class with encrypted strings. Referenced runtime code must exist in the output
    * or on its runtime classpath; the codec implementation itself is not bundled.
+   *
+   * @param owner JVM internal name of the class receiving the generated method.
+   * @param method Fresh method whose body and stack/local limits must be populated.
    */
   fun generateDecryptor(owner: String, method: MethodNode)
 }
