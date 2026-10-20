@@ -4,8 +4,12 @@ import com.peco2282.obfaryn.api.PlatformConfiguration
 import com.peco2282.obfaryn.api.transformer.TransformerReport
 import com.peco2282.obfaryn.core.transformer.VirtualizationAnalysisReport
 import com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode
-import com.peco2282.obfaryn.transformer.StringEncryptionStrategy
-import com.peco2282.obfaryn.transformer.XorStringEncryptionStrategy
+import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
+import com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy
+import com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector
+import com.peco2282.obfaryn.transformer.XorStringEncryptionCodec
+import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationStrategy
+import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationSelector
 import java.nio.file.Path
 import java.util.Random
 
@@ -74,7 +78,9 @@ enum class KotlinMetadataMode { AUTO, PRESERVE, STRIP }
  * @property virtualizationAnalyzeOnly Produce analysis without writing transformed artifacts.
  * @property stringConstantFields Extract eligible string constant fields before encryption.
  * @property numberConstantFields Extract eligible numeric constant fields before obfuscation.
- * @property stringEncryptionStrategy Strategy compatible with the string transformer's runtime decoder.
+ * @property stringEncryptionStrategy Paired string encryption and runtime decoder generation.
+ * @property numberStrategy Typed numeric expression generation.
+ * @property numberSelector Numeric target selection after body policy checks.
  * @property stringRandom Optional string-specific generator; defaults to the run's seeded generator.
  * @property numberRandom Optional number-specific generator; defaults to the run's seeded generator.
  */
@@ -117,7 +123,9 @@ data class ObfuscationConfig(
   val virtualizationAnalyzeOnly: Boolean = false,
   val stringConstantFields: Boolean = true,
   val numberConstantFields: Boolean = true,
-  val stringEncryptionStrategy: StringEncryptionStrategy = XorStringEncryptionStrategy(),
+  val stringEncryptionStrategy: StringEncryptionCodec = XorStringEncryptionCodec(),
+  val numberStrategy: NumberObfuscationStrategy = DefaultNumberObfuscationStrategy(),
+  val numberSelector: NumberObfuscationSelector = DefaultNumberObfuscationSelector(),
   val stringRandom: Random? = null,
   val numberRandom: Random? = null,
 ) {

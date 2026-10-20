@@ -209,7 +209,7 @@ class Obfuscator(
       override fun shouldStripKotlinMetadata(internalName: String) = internalName in autoStrip
     }
     val strings = StringEncryptionTransformer(config.stringRandom ?: random, config.stringEncryptionStrategy)
-    val numbers = NumberObfuscationTransformer(config.numberRandom ?: random)
+    val numbers = NumberObfuscationTransformer(config.numberRandom ?: random, config.numberStrategy, config.numberSelector)
     val constantFields =
       ConstantFieldTransformer(
         strings = config.stringEncryption && config.stringConstantFields,

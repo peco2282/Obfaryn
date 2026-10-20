@@ -133,7 +133,7 @@ obfaryn {
   string {
     enabled = true
     includeConstantFields = true
-    // strategy = XorStringEncryptionStrategy() // 必要に応じて戦略クラスをインポートして指定
+    // strategy = XorStringEncryptionCodec() // 暗号化と復号コード生成を対で指定
   }
   number { enabled = true; includeConstantFields = true }
   metadata {
@@ -159,7 +159,7 @@ obfaryn {
 
 `obfuscateJar` は `shadowJar` が存在すればそれを、なければ `jar` を入力として使用します。出力設定を省略した場合は `build/libs/*-obfuscated.jar` とマッピングを生成します。プラグインはメソッドの名前変更、フレームの再計算、およびアノテーションで選択された仮想化のために、`runtimeClasspath` と `compileClasspath` を自動で供給します。
 
-ネストされた `string` / `number` の `enabled` フラグおよび `metadata` のプロパティは、既存のフラットプロパティ（`stringEncryption`、`numberObfuscation`、`stripDebugInfo` など）と値を共有し、後に代入された設定が優先されます。Groovy DSL でも同じブロックが機能します。`includeConstantFields = false` はその定数種別に対する展開処理のみを無効化します。両方のリテラルブロックは任意の `random` ジェネレーターを受け付けます。省略した場合は既存の `seed` に従います。個別にカスタマイズする場合は `import java.util.Random` を追加し、`random = Random(10)` を設定します。`string.strategy` は生成される XOR デコーダーと互換性のある `StringEncryptionStrategy` を受け付けます。
+ネストされた `string` / `number` の `enabled` フラグおよび `metadata` のプロパティは、既存のフラットプロパティ（`stringEncryption`、`numberObfuscation`、`stripDebugInfo` など）と値を共有し、後に代入された設定が優先されます。Groovy DSL でも同じブロックが機能します。`includeConstantFields = false` はその定数種別に対する展開処理のみを無効化します。両方のリテラルブロックは任意の `random` ジェネレーターを受け付けます。省略した場合は既存の `seed` に従います。個別にカスタマイズする場合は `import java.util.Random` を追加し、`random = Random(10)` を設定します。`string.strategy` は暗号化と復号コード生成を対にする `StringEncryptionCodec` を受け付けます。数値には `number.strategy` と `number.selector` を指定できます。
 
 `output.directory` / `fileName` で出力先フォルダーと名前をカスタマイズできます。明示的な `output.file = "dist/protected.jar"` は両方の設定に優先します。`mapping` を省略した場合は出力 JAR の隣に配置されます。パスはプロジェクト相対または絶対パスです。既定のディレクトリは Gradle の `buildDirectory` に従い、既存の `outputSuffix` も既定名に適用されます。入力 JAR、出力 JAR、およびマッピングのパスはすべて異なる必要があります。カスタム戦略や乱数ジェネレーターの状態を確実にフィンガープリントできないため、`obfuscateJar` は実行ごとに毎回実行されます。
 
@@ -225,6 +225,8 @@ class CustomPlatform(
 
 ## Transformer 拡張 API
 
+初めて拡張を書く方向けの実装・実行例は [API 開発ガイド](obfaryn-api/README.ja.md) を参照してください。依存関係、コンテキスト、プラットフォームの登録、リテラル変換、検証手順を説明しています。
+
 外部拡張は `obfaryn-api` の `Transformer` と `PipelineConfigurer` を実装し、ランチャーがこれらを core に渡します。文字列暗号化、数値難読化、制御フロー変換、定数フィールド変換、およびメタデータ削除は `obfaryn-transformer` に分離されています。このモジュールの唯一のプロジェクト依存関係は API です（バイトコード解析に ASM も使用します）。既存のパッケージ名は維持され、core がこのモジュールを推移的に公開します。
 
 名前変更、仮想化、および標準パイプラインの組み立ては、設定、名前保持、および解析結果に関する API 契約が整うまで core に残ります。これは段階的な分離であり、まだ完全に独立した実行エンジンではありません。
@@ -250,13 +252,33 @@ Obfuscator(config = config, pipelineConfigurers = listOf(extension))
 
 カスタム本体変換は、標準の本体変換やメソッドメタデータ削除と同様に、`context.transformationPolicy.canTransformBody(owner, method)` を参照する必要があります。クラス/フィールドのメタデータ削除は `canTransformMetadata(owner)` を参照し、定数変換は `canTransformConstant(owner, field)` を参照します。追加された 2 つのメソッドは既定で変更を許可し、SAM 構築を維持します。カスタムコンテキストでは既定ですべての変換が許可されます。ポリシーは推奨事項の確認用であり、ASM による変更を強制的に防ぐガードではありません。`@HotPath` を含む既存のアノテーションセマンティクスは変更されていません。
 
+### 独自の数値変換方式
+
+`obfaryn-api` のインターフェース `NumberObfuscationStrategy` を実装します。`generateInt(value, random)` と `generateLong(value, random)` は式の生成だけを担当します。`generateFloat` / `generateDouble` の既定実装は整数式とrawビット変換を使い、符号付きゼロとNaNペイロードを保持します。浮動小数点専用の式が必要な場合だけオーバーライドしてください。除外する場合は `null`、変換する場合は元のJVM型の値を積む新しい空でない `InsnList` を返します。既存のスタック・ローカル変数を維持し、分岐には有効なフレームを用意してください。実行時依存は自動同梱されません。
+
+対象判定は別の `NumberObfuscationSelector.shouldTransform(site, random)` が担当します。コンテキスト・クラス・メソッド・命令・値を参照し、自作アノテーションや乱数で選択できます。渡されたASMノードは変更しない契約です。Transformerは本体変換ポリシー確認、対象判定、型の振り分け、命令置換を担当します。`DefaultNumberObfuscationSelector` は整数・長整数の -1〜1 を除外し、`DefaultNumberObfuscationStrategy` は従来の3種類の式だけを生成します。小さい整数も対象にする場合は `selector = NumberObfuscationSelector { _, _ -> true }` を指定します。
+
+```kotlin
+val passes = transformers {
+  number {
+    strategy = MyNumberStrategy()
+    selector = NumberObfuscationSelector { site, random ->
+      site.method.name != "hotLoop" && random.nextInt(100) < 70
+    }
+  }
+  string { codec = MyStringCodec() }
+}
+```
+
+`NumberObfuscationSelector` は `com.peco2282.obfaryn.api.transformer` からインポートします。コア設定には `numberStrategy` / `numberSelector`、Gradleには `number { strategy = ...; selector = ... }` を用意しています。フィールド定数は先行パスで命令へ変換されるため、フィールド単位の除外には定数変換ポリシーを使用してください。
+
 ### 独自の文字列暗号化方式
 
 `obfaryn-api` の `StringEncryptionCodec` は、`encrypt(value, key): StringEncryptionResult` と `generateDecryptor(owner, method)` を対で実装する拡張口です。方式の実装自体は API モジュールだけに依存できます。標準パスのビルダーでは `string { codec = MyCodec() }`、直接置換する場合は `StringEncryptionTransformer(java.util.Random(10), MyCodec())` を `PipelineConfigurer` から登録してください。
 
 復号メソッドはクラスごとに必要な場合のみ生成され、引数は暗号化結果の `payload: String` と `key: Int`、戻り値は元の文字列です。渡された `MethodNode` の名前・記述子・アクセスフラグを維持し、命令・ローカル変数数・スタック上限と、分岐に必要なスタックマップフレームを生成してください（ホストでフレーム再計算を有効にする場合を除く）。復号コードから参照する外部ライブラリは出力先の実行環境にも必要で、方式の実装クラスが自動で同梱されるわけではありません。
 
-`codec` は既定で `null` です。未指定なら既存の `strategy` と XOR 復号器を使い、指定時は `codec` が優先されます。従来の `StringEncryptionStrategy` は XOR 復号器と互換性のある暗号化専用の拡張口として維持されています。既存のアノテーションによる本体変換ポリシーは、独自方式でも標準パスが確認します。
+`codec` の既定値は `XorStringEncryptionCodec()` です。標準XORも独自方式も同じインターフェース・実行経路を使い、暗号化専用の `StringEncryptionStrategy` は削除しました。コアの `stringEncryptionStrategy` とGradleの `string.strategy` も `StringEncryptionCodec` を受け取ります。`encrypt` は難読化時の加工、`generateDecryptor` は出力プログラムで動く復元コードの生成です。アノテーションによる本体変換ポリシーは独自方式でも優先されます。
 
 ### 標準パスのビルダー
 
@@ -267,7 +289,7 @@ import com.peco2282.obfaryn.transformer.builder.transformers
 
 val passes = transformers {
   string {
-    strategy = com.peco2282.obfaryn.transformer.XorStringEncryptionStrategy()
+    codec = com.peco2282.obfaryn.transformer.XorStringEncryptionCodec()
     includeConstantFields = true
     random = java.util.Random(10)
   }

@@ -6,34 +6,12 @@ import com.peco2282.obfaryn.api.transformer.Transformer
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.*
-import java.nio.charset.StandardCharsets
-import java.util.Base64
 import java.util.Random
-
-data class EncryptedString(val payload: String, val key: Int)
-
-/** Encrypt-only customization compatible with the built-in XOR decryptor. For other algorithms use [StringEncryptionCodec]. */
-interface StringEncryptionStrategy {
-  fun encrypt(value: String, key: Int): EncryptedString
-}
-
-class XorStringEncryptionStrategy : StringEncryptionStrategy {
-  override fun encrypt(value: String, key: Int): EncryptedString {
-    val bytes = value.toByteArray(StandardCharsets.UTF_8)
-    for (i in bytes.indices) bytes[i] = (bytes[i].toInt() xor (key + i * 31)).toByte()
-    return EncryptedString(Base64.getEncoder().encodeToString(bytes), key)
-  }
-}
 
 class StringEncryptionTransformer(
   private val random: Random,
-  private val strategy: StringEncryptionStrategy = XorStringEncryptionStrategy(),
+  private val codec: StringEncryptionCodec = XorStringEncryptionCodec(),
 ) : Transformer {
-  private var codec: StringEncryptionCodec? = null
-
-  constructor(random: Random, codec: StringEncryptionCodec) : this(random) {
-    this.codec = codec
-  }
   override val id = "string-encryption"
   override val order = 20
   var count = 0
@@ -51,8 +29,7 @@ class StringEncryptionTransformer(
           if (insn !is LdcInsnNode || insn.cst !is String) continue
           val value = insn.cst as String
           val key = random.nextInt()
-          val encrypted = codec?.encrypt(value, key)?.let { EncryptedString(it.payload, it.key) }
-            ?: strategy.encrypt(value, key)
+          val encrypted = codec.encrypt(value, key)
           val replacement = InsnList()
           replacement.add(LdcInsnNode(encrypted.payload))
           replacement.add(LdcInsnNode(encrypted.key))
@@ -65,16 +42,13 @@ class StringEncryptionTransformer(
       }
       if (used) {
         val inInterface = node.access and Opcodes.ACC_INTERFACE != 0
-        val custom = codec
-        val decryptor = if (custom == null) makeHelper(helper, inInterface) else {
-          val access = (if (inInterface) Opcodes.ACC_PUBLIC else Opcodes.ACC_PRIVATE) or Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC
-          MethodNode(access, helper, "(Ljava/lang/String;I)Ljava/lang/String;", null, null).also {
-            custom.generateDecryptor(node.name, it)
-            require(it.name == helper && it.desc == "(Ljava/lang/String;I)Ljava/lang/String;" && it.access == access) {
-              "StringEncryptionCodec must preserve the decryptor name, descriptor and access flags"
-            }
-            require(it.instructions.size() > 0) { "StringEncryptionCodec must generate a decryptor body" }
+        val access = (if (inInterface) Opcodes.ACC_PUBLIC else Opcodes.ACC_PRIVATE) or Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC
+        val decryptor = MethodNode(access, helper, "(Ljava/lang/String;I)Ljava/lang/String;", null, null).also {
+          codec.generateDecryptor(node.name, it)
+          require(it.name == helper && it.desc == "(Ljava/lang/String;I)Ljava/lang/String;" && it.access == access) {
+            "StringEncryptionCodec must preserve the decryptor name, descriptor and access flags"
           }
+          require(it.instructions.size() > 0) { "StringEncryptionCodec must generate a decryptor body" }
         }
         node.methods.add(decryptor)
       }
@@ -163,46 +137,4 @@ class StringEncryptionTransformer(
     return name
   }
 
-  private fun makeHelper(name: String, inInterface: Boolean): MethodNode {
-    val visibility = if (inInterface) Opcodes.ACC_PUBLIC else Opcodes.ACC_PRIVATE
-    val m = MethodNode(visibility or Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC, name, "(Ljava/lang/String;I)Ljava/lang/String;", null, null)
-    val l0 = LabelNode()
-    val l1 = LabelNode()
-    m.instructions.add(MethodInsnNode(Opcodes.INVOKESTATIC, "java/util/Base64", "getDecoder", "()Ljava/util/Base64\$Decoder;", false))
-    m.instructions.add(VarInsnNode(Opcodes.ALOAD, 0))
-    m.instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/util/Base64\$Decoder", "decode", "(Ljava/lang/String;)[B", false))
-    m.instructions.add(VarInsnNode(Opcodes.ASTORE, 2))
-    m.instructions.add(InsnNode(Opcodes.ICONST_0))
-    m.instructions.add(VarInsnNode(Opcodes.ISTORE, 3))
-    m.instructions.add(l0)
-    m.instructions.add(FrameNode(Opcodes.F_NEW, 4, arrayOf("java/lang/String", Opcodes.INTEGER, "[B", Opcodes.INTEGER), 0, null))
-    m.instructions.add(VarInsnNode(Opcodes.ILOAD, 3))
-    m.instructions.add(VarInsnNode(Opcodes.ALOAD, 2))
-    m.instructions.add(InsnNode(Opcodes.ARRAYLENGTH))
-    m.instructions.add(JumpInsnNode(Opcodes.IF_ICMPGE, l1))
-    m.instructions.add(VarInsnNode(Opcodes.ALOAD, 2))
-    m.instructions.add(VarInsnNode(Opcodes.ILOAD, 3))
-    m.instructions.add(InsnNode(Opcodes.DUP2))
-    m.instructions.add(InsnNode(Opcodes.BALOAD))
-    m.instructions.add(VarInsnNode(Opcodes.ILOAD, 1))
-    m.instructions.add(VarInsnNode(Opcodes.ILOAD, 3))
-    m.instructions.add(IntInsnNode(Opcodes.BIPUSH, 31))
-    m.instructions.add(InsnNode(Opcodes.IMUL))
-    m.instructions.add(InsnNode(Opcodes.IADD))
-    m.instructions.add(InsnNode(Opcodes.IXOR))
-    m.instructions.add(InsnNode(Opcodes.BASTORE))
-    m.instructions.add(IincInsnNode(3, 1))
-    m.instructions.add(JumpInsnNode(Opcodes.GOTO, l0))
-    m.instructions.add(l1)
-    m.instructions.add(FrameNode(Opcodes.F_NEW, 4, arrayOf("java/lang/String", Opcodes.INTEGER, "[B", Opcodes.INTEGER), 0, null))
-    m.instructions.add(TypeInsnNode(Opcodes.NEW, "java/lang/String"))
-    m.instructions.add(InsnNode(Opcodes.DUP))
-    m.instructions.add(VarInsnNode(Opcodes.ALOAD, 2))
-    m.instructions.add(FieldInsnNode(Opcodes.GETSTATIC, "java/nio/charset/StandardCharsets", "UTF_8", "Ljava/nio/charset/Charset;"))
-    m.instructions.add(MethodInsnNode(Opcodes.INVOKESPECIAL, "java/lang/String", "<init>", "([BLjava/nio/charset/Charset;)V", false))
-    m.instructions.add(InsnNode(Opcodes.ARETURN))
-    m.maxLocals = 4
-    m.maxStack = 6
-    return m
-  }
 }

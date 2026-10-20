@@ -1,13 +1,16 @@
 package com.peco2282.obfaryn.transformer.builder
 
 import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
+import com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy
+import com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector
 import com.peco2282.obfaryn.api.transformer.Transformer
 import com.peco2282.obfaryn.transformer.ConstantFieldTransformer
+import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationStrategy
+import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationSelector
 import com.peco2282.obfaryn.transformer.MetadataStripTransformer
 import com.peco2282.obfaryn.transformer.NumberObfuscationTransformer
-import com.peco2282.obfaryn.transformer.StringEncryptionStrategy
 import com.peco2282.obfaryn.transformer.StringEncryptionTransformer
-import com.peco2282.obfaryn.transformer.XorStringEncryptionStrategy
+import com.peco2282.obfaryn.transformer.XorStringEncryptionCodec
 import java.util.Random
 import kotlin.random.asJavaRandom
 import kotlin.random.Random as KotlinRandom
@@ -45,8 +48,7 @@ class TransformersBuilder {
   fun string(configure: StringBuilder.() -> Unit = {}): TransformersBuilder = apply {
     require(transformers.none { it.id == "string-encryption" }) { "string is already configured" }
     val options = DefaultStringBuilder().apply(configure)
-    val transformer = options.codec?.let { StringEncryptionTransformer(options.random, it) }
-      ?: StringEncryptionTransformer(options.random, options.strategy)
+    val transformer = StringEncryptionTransformer(options.random, options.codec)
     transformers.add(transformer)
     constantOptions[transformer] = options.includeConstantFields to false
   }
@@ -63,7 +65,7 @@ class TransformersBuilder {
   fun number(configure: NumberBuilder.() -> Unit = {}): TransformersBuilder = apply {
     require(transformers.none { it.id == "number-obfuscation" }) { "number is already configured" }
     val options = DefaultNumberBuilder().apply(configure)
-    val transformer = NumberObfuscationTransformer(options.random)
+    val transformer = NumberObfuscationTransformer(options.random, options.strategy, options.selector)
     transformers.add(transformer)
     constantOptions[transformer] = false to options.includeConstantFields
   }
@@ -144,15 +146,8 @@ class TransformersBuilder {
  * Configuration builder interface for string encryption.
  */
 interface StringBuilder {
-  /**
-   * The encrypt-only strategy for the built-in XOR decryptor. Ignored when [codec] is set.
-   */
-  var strategy: StringEncryptionStrategy
-
-  /** A paired encryptor/decryptor for custom algorithms; null selects the legacy [strategy]. */
-  var codec: StringEncryptionCodec?
-    get() = null
-    set(value) { throw UnsupportedOperationException("This builder does not support custom string codecs") }
+  /** Paired build-time encryption and runtime decoder generation. Defaults to XOR. */
+  var codec: StringEncryptionCodec
 
   /**
    * The random number generator used for key generation.
@@ -166,8 +161,7 @@ interface StringBuilder {
 }
 
 internal class DefaultStringBuilder : StringBuilder {
-  override var codec: StringEncryptionCodec? = null
-  override var strategy: StringEncryptionStrategy = XorStringEncryptionStrategy()
+  override var codec: StringEncryptionCodec = XorStringEncryptionCodec()
   override var random: Random = KotlinRandom.asJavaRandom()
   override var includeConstantFields = true
 }
@@ -176,6 +170,10 @@ internal class DefaultStringBuilder : StringBuilder {
  * Configuration builder interface for number obfuscation.
  */
 interface NumberBuilder {
+  /** Typed expression generation; null results skip a constant. */
+  var strategy: NumberObfuscationStrategy
+  /** Target selection, including annotations or random sampling. Runs before expression generation. */
+  var selector: NumberObfuscationSelector
   /**
    * The random number generator used for numeric transformations.
    */
@@ -188,6 +186,8 @@ interface NumberBuilder {
 }
 
 internal class DefaultNumberBuilder : NumberBuilder {
+  override var strategy: NumberObfuscationStrategy = DefaultNumberObfuscationStrategy()
+  override var selector: NumberObfuscationSelector = DefaultNumberObfuscationSelector()
   override var random: Random = KotlinRandom.asJavaRandom()
   override var includeConstantFields = true
 }

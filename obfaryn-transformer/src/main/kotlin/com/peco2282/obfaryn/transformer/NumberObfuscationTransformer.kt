@@ -1,12 +1,19 @@
 package com.peco2282.obfaryn.transformer
 
 import com.peco2282.obfaryn.api.ObfuscationContext
+import com.peco2282.obfaryn.api.transformer.NumberObfuscationSite
+import com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector
+import com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy
 import com.peco2282.obfaryn.api.transformer.Transformer
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
 import java.util.Random
 
-class NumberObfuscationTransformer(private val random: Random) : Transformer {
+class NumberObfuscationTransformer @JvmOverloads constructor(
+  private val random: Random,
+  private val strategy: NumberObfuscationStrategy = DefaultNumberObfuscationStrategy(),
+  private val selector: NumberObfuscationSelector = DefaultNumberObfuscationSelector(),
+) : Transformer {
   override val id = "number-obfuscation"
   override val order = 30
   var count = 0
@@ -32,43 +39,20 @@ class NumberObfuscationTransformer(private val random: Random) : Transformer {
           }
           else -> continue
         }
-        // Short constants are frequent in control flow and expanding them adds little value.
-        if (value is Int && value in -1..1 || value is Long && value in -1L..1L) continue
+        if (value !is Int && value !is Long && value !is Float && value !is Double) continue
+        if (!selector.shouldTransform(NumberObfuscationSite(context, node, method, insn, value), random)) continue
         val list = when (value) {
-          is Int -> intExpr(value)
-          is Long -> longExpr(value)
-          is Float -> intExpr(java.lang.Float.floatToRawIntBits(value)).apply {
-            add(MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Float", "intBitsToFloat", "(I)F", false))
-          }
-          is Double -> longExpr(java.lang.Double.doubleToRawLongBits(value)).apply {
-            add(MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Double", "longBitsToDouble", "(J)D", false))
-          }
-          else -> continue
-        }
+          is Int -> strategy.generateInt(value, random)
+          is Long -> strategy.generateLong(value, random)
+          is Float -> strategy.generateFloat(value, random)
+          is Double -> strategy.generateDouble(value, random)
+          else -> null
+        } ?: continue
+        require(list.size() > 0) { "NumberObfuscationStrategy must generate a non-empty expression or return null" }
         method.instructions.insertBefore(insn, list)
         method.instructions.remove(insn)
         count++
       }
-    }
-  }
-
-  private fun intExpr(value: Int) = InsnList().apply {
-    val a = random.nextInt()
-    val b = random.nextInt()
-    when (random.nextInt(3)) {
-      0 -> { add(LdcInsnNode(a)); add(LdcInsnNode(value xor a)); add(InsnNode(Opcodes.IXOR)) }
-      1 -> { add(LdcInsnNode(a)); add(LdcInsnNode(value - a)); add(InsnNode(Opcodes.IADD)) }
-      else -> { add(LdcInsnNode(a)); add(LdcInsnNode(b)); add(InsnNode(Opcodes.IXOR)); add(LdcInsnNode(value - (a xor b))); add(InsnNode(Opcodes.IADD)) }
-    }
-  }
-
-  private fun longExpr(value: Long) = InsnList().apply {
-    val a = random.nextLong()
-    val b = random.nextLong()
-    when (random.nextInt(3)) {
-      0 -> { add(LdcInsnNode(a)); add(LdcInsnNode(value xor a)); add(InsnNode(Opcodes.LXOR)) }
-      1 -> { add(LdcInsnNode(a)); add(LdcInsnNode(value - a)); add(InsnNode(Opcodes.LADD)) }
-      else -> { add(LdcInsnNode(a)); add(LdcInsnNode(b)); add(InsnNode(Opcodes.LXOR)); add(LdcInsnNode(value - (a xor b))); add(InsnNode(Opcodes.LADD)) }
     }
   }
 }

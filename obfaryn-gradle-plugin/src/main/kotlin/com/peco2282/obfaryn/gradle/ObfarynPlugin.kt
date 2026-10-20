@@ -4,8 +4,12 @@ import com.peco2282.obfaryn.core.ObfuscationConfig
 import com.peco2282.obfaryn.core.KotlinMetadataMode
 import com.peco2282.obfaryn.core.Obfuscator
 import com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode
-import com.peco2282.obfaryn.transformer.StringEncryptionStrategy
-import com.peco2282.obfaryn.transformer.XorStringEncryptionStrategy
+import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
+import com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy
+import com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector
+import com.peco2282.obfaryn.transformer.XorStringEncryptionCodec
+import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationStrategy
+import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationSelector
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -56,7 +60,7 @@ open class StringOptions internal constructor(private val extension: ObfarynExte
     get() = extension.stringEncryption
     set(value) { extension.stringEncryption = value }
   var includeConstantFields = true
-  var strategy: StringEncryptionStrategy = XorStringEncryptionStrategy()
+  var strategy: StringEncryptionCodec = XorStringEncryptionCodec()
   /** Null uses the shared generator controlled by `obfaryn.seed`. */
   var random: Random? = null
 }
@@ -67,6 +71,8 @@ open class NumberOptions internal constructor(private val extension: ObfarynExte
     get() = extension.numberObfuscation
     set(value) { extension.numberObfuscation = value }
   var includeConstantFields = true
+  var strategy: NumberObfuscationStrategy = DefaultNumberObfuscationStrategy()
+  var selector: NumberObfuscationSelector = DefaultNumberObfuscationSelector()
   var random: Random? = null
 }
 
@@ -262,6 +268,8 @@ class ObfarynPlugin : Plugin<Project> {
               stringConstantFields = extension.string.includeConstantFields,
               numberConstantFields = extension.number.includeConstantFields,
               stringEncryptionStrategy = extension.string.strategy,
+              numberStrategy = extension.number.strategy,
+              numberSelector = extension.number.selector,
               stringRandom = extension.string.random,
               numberRandom = extension.number.random,
               renameClasses = extension.rename.classes,

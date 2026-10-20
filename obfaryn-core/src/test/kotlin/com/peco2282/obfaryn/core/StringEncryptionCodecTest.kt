@@ -69,10 +69,13 @@ class StringEncryptionCodecTest {
     }
   }
 
-  @Test fun `legacy XOR remains executable`() {
-    val node = owner()
-    StringEncryptionTransformer(Random(1)).transform(ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf()))
-    assertRuntime(node)
+  @Test fun `default XOR codec is executable in classes and interfaces`() {
+    for (inInterface in listOf(false, true)) {
+      val node = owner(inInterface)
+      StringEncryptionTransformer(Random(1)).transform(ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf()))
+      assertEquals(4, node.methods.size)
+      assertRuntime(node)
+    }
   }
 
   @Test fun `invalid decryptor declarations are rejected`() {

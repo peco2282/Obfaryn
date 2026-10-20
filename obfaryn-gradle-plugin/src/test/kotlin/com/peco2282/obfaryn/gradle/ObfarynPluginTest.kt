@@ -41,9 +41,9 @@ class ObfarynPluginTest {
   @Test fun nestedDslConfiguresTransformationsAndOutputPaths() {
     Files.writeString(dir.resolve("settings.gradle.kts"), "rootProject.name = \"sample\"")
     Files.writeString(dir.resolve("build.gradle.kts"), """
-      import com.peco2282.obfaryn.transformer.EncryptedString
-      import com.peco2282.obfaryn.transformer.StringEncryptionStrategy
-      import com.peco2282.obfaryn.transformer.XorStringEncryptionStrategy
+      import com.peco2282.obfaryn.api.transformer.StringEncryptionResult
+      import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
+      import com.peco2282.obfaryn.transformer.XorStringEncryptionCodec
       import java.util.Random
       plugins { java; id("com.peco2282.obfaryn") }
       tasks.withType<JavaCompile>().configureEach { options.compilerArgs.add("-parameters") }
@@ -55,10 +55,10 @@ class ObfarynPluginTest {
           enabled = true
           includeConstantFields = false
           random = Random(12)
-          strategy = object : StringEncryptionStrategy {
-            override fun encrypt(value: String, key: Int): EncryptedString {
+          strategy = object : StringEncryptionCodec by XorStringEncryptionCodec() {
+            override fun encrypt(value: String, key: Int): StringEncryptionResult {
               project.file("strategy-used").writeText("yes")
-              return XorStringEncryptionStrategy().encrypt(value, key)
+              return XorStringEncryptionCodec().encrypt(value, key)
             }
           }
         }

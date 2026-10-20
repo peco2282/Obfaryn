@@ -2,8 +2,8 @@ package com.peco2282.obfaryn.core
 
 import com.peco2282.obfaryn.api.transformer.TransformationInputs
 import com.peco2282.obfaryn.core.context.ObfuscationContext
-import com.peco2282.obfaryn.transformer.StringEncryptionStrategy
-import com.peco2282.obfaryn.transformer.XorStringEncryptionStrategy
+import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
+import com.peco2282.obfaryn.transformer.XorStringEncryptionCodec
 import com.peco2282.obfaryn.transformer.builder.StringBuilder
 import com.peco2282.obfaryn.transformer.builder.TransformersBuilder
 import com.peco2282.obfaryn.transformer.builder.transformers
@@ -45,14 +45,14 @@ class TransformersBuilderTest {
       string {
         captured = this
         random = Random(10)
-        strategy = object : StringEncryptionStrategy {
-          override fun encrypt(value: String, key: Int) = XorStringEncryptionStrategy().encrypt(value, key).also { seen += value }
+        codec = object : StringEncryptionCodec by XorStringEncryptionCodec() {
+          override fun encrypt(value: String, key: Int) = XorStringEncryptionCodec().encrypt(value, key).also { seen += value }
         }
       }
       number { includeConstantFields = false; random = Random(20) }
     }
     captured!!.includeConstantFields = false
-    captured!!.strategy = object : StringEncryptionStrategy {
+    captured!!.codec = object : StringEncryptionCodec by XorStringEncryptionCodec() {
       override fun encrypt(value: String, key: Int) = error("mutated builder was retained")
     }
     val node = owner()

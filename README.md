@@ -133,7 +133,7 @@ obfaryn {
   string {
     enabled = true
     includeConstantFields = true
-    // strategy = XorStringEncryptionStrategy() // Import the strategy when needed
+    // strategy = XorStringEncryptionCodec() // Paired encryption and decoder generation
   }
   number { enabled = true; includeConstantFields = true }
   metadata {
@@ -159,7 +159,7 @@ obfaryn {
 
 `obfuscateJar` uses `shadowJar` when available, otherwise `jar`. Without output settings it writes `build/libs/*-obfuscated.jar` with a mapping. The plugin automatically supplies `runtimeClasspath` and `compileClasspath` for method renaming, frame recomputation, and annotation-selected virtualization.
 
-The nested `string` / `number` `enabled` flags and `metadata` properties share values with the existing flat properties (`stringEncryption`, `numberObfuscation`, `stripDebugInfo`, etc.); the last assignment wins. The same blocks work in Groovy DSL. `includeConstantFields = false` disables extraction only for that constant type. Both literal blocks accept an optional `random` generator; omitted generators follow the existing `seed`. To customize one, add `import java.util.Random` and set `random = Random(10)`. `string.strategy` accepts an existing `StringEncryptionStrategy` compatible with the generated XOR decoder.
+The nested `string` / `number` `enabled` flags and `metadata` properties share values with the existing flat properties (`stringEncryption`, `numberObfuscation`, `stripDebugInfo`, etc.); the last assignment wins. The same blocks work in Groovy DSL. `includeConstantFields = false` disables extraction only for that constant type. Both literal blocks accept an optional `random` generator; omitted generators follow the existing `seed`. To customize one, add `import java.util.Random` and set `random = Random(10)`. `string.strategy` accepts `StringEncryptionCodec`, pairing encryption with runtime decoder generation. Numeric customization uses `number.strategy` and `number.selector`.
 
 `output.directory` / `fileName` customize the output folder and name. An explicit `output.file = "dist/protected.jar"` takes precedence over both. An omitted `mapping` is placed beside the output JAR. Paths are project-relative or absolute. The default directory follows Gradle's `buildDirectory`, and the existing `outputSuffix` still applies to default names. Input, output, and mapping paths must differ. Because custom strategy and random-generator state cannot be reliably fingerprinted, `obfuscateJar` runs on every invocation.
 
@@ -233,6 +233,8 @@ ASM transformers are intentionally not part of the platform extension API.
 
 ## Transformer extension API
 
+For complete beginner-friendly implementation and launcher examples, see the [API development guide](obfaryn-api/README.md). It explains dependencies, contexts, platform providers, literal algorithms, and validation.
+
 External extensions implement `Transformer` and `PipelineConfigurer` from `obfaryn-api`; the launcher passes them to core. String encryption, number obfuscation, control flow, constant-field conversion, and metadata stripping live in `obfaryn-transformer`. Its only project dependency is API (it also uses ASM). Existing package names are retained, and core exposes the module transitively.
 
 Renaming, virtualization, and standard pipeline assembly remain in core pending API contracts for their configuration, name preservation, and analysis results. This is incremental separation, not yet a fully independent execution engine.
@@ -258,13 +260,33 @@ Obfuscator(config = config, pipelineConfigurers = listOf(extension))
 
 Custom body transforms should consult `context.transformationPolicy.canTransformBody(owner, method)`, as the standard body transforms and method metadata stripping do. Class/field metadata stripping consults `canTransformMetadata(owner)`; constant conversion consults `canTransformConstant(owner, field)`. The two additional methods default to allowing changes and preserve SAM construction. Custom contexts allow all transformations by default. Policies are advisory, not enforced guards around ASM mutation. Existing annotation semantics, including `@HotPath`, are unchanged.
 
+### Custom number expressions
+
+Implement the `obfaryn-api` interface `NumberObfuscationStrategy`: `generateInt(value, random)` and `generateLong(value, random)` only generate expressions. The default `generateFloat` / `generateDouble` methods reuse these integer expressions with raw-bit conversion, preserving signed zero and NaN payloads. Override them for dedicated floating-point expressions. Return `null` to skip a constant, or fresh non-empty `InsnList` instructions pushing the original JVM value without disturbing the stack or locals. Branches require valid frames; runtime dependencies are not bundled.
+
+Target selection is separate: `NumberObfuscationSelector.shouldTransform(site, random)` receives context, owner, method, instruction and value for annotation checks or sampling. Treat these ASM nodes as read-only. The transformer checks body policy first, then selection, dispatches by type, and replaces instructions. `DefaultNumberObfuscationSelector` skips integer/long constants from -1 to 1; `DefaultNumberObfuscationStrategy` only generates the three standard expressions. Use `selector = NumberObfuscationSelector { _, _ -> true }` to include small constants.
+
+```kotlin
+val passes = transformers {
+  number {
+    strategy = MyNumberStrategy()
+    selector = NumberObfuscationSelector { site, random ->
+      site.method.name != "hotLoop" && random.nextInt(100) < 70
+    }
+  }
+  string { codec = MyStringCodec() }
+}
+```
+
+Import `NumberObfuscationSelector` from `com.peco2282.obfaryn.api.transformer`. Core configuration exposes `numberStrategy` / `numberSelector`; Gradle exposes `number { strategy = ...; selector = ... }`. Constant fields are extracted before expression generation; field exclusions belong in the constant transformation policy.
+
 ### Custom string encryption algorithms
 
 Implement `StringEncryptionCodec` from `obfaryn-api`, pairing `encrypt(value, key): StringEncryptionResult` with `generateDecryptor(owner, method)`. Codec implementations need only depend on the API module. Select one with `string { codec = MyCodec() }` in the standard pass builder, or register `StringEncryptionTransformer(java.util.Random(10), MyCodec())` through a `PipelineConfigurer`.
 
 The decryptor is generated once per class that needs it. Its arguments are the encrypted result's `payload: String` and effective `key: Int`, and it returns the original string. Preserve the supplied `MethodNode` name, descriptor and access flags; emit instructions, max locals/stack, and stack map frames for branches unless the host enables frame recomputation. Any external runtime dependencies must be available in the output application's environment; codec implementation classes are not automatically bundled.
 
-`codec` defaults to `null`, retaining the existing `strategy` and XOR decryptor. When set, it takes precedence over `strategy`. The existing `StringEncryptionStrategy` remains an encrypt-only extension point requiring compatibility with the XOR decryptor. The standard pass still checks annotation-based body transformation policies for custom codecs.
+`codec` defaults to `XorStringEncryptionCodec()`. Standard XOR and custom algorithms use the same interface and execution path; the encrypt-only `StringEncryptionStrategy` has been removed. Core's `stringEncryptionStrategy` and Gradle's `string.strategy` also accept `StringEncryptionCodec`. `encrypt` runs during obfuscation; `generateDecryptor` emits the runtime decoding body rather than decoding a value inside the obfuscator. Annotation-based body policies still take precedence.
 
 ### Standard pass builders
 
@@ -275,7 +297,7 @@ import com.peco2282.obfaryn.transformer.builder.transformers
 
 val passes = transformers {
   string {
-    strategy = com.peco2282.obfaryn.transformer.XorStringEncryptionStrategy()
+    codec = com.peco2282.obfaryn.transformer.XorStringEncryptionCodec()
     includeConstantFields = true
     random = java.util.Random(10)
   }

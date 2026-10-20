@@ -1,8 +1,8 @@
 package com.peco2282.obfaryn.core
 
-import com.peco2282.obfaryn.transformer.EncryptedString
-import com.peco2282.obfaryn.transformer.StringEncryptionStrategy
-import com.peco2282.obfaryn.transformer.XorStringEncryptionStrategy
+import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
+import com.peco2282.obfaryn.api.transformer.StringEncryptionResult
+import com.peco2282.obfaryn.transformer.XorStringEncryptionCodec
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -76,10 +76,10 @@ class LiteralConfigurationTest {
   @Test fun customStrategyAndPerPassRandomReachTheTransformers() {
     val keys = mutableListOf<Int>()
     var numericRandomCalls = 0
-    val strategy = object : StringEncryptionStrategy {
-      override fun encrypt(value: String, key: Int): EncryptedString {
+    val strategy = object : StringEncryptionCodec by XorStringEncryptionCodec() {
+      override fun encrypt(value: String, key: Int): StringEncryptionResult {
         keys += key
-        return XorStringEncryptionStrategy().encrypt(value, key)
+        return XorStringEncryptionCodec().encrypt(value, key)
       }
     }
     val output = dir.resolve("custom.jar")
