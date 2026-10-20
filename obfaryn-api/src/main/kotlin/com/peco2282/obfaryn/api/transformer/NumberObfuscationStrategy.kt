@@ -75,10 +75,28 @@ interface NumberObfuscationStrategy {
 
 /** Called only after the host's body transformation policy allows a method. */
 fun interface NumberObfuscationSelector {
+  /** Combines selectors with short-circuit evaluation, preserving their random source. */
+  infix fun and(other: NumberObfuscationSelector): NumberObfuscationSelector =
+    NumberObfuscationSelector { site, random -> shouldTransform(site, random) && other.shouldTransform(site, random) }
+  operator fun plus(other: NumberObfuscationSelector): NumberObfuscationSelector =
+    NumberObfuscationSelector { site, random -> shouldTransform(site, random) && other.shouldTransform(site, random) }
+
+
   /**
    * Selects an eligible literal without changing [site]'s nodes.
    * @param random Host-supplied random source, usable for reproducible sampling.
    * @return `true` to request strategy generation; the strategy may still return `null`.
    */
   fun shouldTransform(site: NumberObfuscationSite, random: Random): Boolean
+
+  companion object {
+    /** Seeded sampling. Rates 0 and 1 consume no randomness. */
+    @JvmStatic
+    fun probability(rate: Double): NumberObfuscationSelector {
+      require(rate in 0.0..1.0) { "Probability must be in 0..1" }
+      return NumberObfuscationSelector { _, random ->
+        rate == 1.0 || (rate != 0.0 && random.nextDouble() < rate)
+      }
+    }
+  }
 }

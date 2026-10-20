@@ -2,6 +2,11 @@ package com.peco2282.obfaryn.core
 
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector
+import com.peco2282.obfaryn.api.transformer.WeightedNumberObfuscationStrategy
+import com.peco2282.obfaryn.api.transformer.WeightedNumberStrategy
+import com.peco2282.obfaryn.api.transformer.forEachTransformableMethod
+import com.peco2282.obfaryn.api.transformer.uniqueMethodName
+import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationStrategy
 import com.peco2282.obfaryn.core.context.ObfuscationContext
 import com.peco2282.obfaryn.transformer.NumberObfuscationTransformer
 import com.peco2282.obfaryn.transformer.builder.transformers
@@ -13,6 +18,47 @@ import org.objectweb.asm.tree.*
 import java.util.Random
 
 class NumberObfuscationStrategyTest {
+  @Test fun `weighted strategies preserve typed overrides and seeded runtime results`() {
+    var floats = 0
+    val custom = object : NumberObfuscationStrategy by DefaultNumberObfuscationStrategy() {
+      override fun generateFloat(value: Float, random: Random) = InsnList().apply {
+        floats++
+        add(LdcInsnNode(value))
+      }
+    }
+    val strategy = WeightedNumberObfuscationStrategy(listOf(
+      WeightedNumberStrategy(DefaultNumberObfuscationStrategy()), WeightedNumberStrategy(custom, 3),
+    ))
+    val selections = mutableListOf<Int>()
+    repeat(2) {
+      floats = 0
+      val node = owner()
+      NumberObfuscationTransformer(Random(2), strategy, NumberObfuscationSelector.probability(1.0))
+        .transform(context(node))
+      assertRuntime(node)
+      assertTrue(floats > 0)
+      selections += floats
+    }
+    assertEquals(selections[0], selections[1])
+    assertThrows(IllegalArgumentException::class.java) { WeightedNumberStrategy(custom, 0) }
+    assertThrows(IllegalArgumentException::class.java) { WeightedNumberObfuscationStrategy(emptyList()) }
+    assertThrows(IllegalArgumentException::class.java) { NumberObfuscationSelector.probability(Double.NaN) }
+  }
+
+  @Test fun `method traversal snapshots additions and respects body policy`() {
+    val node = owner()
+    val context = context(node)
+    val originalSize = node.methods.size
+    var visited = 0
+    context.forEachTransformableMethod { owner, _ ->
+      visited++
+      owner.methods.add(MethodNode(Opcodes.ACC_STATIC, owner.uniqueMethodName("helper"), "()V", null, null))
+    }
+    assertEquals(originalSize, visited)
+    assertEquals(originalSize, node.methods.map { it.name }.filter { it.startsWith("helper") }.distinct().size)
+    node.invisibleAnnotations = mutableListOf(AnnotationNode("Lcom/peco2282/obfaryn/annotations/NoObfuscation;"))
+    context.forEachTransformableMethod { _, _ -> fail<Unit>("excluded body visited") }
+  }
   private val values = listOf<Number>(
     -1, 0, 1, 2, Int.MIN_VALUE, Int.MAX_VALUE, 128, 32768,
     -1L, 0L, 1L, Long.MIN_VALUE, Long.MAX_VALUE,

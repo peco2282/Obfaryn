@@ -5,6 +5,7 @@ import com.peco2282.obfaryn.api.transformer.NumberObfuscationSite
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy
 import com.peco2282.obfaryn.api.transformer.Transformer
+import com.peco2282.obfaryn.api.transformer.forEachTransformableMethod
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
 import java.util.Random
@@ -20,8 +21,8 @@ class NumberObfuscationTransformer @JvmOverloads constructor(
     private set
 
   override fun transform(context: ObfuscationContext) {
-    for (node in context.classes.values) for (method in node.methods) {
-      if (!context.transformationPolicy.canTransformBody(node, method)) continue
+    count = 0
+    context.forEachTransformableMethod { node, method ->
       for (insn in method.instructions.toArray()) {
         val value: Number = when (insn) {
           is LdcInsnNode -> insn.cst as? Number ?: continue
