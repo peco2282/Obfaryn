@@ -92,4 +92,62 @@ class TransformerPipelineTest {
     pipeline.disable("a")
     assertTrue(pipeline.ordered().isEmpty())
   }
+
+  @Test fun `optional ordering ignores absent passes and detects combined cycles`() {
+    fun orderedPass(name: String, beforeIds: Set<String> = emptySet(), afterIds: Set<String> = emptySet()) =
+      object : Transformer {
+        override val id = name
+        override val before = beforeIds
+        override val after = afterIds
+        override fun transform(context: ObfuscationContext) = Unit
+      }
+    val a = orderedPass("a", afterIds = setOf("z", "missing"))
+    val z = orderedPass("z", beforeIds = setOf("missing"))
+    assertEquals(listOf("z", "a"), TransformerPipeline(listOf(a, z)).ordered().map { it.id })
+    assertThrows(IllegalArgumentException::class.java) {
+      TransformerPipeline(listOf(a, orderedPass("z", afterIds = setOf("a")))).ordered()
+    }
+  }
+
+  @Test fun `custom pass can request frames for generated branching methods`() {
+    val input = dir.resolve("frames-input.jar")
+    val output = dir.resolve("frames-output.jar")
+    JarOutputStream(Files.newOutputStream(input)).use { }
+    val configurer = PipelineConfigurer {
+      add(object : Transformer {
+        override val id = "branch-generator"
+        override val requiresFrameRecomputation = true
+        override fun transform(context: ObfuscationContext) {
+          val owner = org.objectweb.asm.tree.ClassNode().apply {
+            name = "example/Generated"
+            superName = "java/lang/Object"
+            version = org.objectweb.asm.Opcodes.V1_8
+            access = org.objectweb.asm.Opcodes.ACC_PUBLIC
+          }
+          val method = org.objectweb.asm.tree.MethodNode(9, "value", "(I)I", null, null)
+          val zero = org.objectweb.asm.tree.LabelNode()
+          method.instructions.apply {
+            add(org.objectweb.asm.tree.VarInsnNode(org.objectweb.asm.Opcodes.ILOAD, 0))
+            add(org.objectweb.asm.tree.JumpInsnNode(org.objectweb.asm.Opcodes.IFEQ, zero))
+            add(org.objectweb.asm.tree.InsnNode(org.objectweb.asm.Opcodes.ICONST_1))
+            add(org.objectweb.asm.tree.InsnNode(org.objectweb.asm.Opcodes.IRETURN))
+            add(zero)
+            add(org.objectweb.asm.tree.InsnNode(org.objectweb.asm.Opcodes.ICONST_0))
+            add(org.objectweb.asm.tree.InsnNode(org.objectweb.asm.Opcodes.IRETURN))
+          }
+          owner.methods.add(method)
+          context.putClass(owner)
+        }
+      })
+    }
+    Obfuscator(
+      ObfuscationConfig.lightweight().copy(renameClasses = false, renameMethods = false, renameFields = false),
+      pipelineConfigurers = listOf(configurer),
+    ).obfuscate(input, output)
+    java.net.URLClassLoader(arrayOf(output.toUri().toURL()), null).use { loader ->
+      val method = loader.loadClass("example.Generated").getMethod("value", Int::class.javaPrimitiveType)
+      assertEquals(0, method.invoke(null, 0))
+      assertEquals(1, method.invoke(null, 12))
+    }
+  }
 }

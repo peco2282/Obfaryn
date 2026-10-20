@@ -56,6 +56,15 @@ interface Transformer {
    */
   val requires: Set<String> get() = emptySet()
 
+  /** Run before these passes when they are registered. Missing IDs are ignored. */
+  val before: Set<String> get() = emptySet()
+
+  /** Run after these passes when they are registered. Missing IDs are ignored. */
+  val after: Set<String> get() = emptySet()
+
+  /** Request host frame recomputation for generated branches or changed control flow. */
+  val requiresFrameRecomputation: Boolean get() = false
+
   /**
    * Returns diagnostics for the most recent [transform] invocation.
    *

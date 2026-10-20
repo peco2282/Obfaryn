@@ -274,7 +274,8 @@ class Obfuscator(
     appliedPlatformExtensions.cleanup()
     if (!config.dryRun) jarWriter.write(
       context, output, config.reproducible, config.verifyOutput,
-      config.recomputeFrames || config.controlFlow || virtualizationRequested, config.classpath
+      config.recomputeFrames || config.controlFlow || virtualizationRequested ||
+        orderedPipeline.any { it.requiresFrameRecomputation }, config.classpath
     )
     if (!config.dryRun) integrity?.seal(output, config.reproducible)
     val renameExecuted = orderedPipeline.any { it === rename }
