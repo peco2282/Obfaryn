@@ -7,6 +7,8 @@ import com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode
 import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector
+import com.peco2282.obfaryn.api.transformer.PipelineConfigurer
+import com.peco2282.obfaryn.api.transformer.TransformerRegistry
 import com.peco2282.obfaryn.transformer.XorStringEncryptionCodec
 import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationStrategy
 import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationSelector
@@ -163,6 +165,13 @@ open class VirtualizationOptions {
  * @see RenameOptions
  */
 open class ObfarynExtension {
+  internal val pipelineConfigurers = mutableListOf<PipelineConfigurer>()
+
+  /** Configures a fresh registry per execution; create stateful passes inside this block. */
+  fun pipeline(action: Action<TransformerRegistry>) {
+    pipelineConfigurers += PipelineConfigurer { action.execute(this) }
+  }
+
   var platform = "auto"
   var platformOptions = mapOf<String, String>()
   var outputSuffix = "obfuscated"
@@ -298,7 +307,8 @@ class ObfarynPlugin : Plugin<Project> {
               integrityPrivateKey = extension.integrityPrivateKey?.let { project.file(it).toPath() },
               integrityPublicKey = extension.integrityPublicKey?.let { project.file(it).toPath() },
             )
-            val result = Obfuscator(config).obfuscate(input, output, mapping)
+            val result = Obfuscator(config, pipelineConfigurers = extension.pipelineConfigurers.toList())
+              .obfuscate(input, output, mapping)
             project.logger.lifecycle("Obfaryn: ${result.classesLoaded} classes, ${result.stringsEncrypted} strings, ${result.constantsObfuscated} constants; output: $output")
             project.logger.lifecycle("Obfaryn: ${result.branchesObfuscated} branches, ${result.methodsVirtualized} virtualized methods")
             result.warnings.forEach { project.logger.warn("Obfaryn: $it") }

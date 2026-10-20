@@ -45,12 +45,24 @@ class ObfarynPluginTest {
       import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
       import com.peco2282.obfaryn.transformer.XorStringEncryptionCodec
       import java.util.Random
+      import com.peco2282.obfaryn.api.ObfuscationContext
+      import com.peco2282.obfaryn.api.transformer.Transformer
       plugins { java; id("com.peco2282.obfaryn") }
       tasks.withType<JavaCompile>().configureEach { options.compilerArgs.add("-parameters") }
       obfaryn {
         platform = "generic"
         seed = 4L
         applicationPackages = listOf("example")
+        pipeline {
+          add(object : Transformer {
+            override val id = "custom-marker"
+            override val before = setOf("string-encryption")
+            override val requiresFrameRecomputation = true
+            override fun transform(context: ObfuscationContext) {
+              project.file("pipeline-used").writeText("yes")
+            }
+          })
+        }
         string {
           enabled = true
           includeConstantFields = false
@@ -93,6 +105,7 @@ class ObfarynPluginTest {
     assertTrue(Files.exists(output))
     assertTrue(Files.exists(dir.resolve("build/maps/release.txt")))
     assertTrue(Files.exists(dir.resolve("strategy-used")))
+    assertTrue(Files.exists(dir.resolve("pipeline-used")))
     assertFalse(Files.exists(dir.resolve("build/libs/sample-obfuscated.jar")))
     JarFile(output.toFile()).use { jar ->
       val bytes = jar.getInputStream(jar.getJarEntry("example/App.class")).readBytes()
