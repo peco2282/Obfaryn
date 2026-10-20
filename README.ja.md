@@ -250,6 +250,14 @@ Obfuscator(config = config, pipelineConfigurers = listOf(extension))
 
 カスタム本体変換は、標準の本体変換やメソッドメタデータ削除と同様に、`context.transformationPolicy.canTransformBody(owner, method)` を参照する必要があります。クラス/フィールドのメタデータ削除は `canTransformMetadata(owner)` を参照し、定数変換は `canTransformConstant(owner, field)` を参照します。追加された 2 つのメソッドは既定で変更を許可し、SAM 構築を維持します。カスタムコンテキストでは既定ですべての変換が許可されます。ポリシーは推奨事項の確認用であり、ASM による変更を強制的に防ぐガードではありません。`@HotPath` を含む既存のアノテーションセマンティクスは変更されていません。
 
+### 独自の文字列暗号化方式
+
+`obfaryn-api` の `StringEncryptionCodec` は、`encrypt(value, key): StringEncryptionResult` と `generateDecryptor(owner, method)` を対で実装する拡張口です。方式の実装自体は API モジュールだけに依存できます。標準パスのビルダーでは `string { codec = MyCodec() }`、直接置換する場合は `StringEncryptionTransformer(java.util.Random(10), MyCodec())` を `PipelineConfigurer` から登録してください。
+
+復号メソッドはクラスごとに必要な場合のみ生成され、引数は暗号化結果の `payload: String` と `key: Int`、戻り値は元の文字列です。渡された `MethodNode` の名前・記述子・アクセスフラグを維持し、命令・ローカル変数数・スタック上限と、分岐に必要なスタックマップフレームを生成してください（ホストでフレーム再計算を有効にする場合を除く）。復号コードから参照する外部ライブラリは出力先の実行環境にも必要で、方式の実装クラスが自動で同梱されるわけではありません。
+
+`codec` は既定で `null` です。未指定なら既存の `strategy` と XOR 復号器を使い、指定時は `codec` が優先されます。従来の `StringEncryptionStrategy` は XOR 復号器と互換性のある暗号化専用の拡張口として維持されています。既存のアノテーションによる本体変換ポリシーは、独自方式でも標準パスが確認します。
+
 ### 標準パスのビルダー
 
 `obfaryn-transformer` は `TransformersBuilder` と、公開の `StringBuilder` / `NumberBuilder` / `MetadataBuilder` インターフェース（および内部実装）を提供します:

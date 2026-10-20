@@ -258,6 +258,14 @@ Obfuscator(config = config, pipelineConfigurers = listOf(extension))
 
 Custom body transforms should consult `context.transformationPolicy.canTransformBody(owner, method)`, as the standard body transforms and method metadata stripping do. Class/field metadata stripping consults `canTransformMetadata(owner)`; constant conversion consults `canTransformConstant(owner, field)`. The two additional methods default to allowing changes and preserve SAM construction. Custom contexts allow all transformations by default. Policies are advisory, not enforced guards around ASM mutation. Existing annotation semantics, including `@HotPath`, are unchanged.
 
+### Custom string encryption algorithms
+
+Implement `StringEncryptionCodec` from `obfaryn-api`, pairing `encrypt(value, key): StringEncryptionResult` with `generateDecryptor(owner, method)`. Codec implementations need only depend on the API module. Select one with `string { codec = MyCodec() }` in the standard pass builder, or register `StringEncryptionTransformer(java.util.Random(10), MyCodec())` through a `PipelineConfigurer`.
+
+The decryptor is generated once per class that needs it. Its arguments are the encrypted result's `payload: String` and effective `key: Int`, and it returns the original string. Preserve the supplied `MethodNode` name, descriptor and access flags; emit instructions, max locals/stack, and stack map frames for branches unless the host enables frame recomputation. Any external runtime dependencies must be available in the output application's environment; codec implementation classes are not automatically bundled.
+
+`codec` defaults to `null`, retaining the existing `strategy` and XOR decryptor. When set, it takes precedence over `strategy`. The existing `StringEncryptionStrategy` remains an encrypt-only extension point requiring compatibility with the XOR decryptor. The standard pass still checks annotation-based body transformation policies for custom codecs.
+
 ### Standard pass builders
 
 `obfaryn-transformer` provides `TransformersBuilder` and public `StringBuilder` / `NumberBuilder` / `MetadataBuilder` interfaces with internal implementations:
