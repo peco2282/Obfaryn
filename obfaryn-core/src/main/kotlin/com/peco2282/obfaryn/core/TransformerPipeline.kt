@@ -47,8 +47,12 @@ class TransformerPipeline internal constructor(defaults: List<Transformer>) : Tr
     }
     val result = mutableListOf<Transformer>()
     val completed = mutableSetOf<String>()
+    val dependencies = remaining.associate { pass ->
+      pass.id to (pass.requires + pass.after.filter { it in passes } +
+        remaining.filter { pass.id in it.before }.map { it.id })
+    }
     while (remaining.isNotEmpty()) {
-      val next = remaining.firstOrNull { completed.containsAll(it.requires) }
+      val next = remaining.firstOrNull { completed.containsAll(dependencies.getValue(it.id)) }
       require(next != null) { "Cyclic transformer dependencies: ${remaining.map { it.id }}" }
       result += next
       completed += next.id
