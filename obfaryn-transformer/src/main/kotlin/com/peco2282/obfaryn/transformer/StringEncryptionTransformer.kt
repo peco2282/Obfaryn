@@ -1,6 +1,7 @@
 package com.peco2282.obfaryn.transformer
 
 import com.peco2282.obfaryn.api.ObfuscationContext
+import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
 import com.peco2282.obfaryn.api.transformer.Transformer
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
@@ -11,6 +12,7 @@ import java.util.Random
 
 data class EncryptedString(val payload: String, val key: Int)
 
+/** Encrypt-only customization compatible with the built-in XOR decryptor. For other algorithms use [StringEncryptionCodec]. */
 interface StringEncryptionStrategy {
   fun encrypt(value: String, key: Int): EncryptedString
 }
@@ -27,6 +29,11 @@ class StringEncryptionTransformer(
   private val random: Random,
   private val strategy: StringEncryptionStrategy = XorStringEncryptionStrategy(),
 ) : Transformer {
+  private var codec: StringEncryptionCodec? = null
+
+  constructor(random: Random, codec: StringEncryptionCodec) : this(random) {
+    this.codec = codec
+  }
   override val id = "string-encryption"
   override val order = 20
   var count = 0
@@ -43,7 +50,9 @@ class StringEncryptionTransformer(
         for (insn in method.instructions.toArray()) {
           if (insn !is LdcInsnNode || insn.cst !is String) continue
           val value = insn.cst as String
-          val encrypted = strategy.encrypt(value, random.nextInt())
+          val key = random.nextInt()
+          val encrypted = codec?.encrypt(value, key)?.let { EncryptedString(it.payload, it.key) }
+            ?: strategy.encrypt(value, key)
           val replacement = InsnList()
           replacement.add(LdcInsnNode(encrypted.payload))
           replacement.add(LdcInsnNode(encrypted.key))
@@ -54,7 +63,21 @@ class StringEncryptionTransformer(
           used = true
         }
       }
-      if (used) node.methods.add(makeHelper(helper, node.access and Opcodes.ACC_INTERFACE != 0))
+      if (used) {
+        val inInterface = node.access and Opcodes.ACC_INTERFACE != 0
+        val custom = codec
+        val decryptor = if (custom == null) makeHelper(helper, inInterface) else {
+          val access = (if (inInterface) Opcodes.ACC_PUBLIC else Opcodes.ACC_PRIVATE) or Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC
+          MethodNode(access, helper, "(Ljava/lang/String;I)Ljava/lang/String;", null, null).also {
+            custom.generateDecryptor(node.name, it)
+            require(it.name == helper && it.desc == "(Ljava/lang/String;I)Ljava/lang/String;" && it.access == access) {
+              "StringEncryptionCodec must preserve the decryptor name, descriptor and access flags"
+            }
+            require(it.instructions.size() > 0) { "StringEncryptionCodec must generate a decryptor body" }
+          }
+        }
+        node.methods.add(decryptor)
+      }
     }
   }
 

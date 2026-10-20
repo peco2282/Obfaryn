@@ -1,5 +1,6 @@
 package com.peco2282.obfaryn.transformer.builder
 
+import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
 import com.peco2282.obfaryn.api.transformer.Transformer
 import com.peco2282.obfaryn.transformer.ConstantFieldTransformer
 import com.peco2282.obfaryn.transformer.MetadataStripTransformer
@@ -44,7 +45,8 @@ class TransformersBuilder {
   fun string(configure: StringBuilder.() -> Unit = {}): TransformersBuilder = apply {
     require(transformers.none { it.id == "string-encryption" }) { "string is already configured" }
     val options = DefaultStringBuilder().apply(configure)
-    val transformer = StringEncryptionTransformer(options.random, options.strategy)
+    val transformer = options.codec?.let { StringEncryptionTransformer(options.random, it) }
+      ?: StringEncryptionTransformer(options.random, options.strategy)
     transformers.add(transformer)
     constantOptions[transformer] = options.includeConstantFields to false
   }
@@ -143,9 +145,14 @@ class TransformersBuilder {
  */
 interface StringBuilder {
   /**
-   * The strategy used to encrypt string constants.
+   * The encrypt-only strategy for the built-in XOR decryptor. Ignored when [codec] is set.
    */
   var strategy: StringEncryptionStrategy
+
+  /** A paired encryptor/decryptor for custom algorithms; null selects the legacy [strategy]. */
+  var codec: StringEncryptionCodec?
+    get() = null
+    set(value) { throw UnsupportedOperationException("This builder does not support custom string codecs") }
 
   /**
    * The random number generator used for key generation.
@@ -159,6 +166,7 @@ interface StringBuilder {
 }
 
 internal class DefaultStringBuilder : StringBuilder {
+  override var codec: StringEncryptionCodec? = null
   override var strategy: StringEncryptionStrategy = XorStringEncryptionStrategy()
   override var random: Random = KotlinRandom.asJavaRandom()
   override var includeConstantFields = true
