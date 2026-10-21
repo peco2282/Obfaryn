@@ -8,9 +8,6 @@ plugins {
   `maven-publish`
 }
 
-group = "com.peco2282.obfaryn"
-version = "0.0.0-SNAPSHOT"
-
 base {
   archivesName.set("obfaryn-platform-paper")
 }
@@ -46,9 +43,6 @@ publishing {
       from(components["java"])
       artifact(dokkaJavadocJar)
     }
-  }
-  repositories {
-    mavenLocal()
   }
 }
 

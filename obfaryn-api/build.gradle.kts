@@ -8,9 +8,6 @@ plugins {
   `maven-publish`
 }
 
-group = "com.peco2282.obfaryn"
-version = "0.0.0-SNAPSHOT"
-
 java {
   withSourcesJar()
 }
@@ -43,9 +40,6 @@ publishing {
       from(components["java"])
       artifact(dokkaJavadocJar)
     }
-  }
-  repositories {
-    mavenLocal()
   }
 }
 

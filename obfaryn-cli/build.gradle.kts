@@ -4,9 +4,6 @@ plugins {
   application
 }
 
-group = "com.peco2282.obfaryn"
-version = "0.0.0-SNAPSHOT"
-
 repositories {
   mavenCentral()
 }

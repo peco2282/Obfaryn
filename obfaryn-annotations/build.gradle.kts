@@ -8,9 +8,6 @@ plugins {
   `maven-publish`
 }
 
-group = "com.peco2282.obfaryn"
-version = "0.0.0-SNAPSHOT"
-
 val dokkaJavadocJar = tasks.register<Jar>("dokkaJavadocJar") {
   group = JavaBasePlugin.DOCUMENTATION_GROUP
   description = "Creates a Javadoc jar from Dokka output"
@@ -40,8 +37,5 @@ publishing {
       from(components["java"])
       artifact(dokkaJavadocJar)
     }
-  }
-  repositories {
-    mavenLocal()
   }
 }

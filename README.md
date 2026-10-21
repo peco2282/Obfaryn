@@ -1,5 +1,64 @@
 # Obfaryn
 
+## Distribution and releases
+
+All modules share one version: `0.0.0-SNAPSHOT` by default, overridden with
+`-PreleaseVersion=0.1.0` (example only; not an announced release).
+With JDK 21, prepare a local Maven repository and the standalone CLI distribution:
+
+```shell
+./gradlew publish :obfaryn-cli:distZip :obfaryn-cli:distTar
+```
+
+`publish` writes to `build/repository` by default, not to a public service.
+Libraries include sources, Dokka Javadoc, MPL-2.0 license text, and POM metadata.
+CLI archives are in `obfaryn-cli/build/distributions`; extract the entire archive
+and run `bin/obfaryn` (`bin/obfaryn.bat` on Windows), not the thin CLI JAR alone.
+The CLI does not bundle the optional Paper provider.
+
+Consume the generated repository from another build (replace the absolute path):
+
+```kotlin
+repositories {
+  maven { url = uri("/absolute/path/to/Obfaryn/build/repository") }
+  mavenCentral()
+}
+dependencies {
+  implementation("com.peco2282.obfaryn:obfaryn-core:0.0.0-SNAPSHOT")
+  // For extension-only projects, use obfaryn-api instead.
+  // Optional: implementation("com.peco2282.obfaryn:obfaryn-platform-paper:0.0.0-SNAPSHOT")
+}
+```
+
+For the Gradle plugin, add the same repository plus `mavenCentral()` and
+`gradlePluginPortal()` to `pluginManagement.repositories` in the consumer's
+`settings.gradle.kts`, then use
+`id("com.peco2282.obfaryn") version "0.0.0-SNAPSHOT"` in its plugins block.
+The plugin marker is published together with the implementation.
+
+Before an external release, run `./gradlew test`, inspect the local repository,
+and test a separate consumer against it. Run `python3 gradle/verify-distribution.py`
+to validate local artifacts (pass an overridden version as its argument).
+To publish to an authenticated Maven
+repository that supports Gradle Maven uploads:
+
+```shell
+./gradlew publish -PreleaseVersion=0.1.0 -PpublishRepositoryUrl=https://your-host.example/releases
+```
+
+Supply `MAVEN_USERNAME` and `MAVEN_PASSWORD` through environment variables.
+If signing is required, also set `SIGNING_KEY` (ASCII-armored private PGP key)
+and `SIGNING_PASSWORD`; every Maven publication, including the plugin marker,
+will be signed. Never commit these secrets. Without `SIGNING_KEY`, publishing
+is unsigned. Use a snapshot repository for `-SNAPSHOT` versions and an immutable
+release repository for final versions; never overwrite a released version.
+
+This does **not** claim availability on Maven Central or the Gradle Plugin Portal.
+Central requires namespace verification and its own staging/bundle submission
+and validation process; the Portal likewise requires separate registration and
+publishing. Configure the actual hosting service and credentials before sharing
+public dependency coordinates.
+
 [Japanese](README.ja.md)
 
 Obfaryn is an ASM-based obfuscator for Kotlin/JVM and Java JARs. It strips debug information, encrypts string literals, transforms numeric constants, conservatively renames symbols, and optionally applies control-flow changes, method virtualization, and offline JAR integrity verification.

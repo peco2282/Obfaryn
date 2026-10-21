@@ -1,5 +1,60 @@
 # Obfaryn
 
+## 配布とリリース
+
+全モジュールのバージョンは既定で `0.0.0-SNAPSHOT` に統一され、
+`-PreleaseVersion=0.1.0` で変更できます（例示でありリリース告知ではありません）。
+JDK 21 で、ローカル Maven リポジトリと単体実行用 CLI 配布物を生成します。
+
+```shell
+./gradlew publish :obfaryn-cli:distZip :obfaryn-cli:distTar
+```
+
+`publish` の既定の出力先は `build/repository` で、外部への送信は行いません。
+ライブラリにはソース、Dokka Javadoc、MPL-2.0 ライセンス本文、POM メタデータが付属します。
+CLI 配布物は `obfaryn-cli/build/distributions` に生成されます。全体を展開して
+`bin/obfaryn`（Windows は `bin/obfaryn.bat`）を実行してください。
+CLI の JAR 単体では依存関係が不足します。任意の Paper プロバイダーは同梱しません。
+
+別のビルドで利用する設定例です。絶対パスを置き換えてください。
+
+```kotlin
+repositories {
+  maven { url = uri("/absolute/path/to/Obfaryn/build/repository") }
+  mavenCentral()
+}
+dependencies {
+  implementation("com.peco2282.obfaryn:obfaryn-core:0.0.0-SNAPSHOT")
+  // 拡張の実装のみなら obfaryn-api を使用します。
+  // 任意: implementation("com.peco2282.obfaryn:obfaryn-platform-paper:0.0.0-SNAPSHOT")
+}
+```
+
+Gradle プラグインでは、利用側の `settings.gradle.kts` の
+`pluginManagement.repositories` に同じリポジトリ、`mavenCentral()`、
+`gradlePluginPortal()` を追加し、ビルドの plugins ブロックで
+`id("com.peco2282.obfaryn") version "0.0.0-SNAPSHOT"` を指定します。
+プラグインマーカーも実装と一緒に公開されます。
+
+外部公開前に `./gradlew test`、ローカル配布物の確認、および別プロジェクトからの
+利用確認を行ってください。`python3 gradle/verify-distribution.py` でローカル公開物を検証できます。
+バージョンを変更した場合は引数に指定します。Gradle の Maven アップロードに対応した認証付き公開先には、次を使います。
+
+```shell
+./gradlew publish -PreleaseVersion=0.1.0 -PpublishRepositoryUrl=https://your-host.example/releases
+```
+
+環境変数 `MAVEN_USERNAME` と `MAVEN_PASSWORD` で認証情報を渡します。
+署名が必要なら `SIGNING_KEY`（ASCII armor 形式の PGP 秘密鍵）と
+`SIGNING_PASSWORD` も設定してください。プラグインマーカーを含む全 Maven 公開物を署名します。
+秘密情報をコミットしないでください。`SIGNING_KEY` がなければ署名は行いません。
+`-SNAPSHOT` はスナップショット用、正式版は変更不可のリリース用リポジトリへ公開し、
+公開済みバージョンを上書きしない運用としてください。
+
+これは **Maven Central や Gradle Plugin Portal への公開済みという意味ではありません**。
+Central には名前空間の確認、専用のステージング／バンドル送信と検証が必要です。
+Portal も別途登録と公開が必要です。公開依存座標を案内する前に、実際の公開サービスと認証情報を準備してください。
+
 [English](README.md)
 
 Obfaryn は Kotlin/JVM および Java の JAR を対象とした ASM ベースの難読化ツールです。デバッグ情報の削除、文字列リテラルの暗号化、数値定数の変形、保守的なシンボル名の変更を行い、オプションとして制御フローの変換、メソッドの仮想化（VM化）、およびオフラインでの JAR 整合性検証を適用できます。
