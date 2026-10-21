@@ -47,7 +47,9 @@ class ObfarynPluginTest {
       import java.util.Random
       import com.peco2282.obfaryn.api.ObfuscationContext
       import com.peco2282.obfaryn.api.transformer.Transformer
+      import com.peco2282.obfaryn.core.Obfuscator
       plugins { java; id("com.peco2282.obfaryn") }
+      check(Obfuscator::class.java.name == "com.peco2282.obfaryn.core.Obfuscator")
       tasks.withType<JavaCompile>().configureEach { options.compilerArgs.add("-parameters") }
       obfaryn {
         platform = "generic"
@@ -99,7 +101,13 @@ class ObfarynPluginTest {
       }
     """.trimIndent())
     val runner = GradleRunner.create().withProjectDir(dir.toFile()).withPluginClasspath()
-      .withArguments("obfuscateJar", "--stacktrace")
+      .withArguments("help", "--stacktrace")
+    runner.build()
+    assertFalse(Files.exists(dir.resolve("build/protected jars/release.jar")))
+    assertFalse(Files.exists(dir.resolve("build/maps/release.txt")))
+    assertFalse(Files.exists(dir.resolve("strategy-used")))
+    assertFalse(Files.exists(dir.resolve("pipeline-used")))
+    runner.withArguments("obfuscateJar", "--stacktrace")
     runner.build()
     val output = dir.resolve("build/protected jars/release.jar")
     assertTrue(Files.exists(output))

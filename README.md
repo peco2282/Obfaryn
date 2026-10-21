@@ -36,6 +36,13 @@ For the Gradle plugin, add the same repository plus `mavenCentral()` and
 `id("com.peco2282.obfaryn") version "0.0.0-SNAPSHOT"` in its plugins block.
 The plugin marker is published together with the implementation.
 
+`obfaryn { ... }` is a configuration-only DSL: it exposes no core instances or
+execution operations. It accepts custom Transformers, string/number strategies,
+and `pipeline { ... }`; the plugin calls core directly only when `obfuscateJar`
+executes. No dedicated runtime configuration or classloader is needed. Core is a
+normal plugin dependency, so build scripts may still explicitly import and call
+its classes. The DSL is not a security boundary restricting arbitrary code.
+
 Before an external release, run `./gradlew test`, inspect the local repository,
 and test a separate consumer against it. Run `python3 gradle/verify-distribution.py`
 to validate local artifacts (pass an overridden version as its argument).
