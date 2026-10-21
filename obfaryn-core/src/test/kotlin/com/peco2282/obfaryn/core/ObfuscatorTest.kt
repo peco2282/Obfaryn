@@ -173,17 +173,18 @@ class ObfuscatorTest {
       jar.closeEntry()
     }
     val output = dir.resolve("kotlin-out.jar")
-    val result = Obfuscator(ObfuscationConfig(seed = 7, verifyOutput = true)).obfuscate(input, output)
+    val result = Obfuscator(ObfuscationConfig(seed = 7, verifyOutput = true, kotlinMetadataMode = KotlinMetadataMode.STRIP)).obfuscate(input, output)
     assertTrue(result.stringsEncrypted > 0)
     assertTrue(result.classesRenamed >= 2)
     assertTrue(requireNotNull(result.mapping).readText().contains("fixture/KotlinData ->"))
     assertTrue(requireNotNull(result.mapping).readText().contains("fixture/KotlinSample.secret()Ljava/lang/String; ->"))
-    assertTrue(result.warnings.any { it.contains("AUTO stripped kotlin.Metadata") })
+    assertTrue(result.warnings.any { it.contains("STRIP kotlin.Metadata") })
+    val preservedOutput = dir.resolve("kotlin-preserved.jar")
     val preserved = Obfuscator(ObfuscationConfig(seed = 7, kotlinMetadataMode = KotlinMetadataMode.PRESERVE))
-      .obfuscate(input, dir.resolve("kotlin-preserved.jar"))
-    assertEquals(0, preserved.classesRenamed)
-    URLClassLoader(arrayOf(output.toUri().toURL()), javaClass.classLoader).use {
-      val loader = object : URLClassLoader(arrayOf(output.toUri().toURL()), javaClass.classLoader) {
+      .obfuscate(input, preservedOutput)
+    assertTrue(preserved.classesRenamed > 0)
+    URLClassLoader(arrayOf(preservedOutput.toUri().toURL()), javaClass.classLoader).use {
+      val loader = object : URLClassLoader(arrayOf(preservedOutput.toUri().toURL()), javaClass.classLoader) {
         override fun loadClass(name: String, resolve: Boolean): Class<*> {
           if (name.startsWith("fixture.")) {
             synchronized(getClassLoadingLock(name)) {

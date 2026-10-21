@@ -177,7 +177,9 @@ Class names and unambiguous method names can be restored. Removed line numbers c
 
 ### Compatibility rules
 
-Kotlin metadata mode defaults to `AUTO`. Entrypoints reported by the selected platform provider, or manifest entrypoints, establish application package roots: metadata is stripped from application classes under those roots, while bundled classes in other packages keep their names. Add roots with `--application-package`. `--preserve-kotlin-metadata` keeps metadata and suppresses renaming of affected Kotlin classes. `--strip-kotlin-metadata` strips it throughout the JAR. Stripping may break Kotlin reflection or `kotlinx.serialization`; test in the target runtime.
+Kotlin metadata mode defaults to `AUTO`. Both `AUTO` and `PRESERVE` (`--preserve-kotlin-metadata`) retain application metadata and safely rewrite class names, types, JVM signatures, and Kotlin module maps during renaming or relocation; Kotlin member names remain protected. Entrypoints reported by the selected platform provider, or manifest entrypoints, establish application package roots; bundled classes outside known roots keep their names. Add roots with `--application-package`. Only explicit `STRIP` (`--strip-kotlin-metadata`) requests metadata removal throughout the JAR, subject to exclusions and annotation policies. Stripping may break Kotlin reflection or `kotlinx.serialization`; test in the target runtime.
+
+Metadata compatibility follows `kotlin-metadata-jvm` 2.4.21 `readStrict`: readable metadata formats from 1.1 onward are supported, and formats older than 1.4 are upgraded to 1.4 when written. Unknown formats and opaque plugin payloads are explicitly rejected before output rather than rewritten unsafely. This is metadata-format compatibility, not a claim that every Kotlin compiler version has been tested.
 
 Virtual methods are renamed together with their override family inside the JAR. Families overriding an external API (such as `Runnable.run`) or depending on an unresolved external superclass are kept. Supply dependencies with `--classpath` to improve hierarchy and access analysis. If frame recomputation requires an unresolved external type, Obfaryn fails instead of guessing frames; otherwise existing frames are retained.
 
@@ -398,7 +400,7 @@ The CLI accepts repeated `--exclude-class regex`, `--exclude-resource regex`, `-
 
 `excludeClasses` suppresses body changes and renaming, but references to renamed declarations can still be updated. `excludeRenaming` suppresses name changes only. `excludeResources` suppresses resource transformation, although obsolete JAR signatures are still removed. Excluded entries are therefore not guaranteed to be byte-identical.
 
-`--target-package hidden --flatten-packages` moves eligible renamed classes into a common package. Both settings are required together. Obfaryn conservatively preserves packages with protected structure, package-private access, unresolved same-package references, or relative resource lookups and reports a warning. It does not rewrite arbitrary class names embedded in configuration files.
+`--target-package hidden --flatten-packages` moves eligible renamed classes into a common package, including Kotlin classes with safely rewritten metadata. Both settings are required together. Keep rules still apply. Obfaryn conservatively preserves packages with protected structure, package-private access, unresolved same-package references, or relative resource lookups and reports a warning. It does not rewrite arbitrary class names embedded in configuration files.
 
 `--control-flow` applies branch inversion and keyed switch dispatch. Constructors, class initializers, and large methods are excluded. Control flow and virtualization automatically trigger frame recomputation; external dependencies may be needed on the classpath.
 
@@ -477,7 +479,7 @@ Environments that transform JARs after Obfaryn writes them must sign the final d
 
 ## Safety and current limits
 
-- Obfaryn does not rewrite `kotlin.Metadata`. Use `preserve` or runtime tests for reflection and metadata-dependent frameworks.
+- Retained Kotlin metadata is rewritten for supported formats; unsupported metadata fails before output. Test reflection and metadata-dependent frameworks in the target runtime.
 - Reflection and names stored in configuration may require explicit keep rules. Paper/manifest entrypoints and ServiceLoader names receive built-in protection.
 - Multi-release JAR versioned classes are retained only when Obfaryn can rule out references to renamed application packages; otherwise processing fails.
 - VM support covers selected bytecode patterns, not every JVM instruction. VM hardening, performance budgets, and resistance evaluation remain future work.

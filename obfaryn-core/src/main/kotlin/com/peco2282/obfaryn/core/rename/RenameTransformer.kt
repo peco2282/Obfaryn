@@ -1,6 +1,7 @@
 package com.peco2282.obfaryn.core.rename
 
 import com.peco2282.obfaryn.api.ObfuscationContext
+import com.peco2282.obfaryn.api.context.ResourceEntry
 import com.peco2282.obfaryn.api.transformer.Transformer
 import com.peco2282.obfaryn.core.ObfuscationConfig
 import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
@@ -34,6 +35,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
 
   override fun transform(context: ObfuscationContext) {
     val nodes = context.classes.values.toList()
+    val metadata = KotlinMetadataRemapper.prepare(nodes, context.resources.mapValues { it.value.data })
     val descendants = nodes.flatMap { n -> (listOfNotNull(n.superName) + n.interfaces).map { it to n.name } }
       .groupBy({ it.first }, { it.second })
     val generatedByPackage = mutableMapOf<String, NameGenerator>()
@@ -54,8 +56,27 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
       } || node.fields.any { it.access and (Opcodes.ACC_PUBLIC or Opcodes.ACC_PROTECTED or Opcodes.ACC_PRIVATE) == 0 }
     }.map { it.name.substringBeforeLast('/', "") }.toSet()
     for (pkg in pinnedPackages.sorted()) warnings += "Package relocation preserved $pkg: kept structure, package access, or relative resource lookup"
-    for (node in nodes) {
-      if (!config.renameClasses || protectedClass(node)) continue
+    val kotlinOuters = nodes.filter(keep::kotlinClass).mapNotNull { node ->
+      node.innerClasses.firstOrNull { it.name == node.name && it.outerName != null && it.innerName != null }
+        ?.let { node.name to (it.outerName to it.innerName) }
+    }.toMap()
+    val keptKotlinOuters = mutableSetOf<String>()
+    for (node in nodes.filter(::protectedClass)) {
+      var current = kotlinOuters[node.name]?.first
+      while (current != null && keptKotlinOuters.add(current)) current = kotlinOuters[current]?.first
+    }
+    for (node in nodes.sortedBy { it.name.count { c -> c == '$' } }) {
+      if (!config.renameClasses || protectedClass(node) || node.name in keptKotlinOuters) continue
+      val nesting = kotlinOuters[node.name]
+      if (nesting != null) {
+        val candidate = (classMapping[nesting.first] ?: nesting.first) + "$" + nesting.second
+        if (candidate != node.name) {
+          require(candidate !in occupied) { "Kotlin nested class relocation collides with $candidate" }
+          classMapping[node.name] = candidate
+          occupied += candidate
+        }
+        continue
+      }
       val originalPackage = node.name.substringBeforeLast('/', "")
       val pkg = if (originalPackage in pinnedPackages) originalPackage else target ?: originalPackage
       val generator = generatedByPackage.getOrPut(pkg) { SequentialNameGenerator() }
@@ -117,13 +138,15 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     for (node in nodes) {
       val mapped = ClassNode()
       node.accept(ClassRemapper(mapped, remapper))
+      metadata.rewrite(mapped, classMapping)
       context.removeClass(node.name)
       context.putClass(mapped)
     }
+    for ((name, data) in metadata.rewriteModules(classMapping)) context.putResource(ResourceEntry(name, data))
   }
 
   private fun protectedClass(node: ClassNode): Boolean =
-    keep.className(node.name) || keep.kotlinClass(node) || ObfuscationAnnotationPolicy.keepName(node) || node.name.endsWith("/package-info") ||
+    keep.className(node.name) || ObfuscationAnnotationPolicy.keepName(node) || node.name.endsWith("/package-info") ||
       node.name == "module-info" || protectedStructure(node, keepEnum = false, keepAnnotationType = false)
 
   private fun protectedMembers(node: ClassNode) = keep.kotlinClass(node) || protectedStructure(node)

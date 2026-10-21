@@ -32,8 +32,11 @@ dependencies {
   implementation(libs.asm.tree)
   implementation(libs.asm.commons)
   implementation(libs.asm.util)
+  implementation("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
 
   testImplementation(platform(libs.junit5.bom))
+  testImplementation(kotlin("reflect"))
+  testImplementation(kotlin("compiler-embeddable"))
   testImplementation(libs.junit.jupiter)
   testRuntimeOnly(libs.junit.platform.launcher)
 }

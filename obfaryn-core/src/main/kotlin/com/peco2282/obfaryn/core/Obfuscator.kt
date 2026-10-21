@@ -192,12 +192,8 @@ class Obfuscator(
       }
     }
     val metadataClasses = context.classes.values.filter(keep::kotlinClass).map { it.name }
-    val autoStrip = if (config.kotlinMetadataMode == KotlinMetadataMode.AUTO && !config.stripKotlinMetadata)
-      metadataClasses.filter { name -> applicationRoots.any { name.startsWith("$it/") } }.toSet() else emptySet()
     if (stripAllMetadata && metadataClasses.isNotEmpty()) {
       warnings += "STRIP kotlin.Metadata on ${metadataClasses.size} classes may break Kotlin reflection and metadata-dependent libraries such as kotlinx.serialization"
-    } else if (autoStrip.isNotEmpty()) {
-      warnings += "AUTO stripped kotlin.Metadata on ${autoStrip.size} application classes (${applicationRoots.joinToString()}); Kotlin reflection and metadata-dependent libraries may break"
     }
     val signatures = context.resources.keys.filter { Regex("(?i)^META-INF/[^/]+\\.(SF|RSA|DSA|EC)$").matches(it) }
     if (signatures.isNotEmpty()) warnings += "Removed invalid JAR signatures: ${signatures.joinToString()}"
@@ -206,7 +202,6 @@ class Obfuscator(
       override fun isApplicationClass(internalName: String) =
         applicationRoots.any { internalName.startsWith("$it/") }
       override fun keepConstant(owner: String, field: String) = keep.field(owner, field)
-      override fun shouldStripKotlinMetadata(internalName: String) = internalName in autoStrip
     }
     val strings = StringEncryptionTransformer(config.stringRandom ?: random, config.stringEncryptionStrategy)
     val numbers = NumberObfuscationTransformer(config.numberRandom ?: random, config.numberStrategy, config.numberSelector)
@@ -228,7 +223,7 @@ class Obfuscator(
         stripGenericSignatures = config.stripGenericSignatures,
         stripMethodParameters = config.stripMethodParameters
       )
-        .takeIf { config.stripDebugInfo || stripAllMetadata || autoStrip.isNotEmpty() || config.stripGenericSignatures || config.stripMethodParameters },
+        .takeIf { config.stripDebugInfo || stripAllMetadata || config.stripGenericSignatures || config.stripMethodParameters },
       constantFields.takeIf {
         applicationRoots.isNotEmpty() &&
           (config.stringEncryption && config.stringConstantFields || config.numberObfuscation && config.numberConstantFields)

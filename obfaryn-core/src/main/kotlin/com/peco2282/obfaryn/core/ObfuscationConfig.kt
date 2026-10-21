@@ -16,10 +16,14 @@ import java.util.Random
 /**
  * Controls handling of the `kotlin.Metadata` annotation.
  *
- * [AUTO] strips metadata only from detected application packages, [PRESERVE] keeps it and
- * protects affected Kotlin class names, and [STRIP] requests removal throughout the input JAR.
- * Class exclusions and annotation policies can still prevent metadata removal. Obfaryn does
- * not rewrite metadata after renaming.
+ * [AUTO] and [PRESERVE] retain metadata and safely rewrite class names, types, JVM signatures,
+ * and Kotlin module maps during renaming or relocation. Kotlin member names remain protected.
+ * [STRIP] requests removal throughout the input JAR; exclusions and annotation policies can
+ * still prevent removal. Unsupported metadata fails before output.
+ *
+ * Compatibility follows kotlin-metadata-jvm 2.4.21 readStrict for readable formats from 1.1
+ * onward; formats older than 1.4 are upgraded to 1.4 when written. Unknown formats and opaque
+ * plugin payloads are rejected. This does not imply testing every Kotlin compiler version.
  */
 enum class KotlinMetadataMode { AUTO, PRESERVE, STRIP }
 
@@ -32,15 +36,15 @@ enum class KotlinMetadataMode { AUTO, PRESERVE, STRIP }
  *
  * Application roots combine entrypoint packages with [applicationPackages]. When roots are known
  * and global Kotlin metadata stripping is disabled, classes outside those roots are kept from
- * renaming. In [KotlinMetadataMode.AUTO],
- * no known roots means no automatic metadata stripping. [stripKotlinMetadata] overrides the mode.
+ * renaming. [KotlinMetadataMode.AUTO] retains application metadata, as does
+ * [KotlinMetadataMode.PRESERVE]. [stripKotlinMetadata] overrides the mode.
  * Package flattening requires class renaming and a non-null, valid [targetPackage]; specifying a
  * target without flattening is rejected. These constraints are checked when obfuscation starts.
  *
  * @property stripDebugInfo Remove line numbers, source names, and local variable debug data.
  * @property stripKotlinMetadata Legacy switch to strip Kotlin metadata throughout the JAR;
  *   prefer [kotlinMetadataMode] for new callers.
- * @property kotlinMetadataMode Scope of Kotlin metadata removal and associated name protection.
+ * @property kotlinMetadataMode Kotlin metadata retention or removal policy.
  * @property applicationPackages Additional package roots for application-only transformations.
  * @property stringEncryption Encrypt eligible string literals.
  * @property numberObfuscation Transform eligible numeric constants.
