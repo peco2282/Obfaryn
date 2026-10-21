@@ -135,7 +135,9 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
           val strBytes = ByteArray(strLen)
           require(tableInput.read(strBytes, 0, strLen) == strLen) { "Truncated StringTable entry" }
           val s = String(strBytes, Charsets.UTF_8)
-          require(s.isEmpty() || !s.contains('/')) {
+          // StringTable entries are JVM package names (e.g., "com/tatamiserver/ballGame").
+          // They may contain '/' as package separators, but should not contain null bytes.
+          require(!s.contains('\u0000')) {
             "StringTable entry contains invalid characters: $s"
           }
         }
