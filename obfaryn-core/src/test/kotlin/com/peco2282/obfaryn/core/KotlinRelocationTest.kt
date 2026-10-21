@@ -2,6 +2,7 @@ package com.peco2282.obfaryn.core
 
 import com.peco2282.obfaryn.core.context.ObfuscationContext
 import com.peco2282.obfaryn.core.keep.KeepRules
+import com.peco2282.obfaryn.core.rename.MemberKey
 import com.peco2282.obfaryn.core.rename.RenameTransformer
 import com.peco2282.obfaryn.api.context.ResourceEntry
 import org.junit.jupiter.api.Assertions.*
@@ -30,7 +31,7 @@ class KotlinRelocationTest {
     javaClass.classLoader.getResourceAsStream("$name.class")!!.use { ClassReader(it).accept(node, 0) }
   }
 
-  @Test fun kotlinClassesMoveWithoutLosingMetadataOrMemberNames() {
+  @Test fun kotlinClassesMoveWithMatchingMetadataAndRenamedMembers() {
     val nodes = listOf("fixture/KotlinData", "fixture/KotlinObject", "fixture/KotlinSample").map(::fixture)
     val context = ObfuscationContext(nodes.associateByTo(linkedMapOf()) { it.name }, linkedMapOf())
     val rename = RenameTransformer(ObfuscationConfig(
@@ -40,8 +41,8 @@ class KotlinRelocationTest {
     rename.transform(context)
     assertEquals(nodes.size, rename.classMapping.size)
     assertTrue(context.classes.keys.all { it.substringBeforeLast('/') == "flat" })
-    assertTrue(rename.methodMapping.isEmpty())
-    assertTrue(rename.fieldMapping.isEmpty())
+    assertTrue(rename.methodMapping.isNotEmpty())
+    assertTrue(rename.fieldMapping.isNotEmpty())
     val bytes = context.classes.mapValues { (_, node) ->
       ClassWriter(0).also { node.accept(it) }.toByteArray()
     }
@@ -56,6 +57,111 @@ class KotlinRelocationTest {
     assertEquals("Hello World!7Long", type.getMethod("run", String::class.java).invoke(type.getConstructor().newInstance(), "Hello"))
   }
 
+  @OptIn(kotlin.metadata.jvm.UnstableMetadataApi::class)
+  @Test fun enumAndPropertyMetadataFollowJvmRenamesAndSupportKotlinConsumers() {
+    val names = listOf("ScoreLimit", "KotlinScore", "KotlinScore\$Companion", "KotlinCounter")
+    val nodes = names.map { fixture("fixture/relocation/$it") }
+    val keep = KeepRules().apply { keepMethod("fixture/relocation/KotlinCounter", "run", "()Ljava/lang/String;") }
+    val context = ObfuscationContext(nodes.associateByTo(linkedMapOf()) { it.name }, linkedMapOf())
+    val rename = RenameTransformer(ObfuscationConfig(
+      flattenPackages = true, targetPackage = "flat", renameClasses = true,
+      renameMethods = true, renameFields = true,
+    ), keep)
+    rename.transform(context)
+    assertTrue(context.classes.keys.all { it.startsWith("flat/") })
+    val bytes = context.classes.mapValues { (_, node) -> ClassWriter(0).also { node.accept(it) }.toByteArray() }
+    val loader = object : ClassLoader(javaClass.classLoader) {
+      override fun findClass(name: String): Class<*> {
+        val data = bytes[name.replace('.', '/')] ?: return super.findClass(name)
+        return defineClass(name, data, 0, data.size)
+      }
+    }
+    fun mapped(name: String) = loader.loadClass(rename.classMapping.getValue("fixture/relocation/$name").replace('/', '.'))
+    val counter = mapped("KotlinCounter")
+    val instance = counter.getConstructor(Int::class.javaPrimitiveType).newInstance(1)
+    assertEquals("ballball", counter.getMethod("run").invoke(instance))
+    val score = mapped("KotlinScore")
+    val metadata = kotlin.metadata.jvm.KotlinClassMetadata.readStrict(score.getAnnotation(Metadata::class.java))
+      as kotlin.metadata.jvm.KotlinClassMetadata.Class
+    val maximum = rename.methodMapping.getValue(MemberKey(
+      "fixture/relocation/KotlinScore", "getMaximum", "()I"))
+    assertTrue(metadata.kmClass.properties.any { it.name == maximum })
+    assertFalse(metadata.kmClass.properties.any { it.name in setOf("maximum", "label") })
+    assertFalse(metadata.kmClass.functions.any { it.name == "lamps" })
+    assertEquals(4, score.kotlin.memberProperties.single { it.name == maximum }.getter.call(score.enumConstants.first()))
+    assertNotNull(score.kotlin.companionObjectInstance)
+    val limit = mapped("ScoreLimit")
+    assertEquals(maximum, limit.kotlin.memberProperties.single().name)
+    assertEquals(4, limit.kotlin.memberProperties.single().getter.call(score.enumConstants.first()))
+    val count = rename.methodMapping.getValue(MemberKey(
+      "fixture/relocation/KotlinCounter", "getCount", "()I"))
+    val property = counter.kotlin.memberProperties.single { it.name == count }
+    assertEquals(2, property.getter.call(instance))
+    val mutable = property as kotlin.reflect.KMutableProperty<*>
+    mutable.setter.call(instance, 3)
+    assertEquals(3, mutable.getter.call(instance))
+    val defaultAdd = counter.kotlin.members.single { it.name == "defaultAdd" } as kotlin.reflect.KFunction<*>
+    assertEquals(4, defaultAdd.callBy(mapOf(defaultAdd.parameters.first() to instance)))
+    val library = dir.resolve("members.jar")
+    JarOutputStream(Files.newOutputStream(library)).use { jar ->
+      for ((name, data) in bytes) {
+        jar.putNextEntry(JarEntry("$name.class"))
+        jar.write(data)
+        jar.closeEntry()
+      }
+    }
+    val scoreName = score.name
+    val counterName = counter.name
+    val lamps = rename.methodMapping.getValue(MemberKey(
+      "fixture/relocation/KotlinScore", "lamps", "(I)Ljava/lang/String;"))
+    val consumer = dir.resolve("MembersConsumer.kt")
+    Files.write(consumer, """
+      fun read(value: $scoreName): Int = value.$maximum
+      fun readInterface(value: ${limit.name}): Int = value.$maximum
+      fun lamps(value: $scoreName): String = value.$lamps(1)
+      fun update(value: $counterName): Int {
+        value.$count = 5
+        return value.defaultAdd()
+      }
+    """.trimIndent().toByteArray())
+    val stdlib = File(Unit::class.java.protectionDomain.codeSource.location.toURI())
+    val diagnostics = ByteArrayOutputStream()
+    val exit = PrintStream(diagnostics).use {
+      K2JVMCompiler().exec(it, "-no-stdlib", "-no-reflect", "-classpath", "$library${File.pathSeparator}$stdlib",
+        "-d", dir.resolve("members-consumer").toString(), consumer.toString())
+    }
+    assertEquals(ExitCode.OK, exit, diagnostics.toString())
+  }
+
+  @Test fun callableReferencesKeepWorkingAfterRelocationAndMemberRenaming() {
+    val names = listOf("KotlinReferenced", "KotlinReferenced\$propertyReference\$1", "KotlinReferenced\$functionReference\$1")
+    val nodes = names.map { fixture("fixture/relocation/$it") }
+    val context = ObfuscationContext(nodes.associateByTo(linkedMapOf()) { it.name }, linkedMapOf())
+    val rename = RenameTransformer(ObfuscationConfig(
+      flattenPackages = true, targetPackage = "flat", renameClasses = true,
+      renameMethods = true, renameFields = true,
+    ), KeepRules())
+    rename.transform(context)
+    val bytes = context.classes.mapValues { (_, node) -> ClassWriter(0).also { node.accept(it) }.toByteArray() }
+    val loader = object : ClassLoader(javaClass.classLoader) {
+      override fun findClass(name: String): Class<*> {
+        val data = bytes[name.replace('.', '/')] ?: return super.findClass(name)
+        return defineClass(name, data, 0, data.size)
+      }
+    }
+    val owner = "fixture/relocation/KotlinReferenced"
+    val type = loader.loadClass(rename.classMapping.getValue(owner).replace('/', '.'))
+    val instance = type.getConstructor(Int::class.javaPrimitiveType).newInstance(7)
+    val propertyMethod = rename.methodMapping.getValue(MemberKey(owner, "propertyReference", "()Lkotlin/reflect/KMutableProperty0;"))
+    val reference = type.getMethod(propertyMethod).invoke(instance) as kotlin.reflect.KMutableProperty0<*>
+    assertEquals(7, reference.get())
+    reference.setter.call(9)
+    assertEquals(9, reference.getter.call())
+    val functionMethod = rename.methodMapping.getValue(MemberKey(owner, "functionReference", "()Lkotlin/reflect/KFunction;"))
+    val function = type.getMethod(functionMethod).invoke(instance) as kotlin.reflect.KFunction<*>
+    assertEquals(9, function.call())
+  }
+
   @Test fun reflectionResolvesRelocatedNestedGenericSealedAndMultifileTypes() {
     val names = listOf("Model", "Model\$Nested", "Model\$Companion", "Leaf", "Outcome", "Outcome\$Success",
       "ModelKt", "Operations", "Operations__FirstKt", "Operations__SecondKt")
@@ -67,6 +173,7 @@ class KotlinRelocationTest {
       linkedMapOf(modulePath to ResourceEntry(modulePath, moduleBytes)))
     val rename = RenameTransformer(ObfuscationConfig(
       flattenPackages = true, targetPackage = "flat", renameClasses = true,
+      renameMethods = false, renameFields = false,
     ), KeepRules())
     rename.transform(context)
     val module = KotlinModuleMetadata.read(context.resources.getValue(modulePath).data).kmModule

@@ -36,6 +36,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
   override fun transform(context: ObfuscationContext) {
     val nodes = context.classes.values.toList()
     val metadata = KotlinMetadataRemapper.prepare(nodes, context.resources.mapValues { it.value.data })
+    KotlinMemberConstraints.protect(nodes, keep)
     val descendants = nodes.flatMap { n -> (listOfNotNull(n.superName) + n.interfaces).map { it to n.name } }
       .groupBy({ it.first }, { it.second })
     val generatedByPackage = mutableMapOf<String, NameGenerator>()
@@ -138,7 +139,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     for (node in nodes) {
       val mapped = ClassNode()
       node.accept(ClassRemapper(mapped, remapper))
-      metadata.rewrite(mapped, classMapping)
+      metadata.rewrite(mapped, classMapping, methodMapping, fieldMapping, node.name)
       context.removeClass(node.name)
       context.putClass(mapped)
     }
@@ -149,9 +150,9 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     keep.className(node.name) || ObfuscationAnnotationPolicy.keepName(node) || node.name.endsWith("/package-info") ||
       node.name == "module-info" || protectedStructure(node, keepEnum = false, keepAnnotationType = false)
 
-  private fun protectedMembers(node: ClassNode) = keep.kotlinClass(node) || protectedStructure(node)
+  private fun protectedMembers(node: ClassNode) = protectedStructure(node)
 
-  private fun protectedFieldOwner(node: ClassNode) = keep.kotlinClass(node) ||
+  private fun protectedFieldOwner(node: ClassNode) =
     node.access and (Opcodes.ACC_ANNOTATION or Opcodes.ACC_RECORD) != 0 ||
     node.interfaces.any { it == "java/io/Serializable" || it == "java/io/Externalizable" } ||
     node.methods.any { it.access and Opcodes.ACC_NATIVE != 0 }

@@ -18,7 +18,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.metadata.*
 import kotlin.metadata.jvm.*
 
-/** Strict, class-name-only metadata rewriting. Call [prepare] before modifying any classes. */
+/** Strict metadata rewriting coordinated with JVM class and member mappings. Call [prepare] before modifying any classes. */
 class KotlinMetadataRemapper private constructor(private val modules: Map<String, ByteArray>) {
   private val aliases = linkedMapOf<String, Pair<String, Boolean>>()
   private var preparing = true
@@ -41,9 +41,15 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
   }
 
   /** Rewrites only the Metadata annotation. Accepts either an original or an ASM-remapped node. */
-  fun rewrite(node: ClassNode, classMapping: Map<String, String>) {
+  fun rewrite(
+    node: ClassNode,
+    classMapping: Map<String, String>,
+    methodMapping: Map<MemberKey, String> = emptyMap(),
+    fieldMapping: Map<MemberKey, String> = emptyMap(),
+    originalOwner: String = node.name,
+  ) {
     val replacements = annotations(node).map { annotation ->
-      annotation to checked(node.name) { encode(annotation, node.name, classMapping) }
+      annotation to checked(node.name) { encode(annotation, originalOwner, classMapping, methodMapping, fieldMapping) }
     }
     replacements.forEach { (annotation, values) -> annotation.values = values }
   }
@@ -131,7 +137,10 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
     throw IllegalArgumentException("Cannot safely rewrite Kotlin metadata in $path: ${e.message}", e)
   }
 
-  private fun encode(annotation: AnnotationNode, owner: String, mapping: Map<String, String>): MutableList<Any> {
+  private fun encode(
+    annotation: AnnotationNode, owner: String, mapping: Map<String, String>,
+    methods: Map<MemberKey, String> = emptyMap(), fields: Map<MemberKey, String> = emptyMap(),
+  ): MutableList<Any> {
     val entries = annotation.values.orEmpty().chunked(2).associate { it[0] as String to it[1] }
     fun ints(key: String): IntArray = when (val value = entries[key]) {
       null -> intArrayOf()
@@ -169,7 +178,7 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
         aliases[prefix + it.name] = owner to (metadata is KotlinClassMetadata.Class)
       }
     }
-    val visitor = Rewriter(mapping, aliases)
+    val visitor = Rewriter(mapping, aliases, owner, methods, fields)
     when (metadata) {
       is KotlinClassMetadata.Class -> visitor.klass(metadata.kmClass)
       is KotlinClassMetadata.FileFacade -> visitor.pkg(metadata.kmPackage)
@@ -203,6 +212,9 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
   private class Rewriter(
     private val mapping: Map<String, String>,
     private val aliases: Map<String, Pair<String, Boolean>>,
+    private val owner: String = "",
+    private val methods: Map<MemberKey, String> = emptyMap(),
+    private val fields: Map<MemberKey, String> = emptyMap(),
   ) {
     private val asm = object : Remapper() {
       override fun map(internalName: String): String = internal(internalName)
@@ -244,10 +256,14 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
       node.inlineClassUnderlyingType?.let(::type)
       annotations(node.annotations)
       node.kmEnumEntries.forEach { annotations(it.annotations) }
+      val propertyNames = node.properties.associate { it.name to propertyName(it) }
       node.constructors.forEach {
         require(it.compilerPluginMetadata.isEmpty()) { "Opaque constructor compiler-plugin metadata is not supported" }
         it.signature = method(it.signature)
-        it.valueParameters.forEach(::value)
+        it.valueParameters.forEach { parameter ->
+          parameter.name = propertyNames[parameter.name] ?: parameter.name
+          value(parameter)
+        }
         annotations(it.annotations)
       }
       container(node)
@@ -272,6 +288,11 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
 
     fun function(node: KmFunction) {
       require(node.compilerPluginMetadata.isEmpty()) { "Opaque function compiler-plugin metadata is not supported" }
+      val renamed = methodName(node.signature)
+      if (renamed != null) {
+        node.name = renamed
+        node.valueParameters.forEachIndexed { index, parameter -> parameter.name = "p$index" }
+      }
       node.signature = method(node.signature)
       node.lambdaClassOriginName = node.lambdaClassOriginName?.let(::internal)
       node.typeParameters.forEach(::parameter)
@@ -295,7 +316,10 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
 
     private fun property(node: KmProperty) {
       require(node.compilerPluginMetadata.isEmpty()) { "Opaque property compiler-plugin metadata is not supported" }
-      node.fieldSignature = node.fieldSignature?.let { JvmFieldSignature(it.name, asm.mapDesc(it.descriptor)) }
+      node.name = propertyName(node)
+      node.fieldSignature = node.fieldSignature?.let {
+        JvmFieldSignature(fields[MemberKey(owner, it.name, it.descriptor)] ?: it.name, asm.mapDesc(it.descriptor))
+      }
       node.getterSignature = method(node.getterSignature)
       node.setterSignature = method(node.setterSignature)
       node.syntheticMethodForAnnotations = method(node.syntheticMethodForAnnotations)
@@ -311,8 +335,22 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
       annotations(node.extensionReceiverParameterAnnotations)
     }
 
+    private fun methodName(signature: JvmMethodSignature?): String? = signature?.let {
+      methods[MemberKey(owner, it.name, it.descriptor)]
+    }
+
+    private fun propertyName(node: KmProperty): String {
+      // Preserve the Kotlin property name when an accessor is kept (e.g. an API override).
+      if (node.getterSignature?.let { methodName(it) == null } == true ||
+        node.setterSignature?.let { methodName(it) == null } == true) return node.name
+      // Accessor families share a name across interface implementations and overrides;
+      // backing fields are renamed independently and cannot define the property identity.
+      return methodName(node.getterSignature) ?: methodName(node.setterSignature)
+        ?: node.fieldSignature?.let { fields[MemberKey(owner, it.name, it.descriptor)] } ?: node.name
+    }
+
     private fun method(signature: JvmMethodSignature?): JvmMethodSignature? =
-      signature?.let { JvmMethodSignature(it.name, asm.mapMethodDesc(it.descriptor)) }
+      signature?.let { JvmMethodSignature(methodName(it) ?: it.name, asm.mapMethodDesc(it.descriptor)) }
 
     private fun parameter(node: KmTypeParameter) {
       node.upperBounds.forEach(::type)

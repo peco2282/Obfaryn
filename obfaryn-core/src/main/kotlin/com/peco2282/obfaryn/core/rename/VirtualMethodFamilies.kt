@@ -124,7 +124,6 @@ internal class VirtualMethodFamilies(
   private fun protected(node: ClassNode, method: MethodNode): Boolean =
     method.access and Opcodes.ACC_NATIVE != 0 || keep.method(node.name, method.name, method.desc) ||
       ObfuscationAnnotationPolicy.keepName(method) ||
-      (node.visibleAnnotations.orEmpty() + node.invisibleAnnotations.orEmpty()).any { it.desc == "Lkotlin/Metadata;" } ||
       // Enum identity is tied to its class/constant names, not to unrelated virtual getters.
       // Keeping every enum method would also freeze its internal interface's entire family.
       node.access and (Opcodes.ACC_ANNOTATION or Opcodes.ACC_RECORD) != 0 ||
