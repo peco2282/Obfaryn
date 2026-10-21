@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import java.util.Properties
 
 plugins {
   id("java")
@@ -9,6 +10,19 @@ plugins {
 
 group = "com.peco2282.obfaryn"
 version = providers.gradleProperty("releaseVersion").getOrElse("0.0.0-SNAPSHOT")
+
+val publishingSecrets = Properties().apply {
+  val secretsFile = rootProject.file("secrets.properties")
+  if (secretsFile.isFile) secretsFile.inputStream().use { load(it) }
+}
+val publishingUrlKey = if (version.toString().contains("snapshot", ignoreCase = true)) "snapshotUrl" else "releaseUrl"
+val publishingUrl = providers.gradleProperty("publishRepositoryUrl").orNull
+  ?: publishingSecrets.getProperty(publishingUrlKey)?.also {
+    require(it.isNotBlank()) { "secrets.properties: $publishingUrlKey must not be blank" }
+  }
+  ?: if (rootProject.file("secrets.properties").isFile) {
+    error("secrets.properties: $publishingUrlKey is required")
+  } else null
 
 repositories {
   mavenCentral()
@@ -53,12 +67,12 @@ subprojects {
       repositories {
         maven {
           name = "distribution"
-          url = uri(providers.gradleProperty("publishRepositoryUrl")
-            .getOrElse(rootProject.layout.buildDirectory.dir("repository").get().asFile.toURI().toString()))
-          if (providers.gradleProperty("publishRepositoryUrl").isPresent) {
+          url = uri(publishingUrl
+            ?: rootProject.layout.buildDirectory.dir("repository").get().asFile.toURI().toString())
+          if (url.scheme == "https") {
             credentials {
-              username = providers.environmentVariable("MAVEN_USERNAME").orNull
-              password = providers.environmentVariable("MAVEN_PASSWORD").orNull
+              username = publishingSecrets.getProperty("user") ?: providers.environmentVariable("MAVEN_USERNAME").orNull
+              password = publishingSecrets.getProperty("password") ?: providers.environmentVariable("MAVEN_PASSWORD").orNull
             }
           }
         }

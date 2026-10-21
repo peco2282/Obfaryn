@@ -7,10 +7,10 @@ All modules share one version: `0.0.0-SNAPSHOT` by default, overridden with
 With JDK 21, prepare a local Maven repository and the standalone CLI distribution:
 
 ```shell
-./gradlew publish :obfaryn-cli:distZip :obfaryn-cli:distTar
+./gradlew publish :obfaryn-cli:distZip :obfaryn-cli:distTar -PpublishRepositoryUrl="file:$PWD/build/repository"
 ```
 
-`publish` writes to `build/repository` by default, not to a public service.
+This command explicitly selects `build/repository`, even with `secrets.properties` present.
 Libraries include sources, Dokka Javadoc, MPL-2.0 license text, and POM metadata.
 CLI archives are in `obfaryn-cli/build/distributions`; extract the entire archive
 and run `bin/obfaryn` (`bin/obfaryn.bat` on Windows), not the thin CLI JAR alone.
@@ -46,14 +46,28 @@ its classes. The DSL is not a security boundary restricting arbitrary code.
 Before an external release, run `./gradlew test`, inspect the local repository,
 and test a separate consumer against it. Run `python3 gradle/verify-distribution.py`
 to validate local artifacts (pass an overridden version as its argument).
-To publish to an authenticated Maven
-repository that supports Gradle Maven uploads:
+To publish, create `secrets.properties` in the repository root (ignored by Git):
 
-```shell
-./gradlew publish -PreleaseVersion=0.1.0 -PpublishRepositoryUrl=https://your-host.example/releases
+```properties
+releaseUrl=https://maven.peco2282.com/maven-releases/
+snapshotUrl=https://maven.peco2282.com/maven-snapshots/
+user=user
+password=password
 ```
 
-Supply `MAVEN_USERNAME` and `MAVEN_PASSWORD` through environment variables.
+All Maven publications, including the plugin marker, use `snapshotUrl` when the
+version contains `snapshot` (case-insensitive), and `releaseUrl` otherwise:
+
+```shell
+./gradlew publish -PreleaseVersion=0.1.0
+./gradlew publish -PreleaseVersion=0.2.0-SNAPSHOT
+```
+
+`-PpublishRepositoryUrl=...` overrides the destination, including for local
+verification with a `file:` URL. Without `secrets.properties` or an override,
+publication defaults to `build/repository`. With a secrets file, the selected URL
+must be present and nonblank. `MAVEN_USERNAME` and `MAVEN_PASSWORD` are fallbacks
+when `user` or `password` is absent from the file.
 If signing is required, also set `SIGNING_KEY` (ASCII-armored private PGP key)
 and `SIGNING_PASSWORD`; every Maven publication, including the plugin marker,
 will be signed. Never commit these secrets. Without `SIGNING_KEY`, publishing

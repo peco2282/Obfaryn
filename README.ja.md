@@ -7,10 +7,10 @@
 JDK 21 で、ローカル Maven リポジトリと単体実行用 CLI 配布物を生成します。
 
 ```shell
-./gradlew publish :obfaryn-cli:distZip :obfaryn-cli:distTar
+./gradlew publish :obfaryn-cli:distZip :obfaryn-cli:distTar -PpublishRepositoryUrl="file:$PWD/build/repository"
 ```
 
-`publish` の既定の出力先は `build/repository` で、外部への送信は行いません。
+このコマンドは `secrets.properties` があっても `build/repository` を明示的に選び、外部送信しません。
 ライブラリにはソース、Dokka Javadoc、MPL-2.0 ライセンス本文、POM メタデータが付属します。
 CLI 配布物は `obfaryn-cli/build/distributions` に生成されます。全体を展開して
 `bin/obfaryn`（Windows は `bin/obfaryn.bat`）を実行してください。
@@ -45,13 +45,27 @@ Gradle プラグインでは、利用側の `settings.gradle.kts` の
 
 外部公開前に `./gradlew test`、ローカル配布物の確認、および別プロジェクトからの
 利用確認を行ってください。`python3 gradle/verify-distribution.py` でローカル公開物を検証できます。
-バージョンを変更した場合は引数に指定します。Gradle の Maven アップロードに対応した認証付き公開先には、次を使います。
+バージョンを変更した場合は引数に指定します。公開時はルートに `secrets.properties` を作成します（Git 管理対象外）。
 
-```shell
-./gradlew publish -PreleaseVersion=0.1.0 -PpublishRepositoryUrl=https://your-host.example/releases
+```properties
+releaseUrl=https://maven.peco2282.com/maven-releases/
+snapshotUrl=https://maven.peco2282.com/maven-snapshots/
+user=user
+password=password
 ```
 
-環境変数 `MAVEN_USERNAME` と `MAVEN_PASSWORD` で認証情報を渡します。
+プラグインマーカーを含む全 Maven 公開物は、バージョンに `snapshot` が含まれる場合
+（大文字・小文字を区別しない）は `snapshotUrl`、それ以外は `releaseUrl` へ送ります。
+
+```shell
+./gradlew publish -PreleaseVersion=0.1.0
+./gradlew publish -PreleaseVersion=0.2.0-SNAPSHOT
+```
+
+`-PpublishRepositoryUrl=...` で公開先を上書きできます（ローカル検証用の `file:` URL も可）。
+`secrets.properties` も上書き指定もなければ `build/repository` へ公開します。
+ファイルがある場合、選択された URL は必須で、空欄にはできません。
+`user`・`password` がファイルにない場合は環境変数 `MAVEN_USERNAME`・`MAVEN_PASSWORD` を使用します。
 署名が必要なら `SIGNING_KEY`（ASCII armor 形式の PGP 秘密鍵）と
 `SIGNING_PASSWORD` も設定してください。プラグインマーカーを含む全 Maven 公開物を署名します。
 秘密情報をコミットしないでください。`SIGNING_KEY` がなければ署名は行いません。
