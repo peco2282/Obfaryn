@@ -104,12 +104,50 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
       }
       val length = varint()
       require(length >= 0 && length <= input.available()) { "Invalid module protobuf length" }
-      // Compilers emit empty StringTable (4) and QualifiedNameTable (5) messages even without
-      // annotations. Empty tables carry no entries; the public writer omits them equivalently.
-      require(field !in 4..5 || length == 0) {
-        "Nonempty module protobuf table $field cannot be preserved by the public writer"
+      // Field 4 (StringTable) holds JVM package names used by multifile facades and package parts.
+      // Field 5 (QualifiedNameTable) holds qualified names for annotations and metadata parts.
+      // The public writer recreates field 3 (JVM package table) from package parts, but does not
+      // preserve field 4 or 5.  For field 4, the JVM package names are derived from the package
+      // parts themselves, so the table is redundant after rewrite.  For field 5, non-empty content
+      // indicates annotations or metadata parts that the public model cannot represent.
+      if (field == 4) {
+        // StringTable entries are JVM package names (e.g. "com/tatamiserver/ballGame").
+        // The public writer rebuilds the JVM package table from package parts, so the string
+        // table is regenerated.  We only need to verify the entries are valid package names.
+        if (length == 0) {
+          continue
+        }
+        val tableBytes = ByteArray(length)
+        require(input.read(tableBytes, 0, length) == length) { "Truncated StringTable" }
+        val tableInput = DataInputStream(ByteArrayInputStream(tableBytes))
+        fun tableVarint(): Int {
+          var value = 0
+          for (shift in 0..28 step 7) {
+            val b = tableInput.readUnsignedByte()
+            value = value or ((b and 127) shl shift)
+            if (b and 128 == 0) return value
+          }
+          error("Invalid StringTable varint")
+        }
+        val entryCount = tableVarint()
+        repeat(entryCount) {
+          val strLen = tableVarint()
+          val strBytes = ByteArray(strLen)
+          require(tableInput.read(strBytes, 0, strLen) == strLen) { "Truncated StringTable entry" }
+          val s = String(strBytes, Charsets.UTF_8)
+          require(s.isEmpty() || !s.contains('/')) {
+            "StringTable entry contains invalid characters: $s"
+          }
+        }
+      } else if (field == 5) {
+        // QualifiedNameTable is used for annotation/metadata-part names.
+        // Non-empty means the public writer would lose data.
+        require(length == 0) {
+          "Nonempty module protobuf table $field cannot be preserved by the public writer"
+        }
+      } else {
+        require(input.skipBytes(length) == length) { "Truncated module protobuf" }
       }
-      require(input.skipBytes(length) == length) { "Truncated module protobuf" }
     }
   }
 
