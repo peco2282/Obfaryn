@@ -1,6 +1,8 @@
 package com.peco2282.obfaryn.core
 
 import com.peco2282.obfaryn.core.rename.KotlinMetadataRemapper
+import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.objectweb.asm.ClassReader
@@ -34,6 +36,37 @@ class KotlinMetadataCompatibilityTest {
     }
     assertTrue(error.message!!.contains(node.name))
     assertEquals("fixture/KotlinData", node.name)
+  }
+
+  private fun moduleWithTables(vararg extra: Int): ByteArray = ByteArrayOutputStream().also { bytes ->
+    DataOutputStream(bytes).apply {
+      writeInt(3)
+      writeInt(1)
+      writeInt(9)
+      writeInt(0)
+      writeInt(0)
+      // StringTable: repeated string field 1, containing annotation-related names.
+      write(byteArrayOf(0x22, 0x0e, 0x0a, 0x02, 0x6a, 0x73,
+        0x0a, 0x06, 0x4a, 0x73, 0x4e, 0x61, 0x6d, 0x65, 0x0a, 0x00))
+      // QualifiedNameTable: one qualified name with short_name = 0.
+      write(byteArrayOf(0x2a, 0x04, 0x0a, 0x02, 0x10, 0x00))
+      extra.forEach { writeByte(it) }
+    }
+  }.toByteArray()
+
+  @Test fun unusedProtobufNameTablesDoNotPreventModuleRewriting() {
+    val path = "META-INF/tables.kotlin_module"
+    val remapper = KotlinMetadataRemapper.prepare(emptyList(), mapOf(path to moduleWithTables()))
+    val rewritten = remapper.rewriteModules(emptyMap()).getValue(path)
+    KotlinMetadataRemapper.prepare(emptyList(), mapOf(path to rewritten))
+  }
+
+  @Test fun moduleAnnotationsAreRejectedEvenWithNameTables() {
+    val error = assertThrows(IllegalArgumentException::class.java) {
+      KotlinMetadataRemapper.prepare(emptyList(),
+        mapOf("META-INF/annotations.kotlin_module" to moduleWithTables(0x32, 0x02, 0x08, 0x00)))
+    }
+    assertTrue(error.message!!.contains("field 6"))
   }
 
   @Test fun malformedModuleIsRejectedBeforeChangingClasses() {

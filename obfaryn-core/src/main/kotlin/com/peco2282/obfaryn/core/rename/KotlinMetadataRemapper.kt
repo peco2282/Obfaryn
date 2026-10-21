@@ -104,54 +104,13 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
       }
       val length = varint()
       require(length >= 0 && length <= input.available()) { "Invalid module protobuf length" }
-      // Field 4 (StringTable) holds JVM package names used by multifile facades and package parts.
-      // Field 5 (QualifiedNameTable) holds qualified names for annotations and metadata parts.
-      // The public writer recreates field 3 (JVM package table) from package parts, but does not
-      // preserve field 4 or 5.  For field 4, the JVM package names are derived from the package
-      // parts themselves, so the table is redundant after rewrite.  For field 5, non-empty content
-      // indicates annotations or metadata parts that the public model cannot represent.
-      if (field == 4) {
-        // StringTable may contain JVM package names (e.g. "com/tatamiserver/ballGame") used by
-        // multifile facades, or it may contain annotation/metadata part strings that the public
-        // writer cannot preserve. We need to distinguish between these cases.
-        if (length == 0) {
-          continue
-        }
-        val tableBytes = ByteArray(length)
-        require(input.read(tableBytes, 0, length) == length) { "Truncated StringTable" }
-        val tableInput = DataInputStream(ByteArrayInputStream(tableBytes))
-        fun tableVarint(): Int {
-          var value = 0
-          for (shift in 0..28 step 7) {
-            val b = tableInput.readUnsignedByte()
-            value = value or ((b and 127) shl shift)
-            if (b and 128 == 0) return value
-          }
-          error("Invalid StringTable varint")
-        }
-        val entryCount = tableVarint()
-        repeat(entryCount) {
-          val strLen = tableVarint()
-          val strBytes = ByteArray(strLen)
-          require(tableInput.read(strBytes, 0, strLen) == strLen) { "Truncated StringTable entry" }
-          val s = String(strBytes, Charsets.UTF_8)
-          // StringTable entries should be JVM package names with '/' separators.
-          // If entries don't look like package names, they're likely annotation/metadata strings
-          // that the public writer cannot preserve.
-          val looksLikePackageName = s.isEmpty() || s.matches(Regex("^[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*$"))
-          require(looksLikePackageName) {
-            "StringTable contains non-package entries that cannot be preserved: $s"
-          }
-        }
-      } else if (field == 5) {
-        // QualifiedNameTable is used for annotation/metadata-part names.
-        // Non-empty means the public writer would lose data.
-        require(length == 0) {
-          "Nonempty module protobuf table $field cannot be preserved by the public writer"
-        }
-      } else {
-        require(input.skipBytes(length) == length) { "Truncated module protobuf" }
-      }
+      // Fields 4 and 5 are protobuf StringTable and QualifiedNameTable messages, not
+      // count-prefixed lists. Their strings need not be JVM package names (e.g. JsName).
+      // They are lookup tables only: metadata parts (field 2), module annotations
+      // (field 6), and other unsupported consumers are rejected above. Optional
+      // annotation classes are rejected separately via the public model. With no
+      // consumers left, these tables may safely be discarded by the public writer.
+      require(input.skipBytes(length) == length) { "Truncated module protobuf" }
     }
   }
 
