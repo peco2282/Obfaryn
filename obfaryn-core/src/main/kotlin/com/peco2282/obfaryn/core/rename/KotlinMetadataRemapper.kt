@@ -111,9 +111,9 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
       // parts themselves, so the table is redundant after rewrite.  For field 5, non-empty content
       // indicates annotations or metadata parts that the public model cannot represent.
       if (field == 4) {
-        // StringTable entries are JVM package names (e.g. "com/tatamiserver/ballGame").
-        // The public writer rebuilds the JVM package table from package parts, so the string
-        // table is regenerated.  We only need to verify the entries are valid package names.
+        // StringTable may contain JVM package names (e.g. "com/tatamiserver/ballGame") used by
+        // multifile facades, or it may contain annotation/metadata part strings that the public
+        // writer cannot preserve. We need to distinguish between these cases.
         if (length == 0) {
           continue
         }
@@ -135,10 +135,12 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
           val strBytes = ByteArray(strLen)
           require(tableInput.read(strBytes, 0, strLen) == strLen) { "Truncated StringTable entry" }
           val s = String(strBytes, Charsets.UTF_8)
-          // StringTable entries are JVM package names (e.g., "com/tatamiserver/ballGame").
-          // They may contain '/' as package separators, but should not contain null bytes.
-          require(!s.contains('\u0000')) {
-            "StringTable entry contains invalid characters: $s"
+          // StringTable entries should be JVM package names with '/' separators.
+          // If entries don't look like package names, they're likely annotation/metadata strings
+          // that the public writer cannot preserve.
+          val looksLikePackageName = s.isEmpty() || s.matches(Regex("^[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*$"))
+          require(looksLikePackageName) {
+            "StringTable contains non-package entries that cannot be preserved: $s"
           }
         }
       } else if (field == 5) {
