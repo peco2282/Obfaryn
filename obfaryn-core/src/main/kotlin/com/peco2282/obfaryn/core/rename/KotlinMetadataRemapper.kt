@@ -11,6 +11,7 @@ package com.peco2282.obfaryn.core.rename
 import org.objectweb.asm.commons.Remapper
 import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.ClassNode
+import java.io.ByteArrayOutputStream
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
 import kotlin.contracts.ExperimentalContracts
@@ -51,10 +52,20 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
   fun rewriteModules(classMapping: Map<String, String>): Map<String, ByteArray> = modules.mapValues { (path, bytes) ->
     checked(path) {
       val metadata = KotlinModuleMetadata.read(bytes)
-      validateModulePayload(bytes)
-      require(metadata.kmModule.optionalAnnotationClasses.isEmpty()) {
-        "Optional annotation classes cannot be preserved by the public module writer"
+      val preserved = validateModulePayload(bytes)
+      // The public writer omits optional annotations. Keep their original protobufs,
+      // but first ensure no class reference in them requires relocation.
+      val checkedMapping = object : Map<String, String> by classMapping {
+        override fun get(key: String): String? {
+          val mapped = classMapping[key]
+          require(mapped == null || mapped == key) {
+            "Optional annotation class references relocated class $key -> $mapped"
+          }
+          return mapped
+        }
       }
+      val checker = Rewriter(checkedMapping, aliases)
+      metadata.kmModule.optionalAnnotationClasses.forEach(checker::klass)
       val parts = linkedMapOf<String, KmPackageParts>()
       fun target(name: String): KmPackageParts = parts.getOrPut(name.substringBeforeLast('/', "").replace('/', '.')) {
         KmPackageParts(mutableListOf(), linkedMapOf())
@@ -71,15 +82,16 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
       }
       metadata.kmModule.packageParts.clear()
       metadata.kmModule.packageParts.putAll(parts)
-      metadata.write()
+      metadata.write() + preserved
     }
   }
 
   private fun annotations(node: ClassNode): List<AnnotationNode> =
     (node.visibleAnnotations.orEmpty() + node.invisibleAnnotations.orEmpty()).filter { it.desc == METADATA }
 
-  // The public module model omits annotations and metadata parts; reject these rather than erase them.
-  private fun validateModulePayload(bytes: ByteArray) {
+  // Retain optional declarations and their lookup tables; reject unsupported consumers.
+  private fun validateModulePayload(bytes: ByteArray): ByteArray {
+    val preserved = ByteArrayOutputStream()
     val input = DataInputStream(ByteArrayInputStream(bytes))
     val count = input.readInt()
     require(count in 2..1024) { "Invalid module version header" }
@@ -97,21 +109,20 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
       error("Invalid module protobuf varint")
     }
     while (input.available() > 0) {
+      val start = bytes.size - input.available()
       val tag = varint()
       val field = tag ushr 3
-      require(field in setOf(1, 3, 4, 5) && tag and 7 == 2) {
+      require(field in setOf(1, 3, 4, 5, 16) && tag and 7 == 2) {
         "Module protobuf field ${tag ushr 3} cannot be preserved by the public writer"
       }
       val length = varint()
       require(length >= 0 && length <= input.available()) { "Invalid module protobuf length" }
-      // Fields 4 and 5 are protobuf StringTable and QualifiedNameTable messages, not
-      // count-prefixed lists. Their strings need not be JVM package names (e.g. JsName).
-      // They are lookup tables only: metadata parts (field 2), module annotations
-      // (field 6), and other unsupported consumers are rejected above. Optional
-      // annotation classes are rejected separately via the public model. With no
-      // consumers left, these tables may safely be discarded by the public writer.
       require(input.skipBytes(length) == length) { "Truncated module protobuf" }
+      if (field in setOf(4, 5, 16)) {
+        preserved.write(bytes, start, bytes.size - input.available() - start)
+      }
     }
+    return preserved.toByteArray()
   }
 
   private inline fun <T> checked(path: String, action: () -> T): T = try {

@@ -48,8 +48,8 @@ class KotlinMetadataCompatibilityTest {
       // StringTable: repeated string field 1, containing annotation-related names.
       write(byteArrayOf(0x22, 0x0e, 0x0a, 0x02, 0x6a, 0x73,
         0x0a, 0x06, 0x4a, 0x73, 0x4e, 0x61, 0x6d, 0x65, 0x0a, 0x00))
-      // QualifiedNameTable: one qualified name with short_name = 0.
-      write(byteArrayOf(0x2a, 0x04, 0x0a, 0x02, 0x10, 0x00))
+      // QualifiedNameTable: one CLASS qualified name with short_name = 0.
+      write(byteArrayOf(0x2a, 0x06, 0x0a, 0x04, 0x10, 0x00, 0x18, 0x00))
       extra.forEach { writeByte(it) }
     }
   }.toByteArray()
@@ -59,6 +59,22 @@ class KotlinMetadataCompatibilityTest {
     val remapper = KotlinMetadataRemapper.prepare(emptyList(), mapOf(path to moduleWithTables()))
     val rewritten = remapper.rewriteModules(emptyMap()).getValue(path)
     KotlinMetadataRemapper.prepare(emptyList(), mapOf(path to rewritten))
+  }
+
+  @OptIn(kotlin.metadata.jvm.UnstableMetadataApi::class)
+  @Test fun optionalAnnotationClassesSurviveModuleRewriting() {
+    val path = "META-INF/optional.kotlin_module"
+    // Class.fq_name = 0, referring to the qualified name in moduleWithTables.
+    val bytes = moduleWithTables(0x82, 0x01, 0x02, 0x18, 0x00)
+    val remapper = KotlinMetadataRemapper.prepare(emptyList(), mapOf(path to bytes))
+    val rewritten = remapper.rewriteModules(mapOf("other/Class" to "renamed/Class")).getValue(path)
+    val annotations = kotlin.metadata.jvm.KotlinModuleMetadata.read(rewritten).kmModule.optionalAnnotationClasses
+    assertEquals(listOf("js"), annotations.map { it.name })
+    KotlinMetadataRemapper.prepare(emptyList(), mapOf(path to rewritten))
+    val error = assertThrows(IllegalArgumentException::class.java) {
+      remapper.rewriteModules(mapOf("js" to "renamed/Annotation"))
+    }
+    assertTrue(error.message!!.contains("js -> renamed/Annotation"))
   }
 
   @Test fun moduleAnnotationsAreRejectedEvenWithNameTables() {
