@@ -21,6 +21,7 @@ import kotlin.metadata.jvm.*
 /** Strict metadata rewriting coordinated with JVM class and member mappings. Call [prepare] before modifying any classes. */
 class KotlinMetadataRemapper private constructor(private val modules: Map<String, ByteArray>) {
   private val aliases = linkedMapOf<String, Pair<String, Boolean>>()
+  private val companionClasses = mutableSetOf<String>()
   private var preparing = true
   companion object {
     private const val METADATA = "Lkotlin/Metadata;"
@@ -39,6 +40,8 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
       return result
     }
   }
+
+  internal fun isCompanionClass(name: String): Boolean = name in companionClasses
 
   /** Rewrites only the Metadata annotation. Accepts either an original or an ASM-remapped node. */
   fun rewrite(
@@ -165,6 +168,11 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
     )
     val metadata = KotlinClassMetadata.readStrict(input)
     if (preparing) {
+      if (metadata is KotlinClassMetadata.Class) {
+        metadata.kmClass.companionObject?.let { companion ->
+          companionClasses += metadata.kmClass.name.removePrefix(".").replace('.', '$') + "\$" + companion
+        }
+      }
       val container = when (metadata) {
         is KotlinClassMetadata.Class -> metadata.kmClass
         is KotlinClassMetadata.FileFacade -> metadata.kmPackage

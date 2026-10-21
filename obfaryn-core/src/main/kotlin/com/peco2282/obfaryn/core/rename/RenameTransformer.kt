@@ -12,6 +12,7 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.commons.ClassRemapper
 import org.objectweb.asm.commons.Remapper
 import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.FieldNode
 import org.objectweb.asm.tree.FieldInsnNode
 import org.objectweb.asm.tree.MethodInsnNode
 
@@ -40,6 +41,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     val descendants = nodes.flatMap { n -> (listOfNotNull(n.superName) + n.interfaces).map { it to n.name } }
       .groupBy({ it.first }, { it.second })
     val generatedByPackage = mutableMapOf<String, NameGenerator>()
+    val generatedByOuter = mutableMapOf<String, NameGenerator>()
     val occupied = nodes.map { it.name }.toMutableSet()
     val target = config.targetPackage?.replace('.', '/').takeIf { config.flattenPackages }
     val pinnedPackages = if (target == null) emptySet() else nodes.filter { node ->
@@ -54,13 +56,20 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
             insn is FieldInsnNode && insn.owner !in context.classes &&
               insn.owner.substringBeforeLast('/', "") == node.name.substringBeforeLast('/', "")
         }
-      } || node.fields.any { it.access and (Opcodes.ACC_PUBLIC or Opcodes.ACC_PROTECTED or Opcodes.ACC_PRIVATE) == 0 }
+      } || node.fields.any {
+        it.access and (Opcodes.ACC_PUBLIC or Opcodes.ACC_PROTECTED or Opcodes.ACC_PRIVATE) == 0 &&
+          // Captured outer instances (this$0) are synthetic package-private fields.
+          // Their accesses move together with the enclosing Kotlin class hierarchy.
+          !capturedKotlinOuter(node, it)
+      }
     }.map { it.name.substringBeforeLast('/', "") }.toSet()
     for (pkg in pinnedPackages.sorted()) warnings += "Package relocation preserved $pkg: kept structure, package access, or relative resource lookup"
     val kotlinOuters = nodes.filter(keep::kotlinClass).mapNotNull { node ->
       node.innerClasses.firstOrNull { it.name == node.name && it.outerName != null && it.innerName != null }
         ?.let { node.name to (it.outerName to it.innerName) }
     }.toMap()
+    val companionNames = kotlinOuters.filterKeys(metadata::isCompanionClass).values
+      .groupBy({ it.first }, { it.second })
     val keptKotlinOuters = mutableSetOf<String>()
     for (node in nodes.filter(::protectedClass)) {
       var current = kotlinOuters[node.name]?.first
@@ -70,7 +79,17 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
       if (!config.renameClasses || protectedClass(node) || node.name in keptKotlinOuters) continue
       val nesting = kotlinOuters[node.name]
       if (nesting != null) {
-        val candidate = (classMapping[nesting.first] ?: nesting.first) + "$" + nesting.second
+        val outer = classMapping[nesting.first] ?: nesting.first
+        val candidate = if (metadata.isCompanionClass(node.name)) {
+          // Kotlin reflection resolves the companion instance through its named static field.
+          "$outer\$${nesting.second}"
+        } else {
+          val generator = generatedByOuter.getOrPut(outer) { SequentialNameGenerator() }
+          var name: String
+          do { name = "$outer\$${generator.next()}" }
+          while (name in occupied || name.substringAfterLast('$') in companionNames[nesting.first].orEmpty())
+          name
+        }
         if (candidate != node.name) {
           require(candidate !in occupied) { "Kotlin nested class relocation collides with $candidate" }
           classMapping[node.name] = candidate
@@ -145,6 +164,10 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     }
     for ((name, data) in metadata.rewriteModules(classMapping)) context.putResource(ResourceEntry(name, data))
   }
+
+  private fun capturedKotlinOuter(node: ClassNode, field: FieldNode): Boolean =
+    keep.kotlinClass(node) && field.name == "this\$0" && field.access and Opcodes.ACC_SYNTHETIC != 0 &&
+      node.innerClasses.any { it.name == node.name && it.outerName != null && field.desc == "L${it.outerName};" }
 
   private fun protectedClass(node: ClassNode): Boolean =
     keep.className(node.name) || ObfuscationAnnotationPolicy.keepName(node) || node.name.endsWith("/package-info") ||

@@ -163,7 +163,9 @@ class KotlinRelocationTest {
   }
 
   @Test fun reflectionResolvesRelocatedNestedGenericSealedAndMultifileTypes() {
-    val names = listOf("Model", "Model\$Nested", "Model\$Companion", "Leaf", "Outcome", "Outcome\$Success",
+    val names = listOf("Model", "Model\$Nested", "Model\$Nested\$Deep", "Model\$Inner", "Model\$Snapshot",
+      "Model\$Companion", "NamedCompanion", "NamedCompanion\$Child", "NamedCompanion\$a",
+      "Leaf", "Outcome", "Outcome\$Success",
       "ModelKt", "Operations", "Operations__FirstKt", "Operations__SecondKt")
       .map { "fixture/relocation/$it" }
     val nodes = names.map(::fixture)
@@ -192,12 +194,38 @@ class KotlinRelocationTest {
     val model = mapped("Model")
     val leaf = mapped("Leaf")
     val nested = mapped("Model\$Nested")
+    for (name in listOf("Model\$Nested", "Model\$Nested\$Deep", "Model\$Inner", "Model\$Snapshot", "Outcome\$Success", "NamedCompanion\$Child")) {
+      val original = "fixture/relocation/$name"
+      val target = rename.classMapping.getValue(original)
+      val oldOuter = original.substringBeforeLast('$')
+      assertEquals(rename.classMapping.getValue(oldOuter), target.substringBeforeLast('$'))
+      assertNotEquals(original.substringAfterLast('$'), target.substringAfterLast('$'))
+      val entry = context.classes.getValue(target).innerClasses.single { it.name == target }
+      assertEquals(target.substringAfterLast('$'), entry.innerName)
+      assertEquals(target.substringBeforeLast('$'), entry.outerName)
+    }
+    val deep = mapped("Model\$Nested\$Deep")
+    assertEquals(nested, deep.enclosingClass)
+    assertTrue(nested.kotlin.nestedClasses.any { it.java == deep })
+    assertEquals(model, mapped("Model\$Inner").enclosingClass)
+    assertTrue(model.kotlin.nestedClasses.any { it.java == mapped("Model\$Snapshot") })
     assertEquals(model.kotlin, nested.kotlin.memberProperties.single().returnType.classifier)
     assertEquals(model.kotlin, model.kotlin.typeParameters.single().upperBounds.single().classifier)
     assertTrue(model.kotlin.nestedClasses.any { it.java == nested })
     assertNotNull(model.kotlin.companionObjectInstance)
+    assertNotNull(mapped("NamedCompanion").kotlin.companionObjectInstance)
+    assertEquals("a", mapped("NamedCompanion\$a").simpleName)
     assertEquals(mapped("Outcome\$Success").kotlin, mapped("Outcome").kotlin.sealedSubclasses.single())
     val value = leaf.getConstructor(String::class.java).newInstance("test")
+    val inner = mapped("Model\$Inner")
+    val innerInstance = inner.getConstructor(model, String::class.java).newInstance(value, "inner")
+    assertEquals("inner", inner.getMethod("getText").invoke(innerInstance))
+    val deepInstance = deep.getConstructor(model).newInstance(value)
+    assertSame(value, deep.getMethod("getModel").invoke(deepInstance))
+    val snapshot = mapped("Model\$Snapshot")
+    val snapshotInstance = snapshot.getConstructor(String::class.java).newInstance("before")
+    val copied = snapshot.getMethod("copy", String::class.java).invoke(snapshotInstance, "after")
+    assertEquals("after", snapshot.getMethod("getText").invoke(copied))
     for (function in listOf("first", "second")) {
       assertSame(value, mapped("Operations").getMethod(function, leaf).invoke(null, value))
     }
@@ -216,6 +244,10 @@ class KotlinRelocationTest {
       import flat.first
       import flat.second
       fun consume(value: ModelAlias): ModelAlias = second(first(identity(value)))
+      fun nested(value: ${model.name}.${nested.simpleName}): ${model.name}<*> = value.model
+      fun deep(value: ${model.name}.${nested.simpleName}.${deep.simpleName}): ${model.name}<*> = value.model
+      fun snapshot(): ${model.name}.${mapped("Model\$Snapshot").simpleName} =
+        ${model.name}.${mapped("Model\$Snapshot").simpleName}("ok")
     """.trimIndent().toByteArray())
     val stdlib = File(Unit::class.java.protectionDomain.codeSource.location.toURI())
     val diagnostics = ByteArrayOutputStream()
@@ -224,6 +256,23 @@ class KotlinRelocationTest {
         "-d", dir.resolve("consumer").toString(), consumer.toString())
     }
     assertEquals(ExitCode.OK, exit, diagnostics.toString())
+  }
+
+  @Test fun keptNestedClassRetainsItsEnclosingNamesWhileItsChildrenCanRename() {
+    val nodes = listOf("Model", "Model\$Nested", "Model\$Nested\$Deep", "Model\$Companion")
+      .map { fixture("fixture/relocation/$it") }
+    val context = ObfuscationContext(nodes.associateByTo(linkedMapOf()) { it.name }, linkedMapOf())
+    val keep = KeepRules().apply { keepClassNameOnly("fixture/relocation/Model\$Nested") }
+    val rename = RenameTransformer(ObfuscationConfig(
+      flattenPackages = true, targetPackage = "flat", renameClasses = true,
+      renameMethods = false, renameFields = false,
+    ), keep)
+    rename.transform(context)
+    assertFalse("fixture/relocation/Model" in rename.classMapping)
+    assertFalse("fixture/relocation/Model\$Nested" in rename.classMapping)
+    val deep = rename.classMapping.getValue("fixture/relocation/Model\$Nested\$Deep")
+    assertTrue(deep.startsWith("fixture/relocation/Model\$Nested\$"))
+    assertNotEquals("Deep", deep.substringAfterLast('$'))
   }
 
   @Test fun autoPreservesApplicationMetadataInOutputJar() {

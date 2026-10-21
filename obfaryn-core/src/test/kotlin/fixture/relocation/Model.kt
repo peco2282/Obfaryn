@@ -1,7 +1,11 @@
 package fixture.relocation
 
 open class Model<T : Model<T>>(val value: String) {
-  class Nested(val model: Model<*>)
+  class Nested(val model: Model<*>) {
+    class Deep(val model: Model<*>)
+  }
+  inner class Inner(val text: String)
+  data class Snapshot(val text: String)
   companion object {
     fun create() = Leaf("ok")
   }
@@ -16,3 +20,8 @@ sealed class Outcome {
 typealias ModelAlias = Leaf
 
 fun identity(model: ModelAlias): ModelAlias = model
+
+class NamedCompanion {
+  class Child
+  companion object a
+}
