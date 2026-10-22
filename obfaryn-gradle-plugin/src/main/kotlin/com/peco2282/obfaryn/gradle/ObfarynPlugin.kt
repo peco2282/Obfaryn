@@ -199,6 +199,7 @@ open class ObfarynExtension {
   /** standard or strong; strong adds application control flow, checks, and reporting; VM selection stays explicit. */
   var protection = "standard"
   var controlFlow = false
+  var lightweightControlFlow = false
   var integrityPrivateKey: String? = null
   var integrityPublicKey: String? = null
   val rename = RenameOptions()
@@ -298,6 +299,7 @@ class ObfarynPlugin : Plugin<Project> {
               targetPackage = extension.targetPackage,
               flattenPackages = extension.flattenPackages,
               controlFlow = extension.controlFlow,
+              lightweightControlFlow = extension.lightweightControlFlow,
               virtualizeMethods = extension.virtualization.methods,
               excludeVirtualization = extension.virtualization.excludeMethods,
               virtualizationRuntimeGroupSize = extension.virtualization.runtimeGroupSize,

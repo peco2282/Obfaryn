@@ -21,6 +21,51 @@ import java.util.jar.JarOutputStream
 class ProtectionTest {
   @TempDir lateinit var dir: Path
 
+  @Test fun switchMethodsAreFlattenedWithoutVirtualization() {
+    for (dense in listOf(true, false)) {
+      val input = dir.resolve("switch-$dense.jar")
+      val writer = ClassWriter(ClassWriter.COMPUTE_FRAMES or ClassWriter.COMPUTE_MAXS)
+      writer.visit(V1_8, ACC_PUBLIC, "logic/Switch", null, "java/lang/Object", null)
+      val m = writer.visitMethod(ACC_PUBLIC or ACC_STATIC, "calc", "(I)I", null, null)
+      val first = Label()
+      val second = Label()
+      val fallback = Label()
+      m.visitCode()
+      m.visitVarInsn(ILOAD, 0)
+      if (dense) m.visitTableSwitchInsn(0, 2, fallback, first, second, first)
+      else m.visitLookupSwitchInsn(fallback, intArrayOf(0, 100, 200), arrayOf(first, second, first))
+      m.visitLabel(first); m.visitIntInsn(BIPUSH, 17); m.visitInsn(IRETURN)
+      m.visitLabel(second); m.visitIntInsn(BIPUSH, 23); m.visitInsn(IRETURN)
+      m.visitLabel(fallback); m.visitVarInsn(ILOAD, 0); m.visitInsn(IRETURN)
+      m.visitMaxs(0, 0); m.visitEnd(); writer.visitEnd()
+      JarOutputStream(Files.newOutputStream(input)).use { jar ->
+        jar.putNextEntry(JarEntry("logic/Switch.class")); jar.write(writer.toByteArray()); jar.closeEntry()
+      }
+      val output = dir.resolve("switch-$dense-out.jar")
+      val result = Obfuscator(ObfuscationConfig(seed = 42, controlFlow = true,
+        renameClasses = false, renameMethods = false, renameFields = false,
+        verifyOutput = true)).obfuscate(input, output)
+      assertEquals(0, result.methodsVirtualized)
+      assertTrue(result.branchesObfuscated > 0, "switch-only methods must not be skipped")
+      JarFile(output.toFile()).use { jar ->
+        val node = ClassNode()
+        ClassReader(jar.getInputStream(jar.getJarEntry("logic/Switch.class"))).accept(node, 0)
+        assertTrue(node.methods.single().instructions.toArray().filterIsInstance<LookupSwitchInsnNode>()
+          .any { it.keys.size >= 4 }, "a dispatcher must cover the entry and all switch targets")
+      }
+      URLClassLoader(arrayOf(output.toUri().toURL()), platformClassLoader()).use { loader ->
+        val method = loader.loadClass("logic.Switch").getMethod("calc", Int::class.javaPrimitiveType)
+        for (n in listOf(Int.MIN_VALUE, -1, 0, 1, 2, 100, 200, Int.MAX_VALUE)) {
+          assertEquals(when (n) {
+            0, (if (dense) 2 else 200) -> 17
+            (if (dense) 1 else 100) -> 23
+            else -> n
+          }, method.invoke(null, n))
+        }
+      }
+    }
+  }
+
   private fun input(): Path {
     val path = dir.resolve("input.jar")
     JarOutputStream(Files.newOutputStream(path)).use { jar ->
@@ -165,13 +210,21 @@ class ProtectionTest {
     method.instructions.add(org.objectweb.asm.tree.InsnNode(IRETURN))
     method.maxStack = 2
     method.maxLocals = 1
-    val before = method.instructions.toArray()
     val transformer = com.peco2282.obfaryn.transformer.ControlFlowTransformer(java.util.Random(42))
     transformer.transform(context)
-    assertEquals(0, transformer.count)
+    assertTrue(transformer.count > 0, "rejected dispatcher analysis must use the direct-branch fallback")
     assertEquals(2, method.maxStack)
     assertEquals(1, method.maxLocals)
-    assertArrayEquals(before, method.instructions.toArray())
+    assertFalse(method.instructions.toArray().any { it.opcode == LOOKUPSWITCH })
+    val writer = ClassWriter(ClassWriter.COMPUTE_FRAMES or ClassWriter.COMPUTE_MAXS)
+    context.classes.getValue("logic/Calc").accept(writer)
+    val bytes = writer.toByteArray()
+    val loaded = object : ClassLoader(platformClassLoader()) {
+      fun define(): Class<*> = defineClass("logic.Calc", bytes, 0, bytes.size)
+    }.define()
+    val calc = loaded.getMethod("calc", Int::class.javaPrimitiveType)
+    assertEquals(1, calc.invoke(null, -1))
+    assertEquals(1, calc.invoke(null, 0))
   }
 
   @Test fun stateDependentConstantsPreserveWideValuesAndFloatingPointBits() {

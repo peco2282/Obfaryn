@@ -408,6 +408,10 @@ The CLI accepts repeated `--exclude-class regex`, `--exclude-resource regex`, `-
 
 `--control-flow` rewrites eligible methods into keyed switch dispatch. Transitions derive the next state from the current state using per-edge XOR or addition, and numeric payloads inside transformed blocks are decoded using that block state. This couples numeric recovery to control-flow analysis, but does not prevent symbolic recovery. Methods that cannot be flattened retain the configured numeric strategy. The additional integer operations can increase runtime cost. Constructors, class initializers, and large methods are excluded. Control flow and virtualization automatically trigger frame recomputation; external dependencies may be needed on the classpath.
 
+Existing `tableswitch` and `lookupswitch` branches (including Kotlin `when`) can also participate in flattening. Methods rejected because of stack-carrying boundaries or reused local-slot types now fall back to shuffled basic blocks connected by direct JVM branches. No interpreter, boxing, helper calls or state dispatch is added by this fallback. Exception handlers, constructors and oversized methods remain excluded; annotation and class exclusions still apply.
+
+For speed-sensitive ordinary code, use `--lightweight-control-flow` (Gradle/core: `lightweightControlFlow = true`). This enables the direct-branch layout transformation alone, overriding keyed dispatch even with strong protection. It changes physical block order without changing conditions or operand-stack transfers. Added jumps and code layout can still affect JIT compilation and throughput; near-original speed and decompiler failure are not guaranteed. Modern decompilers can reconstruct these blocks. Benchmark the actual workload before deployment; this option does not disable separately selected virtualization, string encryption or numeric obfuscation. `@HotPath` continues to suppress body transformations.
+
 ## Strong protection
 
 Enable stronger application-scoped transformations in Gradle:

@@ -83,7 +83,7 @@ class Obfuscator(
    */
   fun obfuscate(input: Path, output: Path, mapping: Path? = null): ObfuscationResult {
     val strong = config.protectionLevel == ProtectionLevel.STRONG
-    val controlFlow = config.controlFlow || strong
+    val controlFlow = config.controlFlow || config.lightweightControlFlow || strong
     val classExclusions = config.excludeClasses.map(::Regex)
     val resourceExclusions = config.excludeResources.map(::Regex)
     val renameExclusions = config.excludeRenaming.map(::Regex)
@@ -222,7 +222,7 @@ class Obfuscator(
         numbers = config.numberObfuscation && config.numberConstantFields,
       )
     val rename = RenameTransformer(config, keep)
-    val flow = ControlFlowTransformer(random)
+    val flow = ControlFlowTransformer(random, config.lightweightControlFlow)
     val virtualization = VirtualizationTransformer(
       selectors, random, config.virtualizationRuntimeGroupSize, selectionMode,
       config.classpath + listOf(input), config.excludeVirtualization, platformVirtualizationExclusions

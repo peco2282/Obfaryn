@@ -92,6 +92,8 @@ internal open class ObfuscateCommand : Callable<Int> {
   var flattenPackages = false
   @Option(names = ["--control-flow"], description = ["Obfuscate branches and switches."])
   var controlFlow = false
+  @Option(names = ["--lightweight-control-flow"], description = ["Reorder direct-branch blocks without a state dispatcher; overrides dispatch mode."])
+  var lightweightControlFlow = false
   @Option(names = ["--integrity-private-key"], paramLabel = "FILE", description = ["PKCS#8 RSA private key; requires a public key."])
   var integrityPrivateKey: Path? = null
   @Option(names = ["--integrity-public-key"], paramLabel = "FILE", description = ["X.509 RSA public key; requires a private key."])
@@ -163,6 +165,7 @@ internal open class ObfuscateCommand : Callable<Int> {
       classpath = classpath, recomputeFrames = recomputeFrames,
       excludeClasses = excludeClasses, excludeResources = excludeResources, excludeRenaming = excludeRenaming,
       targetPackage = targetPackage, flattenPackages = flattenPackages, controlFlow = controlFlow,
+      lightweightControlFlow = lightweightControlFlow,
       virtualizeMethods = virtualizeMethods,
       excludeVirtualization = excludeVirtualization,
       integrityPrivateKey = integrityPrivateKey, integrityPublicKey = integrityPublicKey,

@@ -56,7 +56,8 @@ enum class ProtectionLevel { STANDARD, STRONG }
  * @property renameClasses Enable conservative class renaming.
  * @property renameMethods Enable method-family and private/static method renaming.
  * @property renameFields Enable eligible field renaming.
- * @property controlFlow Apply lightweight branch and switch transformations.
+ * @property controlFlow Apply keyed dispatch with direct-branch fallback for incompatible methods.
+ * @property lightweightControlFlow Enable direct-branch block layout changes instead of keyed dispatch.
  * @property seed Optional random seed; identical input, settings, seed, and tool version are reproducible.
  * @property platform Platform ID, or `auto` for detection.
  * @property platformOptions String options passed to platform contributions, configuration, and entrypoint discovery.
@@ -138,6 +139,7 @@ data class ObfuscationConfig(
   val stringRandom: Random? = null,
   val numberRandom: Random? = null,
   val protectionLevel: ProtectionLevel = ProtectionLevel.STANDARD,
+  val lightweightControlFlow: Boolean = false,
 ) {
   companion object {
     /** Keeps runtime body transformations disabled; callers can opt in with copy(). */

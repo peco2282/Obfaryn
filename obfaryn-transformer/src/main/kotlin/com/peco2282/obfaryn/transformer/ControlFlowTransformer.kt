@@ -2,37 +2,109 @@ package com.peco2282.obfaryn.transformer
 
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.transformer.Transformer
+import com.peco2282.obfaryn.api.transformer.TransformerReport
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.*
 import org.objectweb.asm.tree.analysis.Analyzer
 import org.objectweb.asm.tree.analysis.SourceInterpreter
+import java.util.Collections
 import java.util.Random
+import java.util.WeakHashMap
 
-/** Rewrites safe methods into per-method dispatcher state machines. */
-class ControlFlowTransformer(private val random: Random) : Transformer {
+/** Uses keyed dispatch or direct-branch block layout changes without an interpreter. */
+class ControlFlowTransformer(private val random: Random, private val lightweight: Boolean = false) : Transformer {
   override val id = "control-flow"
   override val order = 35
   override val requiresFrameRecomputation = true
   var count = 0
     private set
+  private val flattened = Collections.newSetFromMap(WeakHashMap<MethodNode, Boolean>())
+  private var dispatchedMethods = 0L
+  private var rearrangedMethods = 0L
+
+  override fun report() = TransformerReport(id, mapOf(
+    "dispatchedMethods" to dispatchedMethods, "rearrangedMethods" to rearrangedMethods,
+  ))
 
   override fun transform(context: ObfuscationContext) {
     count = 0
+    dispatchedMethods = 0
+    rearrangedMethods = 0
     for (owner in context.classes.values) for (method in owner.methods) {
-      if (context.transformationPolicy.canTransformBody(owner, method)) flatten(owner.name, method)
+      if (context.transformationPolicy.canTransformBody(owner, method)) {
+        if (!lightweight) flatten(owner.name, method)
+        if (method !in flattened) rearrange(method)
+      }
     }
   }
 
+  private fun rearrange(method: MethodNode) {
+    if (method in flattened || method.name.startsWith('<') || method.instructions.size() > 10000 ||
+      method.tryCatchBlocks.isNotEmpty() || method.access and (Opcodes.ACC_ABSTRACT or Opcodes.ACC_NATIVE) != 0) return
+    val original = method.instructions.toArray().filterNot { it is FrameNode }
+    if (original.any { it.opcode == Opcodes.JSR || it.opcode == Opcodes.RET }) return
+    val positions = original.withIndex().associate { it.value to it.index }
+    val leaders = sortedSetOf(0)
+    var edges = 0
+    for ((index, node) in original.withIndex()) {
+      val targets = when (node) {
+        is JumpInsnNode -> listOf(node.label)
+        is TableSwitchInsnNode -> node.labels + node.dflt
+        is LookupSwitchInsnNode -> node.labels + node.dflt
+        else -> emptyList()
+      }
+      if (targets.isNotEmpty()) {
+        edges++
+        for (label in targets) leaders += positions[label] ?: return
+      }
+      if (targets.isNotEmpty() || node.opcode in Opcodes.IRETURN..Opcodes.RETURN || node.opcode == Opcodes.ATHROW) {
+        if (index + 1 < original.size) leaders += index + 1
+      }
+    }
+    if (edges == 0 || leaders.size !in 2..256) return
+    val starts = leaders.toList()
+    val blocks = starts.mapIndexed { index, start ->
+      original.subList(start, starts.getOrElse(index + 1) { original.size })
+    }
+    val entries = Array(blocks.size) { LabelNode() }
+    val labels = original.filterIsInstance<LabelNode>().associateWith { LabelNode() }
+    val output = InsnList()
+    output.add(JumpInsnNode(Opcodes.GOTO, entries[0]))
+    val order = blocks.indices.toMutableList().also { Collections.shuffle(it, random) }
+    if (order == blocks.indices.toList()) Collections.rotate(order, 1)
+    for (index in order) {
+      output.add(entries[index])
+      val nodes = blocks[index]
+      for (node in nodes) output.add(node.clone(labels))
+      val last = nodes.lastOrNull { it.opcode >= 0 }
+      // Preserve each original fall-through edge, including its operand stack and local types.
+      if (last !is TableSwitchInsnNode && last !is LookupSwitchInsnNode &&
+        last?.opcode != Opcodes.GOTO && last?.opcode !in Opcodes.IRETURN..Opcodes.RETURN &&
+        last?.opcode != Opcodes.ATHROW && index + 1 < blocks.size) {
+        output.add(JumpInsnNode(Opcodes.GOTO, entries[index + 1]))
+      }
+    }
+    method.instructions.clear()
+    method.instructions.add(output)
+    method.localVariables?.clear()
+    method.visibleLocalVariableAnnotations?.clear()
+    method.invisibleLocalVariableAnnotations?.clear()
+    flattened.add(method)
+    rearrangedMethods++
+    count += edges
+  }
+
   private fun flatten(owner: String, method: MethodNode) {
+    if (method in flattened) return
     if (method.name.startsWith('<') || method.instructions.size() < 2 || method.instructions.size() > 10000 ||
       method.tryCatchBlocks.isNotEmpty() || method.access and (Opcodes.ACC_ABSTRACT or Opcodes.ACC_NATIVE) != 0) return
 
     val original = method.instructions.toArray().filterNot { it is FrameNode }
-    if (original.any { it is TableSwitchInsnNode || it is LookupSwitchInsnNode ||
-        it.opcode == Opcodes.JSR || it.opcode == Opcodes.RET }) return
+    if (original.any { it.opcode == Opcodes.JSR || it.opcode == Opcodes.RET }) return
     val jumps = original.filterIsInstance<JumpInsnNode>()
-    if (jumps.isEmpty()) return
+    val switches = original.filter { it is TableSwitchInsnNode || it is LookupSwitchInsnNode }
+    if (jumps.isEmpty() && switches.isEmpty()) return
 
     val parameterKinds = mutableMapOf<Int, Int>()
     var parameterSlots = 0
@@ -75,6 +147,16 @@ class ControlFlowTransformer(private val random: Random) : Transformer {
       val next = positions.getValue(jump) + 1
       if (next < original.size) leaders += next
     }
+    for (node in switches) {
+      val labels = when (node) {
+        is TableSwitchInsnNode -> node.labels + node.dflt
+        is LookupSwitchInsnNode -> node.labels + node.dflt
+        else -> error("Not a switch")
+      }
+      for (label in labels) leaders += positions[label] ?: return
+      val next = positions.getValue(node) + 1
+      if (next < original.size) leaders += next
+    }
     val starts = leaders.toList()
     if (starts.size < 2 || starts.size > 256) return
     // Compute actual limits instead of allocating an instruction-count-sized stack for every
@@ -103,7 +185,8 @@ class ControlFlowTransformer(private val random: Random) : Transformer {
     for ((blockIndex, nodes) in blocks.withIndex()) {
       val last = nodes.getOrNull(nodes.indexOfLast { it.opcode >= 0 })
       if (last is JumpInsnNode && last.opcode != Opcodes.GOTO && blockIndex + 1 >= blocks.size) return
-      if (last !is JumpInsnNode && last?.opcode !in Opcodes.IRETURN..Opcodes.RETURN &&
+      if (last !is JumpInsnNode && last !is TableSwitchInsnNode && last !is LookupSwitchInsnNode &&
+        last?.opcode !in Opcodes.IRETURN..Opcodes.RETURN &&
         last?.opcode != Opcodes.ATHROW && blockIndex + 1 >= blocks.size) return
     }
     val blockAt = IntArray(original.size)
@@ -197,13 +280,26 @@ class ControlFlowTransformer(private val random: Random) : Transformer {
       }, slot))
     }
     output.route(0)
-    val blockOrder = blocks.indices.toMutableList().also { java.util.Collections.shuffle(it, random) }
+    val blockOrder = blocks.indices.toMutableList().also { Collections.shuffle(it, random) }
     for (blockIndex in blockOrder) {
       output.add(caseLabels[blockIndex])
       val nodes = blocks[blockIndex]
       val lastExecutable = nodes.indexOfLast { it.opcode >= 0 }
       for ((nodeIndex, node) in nodes.withIndex()) {
-        if (nodeIndex != lastExecutable || node !is JumpInsnNode) {
+        if (nodeIndex == lastExecutable && (node is TableSwitchInsnNode || node is LookupSwitchInsnNode)) {
+          val routes = linkedMapOf<LabelNode, LabelNode>()
+          fun edge(label: LabelNode): LabelNode = routes.getOrPut(label) { LabelNode() }
+          when (node) {
+            is TableSwitchInsnNode -> output.add(TableSwitchInsnNode(node.min, node.max,
+              edge(node.dflt), *node.labels.map(::edge).toTypedArray()))
+            is LookupSwitchInsnNode -> output.add(LookupSwitchInsnNode(edge(node.dflt),
+              node.keys.toIntArray(), node.labels.map(::edge).toTypedArray()))
+          }
+          for ((destination, trampoline) in routes) {
+            output.add(trampoline)
+            output.route(target(destination), blockIndex)
+          }
+        } else if (nodeIndex != lastExecutable || node !is JumpInsnNode) {
           output.emit(node, blockIndex)
         } else if (node.opcode == Opcodes.GOTO) {
           output.route(target(node.label), blockIndex)
@@ -217,7 +313,9 @@ class ControlFlowTransformer(private val random: Random) : Transformer {
       }
       val terminal = nodes.getOrNull(lastExecutable)?.opcode
       if (terminal !in Opcodes.IRETURN..Opcodes.RETURN && terminal != Opcodes.ATHROW &&
-        nodes.getOrNull(lastExecutable) !is JumpInsnNode) {
+        nodes.getOrNull(lastExecutable) !is JumpInsnNode &&
+        nodes.getOrNull(lastExecutable) !is TableSwitchInsnNode &&
+        nodes.getOrNull(lastExecutable) !is LookupSwitchInsnNode) {
         output.route(blockIndex + 1, blockIndex)
       }
     }
@@ -236,6 +334,8 @@ class ControlFlowTransformer(private val random: Random) : Transformer {
     method.instructions.clear()
     method.instructions.add(output)
     method.localVariables?.clear()
-    count += jumps.size
+    flattened.add(method)
+    dispatchedMethods++
+    count += jumps.size + switches.size
   }
 }
