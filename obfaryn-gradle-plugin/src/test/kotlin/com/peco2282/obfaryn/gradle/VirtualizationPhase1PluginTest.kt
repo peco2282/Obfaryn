@@ -68,4 +68,27 @@ class VirtualizationPhase1PluginTest {
     assertFalse(Files.exists(dir.resolve("build/libs/sample-obfuscated.jar")))
     assertFalse(Files.exists(dir.resolve("build/libs/sample-obfuscated.mapping.txt")))
   }
+  @Test fun strongProtectionDoesNotAutomaticallySelectApplicationMethods() {
+    Files.writeString(dir.resolve("settings.gradle.kts"), "rootProject.name = \"sample\"")
+    Files.writeString(dir.resolve("build.gradle.kts"), """
+      plugins {
+        java
+        id("com.peco2282.obfaryn")
+      }
+      obfaryn {
+        platform = "generic"
+        protection = "strong"
+        applicationPackages += "example"
+      }
+    """.trimIndent())
+    val source = dir.resolve("src/main/java/example/Calc.java")
+    Files.createDirectories(source.parent)
+    Files.writeString(source, "package example; public class Calc { public static int sum(int value) { return value + 3; } }")
+    GradleRunner.create().withProjectDir(dir.toFile()).withArguments("obfuscateJar", "--stacktrace")
+      .withPluginClasspath().build()
+    assertTrue(Files.exists(dir.resolve("build/libs/sample-obfuscated.jar")))
+    val report = Files.readString(dir.resolve("build/libs/sample-obfuscated.virtualization.json"))
+    assertTrue(report.contains("\"eligible\":0"))
+  }
+
 }

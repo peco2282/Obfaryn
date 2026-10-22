@@ -1,5 +1,6 @@
 package com.peco2282.obfaryn.gradle
 
+import com.peco2282.obfaryn.core.ProtectionLevel
 import com.peco2282.obfaryn.core.ObfuscationConfig
 import com.peco2282.obfaryn.core.KotlinMetadataMode
 import com.peco2282.obfaryn.core.Obfuscator
@@ -195,6 +196,8 @@ open class ObfarynExtension {
   var excludeRenaming = listOf<String>()
   var targetPackage: String? = null
   var flattenPackages = false
+  /** standard or strong; strong adds application control flow, checks, and reporting; VM selection stays explicit. */
+  var protection = "standard"
   var controlFlow = false
   var integrityPrivateKey: String? = null
   var integrityPublicKey: String? = null
@@ -262,6 +265,7 @@ class ObfarynPlugin : Plugin<Project> {
               .mapNotNull(project.configurations::findByName).flatMap { it.files }.map { it.toPath() } +
               extension.classpath.map(Path::of)).distinct().sortedBy { it.toString() }
             val config = ObfuscationConfig(
+              protectionLevel = ProtectionLevel.valueOf(extension.protection.uppercase()),
               stripDebugInfo = extension.stripDebugInfo,
               stripKotlinMetadata = extension.stripKotlinMetadata,
               kotlinMetadataMode = KotlinMetadataMode.valueOf(extension.kotlinMetadataMode.uppercase()),

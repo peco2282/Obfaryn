@@ -404,6 +404,28 @@ The CLI accepts repeated `--exclude-class regex`, `--exclude-resource regex`, `-
 
 `--control-flow` applies branch inversion and keyed switch dispatch. Constructors, class initializers, and large methods are excluded. Control flow and virtualization automatically trigger frame recomputation; external dependencies may be needed on the classpath.
 
+## Strong protection
+
+Enable stronger application-scoped transformations in Gradle:
+
+```kotlin
+obfaryn {
+  protection = "strong"
+  applicationPackages += "com.example.plugin"
+  platform = "paper" // Requires the Paper provider on the build tool classpath
+}
+```
+
+The CLI equivalent is `obfaryn input.jar --protection strong --application-package com.example.plugin --classpath dependency.jar`. The core API uses `protectionLevel = ProtectionLevel.STRONG`. The default remains `standard`.
+
+Strong protection enables control-flow transformations and ASM output validation, and recomputes frames. It does not automatically select methods for virtualization. Use `@Virtualize` for explicit selection; existing method-pattern settings remain supported. It requires explicit application roots or roots discovered from platform/manifest entrypoints. Bundled classes outside those roots are excluded from body and name transformations; references to renamed application types are still updated. Literal settings and Kotlin metadata policies remain configurable. Package flattening is configured separately.
+
+Strong protection writes `<output-name>.virtualization.json` beside the output, unless `virtualizationReport` supplies another path. Explicit selections retain the configured selection mode, including strict failures for unsupported methods. Zero virtualized methods is valid. `@HotPath` and user exclusions can exclude methods from virtualization.
+
+Paper applies conservative performance exclusions to method-pattern selections by default. Explicit `@Virtualize` annotations override these Paper exclusions. To disable the exclusions for pattern selections, set `platformOptions["virtualization-protect-hot-paths"] = "false"` in Gradle or pass `--platform-option virtualization-protect-hot-paths=false` to the CLI. This removes Paper's automatic lifecycle, event, tick, and transitive-call exclusions; entrypoint name and descriptor protection still applies. User exclusions and source `@HotPath` directives still apply. This can substantially increase tick costs; measure a representative workload before deployment.
+
+Constructors, monitors, and other unsupported patterns can remain readable. Review the report for each sensitive method. VM conversion adds execution and memory costs; validate on a representative server workload. JVM validity or a decompiler failure alone does not prove equivalent behavior or resistance to analysis. Publish the output JAR without the mapping and analysis reports, which contain original names.
+
 ## Method virtualization
 
 Prefer `@Virtualize` on selected classes or methods. Pattern-based selection is experimental and requires `@file:OptIn(VirtualizeOptIn::class)` in the Gradle Kotlin DSL:

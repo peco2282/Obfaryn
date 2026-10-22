@@ -392,6 +392,28 @@ CLI は繰り返し可能な `--exclude-class regex`、`--exclude-resource regex
 
 `--control-flow` は条件分岐の反転とキー付き switch ディスパッチを適用します。コンストラクタ、クラス初期化子、および大きなメソッドは対象外です。制御フローおよび仮想化を適用するとフレームの再計算が自動でトリガーされるため、クラスパスに外部依存関係が必要になる場合があります。
 
+## 強化保護
+
+Gradle ではアプリケーション範囲の強化保護を次の設定で有効にできます。
+
+```kotlin
+obfaryn {
+  protection = "strong"
+  applicationPackages += "com.example.plugin"
+  platform = "paper" // ビルドツールのクラスパスに Paper provider が必要
+}
+```
+
+CLI では `obfaryn input.jar --protection strong --application-package com.example.plugin --classpath dependency.jar`、core API では `protectionLevel = ProtectionLevel.STRONG` を使用します。既定値は従来の `standard` です。
+
+strong は制御フロー変換、ASM 出力検証、フレーム再計算を有効にします。VM 化の対象は自動で増やしません。`@Virtualize` で明示的に選択します。既存のメソッドパターン指定も引き続き利用できます。アプリケーションルートの明示指定、またはプラットフォーム・マニフェストの起点からの検出が必要です。ルート外の同梱クラスは本体変換と名前変更から除外し、変更されたアプリケーション型への参照は更新します。リテラル変換と Kotlin Metadata の設定は引き続き指定できます。パッケージの flatten は独立した設定です。
+
+strong は出力 JAR の隣に `<出力名>.virtualization.json` を生成します。`virtualizationReport` による出力先指定も可能です。明示指定には設定した選択モードを適用し、`strict` では未対応なら失敗します。VM 化されるメソッドがゼロでも成功します。`@HotPath` とユーザー指定の除外も利用できます。
+
+Paper の性能除外はメソッドパターンによる選択に適用します。明示的な `@Virtualize` は Paper の性能除外を上書きします。パターン選択で性能除外を解除する場合は、Gradle で `platformOptions["virtualization-protect-hot-paths"] = "false"`、CLI で `--platform-option virtualization-protect-hot-paths=false` を指定できます。Paper による起動・イベント・tick・その呼び出し先の自動除外を解除し、起点名とプラグイン記述ファイルの保護は維持します。ユーザー指定の除外とソースの `@HotPath` は引き続き適用されます。tick の実行コストが増える可能性があるため、配備前に実際の負荷で計測してください。
+
+コンストラクタ、モニタなどの未対応部分は読み取れる状態で残る場合があります。重要メソッドごとにレポートを確認してください。VM 化には実行時間とメモリのコストがあるため、実際のサーバー負荷で検証してください。JVM の検証成功やデコンパイル失敗だけでは、動作の同一性や解析への耐性を証明できません。元名を含むマッピング・解析レポートを公開 JAR と一緒に配布しないでください。
+
 ## メソッドの仮想化（VM化）
 
 VM 化は密な switch・疎な switch、クラスリテラル、型別の catch、finally にも対応します。

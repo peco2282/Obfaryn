@@ -38,6 +38,7 @@ class PaperPlatform(override val metadata: PlatformMetadata) : Platform {
     options: PlatformOptions,
     config: PlatformConfiguration,
   ) {
+    if (!options.boolean("virtualization-protect-hot-paths", true)) return
     data class MethodKey(val owner: String, val name: String, val descriptor: String)
 
     val entrypoints = entrypoints(context, options)

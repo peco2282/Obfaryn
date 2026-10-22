@@ -82,6 +82,8 @@ class Obfuscator(
    * @throws IllegalStateException If a transformation pass fails, with its ID and original cause.
    */
   fun obfuscate(input: Path, output: Path, mapping: Path? = null): ObfuscationResult {
+    val strong = config.protectionLevel == ProtectionLevel.STRONG
+    val controlFlow = config.controlFlow || strong
     val classExclusions = config.excludeClasses.map(::Regex)
     val resourceExclusions = config.excludeResources.map(::Regex)
     val renameExclusions = config.excludeRenaming.map(::Regex)
@@ -110,46 +112,6 @@ class Obfuscator(
     config.keep.forEach(keep::add)
     platform.configure(context, platformOptions, keep)
     config.platformConfiguration?.invoke(keep)
-    val annotatedNoObfuscationClasses = context.classes.values
-      .filter(ObfuscationAnnotationPolicy::noObfuscation).mapTo(linkedSetOf()) { it.name }
-    val excludedClasses = context.classes.keys.filter { name -> classExclusions.any { it.matches(name) } }.toSet() +
-      annotatedNoObfuscationClasses
-    val excludedResources =
-      context.resources.keys.filter { name -> resourceExclusions.any { it.matches(name) } }.toSet()
-    excludedClasses.forEach(keep::keepClass)
-    for (owner in context.classes.values) {
-      owner.methods.filter(ObfuscationAnnotationPolicy::noObfuscation)
-        .forEach { keep.keepMethod(owner.name, it.name, it.desc) }
-      owner.fields.filter(ObfuscationAnnotationPolicy::noObfuscation)
-        .forEach { keep.keepField(owner.name, it.name) }
-    }
-    context.classes.keys.filter { name -> renameExclusions.any { it.matches(name) } }.forEach(keep::keepClass)
-    excludedResources.forEach(keep::keepResource)
-    val platformVirtualizationExclusions = keep.virtualizationExclusions()
-    val virtualizationAnalysis = VirtualizationAnalyzer(
-      config.virtualizeMethods, config.excludeVirtualization, platformVirtualizationExclusions)
-      .analyze(context.classes.values.filter { it.name !in excludedClasses })
-    val virtualizationRequested = virtualizationAnalysis.selected > 0
-    config.virtualizationReport?.let { report ->
-      require(listOfNotNull(input, output, mapping).none { it.toAbsolutePath().normalize() == report.toAbsolutePath().normalize() }) {
-        "Virtualization report must not overwrite the input, output, or mapping"
-      }
-    }
-    config.virtualizationReport?.let(virtualizationAnalysis::write)
-    val analyzeOnly = config.virtualizationAnalyzeOnly || config.virtualizationSelectionMode == VirtualizationSelectionMode.ANALYZE_ONLY
-    val virtualizationWarnings = virtualizationAnalysis.requireEligible(
-      if (analyzeOnly) VirtualizationSelectionMode.ANALYZE_ONLY else config.virtualizationSelectionMode)
-    if (analyzeOnly) {
-      appliedPlatformExtensions.cleanup()
-      return ObfuscationResult(classesLoaded, resourcesLoaded, platform.id, 0, 0, 0, 0, 0,
-        output, null, virtualizationWarnings, virtualizationAnalysis = virtualizationAnalysis)
-    }
-    require((config.integrityPrivateKey == null) == (config.integrityPublicKey == null)) {
-      "Both integrityPrivateKey and integrityPublicKey are required"
-    }
-    val integrity = config.integrityPrivateKey?.let {
-      IntegrityProtection(it, config.integrityPublicKey!!)
-    }
     val entrypoints = platform.entrypoints(context, platformOptions).toMutableSet()
     context.resources["META-INF/MANIFEST.MF"]?.let { entry ->
       val manifest = java.util.jar.Manifest(entry.data.inputStream())
@@ -167,10 +129,59 @@ class Obfuscator(
           .filter { it.isNotEmpty() }.forEach(keep::keepClassNameAndPublicMembers)
       }
     }
-    val warnings = ReflectionScanner.scan(context, keep).toMutableList()
-    if (virtualizationRequested) warnings += virtualizationWarnings
     val applicationRoots = (entrypoints.mapNotNull { it.substringBeforeLast('/', "").takeIf(String::isNotEmpty) } +
         config.applicationPackages.map { it.replace('.', '/').trimEnd('/') }).filter(String::isNotEmpty).distinct()
+    require(!strong || applicationRoots.isNotEmpty()) {
+      "Strong protection requires an application package or a platform/manifest entrypoint"
+    }
+    val annotatedNoObfuscationClasses = context.classes.values
+      .filter(ObfuscationAnnotationPolicy::noObfuscation).mapTo(linkedSetOf()) { it.name }
+    val excludedClasses = context.classes.keys.filter { name -> classExclusions.any { it.matches(name) } }.toSet() +
+      annotatedNoObfuscationClasses + if (strong) context.classes.keys.filter { name ->
+        applicationRoots.none { name.startsWith("$it/") }
+      }.toSet() else emptySet()
+    val excludedResources =
+      context.resources.keys.filter { name -> resourceExclusions.any { it.matches(name) } }.toSet()
+    excludedClasses.forEach(keep::keepClass)
+    for (owner in context.classes.values) {
+      owner.methods.filter(ObfuscationAnnotationPolicy::noObfuscation)
+        .forEach { keep.keepMethod(owner.name, it.name, it.desc) }
+      owner.fields.filter(ObfuscationAnnotationPolicy::noObfuscation)
+        .forEach { keep.keepField(owner.name, it.name) }
+    }
+    context.classes.keys.filter { name -> renameExclusions.any { it.matches(name) } }.forEach(keep::keepClass)
+    excludedResources.forEach(keep::keepResource)
+    val platformVirtualizationExclusions = keep.virtualizationExclusions()
+    val selectors = config.virtualizeMethods
+    val virtualizationAnalysis = VirtualizationAnalyzer(
+      selectors, config.excludeVirtualization, platformVirtualizationExclusions)
+      .analyze(context.classes.values.filter { it.name !in excludedClasses })
+    val virtualizationRequested = virtualizationAnalysis.selected > 0
+    val reportPath = config.virtualizationReport ?: if (strong)
+      output.resolveSibling(output.fileName.toString().removeSuffix(".jar") + ".virtualization.json") else null
+    reportPath?.let { report ->
+      require(listOfNotNull(input, output, mapping).none { it.toAbsolutePath().normalize() == report.toAbsolutePath().normalize() }) {
+        "Virtualization report must not overwrite the input, output, or mapping"
+      }
+    }
+    reportPath?.let(virtualizationAnalysis::write)
+    val analyzeOnly = config.virtualizationAnalyzeOnly || config.virtualizationSelectionMode == VirtualizationSelectionMode.ANALYZE_ONLY
+    val selectionMode = config.virtualizationSelectionMode
+    val virtualizationWarnings = virtualizationAnalysis.requireEligible(
+      if (analyzeOnly) VirtualizationSelectionMode.ANALYZE_ONLY else selectionMode)
+    if (analyzeOnly) {
+      appliedPlatformExtensions.cleanup()
+      return ObfuscationResult(classesLoaded, resourcesLoaded, platform.id, 0, 0, 0, 0, 0,
+        output, null, virtualizationWarnings, virtualizationAnalysis = virtualizationAnalysis)
+    }
+    require((config.integrityPrivateKey == null) == (config.integrityPublicKey == null)) {
+      "Both integrityPrivateKey and integrityPublicKey are required"
+    }
+    val integrity = config.integrityPrivateKey?.let {
+      IntegrityProtection(it, config.integrityPublicKey!!)
+    }
+    val warnings = ReflectionScanner.scan(context, keep).toMutableList()
+    if (virtualizationRequested) warnings += virtualizationWarnings
     val stripAllMetadata = config.stripKotlinMetadata || config.kotlinMetadataMode == KotlinMetadataMode.STRIP
     val versionedClasses = context.resources.filterKeys { Regex("META-INF/versions/[0-9]+/.+\\.class").matches(it) }
     if (versionedClasses.isNotEmpty()) {
@@ -213,7 +224,7 @@ class Obfuscator(
     val rename = RenameTransformer(config, keep)
     val flow = ControlFlowTransformer(random)
     val virtualization = VirtualizationTransformer(
-      config.virtualizeMethods, random, config.virtualizationRuntimeGroupSize, config.virtualizationSelectionMode,
+      selectors, random, config.virtualizationRuntimeGroupSize, selectionMode,
       config.classpath + listOf(input), config.excludeVirtualization, platformVirtualizationExclusions
     )
     val pipeline = customTransformers ?: listOfNotNull(
@@ -230,7 +241,7 @@ class Obfuscator(
       },
       strings.takeIf { config.stringEncryption },
       numbers.takeIf { config.numberObfuscation },
-      flow.takeIf { config.controlFlow },
+      flow.takeIf { controlFlow },
       rename.takeIf { config.renameClasses || config.renameMethods || config.renameFields },
     )
     val orderedPipeline = TransformerPipeline(emptyList()).apply {
@@ -268,8 +279,8 @@ class Obfuscator(
         else "No methods virtualized: selectors matched ${virtualizationAnalysis.selected} methods, but none were eligible"
     appliedPlatformExtensions.cleanup()
     if (!config.dryRun) jarWriter.write(
-      context, output, config.reproducible, config.verifyOutput,
-      config.recomputeFrames || config.controlFlow || virtualizationRequested ||
+      context, output, config.reproducible, config.verifyOutput || strong,
+      config.recomputeFrames || controlFlow || virtualizationRequested ||
         orderedPipeline.any { it.requiresFrameRecomputation }, config.classpath
     )
     if (!config.dryRun) integrity?.seal(output, config.reproducible)

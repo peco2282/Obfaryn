@@ -59,4 +59,11 @@ class VirtualizationPhase1CliTest {
       assertEquals(2, calc.getMethod("bad", Int::class.javaPrimitiveType).invoke(null, 0))
     }
   }
+  @Test fun strongProtectionOptionIsCaseInsensitive() {
+    val command = ObfuscateCommand()
+    picocli.CommandLine(command).apply { isCaseInsensitiveEnumValuesAllowed = true }
+      .parseArgs("--protection", "strong", "input.jar")
+    assertEquals(com.peco2282.obfaryn.core.ProtectionLevel.STRONG, command.configuration().protectionLevel)
+  }
+
 }

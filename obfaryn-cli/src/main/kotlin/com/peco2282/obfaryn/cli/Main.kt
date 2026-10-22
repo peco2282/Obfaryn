@@ -2,6 +2,7 @@ package com.peco2282.obfaryn.cli
 
 import com.peco2282.obfaryn.core.ObfuscationConfig
 import com.peco2282.obfaryn.core.KotlinMetadataMode
+import com.peco2282.obfaryn.core.ProtectionLevel
 import com.peco2282.obfaryn.core.Obfuscator
 import com.peco2282.obfaryn.core.mapping.Mapping
 import com.peco2282.obfaryn.core.platform.Platforms
@@ -73,6 +74,8 @@ internal open class ObfuscateCommand : Callable<Int> {
   var platform = "auto"
   @Option(names = ["--platform-option"], paramLabel = "KEY=VALUE", converter = [PlatformOptionConverter::class], description = ["Platform option; repeatable."])
   var platformOptions = mutableListOf<PlatformOption>()
+  @Option(names = ["--protection"], paramLabel = "LEVEL", description = ["Protection level: standard (default) or strong; strong requires application roots and enables control flow and output checks; VM selection stays explicit."])
+  var protectionLevel = ProtectionLevel.STANDARD
   @Option(names = ["--seed"], paramLabel = "N", description = ["Seed for reproducible obfuscation."])
   var seed: Long? = null
   @Option(names = ["--keep"], paramLabel = "RULE", description = ["Keep class, package.**, class#method(desc), or class#field; repeatable."])
@@ -148,6 +151,7 @@ internal open class ObfuscateCommand : Callable<Int> {
   internal fun configuration(): ObfuscationConfig {
     require(virtualizationRuntimeGroupSize > 0) { "--virtualization-runtime-group-size must be positive" }
     return ObfuscationConfig(
+      protectionLevel = protectionLevel,
       stripDebugInfo = !keepDebugInfo,
       stripKotlinMetadata = stripMetadata, stringEncryption = !noStringEncryption, numberObfuscation = !noNumberObfuscation,
       stringConstantFields = !noStringConstantFields, numberConstantFields = !noNumberConstantFields,

@@ -17,7 +17,7 @@ import java.util.Random
  * Controls handling of the `kotlin.Metadata` annotation.
  *
  * [AUTO] and [PRESERVE] retain metadata and safely rewrite class names, types, JVM signatures,
- * and Kotlin module maps during renaming or relocation. Kotlin member names remain protected.
+ * and Kotlin module maps during renaming or relocation. Eligible member names are rewritten together.
  * [STRIP] requests removal throughout the input JAR; exclusions and annotation policies can
  * still prevent removal. Unsupported metadata fails before output.
  *
@@ -26,6 +26,9 @@ import java.util.Random
  * plugin payloads are rejected. This does not imply testing every Kotlin compiler version.
  */
 enum class KotlinMetadataMode { AUTO, PRESERVE, STRIP }
+
+/** STRONG adds application-scoped control flow, output checks, and a virtualization report. */
+enum class ProtectionLevel { STANDARD, STRONG }
 
 /**
  * Options for one [Obfuscator.obfuscate] invocation.
@@ -41,6 +44,8 @@ enum class KotlinMetadataMode { AUTO, PRESERVE, STRIP }
  * Package flattening requires class renaming and a non-null, valid [targetPackage]; specifying a
  * target without flattening is rejected. These constraints are checked when obfuscation starts.
  *
+ * @property protectionLevel STRONG enables control flow and output checks, and writes an eligibility report.
+ *   Virtualization requires explicit selection regardless of protection level.
  * @property stripDebugInfo Remove line numbers, source names, and local variable debug data.
  * @property stripKotlinMetadata Legacy switch to strip Kotlin metadata throughout the JAR;
  *   prefer [kotlinMetadataMode] for new callers.
@@ -132,6 +137,7 @@ data class ObfuscationConfig(
   val numberSelector: NumberObfuscationSelector = DefaultNumberObfuscationSelector(),
   val stringRandom: Random? = null,
   val numberRandom: Random? = null,
+  val protectionLevel: ProtectionLevel = ProtectionLevel.STANDARD,
 ) {
   companion object {
     /** Keeps runtime body transformations disabled; callers can opt in with copy(). */

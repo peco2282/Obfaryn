@@ -116,6 +116,14 @@ class PaperPlatformTest {
     assertEquals("paper event callback", excluded["sample/Listener.onMove(Ljava/lang/Object;)V"])
     assertEquals("paper plugin lifecycle", excluded["sample/Main.onEnable()V"])
     assertFalse("sample/TickTask.getTickKey()Ljava/lang/String;" in excluded)
+    val coverageFirst = KeepRules()
+    platform.configure(context, MapPlatformOptions(mapOf("virtualization-protect-hot-paths" to "false")), coverageFirst)
+    assertTrue(coverageFirst.virtualizationExclusions().isEmpty())
+    assertTrue(coverageFirst.className("sample/Main"))
+    assertTrue(coverageFirst.resource("plugin.yml"))
+    assertThrows(IllegalStateException::class.java) {
+      platform.configure(context, MapPlatformOptions(mapOf("virtualization-protect-hot-paths" to "invalid")), KeepRules())
+    }
   }
 
   @Test
