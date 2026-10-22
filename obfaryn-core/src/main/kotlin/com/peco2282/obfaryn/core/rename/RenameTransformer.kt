@@ -49,23 +49,35 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     val generatedByOuter = mutableMapOf<String, NameGenerator>()
     val occupied = nodes.map { it.name }.toMutableSet()
     val target = config.targetPackage?.replace('.', '/').takeIf { config.flattenPackages }
+    val applicationPackages = config.applicationPackages.map { it.replace('.', '/').trimEnd('/') + "/" }.toSet()
+    fun isInApplicationPackage(name: String) = applicationPackages.any { name.startsWith(it) }
     val pinnedPackages = if (target == null) emptySet() else nodes.filter { node ->
       protectedClass(node) || (listOfNotNull(node.superName) + node.interfaces).any {
-        it !in context.classes && it.substringBeforeLast('/', "") == node.name.substringBeforeLast('/', "")
+        it !in context.classes && it.substringBeforeLast('/', "") == node.name.substringBeforeLast('/', "") &&
+          // If the reference target is also in an application package, it will be relocated together,
+          // so it should not pin the package.
+          !isInApplicationPackage(it)
       } || node.methods.any { method ->
         (method.access and (Opcodes.ACC_PUBLIC or Opcodes.ACC_PROTECTED or Opcodes.ACC_PRIVATE) == 0 &&
-          !method.name.startsWith('<')) || method.instructions.toArray().any { insn ->
+          !method.name.startsWith('<') &&
+          // Package-private methods in application packages don't pin the package because all classes
+          // in the package will be relocated together.
+          !isInApplicationPackage(node.name)) || method.instructions.toArray().any { insn ->
           insn is MethodInsnNode &&
             ((insn.owner == "java/lang/Class" && insn.name in setOf("getResource", "getResourceAsStream")) ||
-              (insn.owner !in context.classes && insn.owner.substringBeforeLast('/', "") == node.name.substringBeforeLast('/', ""))) ||
+              (insn.owner !in context.classes && insn.owner.substringBeforeLast('/', "") == node.name.substringBeforeLast('/', "") &&
+                !isInApplicationPackage(insn.owner))) ||
             insn is FieldInsnNode && insn.owner !in context.classes &&
-              insn.owner.substringBeforeLast('/', "") == node.name.substringBeforeLast('/', "")
+              insn.owner.substringBeforeLast('/', "") == node.name.substringBeforeLast('/', "") &&
+              !isInApplicationPackage(insn.owner)
         }
       } || node.fields.any {
         it.access and (Opcodes.ACC_PUBLIC or Opcodes.ACC_PROTECTED or Opcodes.ACC_PRIVATE) == 0 &&
           // Captured outer instances (this$0) are synthetic package-private fields.
           // Their accesses move together with the enclosing Kotlin class hierarchy.
-          !capturedKotlinOuter(node, it)
+          !capturedKotlinOuter(node, it) &&
+          // Package-private fields in application packages don't pin the package.
+          !isInApplicationPackage(node.name)
       }
     }.map { it.name.substringBeforeLast('/', "") }.toSet()
     for (pkg in pinnedPackages.sorted()) warnings += "Package relocation preserved $pkg: kept structure, package access, or relative resource lookup"
