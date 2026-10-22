@@ -20,6 +20,7 @@ internal sealed interface BridgeTarget {
   data class CheckCast(val type: String) : BridgeTarget
   data class InstanceOf(val type: String) : BridgeTarget
   data class StringConstant(val value: String) : BridgeTarget
+  data class ClassConstant(val type: Type) : BridgeTarget
 }
 
 internal data class BridgeEntry(val id: Int, val caller: ClassNode, val target: BridgeTarget, val signature: BridgeSignature)
@@ -70,7 +71,7 @@ internal class BridgeRegistry(private val random: Random) {
       is BridgeTarget.NewArray -> { inputs.add(VirtualValueKind.INT); output = VirtualValueKind.REFERENCE }
       is BridgeTarget.CheckCast -> { inputs.add(VirtualValueKind.REFERENCE); output = VirtualValueKind.REFERENCE }
       is BridgeTarget.InstanceOf -> { inputs.add(VirtualValueKind.REFERENCE); output = VirtualValueKind.INT }
-      is BridgeTarget.StringConstant -> { output = VirtualValueKind.REFERENCE }
+      is BridgeTarget.StringConstant, is BridgeTarget.ClassConstant -> { output = VirtualValueKind.REFERENCE }
     }
     var id: Int
     do { id = random.nextInt() } while (id == 0 || entries.values.any { it.id == id })
@@ -186,6 +187,9 @@ internal class BridgeRegistry(private val random: Random) {
         }
         is BridgeTarget.StringConstant -> {
           code.add(LdcInsnNode(target.value)); Type.getType("Ljava/lang/String;")
+        }
+        is BridgeTarget.ClassConstant -> {
+          code.add(LdcInsnNode(target.type)); Type.getType("Ljava/lang/Class;")
         }
       }
       when (JvmToVirtualCompiler.kind(result)) {

@@ -38,6 +38,9 @@ internal enum class VirtualOperation {
 internal enum class VirtualValueKind { INT, REFERENCE, DOUBLE, LONG, FLOAT }
 internal data class BridgeSignature(val inputs: List<VirtualValueKind>, val output: VirtualValueKind?)
 
+/** Instruction ranges before lowering; typeBridge == 0 denotes a catch-all handler. */
+internal data class VirtualExceptionHandler(val start: Int, val end: Int, val target: Int, val typeBridge: Int)
+
 internal data class VirtualInstruction(val operation: VirtualOperation, val operand: Int = 0, val extra: Int = 0)
 
 /** A basic block with an explicit exit, so layout changes do not rely on JVM fallthrough. */
@@ -62,16 +65,36 @@ internal sealed interface VirtualTerminator {
  * preserve control flow independently from their eventual serialized order.
  */
 internal data class VirtualProgram(val locals: Int, val stack: Int, val blocks: List<VirtualBlock>,
-  var bridgeSignatures: Map<Int, BridgeSignature> = emptyMap()) {
+  var bridgeSignatures: Map<Int, BridgeSignature> = emptyMap(),
+  val exceptionHandlers: List<VirtualExceptionHandler> = emptyList()) {
   val instructions: List<VirtualInstruction> get() = lower(blocks)
 
-  private fun lower(ordered: List<VirtualBlock>): List<VirtualInstruction> {
+  private fun addresses(ordered: List<VirtualBlock>): Map<Int, Int> {
     val addresses = mutableMapOf<Int, Int>()
     var address = 1
     for (block in ordered) {
       require(addresses.put(block.id, address) == null) { "duplicate block ID" }
       address += block.instructions.size + if (block.terminator is VirtualTerminator.Branch) 2 else 1
     }
+    return addresses
+  }
+
+  private fun handlers(ordered: List<VirtualBlock>): List<VirtualExceptionHandler> {
+    val addresses = addresses(ordered)
+    // Keep handler priority while splitting protected ranges across shuffled blocks.
+    return exceptionHandlers.flatMap { handler ->
+      ordered.filter { it.id >= handler.start && it.id < handler.end }.map { block ->
+        val start = addresses.getValue(block.id)
+        val length = block.instructions.size + if (block.terminator is VirtualTerminator.Branch) 2 else 1
+        VirtualExceptionHandler(start, start + length, addresses.getValue(handler.target), handler.typeBridge)
+      }
+    }
+  }
+
+  val loweredExceptionHandlers: List<VirtualExceptionHandler> get() = handlers(blocks)
+
+  private fun lower(ordered: List<VirtualBlock>): List<VirtualInstruction> {
+    val addresses = addresses(ordered)
     fun target(id: Int) = addresses[id] ?: throw IllegalArgumentException("Unknown block $id")
     return buildList {
       add(VirtualInstruction(VirtualOperation.JUMP, target(blocks.first().id)))
@@ -121,7 +144,18 @@ internal data class VirtualProgram(val locals: Int, val stack: Int, val blocks: 
       block.copy(instructions = body, terminator = mutated)
     }
     val instructions = lower(ordered)
-    val words = IntArray(layout.headerSize + instructions.size * layout.width) { random.nextInt() }
+    val handlers = handlers(ordered)
+    val handlerOffset = layout.headerSize + instructions.size * layout.width
+    val words = IntArray(handlerOffset + 1 + handlers.size * 4) { random.nextInt() }
+    words[layout.handlersSlot] = handlerOffset xor layout.headerMask
+    words[handlerOffset] = handlers.size
+    handlers.forEachIndexed { index, handler ->
+      val offset = handlerOffset + 1 + index * 4
+      words[offset] = handler.start
+      words[offset + 1] = handler.end
+      words[offset + 2] = handler.target
+      words[offset + 3] = handler.typeBridge
+    }
     words[layout.localsSlot] = locals xor layout.headerMask
     words[layout.stackSlot] = stack xor layout.headerMask
     instructions.forEachIndexed { index, instruction ->
@@ -134,9 +168,18 @@ internal data class VirtualProgram(val locals: Int, val stack: Int, val blocks: 
   }
 
   companion object {
-    fun fromInstructions(locals: Int, stack: Int, code: List<VirtualInstruction>): VirtualProgram {
+    fun fromInstructions(locals: Int, stack: Int, code: List<VirtualInstruction>,
+      handlers: List<VirtualExceptionHandler> = emptyList()): VirtualProgram {
       require(code.isNotEmpty()) { "empty IR" }
       val starts = sortedSetOf(0)
+      for (handler in handlers) {
+        require(handler.start in code.indices && handler.end in (handler.start + 1)..code.size && handler.target in code.indices) {
+          "invalid exception handler range"
+        }
+        starts += handler.start
+        if (handler.end < code.size) starts += handler.end
+        starts += handler.target
+      }
       code.forEachIndexed { index, instruction ->
         if (instruction.operation.isBranch || instruction.operation == VirtualOperation.JUMP) starts.add(instruction.operand)
         if ((instruction.operation.isBranch || instruction.operation.isReturn || instruction.operation == VirtualOperation.JUMP)
@@ -168,7 +211,7 @@ internal data class VirtualProgram(val locals: Int, val stack: Int, val blocks: 
         VirtualTerminator.ReturnReference, VirtualTerminator.ReturnVoid, VirtualTerminator.ReturnDouble,
         VirtualTerminator.ReturnLong, VirtualTerminator.ReturnFloat, VirtualTerminator.Throw -> true
       } }) { "control flow falls outside program" }
-      return VirtualProgram(locals, stack, blocks)
+      return VirtualProgram(locals, stack, blocks, exceptionHandlers = handlers)
     }
   }
 }
@@ -180,10 +223,11 @@ internal class VirtualLayout(random: Random) {
   val operandSlot = slots[1]
   val extraSlot = slots[2]
   val codes = VirtualOperation.entries.zip((1..255).shuffled(random)).toMap()
-  val headerSize = 3 + random.nextInt(6)
+  val headerSize = 4 + random.nextInt(6)
   private val headerSlots = (0 until headerSize).shuffled(random)
   val localsSlot = headerSlots[0]
   val stackSlot = headerSlots[1]
+  val handlersSlot = headerSlots[2]
   val headerMask = random.nextInt()
   val keyPartA = random.nextInt()
   val keyPartB = random.nextInt()
@@ -203,5 +247,5 @@ internal class VirtualLayout(random: Random) {
   }
 
   fun constants(): List<Int> = listOf(width, operationSlot, operandSlot, extraSlot,
-    keyPartA, keyPartB, increment, rotation, streamVariant, headerSize, localsSlot, stackSlot, headerMask)
+    keyPartA, keyPartB, increment, rotation, streamVariant, headerSize, localsSlot, stackSlot, headerMask, handlersSlot)
 }

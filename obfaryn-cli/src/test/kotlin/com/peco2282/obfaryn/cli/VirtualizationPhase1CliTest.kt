@@ -17,7 +17,7 @@ class VirtualizationPhase1CliTest {
 
   private fun input(): Path {
     val source = dir.resolve("Calc.java")
-    source.writeText("public class Calc { public static int good() { return 1; } public static int bad(int v) { switch (v) { case 0: return 2; case 1: return 3; default: return 4; } } }")
+    source.writeText("public class Calc { public static int good() { return 1; } public static int bad(int v) { synchronized (Calc.class) { return v + 2; } } }")
     assertEquals(0, ToolProvider.getSystemJavaCompiler().run(null, null, null, "-d", dir.toString(), source.toString()))
     val input = dir.resolve("input.jar")
     JarOutputStream(Files.newOutputStream(input)).use { jar ->

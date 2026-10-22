@@ -147,6 +147,8 @@ public final class VirtualizationRuntime {
     }
     int localCount = program[configuration(10)] ^ configuration(12);
     int stackCount = program[configuration(11)] ^ configuration(12);
+    int handlerOffset = program[configuration(13)] ^ configuration(12);
+    int handlerCount = program[handlerOffset];
     Object[] frame = acquireFrame(localCount, stackCount);
     int[] locals = (int[]) frame[0];
     Object[] referenceLocals = (Object[]) frame[1];
@@ -161,6 +163,8 @@ public final class VirtualizationRuntime {
     try {
       int sp = 0, pc = 0;
       while (true) {
+      int currentPc = pc;
+      try {
       int offset = configuration(9) + pc++ * width;
       int operand = program[offset + operandSlot], extra = program[offset + extraSlot];
       int a, b;
@@ -421,6 +425,23 @@ public final class VirtualizationRuntime {
           a = stack[--sp]; b = stack[--sp]; value = referenceStack[--sp]; referenceStack[sp] = null;
           ((float[]) value)[b] = Float.intBitsToFloat(a); break;
         default: throw new IllegalStateException("Invalid VM instruction");
+      }
+      } catch (Throwable failure) {
+        boolean handled = false;
+        for (int index = 0; index < handlerCount; index++) {
+          int entry = handlerOffset + 1 + index * 4;
+          if (currentPc < program[entry] || currentPc >= program[entry + 1]) continue;
+          int typeBridge = program[entry + 3];
+          if (typeBridge != 0 && ((Integer) bridge(typeBridge, new Object[] { failure })).intValue() == 0) continue;
+          Arrays.fill(referenceStack, null);
+          referenceStack[0] = failure;
+          kinds[0] = 2;
+          sp = 1;
+          pc = program[entry + 2];
+          handled = true;
+          break;
+        }
+        if (!handled) VirtualizationRuntime.throwUnchecked(failure);
       }
       }
     } finally {

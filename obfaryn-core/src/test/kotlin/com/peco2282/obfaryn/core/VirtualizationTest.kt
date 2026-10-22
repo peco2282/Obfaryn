@@ -30,7 +30,7 @@ class VirtualizationTest {
         public static int narrow(int a) { return (byte)a + (short)a + (char)a; }
         public static int branch(int a) { if (a == 0) return 17; if (a < 0) return -a; return a - 1; }
         public static int untouched(int a) { return a + 41; }
-        public static int bad(int a) { switch (a) { case 0: return 1; case 1: return 2; default: return 3; } }
+        public static int bad(int a) { synchronized (Calc.class) { return a + 1; } }
         public static long wrong(long a) { return a; }
       }
     """.trimIndent())

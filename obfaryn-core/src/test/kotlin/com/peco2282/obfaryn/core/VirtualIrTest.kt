@@ -45,7 +45,9 @@ class VirtualIrTest {
         assertNotEquals(layout.encrypt(words)[index + 1], layout.encrypt(altered)[index + 1])
         assertNotEquals(0, words[index])
       }
-      val operations = (layout.headerSize until words.size step layout.width).map {
+      val handlers = words[layout.handlersSlot] xor layout.headerMask
+      assertEquals(0, words[handlers])
+      val operations = (layout.headerSize until handlers step layout.width).map {
         layout.codes.entries.single { entry -> entry.value == words[it + layout.operationSlot] }.key
       }
       words.toList() to operations

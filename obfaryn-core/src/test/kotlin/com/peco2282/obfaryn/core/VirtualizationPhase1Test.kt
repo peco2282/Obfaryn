@@ -102,7 +102,7 @@ class VirtualizationPhase1Test {
     val method = MethodNode(Opcodes.ACC_PUBLIC, "members", "(JFD)V", null, null).apply {
       instructions.add(FieldInsnNode(Opcodes.GETSTATIC, "Fields", "value", "J"))
       instructions.add(MethodInsnNode(Opcodes.INVOKESTATIC, "Calls", "wide", "(DF)J", false))
-      instructions.add(LdcInsnNode(org.objectweb.asm.Type.getType("Ljava/lang/String;")))
+      instructions.add(LdcInsnNode(org.objectweb.asm.Type.getMethodType("()V")))
       instructions.add(InsnNode(Opcodes.RETURN))
     }
     val analysis = VirtualizationAnalyzer(emptyList()).analyze(owner, method)
@@ -186,9 +186,9 @@ class VirtualizationPhase1Test {
   @Test fun eligibleTransformsOnlyEligibleMethodsAndExecutesResult() {
     val owner = fixture()
     val rejected = owner.methods.single { it.name == "bad" }
-    rejected.desc = "()Ljava/lang/Class;"
+    rejected.desc = "()Ljava/lang/invoke/MethodType;"
     rejected.instructions = InsnList().apply {
-      add(LdcInsnNode(org.objectweb.asm.Type.getType("Ljava/lang/String;"))); add(InsnNode(Opcodes.ARETURN))
+      add(LdcInsnNode(org.objectweb.asm.Type.getMethodType("()V"))); add(InsnNode(Opcodes.ARETURN))
     }
     rejected.maxStack = 1
     val before = rejected.instructions
@@ -210,7 +210,7 @@ class VirtualizationPhase1Test {
     URLClassLoader(arrayOf(jar.toUri().toURL()), platformClassLoader()).use { loader ->
       val loaded = loader.loadClass("Calc")
       assertEquals(1, loaded.getMethod("good").invoke(null))
-      assertEquals(String::class.java, loaded.getMethod("bad").invoke(null))
+      assertEquals(java.lang.invoke.MethodType.methodType(Void.TYPE), loaded.getMethod("bad").invoke(null))
     }
   }
 

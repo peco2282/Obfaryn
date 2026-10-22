@@ -57,7 +57,7 @@ class VirtualizationPhase1PluginTest {
     """.trimIndent())
     val source = dir.resolve("src/main/java/example/Calc.java")
     Files.createDirectories(source.parent)
-    Files.writeString(source, "package example; public class Calc { public static int good() { return 1; } public static int bad(int v) { switch (v) { case 0: return 2; case 1: return 3; default: return 4; } } }")
+    Files.writeString(source, "package example; public class Calc { public static int good() { return 1; } public static int bad(int v) { synchronized (Calc.class) { return v + 2; } } }")
     val result = GradleRunner.create().withProjectDir(dir.toFile()).withArguments("obfuscateJar", "--stacktrace")
       .withPluginClasspath().build()
     assertTrue(result.output.contains("BUILD SUCCESSFUL"))

@@ -81,6 +81,10 @@ class VirtualizationTransformer(patterns: List<String>, private val random: Rand
           if (load.opcode != Opcodes.ALOAD || name.cst !is String || call.opcode != Opcodes.INVOKESTATIC ||
             call.owner != "kotlin/jvm/internal/Intrinsics" || call.name != "checkNotNullParameter" ||
             call.desc != "(Ljava/lang/Object;Ljava/lang/String;)V") break
+          val callIndex = method.instructions.indexOf(call)
+          if (method.tryCatchBlocks.any { handler ->
+              callIndex >= method.instructions.indexOf(handler.start) && callIndex < method.instructions.indexOf(handler.end)
+            }) break
           body.add(VarInsnNode(load.opcode, load.`var`)); body.add(LdcInsnNode(name.cst))
           body.add(MethodInsnNode(call.opcode, call.owner, call.name, call.desc, call.itf))
           guard += 3

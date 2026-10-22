@@ -15,8 +15,51 @@ internal object JvmToVirtualCompiler {
     120, 122, 124, 126, 128, 130, 132, 145, 146, 147, 153, 154, 155, 156, 157, 158,
     159, 160, 161, 162, 163, 164, 167, 172).zip(VirtualOperation.entries.take(37)).toMap()
 
+  // Lower switches without changing the input node or allocating JVM locals. The key
+  // remains on the stack during comparisons and is removed exactly once on each exit.
+  private fun lowerSwitches(method: MethodNode): MethodNode {
+    val copy = MethodNode(method.access, method.name, method.desc, method.signature, method.exceptions.toTypedArray())
+    method.accept(copy)
+    for (instruction in copy.instructions.toArray()) {
+      val cases: List<Pair<Int, LabelNode>>
+      val default: LabelNode
+      when (instruction) {
+        is TableSwitchInsnNode -> {
+          cases = instruction.labels.mapIndexed { index, label -> instruction.min + index to label }
+          default = instruction.dflt
+        }
+        is LookupSwitchInsnNode -> {
+          cases = instruction.keys.zip(instruction.labels)
+          default = instruction.dflt
+        }
+        else -> continue
+      }
+      val exits = cases.map { LabelNode() }
+      val code = InsnList()
+      cases.forEachIndexed { index, (key, _) ->
+        code.add(InsnNode(Opcodes.DUP))
+        code.add(LdcInsnNode(key))
+        code.add(JumpInsnNode(Opcodes.IF_ICMPEQ, exits[index]))
+      }
+      code.add(InsnNode(Opcodes.POP))
+      code.add(JumpInsnNode(Opcodes.GOTO, default))
+      cases.forEachIndexed { index, (_, target) ->
+        code.add(exits[index])
+        code.add(InsnNode(Opcodes.POP))
+        code.add(JumpInsnNode(Opcodes.GOTO, target))
+      }
+      copy.instructions.insertBefore(instruction, code)
+      copy.instructions.remove(instruction)
+    }
+    copy.maxStack += 2
+    return copy
+  }
+
   /** Compiles [method] without mutating its instruction list. */
   fun compile(owner: ClassNode, method: MethodNode, bridges: BridgeRegistry = BridgeRegistry(java.util.Random(0))): VirtualProgram {
+    if (method.instructions.any { it is TableSwitchInsnNode || it is LookupSwitchInsnNode }) {
+      return compile(owner, lowerSwitches(method), bridges)
+    }
     val identity = owner.name + "." + method.name + method.desc
     fun unsupported(reason: String): Nothing = throw IllegalArgumentException("Cannot virtualize $identity: $reason")
     if (method.name.startsWith("<") ||
@@ -24,10 +67,13 @@ internal object JvmToVirtualCompiler {
       !supportedType(Type.getReturnType(method.desc), true) || Type.getArgumentTypes(method.desc).any { !supportedType(it) }) {
       unsupported("requires a concrete method with int/reference/double arguments and int/reference/double/void result")
     }
-    if (method.tryCatchBlocks.isNotEmpty()) unsupported("exception handlers are unsupported")
     if (method.maxLocals < Type.getArgumentTypes(method.desc).sumOf { it.size } +
       (if (method.access and Opcodes.ACC_STATIC == 0) 1 else 0)) unsupported("invalid local capacity")
     val instructions = method.instructions.toArray()
+    val positions = instructions.withIndex().associate { it.value to it.index }
+    fun protectedRegions(index: Int): List<Int> = method.tryCatchBlocks.withIndex().filter { (_, handler) ->
+      index >= positions.getValue(handler.start) && index < positions.getValue(handler.end)
+    }.map { it.index }
     val branchTargets = instructions.filterIsInstance<JumpInsnNode>().map { it.label }.toSet() +
       instructions.filterIsInstance<TableSwitchInsnNode>().flatMap { it.labels + it.dflt } +
       instructions.filterIsInstance<LookupSwitchInsnNode>().flatMap { it.labels + it.dflt }
@@ -54,7 +100,8 @@ internal object JvmToVirtualCompiler {
           current is VarInsnNode && current.opcode == Opcodes.ASTORE) break
         if (current is MethodInsnNode && current.name == "<init>") {
           if (nested > 0) { nested--; continue }
-          if (current.opcode == Opcodes.INVOKESPECIAL && current.owner == candidate.desc) {
+          if (current.opcode == Opcodes.INVOKESPECIAL && current.owner == candidate.desc &&
+            protectedRegions(newIndex) == protectedRegions(index)) {
             constructorNews += candidate; constructorDups += instructions[dupIndex]; constructors += current
           }
           break
@@ -90,7 +137,11 @@ internal object JvmToVirtualCompiler {
           else -> null
         }
         is IntInsnNode -> if (op == Opcodes.NEWARRAY) BridgeTarget.NewArray(op, insn.operand.toString()) else null
-        is LdcInsnNode -> (insn.cst as? String)?.let(BridgeTarget::StringConstant)
+        is LdcInsnNode -> when (val constant = insn.cst) {
+          is String -> BridgeTarget.StringConstant(constant)
+          is Type -> if (constant.sort in setOf(Type.OBJECT, Type.ARRAY)) BridgeTarget.ClassConstant(constant) else null
+          else -> null
+        }
         else -> null
       }
       if (target != null) {
@@ -237,9 +288,17 @@ internal object JvmToVirtualCompiler {
       program.add(VirtualInstruction(operation, instruction[1], instruction[2]))
     }
     if (program.isEmpty()) unsupported("empty method body")
-    return try { VirtualProgram.fromInstructions(method.maxLocals, maxOf(1, method.maxStack), program).also {
+    val handlers = method.tryCatchBlocks.map { handler ->
+      val bridge = handler.type?.let { type ->
+        bridges.register(owner, BridgeTarget.InstanceOf(type)).also { signatures[it.id] = it.signature }.id
+      } ?: 0
+      VirtualExceptionHandler(addresses[handler.start] ?: unsupported("unknown exception range start"),
+        addresses[handler.end] ?: unsupported("unknown exception range end"),
+        addresses[handler.handler] ?: unsupported("unknown exception handler target"), bridge)
+    }
+    return try { VirtualProgram.fromInstructions(method.maxLocals, maxOf(1, method.maxStack), program, handlers).also {
       it.bridgeSignatures = signatures.toMap()
-      if ((((8 + it.instructions.size * 6) * 4 + 2) / 3) * 4 > 65535)
+      if ((((10 + it.instructions.size * 6 + it.loweredExceptionHandlers.size * 4) * 4 + 2) / 3) * 4 > 65535)
         unsupported("encoded program exceeds constant pool string limit")
       val locals = MutableList<VirtualValueKind?>(method.maxLocals) { null }
       var index = 0

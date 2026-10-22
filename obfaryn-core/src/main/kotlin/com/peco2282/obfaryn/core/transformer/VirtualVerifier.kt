@@ -35,6 +35,14 @@ internal object VirtualVerifier {
         require(extra == (signature.inputs.size shl 3 or kind)) { "invalid bridge encoding" }
       }
     }
+    val handlers = program.loweredExceptionHandlers
+    for (handler in handlers) {
+      require(handler.start in code.indices && handler.end in (handler.start + 1)..code.size && handler.target in code.indices) {
+        "invalid exception handler range"
+      }
+      if (handler.typeBridge != 0) require(program.bridgeSignatures[handler.typeBridge] ==
+        BridgeSignature(listOf(VirtualValueKind.REFERENCE), VirtualValueKind.INT)) { "invalid exception type bridge" }
+    }
     data class State(val stack: List<VirtualValueKind>, val locals: List<VirtualValueKind?>)
     val states = arrayOfNulls<State>(code.size)
     val pending = java.util.ArrayDeque<Int>()
@@ -55,6 +63,9 @@ internal object VirtualVerifier {
       val instruction = code[index]
       val op = instruction.operation
       val state = states[index]!!
+      for (handler in handlers) if (index >= handler.start && index < handler.end) {
+        edge(handler.target, State(listOf(VirtualValueKind.REFERENCE), state.locals))
+      }
       val stack = state.stack.toMutableList()
       val locals = state.locals.toMutableList()
       fun pop(kind: VirtualValueKind? = null): VirtualValueKind {

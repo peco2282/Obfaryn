@@ -258,7 +258,6 @@ class VirtualizationAnalyzer(patterns: List<String>, exclusions: List<String> = 
     if (method.access and Opcodes.ACC_SYNCHRONIZED != 0) reject(VirtualizationRejectionReason.SYNCHRONIZED_METHOD, "synchronized methods are unsupported")
     checkType(Type.getReturnType(method.desc), "result", allowVoid = true)
     Type.getArgumentTypes(method.desc).forEachIndexed { index, type -> checkType(type, "argument $index") }
-    if (method.tryCatchBlocks.isNotEmpty()) reject(VirtualizationRejectionReason.EXCEPTION_HANDLER, "exception handlers are unsupported")
     val instructions = method.instructions.toArray()
     if (instructions.none { it.opcode >= 0 }) reject(VirtualizationRejectionReason.EMPTY_BODY, "empty method body")
     val supported = setOf(0, 16, 17, 18, 21, 54, 87, 89, 95, 96, 100, 104, 108, 112, 116,
@@ -267,7 +266,7 @@ class VirtualizationAnalyzer(patterns: List<String>, exclusions: List<String> = 
       Opcodes.ARETURN, Opcodes.RETURN, Opcodes.IF_ACMPEQ, Opcodes.IF_ACMPNE, Opcodes.IFNULL,
       Opcodes.IFNONNULL, Opcodes.GETSTATIC, Opcodes.PUTSTATIC, Opcodes.GETFIELD, Opcodes.PUTFIELD,
       Opcodes.INVOKESTATIC, Opcodes.INVOKEVIRTUAL, Opcodes.INVOKEINTERFACE, Opcodes.INVOKESPECIAL,
-      Opcodes.INVOKEDYNAMIC,
+      Opcodes.INVOKEDYNAMIC, Opcodes.TABLESWITCH, Opcodes.LOOKUPSWITCH,
       Opcodes.CHECKCAST, Opcodes.INSTANCEOF,
       Opcodes.DCONST_0, Opcodes.DCONST_1, Opcodes.DLOAD, Opcodes.DSTORE, Opcodes.POP2, Opcodes.DUP2,
       Opcodes.DADD, Opcodes.DSUB, Opcodes.DMUL, Opcodes.DDIV, Opcodes.DREM, Opcodes.DNEG,
@@ -288,6 +287,11 @@ class VirtualizationAnalyzer(patterns: List<String>, exclusions: List<String> = 
     val invokes = sortedSetOf<String>()
     val references = sortedSetOf<String>()
     val bridges = sortedSetOf<String>()
+    method.tryCatchBlocks.mapNotNull { it.type }.distinct().forEach { type ->
+      references += type
+      types += "L$type;"
+      bridges += "${Opcodes.INSTANCEOF}:$type"
+    }
     val canonicalConstructors = mutableSetOf<MethodInsnNode>()
     val branchTargets = instructions.filterIsInstance<JumpInsnNode>().map { it.label }.toSet() +
       instructions.filterIsInstance<TableSwitchInsnNode>().flatMap { it.labels + it.dflt } +
@@ -327,8 +331,14 @@ class VirtualizationAnalyzer(patterns: List<String>, exclusions: List<String> = 
             else -> VirtualizationRejectionCode.UNSUPPORTED_OPCODE
           })
       if (insn is LdcInsnNode && insn.cst !is Int && insn.cst !is Long && insn.cst !is Float &&
-        insn.cst !is Double && insn.cst !is String)
+        insn.cst !is Double && insn.cst !is String &&
+        !((insn.cst as? Type)?.sort in setOf(Type.OBJECT, Type.ARRAY)))
         reject(VirtualizationRejectionReason.UNSUPPORTED_CONSTANT, "unsupported constant at instruction $index", index, insn.opcode)
+      if (insn is LdcInsnNode && insn.cst is Type && (insn.cst as Type).sort in setOf(Type.OBJECT, Type.ARRAY)) {
+        val type = insn.cst as Type
+        bridges += "class:${type.descriptor}"
+        types += type.descriptor
+      }
       if (insn is LdcInsnNode && insn.cst is String) {
         bridges += "string:${insn.cst}"
         types += "Ljava/lang/String;"
