@@ -3,6 +3,7 @@ package com.peco2282.obfaryn.core.rename
 import com.peco2282.obfaryn.core.keep.KeepRules
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
+import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.LdcInsnNode
 import org.objectweb.asm.tree.MethodInsnNode
@@ -10,6 +11,29 @@ import org.objectweb.asm.tree.MethodNode
 
 /** Protects Kotlin compiler conventions that are resolved by name rather than JVM references. */
 internal object KotlinMemberConstraints {
+  /** Value-class ABI hashes depend on Kotlin type names, even when the JVM types are erased. */
+  fun needsExplicitJvmName(name: String): Boolean =
+    '-' in name && !name.endsWith("-impl") && !name.endsWith("-impl0")
+
+  fun pinJvmNames(original: ClassNode, mapped: ClassNode) {
+    if ((original.visibleAnnotations.orEmpty() + original.invisibleAnnotations.orEmpty())
+        .none { it.desc == "Lkotlin/Metadata;" }) return
+    for ((before, after) in original.methods.zip(mapped.methods)) {
+      val existing = (after.visibleAnnotations.orEmpty() + after.invisibleAnnotations.orEmpty())
+        .firstOrNull { it.desc == "Lkotlin/jvm/JvmName;" }
+      if (existing != null) {
+        // Annotation arguments are strings, so ASM's member remapper cannot update them.
+        val index = existing.values.indexOf("name")
+        if (index >= 0) existing.values[index + 1] = after.name
+      } else if (needsExplicitJvmName(before.name) || (before.name != after.name && '-' in before.name)) {
+        if (after.invisibleAnnotations == null) after.invisibleAnnotations = mutableListOf()
+        after.invisibleAnnotations.add(AnnotationNode("Lkotlin/jvm/JvmName;").apply {
+          values = mutableListOf("name", after.name)
+        })
+      }
+    }
+  }
+
   /** Identifies a compiler helper by its flags, Kotlin owner, and actual delegate call. */
   fun defaultTarget(owner: ClassNode, helper: MethodNode): MemberKey? {
     if (!helper.name.endsWith("\$default") ||
@@ -31,7 +55,9 @@ internal object KotlinMemberConstraints {
           .any { it.desc == "Lkotlin/jvm/JvmInline;" }
         for (method in node.methods) {
           val annotations = method.visibleAnnotations.orEmpty() + method.invisibleAnnotations.orEmpty()
-          if (multifile || valueClass || node.name.endsWith("\$DefaultImpls") ||
+          if (multifile || valueClass && method.name in setOf(
+              "constructor-impl", "box-impl", "unbox-impl", "equals-impl", "equals-impl0", "hashCode-impl", "toString-impl",
+            ) || node.name.endsWith("\$DefaultImpls") ||
             annotations.any { it.desc == "Lkotlin/jvm/JvmStatic;" } ||
             Regex("component[0-9]+").matches(method.name)) {
             keep.keepMethod(node.name, method.name, method.desc)
@@ -50,7 +76,7 @@ internal object KotlinMemberConstraints {
           }
         }
         for (field in node.fields) {
-          if (multifile || valueClass || field.name in setOf("INSTANCE", "Companion")) keep.keepField(node.name, field.name)
+          if (multifile || field.name in setOf("INSTANCE", "Companion")) keep.keepField(node.name, field.name)
         }
       }
       // Callable references carry Kotlin names and JVM signatures as strings. Keep their

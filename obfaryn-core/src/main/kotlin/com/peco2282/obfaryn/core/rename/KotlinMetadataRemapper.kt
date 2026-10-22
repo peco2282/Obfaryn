@@ -267,6 +267,7 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
       annotations(node.annotations)
       node.kmEnumEntries.forEach { annotations(it.annotations) }
       val propertyNames = node.properties.associate { it.name to propertyName(it) }
+      node.inlineClassUnderlyingPropertyName = node.inlineClassUnderlyingPropertyName?.let { propertyNames[it] ?: it }
       if (node.isData) node.functions.filter { it.name == "copy" }.forEach { function ->
         function.valueParameters.forEach { parameter -> parameter.name = propertyNames[parameter.name] ?: parameter.name }
       }
@@ -301,6 +302,8 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
 
     fun function(node: KmFunction) {
       require(node.compilerPluginMetadata.isEmpty()) { "Opaque function compiler-plugin metadata is not supported" }
+      if (node.signature?.name?.let(KotlinMemberConstraints::needsExplicitJvmName) == true ||
+        methodName(node.signature) != null) node.hasAnnotations = true
       val renamed = methodName(node.signature)
       if (renamed != null) {
         node.name = renamed
@@ -313,7 +316,7 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
       node.contextParameters.forEach(::value)
       node.valueParameters.forEach(::value)
       type(node.returnType)
-      annotations(node.annotations)
+      annotations(node.annotations, renamed)
       annotations(node.extensionReceiverParameterAnnotations)
       node.contract?.effects?.forEach {
         it.constructorArguments.forEach(::expression)
@@ -329,6 +332,12 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
 
     private fun property(node: KmProperty) {
       require(node.compilerPluginMetadata.isEmpty()) { "Opaque property compiler-plugin metadata is not supported" }
+      val getterName = methodName(node.getterSignature)
+      val setterName = methodName(node.setterSignature)
+      if (node.getterSignature?.name?.let(KotlinMemberConstraints::needsExplicitJvmName) == true ||
+        methodName(node.getterSignature) != null) node.getter.hasAnnotations = true
+      if (node.setterSignature?.name?.let(KotlinMemberConstraints::needsExplicitJvmName) == true ||
+        methodName(node.setterSignature) != null) node.setter?.hasAnnotations = true
       node.name = propertyName(node)
       node.fieldSignature = node.fieldSignature?.let {
         JvmFieldSignature(fields[MemberKey(fieldOwner, it.name, it.descriptor)] ?: it.name, asm.mapDesc(it.descriptor))
@@ -343,8 +352,8 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
       node.setterParameter?.let(::value)
       type(node.returnType)
       annotations(node.annotations)
-      annotations(node.getter.annotations)
-      node.setter?.let { annotations(it.annotations) }
+      annotations(node.getter.annotations, getterName)
+      node.setter?.let { annotations(it.annotations, setterName) }
       annotations(node.extensionReceiverParameterAnnotations)
     }
 
@@ -389,8 +398,12 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
       annotations(node.annotations)
     }
 
-    private fun annotations(nodes: MutableList<KmAnnotation>) {
-      nodes.replaceAll(::annotation)
+    private fun annotations(nodes: MutableList<KmAnnotation>, jvmName: String? = null) {
+      nodes.replaceAll { node ->
+        if (jvmName != null && node.className == "kotlin/jvm/JvmName") {
+          KmAnnotation(node.className, node.arguments + ("name" to KmAnnotationArgument.StringValue(jvmName)))
+        } else annotation(node)
+      }
     }
 
     private fun annotation(node: KmAnnotation): KmAnnotation =

@@ -182,6 +182,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     for (node in nodes) {
       val mapped = ClassNode()
       node.accept(ClassRemapper(mapped, remapper))
+      KotlinMemberConstraints.pinJvmNames(node, mapped)
       metadata.rewrite(mapped, classMapping, methodMapping, fieldMapping, node.name)
       context.removeClass(node.name)
       context.putClass(mapped)
@@ -195,7 +196,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
 
   private fun protectedClass(node: ClassNode): Boolean =
     keep.className(node.name) || ObfuscationAnnotationPolicy.keepName(node) || node.name.endsWith("/package-info") ||
-      node.name == "module-info" || protectedStructure(node, keepEnum = false, keepAnnotationType = false)
+      node.name == "module-info" || protectedStructure(node, keepEnum = false, keepAnnotationType = false, keepRecord = false)
 
   private fun protectedMembers(node: ClassNode) = protectedStructure(node)
 
@@ -212,8 +213,12 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     name == "Companion" && access and (Opcodes.ACC_STATIC or Opcodes.ACC_FINAL) == (Opcodes.ACC_STATIC or Opcodes.ACC_FINAL) &&
       desc.startsWith("L") && desc.endsWith(";") && desc.substring(1, desc.length - 1) in classMapping
 
-  private fun protectedStructure(node: ClassNode, keepEnum: Boolean = true, keepAnnotationType: Boolean = true) =
-    node.access and (Opcodes.ACC_RECORD or (if (keepEnum) Opcodes.ACC_ENUM else 0) or
+  // Record component fields, accessors and ObjectMethods bootstrap labels must stay aligned.
+  // Retain those members, but allow class relocation: ASM remaps their types and bootstrap handles.
+  private fun protectedStructure(
+    node: ClassNode, keepEnum: Boolean = true, keepAnnotationType: Boolean = true, keepRecord: Boolean = true,
+  ) =
+    node.access and ((if (keepRecord) Opcodes.ACC_RECORD else 0) or (if (keepEnum) Opcodes.ACC_ENUM else 0) or
       (if (keepAnnotationType) Opcodes.ACC_ANNOTATION else 0)) != 0 ||
       node.interfaces.any { it == "java/io/Serializable" || it == "java/io/Externalizable" } ||
       node.methods.any { it.access and Opcodes.ACC_NATIVE != 0 }
