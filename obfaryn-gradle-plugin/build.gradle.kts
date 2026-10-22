@@ -58,6 +58,17 @@ publishing {
 }
 
 
+val paperPlatformFixture by configurations.creating {
+  isCanBeConsumed = false
+}
+dependencies {
+  paperPlatformFixture(project(":platforms:paper"))
+}
+
 tasks.test {
+  dependsOn(paperPlatformFixture)
+  doFirst {
+    systemProperty("obfaryn.test.paperClasspath", paperPlatformFixture.asPath)
+  }
   useJUnitPlatform()
 }

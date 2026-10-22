@@ -14,6 +14,41 @@ import javax.tools.ToolProvider
 class ObfarynPluginTest {
   @TempDir lateinit var dir: Path
 
+  @Test fun loadsPaperFromDedicatedClasspath() {
+    Files.writeString(dir.resolve("settings.gradle.kts"), "rootProject.name = \"sample\"")
+    val jars = System.getProperty("obfaryn.test.paperClasspath").split(java.io.File.pathSeparator)
+    jars.forEachIndexed { index, path -> Files.copy(Path.of(path), dir.resolve("platform-$index.jar")) }
+    val files = jars.indices.joinToString(", ") { "\"platform-$it.jar\"" }
+    val script = dir.resolve("build.gradle.kts")
+    Files.writeString(script, """
+      plugins { java; id("com.peco2282.obfaryn") }
+      dependencies { obfarynPlatform(files($files)) }
+      obfaryn { platform = "paper" }
+      tasks.register("checkPlatformIsolation") {
+        doLast {
+          check(configurations.compileClasspath.get().files.isEmpty())
+          check(configurations.runtimeClasspath.get().files.isEmpty())
+        }
+      }
+    """.trimIndent())
+    val source = dir.resolve("src/main/java/example/App.java")
+    Files.createDirectories(source.parent)
+    Files.writeString(source, "package example; public class App { public String hello() { return \"secret\"; } }")
+    val descriptor = dir.resolve("src/main/resources/plugin.yml")
+    Files.createDirectories(descriptor.parent)
+    Files.writeString(descriptor, "name: Sample\nversion: 1\nmain: example.App\n")
+    val runner = GradleRunner.create().withProjectDir(dir.toFile()).withPluginClasspath()
+    runner.withArguments("obfuscateJar", "checkPlatformIsolation", "--stacktrace").build()
+    JarFile(dir.resolve("build/libs/sample-obfuscated.jar").toFile()).use { jar ->
+      assertNotNull(jar.getJarEntry("example/App.class"))
+      assertNotNull(jar.getJarEntry("plugin.yml"))
+      assertFalse(jar.entries().asSequence().any { it.name.startsWith("com/peco2282/obfaryn/platform/") })
+    }
+    // A subsequent build without the dependency must not retain the provider.
+    Files.writeString(script, Files.readString(script).replace("obfarynPlatform(files($files))", ""))
+    assertTrue(runner.withArguments("obfuscateJar", "--stacktrace").buildAndFail().output.contains("Unknown platform: paper"))
+  }
+
   @Test fun nestedOptionsShareLegacyValues() {
     val extension = ObfarynExtension()
     extension.string { it.enabled = false; it.includeConstantFields = false }

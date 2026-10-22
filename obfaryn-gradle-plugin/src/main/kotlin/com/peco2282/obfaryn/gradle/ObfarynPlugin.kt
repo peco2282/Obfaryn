@@ -17,6 +17,7 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
+import java.net.URLClassLoader
 import java.nio.file.Path
 import java.util.Random
 
@@ -222,6 +223,15 @@ open class ObfarynExtension {
 @Suppress("unused")
 class ObfarynPlugin : Plugin<Project> {
   override fun apply(project: Project) {
+    val platformClasspath = project.configurations.create("obfarynPlatform") {
+      it.description = "Platform providers used by Obfaryn during obfuscation"
+      it.isCanBeConsumed = false
+      it.isCanBeResolved = true
+      it.attributes.attribute(
+        org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE,
+        project.objects.named(org.gradle.api.attributes.Usage::class.java, org.gradle.api.attributes.Usage.JAVA_RUNTIME),
+      )
+    }
     val extension = project.extensions.create("obfaryn", ObfarynExtension::class.java)
     project.plugins.withId("java") {
       project.afterEvaluate {
@@ -250,6 +260,7 @@ class ObfarynPlugin : Plugin<Project> {
             extension.output.mapping?.let(project::file)
               ?: outputFile.get().parentFile.resolve(outputFile.get().name.removeSuffix(".jar") + ".mapping.txt")
           }
+          task.inputs.files(platformClasspath).withPropertyName("obfarynPlatform").withNormalizer(org.gradle.api.tasks.ClasspathNormalizer::class.java)
           task.inputs.file(source.archiveFile)
           task.outputs.files(outputFile, mappingFile)
           // Custom strategies and mutable Random instances cannot be fingerprinted reliably.
@@ -313,8 +324,20 @@ class ObfarynPlugin : Plugin<Project> {
               integrityPrivateKey = extension.integrityPrivateKey?.let { project.file(it).toPath() },
               integrityPublicKey = extension.integrityPublicKey?.let { project.file(it).toPath() },
             )
-            val result = Obfuscator(config, pipelineConfigurers = extension.pipelineConfigurers.toList())
-              .obfuscate(input, output, mapping)
+            val result = URLClassLoader(
+              platformClasspath.files.map { it.toURI().toURL() }.toTypedArray(),
+              ObfarynPlugin::class.java.classLoader,
+            ).use { loader ->
+              val thread = Thread.currentThread()
+              val previousLoader = thread.contextClassLoader
+              try {
+                thread.contextClassLoader = loader
+                Obfuscator(config, pipelineConfigurers = extension.pipelineConfigurers.toList())
+                  .obfuscate(input, output, mapping)
+              } finally {
+                thread.contextClassLoader = previousLoader
+              }
+            }
             project.logger.lifecycle("Obfaryn: ${result.classesLoaded} classes, ${result.stringsEncrypted} strings, ${result.constantsObfuscated} constants; output: $output")
             project.logger.lifecycle("Obfaryn: ${result.branchesObfuscated} branches, ${result.methodsVirtualized} virtualized methods")
             result.warnings.forEach { project.logger.warn("Obfaryn: $it") }

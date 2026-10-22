@@ -197,13 +197,21 @@ pluginManagement { includeBuild("../Obfaryn") }
 
 利用側プロジェクトの `build.gradle.kts` で設定します:
 
+プロバイダーと推移的な実行時依存は `obfarynPlatform` から難読化時に読み込まれ、アプリケーションのクラスパスや出力 JAR には追加されません。Obfaryn プラグインとバージョンを揃え、公開先リポジトリを指定してください（例は SNAPSHOT 用）。Groovy DSL: `obfarynPlatform "com.peco2282.obfaryn:obfaryn-platform-paper:VERSION"`。
+
 ```kotlin
 plugins {
   java
   id("com.peco2282.obfaryn")
 }
 
+repositories {
+  maven { url = uri("https://maven.peco2282.com/maven-snapshots/") }
+  mavenCentral()
+}
+
 dependencies {
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0-SNAPSHOT")
   compileOnly("com.peco2282.obfaryn:obfaryn-annotations:1.0-SNAPSHOT")
 }
 

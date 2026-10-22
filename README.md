@@ -201,13 +201,21 @@ pluginManagement { includeBuild("../Obfaryn") }
 
 Configure the consuming project's `build.gradle.kts`:
 
+Platform providers and their runtime dependencies are loaded from `obfarynPlatform` during obfuscation. They are not added to application classpaths or the output JAR. Match the Obfaryn plugin version and configure its publication repository (the example uses snapshots). Groovy DSL: `obfarynPlatform "com.peco2282.obfaryn:obfaryn-platform-paper:VERSION"`.
+
 ```kotlin
 plugins {
   java
   id("com.peco2282.obfaryn")
 }
 
+repositories {
+  maven { url = uri("https://maven.peco2282.com/maven-snapshots/") }
+  mavenCentral()
+}
+
 dependencies {
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0-SNAPSHOT")
   compileOnly("com.peco2282.obfaryn:obfaryn-annotations:1.0-SNAPSHOT")
 }
 
