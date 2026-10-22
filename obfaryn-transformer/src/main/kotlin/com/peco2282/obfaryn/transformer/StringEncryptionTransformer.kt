@@ -21,7 +21,12 @@ class StringEncryptionTransformer(
     for (node in context.classes.values) {
       if (node.version < Opcodes.V1_8 || node.access and Opcodes.ACC_ANNOTATION != 0 || node.access and Opcodes.ACC_MODULE != 0) continue
       val helper = uniqueName(node)
-      var used = false
+      var accessor: String
+      do { accessor = uniqueName(node) } while (accessor == helper)
+      var cacheName: String
+      do { cacheName = "v\$" + java.lang.Long.toUnsignedString(random.nextLong(), 36) }
+      while (node.fields.any { it.name == cacheName })
+      var slots = 0
       for (method in node.methods) {
         if (!context.transformationPolicy.canTransformBody(node, method)) continue
         desugarStringConcats(method)
@@ -33,14 +38,14 @@ class StringEncryptionTransformer(
           val replacement = InsnList()
           replacement.add(LdcInsnNode(encrypted.payload))
           replacement.add(LdcInsnNode(encrypted.key))
-          replacement.add(MethodInsnNode(Opcodes.INVOKESTATIC, node.name, helper, "(Ljava/lang/String;I)Ljava/lang/String;", node.access and Opcodes.ACC_INTERFACE != 0))
+          replacement.add(LdcInsnNode(slots++))
+          replacement.add(MethodInsnNode(Opcodes.INVOKESTATIC, node.name, accessor, "(Ljava/lang/String;II)Ljava/lang/String;", node.access and Opcodes.ACC_INTERFACE != 0))
           method.instructions.insertBefore(insn, replacement)
           method.instructions.remove(insn)
           count++
-          used = true
         }
       }
-      if (used) {
+      if (slots > 0) {
         val inInterface = node.access and Opcodes.ACC_INTERFACE != 0
         val access = (if (inInterface) Opcodes.ACC_PUBLIC else Opcodes.ACC_PRIVATE) or Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC
         val decryptor = MethodNode(access, helper, "(Ljava/lang/String;I)Ljava/lang/String;", null, null).also {
@@ -51,9 +56,71 @@ class StringEncryptionTransformer(
           require(it.instructions.size() > 0) { "StringEncryptionCodec must generate a decryptor body" }
         }
         node.methods.add(decryptor)
+        node.methods.add(cachedAccessor(node.name, accessor, helper, cacheName, access, inInterface))
+        val fieldAccess = (if (inInterface) Opcodes.ACC_PUBLIC else Opcodes.ACC_PRIVATE) or
+          Opcodes.ACC_STATIC or Opcodes.ACC_FINAL or Opcodes.ACC_SYNTHETIC
+        node.fields.add(FieldNode(fieldAccess, cacheName, "Ljava/util/concurrent/atomic/AtomicReferenceArray;", null, null))
+        val initializer = node.methods.firstOrNull { it.name == "<clinit>" } ?: MethodNode(
+          Opcodes.ACC_STATIC, "<clinit>", "()V", null, null).also {
+          it.instructions.add(InsnNode(Opcodes.RETURN))
+          node.methods.add(it)
+        }
+        val setup = InsnList().apply {
+          add(TypeInsnNode(Opcodes.NEW, "java/util/concurrent/atomic/AtomicReferenceArray"))
+          add(InsnNode(Opcodes.DUP))
+          add(LdcInsnNode(slots))
+          add(MethodInsnNode(Opcodes.INVOKESPECIAL, "java/util/concurrent/atomic/AtomicReferenceArray", "<init>", "(I)V", false))
+          add(FieldInsnNode(Opcodes.PUTSTATIC, node.name, cacheName, "Ljava/util/concurrent/atomic/AtomicReferenceArray;"))
+        }
+        initializer.instructions.insert(setup)
+        initializer.maxStack = maxOf(initializer.maxStack, 3)
       }
     }
   }
+
+  /** Cache slots are fixed at build time; generated calls cannot grow the cache. */
+  private fun cachedAccessor(owner: String, name: String, decoder: String, field: String,
+    access: Int, inInterface: Boolean): MethodNode =
+    MethodNode(access, name, "(Ljava/lang/String;II)Ljava/lang/String;", null, null).apply {
+      val miss = LabelNode()
+      fun cache() = instructions.add(FieldInsnNode(Opcodes.GETSTATIC, owner, field,
+        "Ljava/util/concurrent/atomic/AtomicReferenceArray;"))
+      fun read() {
+        cache()
+        instructions.add(VarInsnNode(Opcodes.ILOAD, 2))
+        instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/util/concurrent/atomic/AtomicReferenceArray",
+          "get", "(I)Ljava/lang/Object;", false))
+      }
+      read()
+      instructions.add(VarInsnNode(Opcodes.ASTORE, 3))
+      instructions.add(VarInsnNode(Opcodes.ALOAD, 3))
+      instructions.add(JumpInsnNode(Opcodes.IFNULL, miss))
+      instructions.add(VarInsnNode(Opcodes.ALOAD, 3))
+      instructions.add(TypeInsnNode(Opcodes.CHECKCAST, "java/lang/String"))
+      instructions.add(InsnNode(Opcodes.ARETURN))
+      instructions.add(miss)
+      instructions.add(FrameNode(Opcodes.F_NEW, 4,
+        arrayOf<Any>("java/lang/String", Opcodes.INTEGER, Opcodes.INTEGER, "java/lang/Object"), 0, null))
+      instructions.add(VarInsnNode(Opcodes.ALOAD, 0))
+      instructions.add(VarInsnNode(Opcodes.ILOAD, 1))
+      instructions.add(MethodInsnNode(Opcodes.INVOKESTATIC, owner, decoder,
+        "(Ljava/lang/String;I)Ljava/lang/String;", inInterface))
+      // LDC strings are interned; retain identity across sites, classes, and concurrent first calls.
+      instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/String", "intern", "()Ljava/lang/String;", false))
+      instructions.add(VarInsnNode(Opcodes.ASTORE, 4))
+      cache()
+      instructions.add(VarInsnNode(Opcodes.ILOAD, 2))
+      instructions.add(InsnNode(Opcodes.ACONST_NULL))
+      instructions.add(VarInsnNode(Opcodes.ALOAD, 4))
+      instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/util/concurrent/atomic/AtomicReferenceArray",
+        "compareAndSet", "(ILjava/lang/Object;Ljava/lang/Object;)Z", false))
+      instructions.add(InsnNode(Opcodes.POP))
+      read()
+      instructions.add(TypeInsnNode(Opcodes.CHECKCAST, "java/lang/String"))
+      instructions.add(InsnNode(Opcodes.ARETURN))
+      maxLocals = 5
+      maxStack = 4
+    }
 
   /** Moves StringConcatFactory recipe literals into ordinary LDC instructions so they are encrypted below. */
   private fun desugarStringConcats(method: MethodNode) {

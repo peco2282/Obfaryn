@@ -35,7 +35,10 @@ interface StringEncryptionCodec {
    * original string with ARETURN and set maxStack/maxLocals. Supply valid stack map
    * frames for branches unless the host explicitly enables frame recomputation.
    * The method belongs to [owner], which can also be an interface. It is generated once
-   * per class with encrypted strings. Referenced runtime code must exist in the output
+   * per class with encrypted strings. The host caches and interns decoded literals in fixed
+   * per-class slots. Concurrent first calls may decode the same slot more than once, so
+   * generated decoding must be deterministic and safe for concurrent invocation.
+   * Referenced runtime code must exist in the output
    * or on its runtime classpath; the codec implementation itself is not bundled.
    *
    * @param owner JVM internal name of the class receiving the generated method.
