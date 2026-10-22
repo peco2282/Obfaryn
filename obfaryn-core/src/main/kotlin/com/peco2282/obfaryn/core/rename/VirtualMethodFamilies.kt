@@ -18,7 +18,7 @@ internal class VirtualMethodFamilies(
   private data class Declaration(val node: ClassNode, val method: MethodNode)
   private val internalNames = nodes.mapTo(hashSetOf()) { it.name }
   private val ancestryCache = mutableMapOf<String, Set<String>>()
-  private val reservedNames = nodes.flatMapTo(hashSetOf()) { node -> node.methods.map { it.name } }
+  private val reservedNames = nodes.flatMapTo(hashSetOf()) { node -> node.methods.flatMap { listOf(it.name, it.name.removeSuffix("\$default")) } }
   private val generator = SequentialNameGenerator()
 
   val declarations = linkedMapOf<MemberKey, String>()

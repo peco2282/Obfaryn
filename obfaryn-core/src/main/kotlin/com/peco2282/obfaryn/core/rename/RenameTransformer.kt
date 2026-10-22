@@ -38,6 +38,11 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     val nodes = context.classes.values.toList()
     val metadata = KotlinMetadataRemapper.prepare(nodes, context.resources.mapValues { it.value.data })
     KotlinMemberConstraints.protect(nodes, keep)
+    val defaultHelpers = nodes.flatMap { owner -> owner.methods.mapNotNull { helper ->
+      KotlinMemberConstraints.defaultTarget(owner, helper)?.let { target ->
+        MemberKey(owner.name, helper.name, helper.desc) to target
+      }
+    } }.toMap()
     val descendants = nodes.flatMap { n -> (listOfNotNull(n.superName) + n.interfaces).map { it to n.name } }
       .groupBy({ it.first }, { it.second })
     val generatedByPackage = mutableMapOf<String, NameGenerator>()
@@ -114,10 +119,11 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     for (node in nodes) {
       val methodNames = node.methods.map { it.name }.toMutableSet()
       methodNames += node.methods.mapNotNull { methodMapping[MemberKey(node.name, it.name, it.desc)] }
+      methodNames += node.methods.map { it.name.removeSuffix("\$default") }
       val methodGenerator = SequentialNameGenerator()
       for (method in node.methods) {
         val virtual = method.access and (Opcodes.ACC_PRIVATE or Opcodes.ACC_STATIC) == 0
-        if (!config.renameMethods || virtual || method.name.startsWith('<') || method.access and Opcodes.ACC_NATIVE != 0 ||
+        if (MemberKey(node.name, method.name, method.desc) in defaultHelpers || !config.renameMethods || virtual || method.name.startsWith('<') || method.access and Opcodes.ACC_NATIVE != 0 ||
           keep.method(node.name, method.name, method.desc) || ObfuscationAnnotationPolicy.keepName(method) ||
           protectedMembers(node) || objectMethod(method.name, method.desc)) continue
         if (node.name !in classMapping && method.access and (Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC) == (Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC)) continue
@@ -142,6 +148,12 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
         fieldMapping[MemberKey(node.name, field.name, field.desc)] = candidate
         fieldNames += candidate
       }
+    }
+
+    for ((helper, target) in defaultHelpers) {
+      if (keep.method(helper.owner, helper.name, helper.desc)) continue
+      val renamed = methodMapping[target] ?: families.inheritedReferences[target] ?: continue
+      methodMapping[helper] = renamed + "\$default"
     }
 
     val remapper = object : Remapper() {

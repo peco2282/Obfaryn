@@ -199,9 +199,12 @@ class ObfuscatorTest {
       loader.use {
         val type = it.loadClass("fixture.KotlinSample")
         val instance = type.getConstructor().newInstance()
-        assertEquals("Hello World!7Long", type.getMethod("run", String::class.java).invoke(instance, "Hello"))
+        val runName = requireNotNull(preserved.mapping).readText().lineSequence()
+          .firstOrNull { it.trim().startsWith("fixture/KotlinSample.run(Ljava/lang/String;)Ljava/lang/String; ->") }
+          ?.substringAfter(" -> ") ?: "run"
+        assertEquals("Hello World!7Long", type.getMethod(runName, String::class.java).invoke(instance, "Hello"))
         assertEquals("Hello World!7Long",
-          type.getMethod("run\$default", type, String::class.java, Int::class.javaPrimitiveType, Any::class.java)(null, instance, null, 1, null)
+          type.getMethod(runName + "\$default", type, String::class.java, Int::class.javaPrimitiveType, Any::class.java)(null, instance, null, 1, null)
         )
       }
     }

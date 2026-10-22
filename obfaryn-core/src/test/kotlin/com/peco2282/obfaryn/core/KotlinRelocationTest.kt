@@ -21,6 +21,7 @@ import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.isAccessible
 import kotlin.metadata.jvm.KotlinModuleMetadata
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
@@ -29,6 +30,31 @@ class KotlinRelocationTest {
   @TempDir lateinit var dir: Path
   private fun fixture(name: String): ClassNode = ClassNode().also { node ->
     javaClass.classLoader.getResourceAsStream("$name.class")!!.use { ClassReader(it).accept(node, 0) }
+  }
+
+  @Test fun privateDefaultArgumentsRenameWithTheirHelpersAndSupportReflection() {
+    val node = fixture("fixture/defaults/PrivateDefaults")
+    val original = node.name
+    val context = ObfuscationContext(linkedMapOf(original to node), linkedMapOf())
+    val rename = RenameTransformer(ObfuscationConfig(), KeepRules())
+    rename.transform(context)
+    val bytes = context.classes.mapValues { (_, value) -> ClassWriter(0).also { value.accept(it) }.toByteArray() }
+    val loader = object : ClassLoader(javaClass.classLoader) {
+      override fun findClass(name: String): Class<*> {
+        val data = bytes[name.replace('.', '/')] ?: return super.findClass(name)
+        return defineClass(name, data, 0, data.size)
+      }
+    }
+    val type = loader.loadClass(rename.classMapping.getValue(original).replace('/', '.'))
+    val instance = type.getConstructor().newInstance()
+    val privateName = rename.methodMapping.getValue(MemberKey(original, "privateDefault", "(I)I"))
+    assertEquals(privateName + "\$default", rename.methodMapping.getValue(MemberKey(
+      original, "privateDefault\$default", "(L$original;IILjava/lang/Object;)I")))
+    val function = type.kotlin.members.single { it.name == privateName } as kotlin.reflect.KFunction<*>
+    function.isAccessible = true
+    assertEquals(5, function.callBy(mapOf(function.parameters.first() to instance)))
+    val caller = rename.methodMapping.getValue(MemberKey(original, "usePrivateDefault", "()I"))
+    assertEquals(5, type.getMethod(caller).invoke(instance))
   }
 
   @Test fun kotlinClassesMoveWithMatchingMetadataAndRenamedMembers() {
@@ -54,7 +80,7 @@ class KotlinRelocationTest {
     }
     val type = loader.loadClass(rename.classMapping.getValue("fixture/KotlinSample").replace('/', '.'))
     assertNotNull(type.getAnnotation(Metadata::class.java))
-    assertEquals("Hello World!7Long", type.getMethod("run", String::class.java).invoke(type.getConstructor().newInstance(), "Hello"))
+    assertEquals("Hello World!7Long", type.getMethod(rename.methodMapping.getValue(MemberKey("fixture/KotlinSample", "run", "(Ljava/lang/String;)Ljava/lang/String;")), String::class.java).invoke(type.getConstructor().newInstance(), "Hello"))
   }
 
   @OptIn(kotlin.metadata.jvm.UnstableMetadataApi::class)
@@ -100,7 +126,9 @@ class KotlinRelocationTest {
     val mutable = property as kotlin.reflect.KMutableProperty<*>
     mutable.setter.call(instance, 3)
     assertEquals(3, mutable.getter.call(instance))
-    val defaultAdd = counter.kotlin.members.single { it.name == "defaultAdd" } as kotlin.reflect.KFunction<*>
+    val defaultAddName = rename.methodMapping.getValue(MemberKey(
+      "fixture/relocation/KotlinCounter", "defaultAdd", "(I)I"))
+    val defaultAdd = counter.kotlin.members.single { it.name == defaultAddName } as kotlin.reflect.KFunction<*>
     assertEquals(4, defaultAdd.callBy(mapOf(defaultAdd.parameters.first() to instance)))
     val library = dir.resolve("members.jar")
     JarOutputStream(Files.newOutputStream(library)).use { jar ->
@@ -121,7 +149,7 @@ class KotlinRelocationTest {
       fun lamps(value: $scoreName): String = value.$lamps(1)
       fun update(value: $counterName): Int {
         value.$count = 5
-        return value.defaultAdd()
+        return value.$defaultAddName()
       }
     """.trimIndent().toByteArray())
     val stdlib = File(Unit::class.java.protectionDomain.codeSource.location.toURI())
@@ -131,6 +159,24 @@ class KotlinRelocationTest {
         "-d", dir.resolve("members-consumer").toString(), consumer.toString())
     }
     assertEquals(ExitCode.OK, exit, diagnostics.toString())
+  }
+
+  @Test fun companionMetadataUsesRenamedFieldsStoredOnOuterClass() {
+    val owner = "fixture/relocation/KotlinCompanionFields"
+    val nodes = listOf(owner, "$owner\$Companion").map(::fixture)
+    val context = ObfuscationContext(nodes.associateByTo(linkedMapOf()) { it.name }, linkedMapOf())
+    val rename = RenameTransformer(ObfuscationConfig(), KeepRules())
+    rename.transform(context)
+    val node = context.classes.getValue(rename.classMapping.getValue("$owner\$Companion"))
+    val annotation = node.visibleAnnotations.single { it.desc == "Lkotlin/Metadata;" }
+    val strings = annotation.values[annotation.values.indexOf("d2") + 1] as List<*>
+    assertFalse("SECRET_VALUE" in strings)
+    assertFalse("payload" in strings)
+    for ((name, desc) in listOf("SECRET_VALUE" to "I", "payload" to "Ljava/lang/String;")) {
+      val mapped = rename.fieldMapping.getValue(MemberKey(owner, name, desc))
+      assertTrue(mapped in strings)
+      assertTrue(context.classes.getValue(rename.classMapping.getValue(owner)).fields.any { it.name == mapped })
+    }
   }
 
   @Test fun callableReferencesKeepWorkingAfterRelocationAndMemberRenaming() {

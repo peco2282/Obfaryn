@@ -22,6 +22,8 @@ class MetadataStripTransformer(
       if (stripDebugInfo) {
         classNode.sourceFile = null
         classNode.sourceDebug = null
+        classNode.visibleAnnotations?.removeIf { it.desc == "Lkotlin/jvm/internal/SourceDebugExtension;" }
+        classNode.invisibleAnnotations?.removeIf { it.desc == "Lkotlin/jvm/internal/SourceDebugExtension;" }
       }
       if (stripGenericSignatures) {
         classNode.signature = null
