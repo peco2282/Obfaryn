@@ -402,7 +402,7 @@ The CLI accepts repeated `--exclude-class regex`, `--exclude-resource regex`, `-
 
 `--target-package hidden --flatten-packages` moves eligible renamed classes into a common package, including Kotlin classes with safely rewritten metadata. Kotlin nested and inner classes also receive short names while retaining their enclosing-class relationship; companion object names are preserved for Kotlin reflection. Both settings are required together. Keep rules still apply. Obfaryn conservatively preserves packages with protected structure, package-private access, unresolved same-package references, or relative resource lookups and reports a warning. It does not rewrite arbitrary class names embedded in configuration files.
 
-`--control-flow` applies branch inversion and keyed switch dispatch. Constructors, class initializers, and large methods are excluded. Control flow and virtualization automatically trigger frame recomputation; external dependencies may be needed on the classpath.
+`--control-flow` rewrites eligible methods into keyed switch dispatch. Transitions derive the next state from the current state using per-edge XOR or addition, and numeric payloads inside transformed blocks are decoded using that block state. This couples numeric recovery to control-flow analysis, but does not prevent symbolic recovery. Methods that cannot be flattened retain the configured numeric strategy. The additional integer operations can increase runtime cost. Constructors, class initializers, and large methods are excluded. Control flow and virtualization automatically trigger frame recomputation; external dependencies may be needed on the classpath.
 
 ## Strong protection
 

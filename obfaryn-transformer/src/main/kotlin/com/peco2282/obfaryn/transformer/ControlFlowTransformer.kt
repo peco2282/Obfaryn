@@ -123,10 +123,61 @@ class ControlFlowTransformer(private val random: Random) : Transformer {
     val caseLabels = Array(blocks.size) { LabelNode() }
     val output = InsnList()
 
-    fun InsnList.route(block: Int) {
-      add(LdcInsnNode(states[block]))
+    // Only entry installs a literal state. Every subsequent edge depends on its source state.
+    fun InsnList.route(block: Int, from: Int? = null) {
+      if (from == null) {
+        add(LdcInsnNode(states[block]))
+      } else {
+        add(VarInsnNode(Opcodes.ILOAD, stateLocal))
+        if (random.nextBoolean()) {
+          add(LdcInsnNode(states[from] xor states[block]))
+          add(InsnNode(Opcodes.IXOR))
+        } else {
+          add(LdcInsnNode(states[block] - states[from]))
+          add(InsnNode(Opcodes.IADD))
+        }
+      }
       add(VarInsnNode(Opcodes.ISTORE, stateLocal))
       add(JumpInsnNode(Opcodes.GOTO, dispatch))
+    }
+
+    // The dispatcher establishes this state for the entire block. Bind payloads to it rather
+    // than adding another expression whose operands are all constants.
+    fun InsnList.emit(node: AbstractInsnNode, block: Int) {
+      val value: Number? = when (node) {
+        is LdcInsnNode -> node.cst as? Number
+        is IntInsnNode -> if (node.opcode in Opcodes.BIPUSH..Opcodes.SIPUSH) node.operand else null
+        is InsnNode -> when (node.opcode) {
+          in Opcodes.ICONST_2..Opcodes.ICONST_5 -> node.opcode - Opcodes.ICONST_0
+          Opcodes.FCONST_2 -> 2.0f
+          else -> null
+        }
+        else -> null
+      }
+      if (value == null || value is Int && value in -1..1 || value is Long && value in -1L..1L) {
+        add(node)
+        return
+      }
+      when (value) {
+        is Int, is Float -> {
+          val bits = if (value is Float) value.toRawBits() else value.toInt()
+          add(VarInsnNode(Opcodes.ILOAD, stateLocal))
+          add(LdcInsnNode(bits xor states[block]))
+          add(InsnNode(Opcodes.IXOR))
+          if (value is Float) add(MethodInsnNode(Opcodes.INVOKESTATIC,
+            "java/lang/Float", "intBitsToFloat", "(I)F", false))
+        }
+        is Long, is Double -> {
+          val bits = if (value is Double) value.toRawBits() else value.toLong()
+          add(VarInsnNode(Opcodes.ILOAD, stateLocal))
+          add(InsnNode(Opcodes.I2L))
+          add(LdcInsnNode(bits xor states[block].toLong()))
+          add(InsnNode(Opcodes.LXOR))
+          if (value is Double) add(MethodInsnNode(Opcodes.INVOKESTATIC,
+            "java/lang/Double", "longBitsToDouble", "(J)D", false))
+        }
+        else -> add(node)
+      }
     }
 
     for ((slot, kind) in localKinds) {
@@ -153,21 +204,21 @@ class ControlFlowTransformer(private val random: Random) : Transformer {
       val lastExecutable = nodes.indexOfLast { it.opcode >= 0 }
       for ((nodeIndex, node) in nodes.withIndex()) {
         if (nodeIndex != lastExecutable || node !is JumpInsnNode) {
-          output.add(node)
+          output.emit(node, blockIndex)
         } else if (node.opcode == Opcodes.GOTO) {
-          output.route(target(node.label))
+          output.route(target(node.label), blockIndex)
         } else {
           val taken = LabelNode()
           output.add(JumpInsnNode(node.opcode, taken))
-          output.route(blockIndex + 1)
+          output.route(blockIndex + 1, blockIndex)
           output.add(taken)
-          output.route(target(node.label))
+          output.route(target(node.label), blockIndex)
         }
       }
       val terminal = nodes.getOrNull(lastExecutable)?.opcode
       if (terminal !in Opcodes.IRETURN..Opcodes.RETURN && terminal != Opcodes.ATHROW &&
         nodes.getOrNull(lastExecutable) !is JumpInsnNode) {
-        output.route(blockIndex + 1)
+        output.route(blockIndex + 1, blockIndex)
       }
     }
 

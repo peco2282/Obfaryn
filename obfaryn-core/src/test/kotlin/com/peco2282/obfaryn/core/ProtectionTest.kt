@@ -174,4 +174,93 @@ class ProtectionTest {
     assertArrayEquals(before, method.instructions.toArray())
   }
 
+  @Test fun stateDependentConstantsPreserveWideValuesAndFloatingPointBits() {
+    val context = JarReader().read(input())
+    val owner = context.classes.getValue("logic/Calc")
+    owner.methods.clear()
+    val values = listOf<Any>(Int.MIN_VALUE, Int.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE,
+      Float.fromBits(0x7fc01234), -0.0f, Double.fromBits(0x7ff8000000001234L), -0.0)
+    for ((index, value) in values.withIndex()) {
+      val desc = when (value) { is Int -> "I"; is Long -> "J"; is Float -> "F"; else -> "D" }
+      val method = org.objectweb.asm.tree.MethodNode(ACC_PUBLIC or ACC_STATIC, "value$index", "(I)$desc", null, null)
+      val alternate = org.objectweb.asm.tree.LabelNode()
+      method.instructions.add(org.objectweb.asm.tree.VarInsnNode(ILOAD, 0))
+      method.instructions.add(org.objectweb.asm.tree.JumpInsnNode(IFLT, alternate))
+      method.instructions.add(org.objectweb.asm.tree.LdcInsnNode(value))
+      method.instructions.add(org.objectweb.asm.tree.InsnNode(when (value) {
+        is Int -> IRETURN; is Long -> LRETURN; is Float -> FRETURN; else -> DRETURN
+      }))
+      method.instructions.add(alternate)
+      method.instructions.add(org.objectweb.asm.tree.LdcInsnNode(value))
+      method.instructions.add(org.objectweb.asm.tree.InsnNode(when (value) {
+        is Int -> IRETURN; is Long -> LRETURN; is Float -> FRETURN; else -> DRETURN
+      }))
+      owner.methods.add(method)
+    }
+    val transformer = com.peco2282.obfaryn.transformer.ControlFlowTransformer(java.util.Random(18))
+    transformer.transform(context)
+    assertEquals(values.size, transformer.count)
+    for (method in owner.methods) {
+      val stateStores = method.instructions.toArray().filterIsInstance<org.objectweb.asm.tree.VarInsnNode>()
+        .filter { it.opcode == ISTORE && it.`var` == 1 }
+      assertTrue(stateStores.size >= 3)
+      assertTrue(stateStores.drop(1).all { it.previous.opcode == IXOR || it.previous.opcode == IADD })
+    }
+    val writer = ClassWriter(ClassWriter.COMPUTE_FRAMES or ClassWriter.COMPUTE_MAXS)
+    owner.accept(writer)
+    val bytes = writer.toByteArray()
+    val loaded = object : ClassLoader(platformClassLoader()) {
+      fun define(): Class<*> = defineClass("logic.Calc", bytes, 0, bytes.size)
+    }.define()
+    for ((index, expected) in values.withIndex()) for (argument in listOf(-1, 0, 123)) {
+      val actual = loaded.getMethod("value$index", Int::class.javaPrimitiveType).invoke(null, argument)
+      when (expected) {
+        is Float -> assertEquals(expected.toRawBits(), (actual as Float).toRawBits())
+        is Double -> assertEquals(expected.toRawBits(), (actual as Double).toRawBits())
+        else -> assertEquals(expected, actual)
+      }
+    }
+  }
+
+  @Test fun stateDependentTransitionsExecuteBackEdgesAcrossSeeds() {
+    for (seed in 0L..7L) {
+      val context = JarReader().read(input())
+      val owner = context.classes.getValue("logic/Calc")
+      owner.methods.clear()
+      val method = org.objectweb.asm.tree.MethodNode(ACC_PUBLIC or ACC_STATIC, "sum", "(I)I", null, null)
+      val loop = Label()
+      val end = Label()
+      method.visitInsn(ICONST_0)
+      method.visitVarInsn(ISTORE, 1)
+      method.visitLabel(loop)
+      method.visitVarInsn(ILOAD, 0)
+      method.visitJumpInsn(IFLE, end)
+      method.visitVarInsn(ILOAD, 1)
+      method.visitVarInsn(ILOAD, 0)
+      method.visitIntInsn(BIPUSH, 7)
+      method.visitInsn(IMUL)
+      method.visitInsn(IADD)
+      method.visitVarInsn(ISTORE, 1)
+      method.visitIincInsn(0, -1)
+      method.visitJumpInsn(GOTO, loop)
+      method.visitLabel(end)
+      method.visitVarInsn(ILOAD, 1)
+      method.visitInsn(IRETURN)
+      owner.methods.add(method)
+      val transformer = com.peco2282.obfaryn.transformer.ControlFlowTransformer(java.util.Random(seed))
+      transformer.transform(context)
+      assertEquals(2, transformer.count)
+      val writer = ClassWriter(ClassWriter.COMPUTE_FRAMES or ClassWriter.COMPUTE_MAXS)
+      owner.accept(writer)
+      val bytes = writer.toByteArray()
+      val loaded = object : ClassLoader(platformClassLoader()) {
+        fun define(): Class<*> = defineClass("logic.Calc", bytes, 0, bytes.size)
+      }.define()
+      val sum = loaded.getMethod("sum", Int::class.javaPrimitiveType)
+      for (n in listOf(-1, 0, 1, 7, 1000)) {
+        assertEquals(if (n <= 0) 0 else n * (n + 1) / 2 * 7, sum.invoke(null, n), "seed=$seed n=$n")
+      }
+    }
+  }
+
 }
