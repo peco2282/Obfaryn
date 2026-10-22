@@ -79,8 +79,49 @@ class StringEncryptionCodecTest {
   @Test fun `default XOR codec is executable in classes and interfaces`() {
     for (inInterface in listOf(false, true)) {
       val node = owner(inInterface)
-      StringEncryptionTransformer(Random(1)).transform(ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf()))
+      StringEncryptionTransformer(Random(1), com.peco2282.obfaryn.transformer.XorStringEncryptionCodec()).transform(ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf()))
       assertRuntime(node)
+    }
+  }
+
+  @Test fun `rolling codec preserves arbitrary UTF16 code units and all key bits`() {
+    val values = listOf("", "hello", "日本語\u0000🔐", "\uD800x\uDC00", "\u0000\uFFFF") +
+      (0..65535).chunked(4096).map { codes -> String(codes.map(Int::toChar).toCharArray()) }
+    val codec = com.peco2282.obfaryn.transformer.RollingStringEncryptionCodec()
+    for (inInterface in listOf(false, true)) {
+      val node = owner(inInterface).apply { methods.clear() }
+      val decoder = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, "decode",
+        "(Ljava/lang/String;I)Ljava/lang/String;", null, null)
+      codec.generateDecryptor(node.name, decoder)
+      node.methods.add(decoder)
+      val loaded = loadOutput(node)
+      val method = loaded.getMethod("decode", String::class.java, Int::class.javaPrimitiveType)
+      for (key in listOf(0, 1, -1, Int.MIN_VALUE, Int.MAX_VALUE, 0x12345678, 0x12345778)) {
+        for (value in values) {
+          val encrypted = codec.encrypt(value, key)
+          assertEquals(value, method.invoke(null, encrypted.payload, encrypted.key))
+          assertEquals(encrypted, codec.encrypt(value, key))
+        }
+      }
+    }
+    assertNotEquals(codec.encrypt("same", 1).payload, codec.encrypt("same", 257).payload)
+  }
+
+  @Test fun `large encrypted payloads fit the constant pool and remain cached`() {
+    for (inInterface in listOf(false, true)) {
+      val value = "a".repeat(60000)
+      val node = owner(inInterface).apply {
+        methods.clear()
+        methods.add(MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, "large", "()Ljava/lang/String;", null, null).apply {
+          instructions.add(LdcInsnNode(value))
+          instructions.add(InsnNode(Opcodes.ARETURN))
+          maxStack = 1
+        })
+      }
+      StringEncryptionTransformer(Random(3)).transform(ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf()))
+      val method = loadOutput(node).getMethod("large")
+      assertEquals(value, method.invoke(null))
+      assertSame(value.intern(), method.invoke(null))
     }
   }
 

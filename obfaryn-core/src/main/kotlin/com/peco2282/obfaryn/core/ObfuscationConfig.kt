@@ -7,7 +7,7 @@ import com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode
 import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector
-import com.peco2282.obfaryn.transformer.XorStringEncryptionCodec
+import com.peco2282.obfaryn.transformer.RollingStringEncryptionCodec
 import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationStrategy
 import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationSelector
 import java.nio.file.Path
@@ -132,7 +132,7 @@ data class ObfuscationConfig(
   val virtualizationAnalyzeOnly: Boolean = false,
   val stringConstantFields: Boolean = true,
   val numberConstantFields: Boolean = true,
-  val stringEncryptionStrategy: StringEncryptionCodec = XorStringEncryptionCodec(),
+  val stringEncryptionStrategy: StringEncryptionCodec = RollingStringEncryptionCodec(),
   val numberStrategy: NumberObfuscationStrategy = DefaultNumberObfuscationStrategy(),
   val numberSelector: NumberObfuscationSelector = DefaultNumberObfuscationSelector(),
   val stringRandom: Random? = null,

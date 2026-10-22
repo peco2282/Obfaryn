@@ -215,7 +215,7 @@ obfaryn {
   string {
     enabled = true
     includeConstantFields = true
-    // strategy = XorStringEncryptionCodec() // Paired encryption and decoder generation
+    // strategy = RollingStringEncryptionCodec() // Paired encryption and decoder generation
   }
   number { enabled = true; includeConstantFields = true }
   metadata {
@@ -366,9 +366,9 @@ Import `NumberObfuscationSelector` from `com.peco2282.obfaryn.api.transformer`. 
 
 Implement `StringEncryptionCodec` from `obfaryn-api`, pairing `encrypt(value, key): StringEncryptionResult` with `generateDecryptor(owner, method)`. Codec implementations need only depend on the API module. Select one with `string { codec = MyCodec() }` in the standard pass builder, or register `StringEncryptionTransformer(java.util.Random(10), MyCodec())` through a `PipelineConfigurer`.
 
-The decryptor is generated once per class that needs it. Decoded literals are lazily cached in fixed per-class slots and interned to preserve JVM literal identity. Repeated reads use an atomic cache lookup; concurrent first reads may decode more than once. Cache storage grows with the number of transformed literal sites, and plaintext remains reachable after first use. Custom decryptors must be deterministic and safe for concurrent invocation. Its arguments are the encrypted result's `payload: String` and effective `key: Int`, and it returns the original string. Preserve the supplied `MethodNode` name, descriptor and access flags; emit instructions, max locals/stack, and stack map frames for branches unless the host enables frame recomputation. Any external runtime dependencies must be available in the output application's environment; codec implementation classes are not automatically bundled.
+The decryptor is generated once per class that needs it. Decoded literals are lazily cached in fixed per-class slots and interned to preserve JVM literal identity. Repeated reads use an atomic cache lookup; concurrent first reads may decode more than once. Oversized encoded payloads are split into legal constant-pool chunks and assembled only on a cache miss. Cache storage grows with the number of transformed literal sites, and plaintext remains reachable after first use. Custom decryptors must be deterministic and safe for concurrent invocation. Its arguments are the encrypted result's `payload: String` and effective `key: Int`, and it returns the original string. Preserve the supplied `MethodNode` name, descriptor and access flags; emit instructions, max locals/stack, and stack map frames for branches unless the host enables frame recomputation. Any external runtime dependencies must be available in the output application's environment; codec implementation classes are not automatically bundled.
 
-`codec` defaults to `XorStringEncryptionCodec()`. Standard XOR and custom algorithms use the same interface and execution path; the encrypt-only `StringEncryptionStrategy` has been removed. Core's `stringEncryptionStrategy` and Gradle's `string.strategy` also accept `StringEncryptionCodec`. `encrypt` runs during obfuscation; `generateDecryptor` emits the runtime decoding body rather than decoding a value inside the obfuscator. Annotation-based body policies still take precedence.
+`codec` defaults to `RollingStringEncryptionCodec()`, which masks UTF-16 code units using keyed state updates and ciphertext feedback. It preserves isolated surrogates and NUL characters. This is obfuscation, not cryptographic secrecy: decoding code and keys remain in the output. `XorStringEncryptionCodec()` remains available for compatibility. Standard and custom algorithms use the same interface and execution path; the encrypt-only `StringEncryptionStrategy` has been removed. Core's `stringEncryptionStrategy` and Gradle's `string.strategy` also accept `StringEncryptionCodec`. `encrypt` runs during obfuscation; `generateDecryptor` emits the runtime decoding body rather than decoding a value inside the obfuscator. Annotation-based body policies still take precedence.
 
 ### Standard pass builders
 
@@ -379,7 +379,7 @@ import com.peco2282.obfaryn.transformer.builder.transformers
 
 val passes = transformers {
   string {
-    codec = com.peco2282.obfaryn.transformer.XorStringEncryptionCodec()
+    codec = com.peco2282.obfaryn.transformer.RollingStringEncryptionCodec()
     includeConstantFields = true
     random = java.util.Random(10)
   }
@@ -431,7 +431,7 @@ Two optional JDK 21 helpers support validation:
 - `java -Xverify:all scripts/VerifyClasses.java output.jar dependencies.txt com.example.plugin` loads classes without initialization and checks their declared members. `dependencies.txt` contains one dependency path per line; use the destination package after relocation. This does not exercise plugin lifecycle or gameplay.
 - `java -cp "obfaryn-cli/build/install/obfaryn/lib/*" scripts/RemapTestClasses.java output.mapping.txt original-test-classes remapped-test-classes` updates compiled test references using the output mapping. Run the same tests against the original JAR and the remapped tests against the output JAR with its runtime dependencies. Test assertions and method bodies are preserved apart from symbol references; string-based reflection needs separate handling.
 
-`java -Xmx512m -cp "obfaryn-cli/build/install/obfaryn/lib/*" scripts/BenchmarkStringLiterals.java` compares uncached decoding with cached literal reads on generated Java 8 classes. Build `:obfaryn-cli:installDist` first and run with JDK 21. It reports warm-read latency and thread allocations; it does not measure startup, cold misses, full transformation pipelines, or application performance.
+`java -Xmx512m -cp "obfaryn-cli/build/install/obfaryn/lib/*" scripts/BenchmarkStringLiterals.java` compares legacy XOR decoding, rolling-state decoding, and cached rolling-state literal reads on generated Java 8 classes. Build `:obfaryn-cli:installDist` first and run with JDK 21. It reports warm-read latency and thread allocations; it does not measure startup, cold misses, full transformation pipelines, or application performance.
 
 ## Method virtualization
 

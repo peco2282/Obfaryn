@@ -10,7 +10,7 @@ import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationSelector
 import com.peco2282.obfaryn.transformer.MetadataStripTransformer
 import com.peco2282.obfaryn.transformer.NumberObfuscationTransformer
 import com.peco2282.obfaryn.transformer.StringEncryptionTransformer
-import com.peco2282.obfaryn.transformer.XorStringEncryptionCodec
+import com.peco2282.obfaryn.transformer.RollingStringEncryptionCodec
 import java.util.Random
 import kotlin.random.asJavaRandom
 import kotlin.random.Random as KotlinRandom
@@ -161,7 +161,7 @@ interface StringBuilder {
 }
 
 internal class DefaultStringBuilder : StringBuilder {
-  override var codec: StringEncryptionCodec = XorStringEncryptionCodec()
+  override var codec: StringEncryptionCodec = RollingStringEncryptionCodec()
   override var random: Random = KotlinRandom.asJavaRandom()
   override var includeConstantFields = true
 }

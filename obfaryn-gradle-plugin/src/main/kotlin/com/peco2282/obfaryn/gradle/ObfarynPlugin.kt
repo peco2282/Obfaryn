@@ -10,7 +10,7 @@ import com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector
 import com.peco2282.obfaryn.api.transformer.PipelineConfigurer
 import com.peco2282.obfaryn.api.transformer.TransformerRegistry
-import com.peco2282.obfaryn.transformer.XorStringEncryptionCodec
+import com.peco2282.obfaryn.transformer.RollingStringEncryptionCodec
 import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationStrategy
 import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationSelector
 import org.gradle.api.Action
@@ -63,7 +63,7 @@ open class StringOptions internal constructor(private val extension: ObfarynExte
     get() = extension.stringEncryption
     set(value) { extension.stringEncryption = value }
   var includeConstantFields = true
-  var strategy: StringEncryptionCodec = XorStringEncryptionCodec()
+  var strategy: StringEncryptionCodec = RollingStringEncryptionCodec()
   /** Null uses the shared generator controlled by `obfaryn.seed`. */
   var random: Random? = null
 }

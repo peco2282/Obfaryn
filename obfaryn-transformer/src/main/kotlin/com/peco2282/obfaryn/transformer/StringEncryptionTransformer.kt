@@ -10,7 +10,7 @@ import java.util.Random
 
 class StringEncryptionTransformer(
   private val random: Random,
-  private val codec: StringEncryptionCodec = XorStringEncryptionCodec(),
+  private val codec: StringEncryptionCodec = RollingStringEncryptionCodec(),
 ) : Transformer {
   override val id = "string-encryption"
   override val order = 20
@@ -26,6 +26,8 @@ class StringEncryptionTransformer(
       var cacheName: String
       do { cacheName = "v\$" + java.lang.Long.toUnsignedString(random.nextLong(), 36) }
       while (node.fields.any { it.name == cacheName })
+      val largeHelpers = mutableListOf<MethodNode>()
+      val reserved = mutableSetOf(helper, accessor)
       var slots = 0
       for (method in node.methods) {
         if (!context.transformationPolicy.canTransformBody(node, method)) continue
@@ -36,10 +38,21 @@ class StringEncryptionTransformer(
           val key = random.nextInt()
           val encrypted = codec.encrypt(value, key)
           val replacement = InsnList()
-          replacement.add(LdcInsnNode(encrypted.payload))
-          replacement.add(LdcInsnNode(encrypted.key))
-          replacement.add(LdcInsnNode(slots++))
-          replacement.add(MethodInsnNode(Opcodes.INVOKESTATIC, node.name, accessor, "(Ljava/lang/String;II)Ljava/lang/String;", node.access and Opcodes.ACC_INTERFACE != 0))
+          val slot = slots++
+          val inInterface = node.access and Opcodes.ACC_INTERFACE != 0
+          if (modifiedUtf8Size(encrypted.payload) <= 65535) {
+            replacement.add(LdcInsnNode(encrypted.payload))
+            replacement.add(LdcInsnNode(encrypted.key))
+            replacement.add(LdcInsnNode(slot))
+            replacement.add(MethodInsnNode(Opcodes.INVOKESTATIC, node.name, accessor,
+              "(Ljava/lang/String;II)Ljava/lang/String;", inInterface))
+          } else {
+            var name: String
+            do { name = uniqueName(node) } while (!reserved.add(name))
+            largeHelpers += largeLiteralAccessor(node.name, name, accessor, cacheName,
+              encrypted.payload, encrypted.key, slot, inInterface)
+            replacement.add(MethodInsnNode(Opcodes.INVOKESTATIC, node.name, name, "()Ljava/lang/String;", inInterface))
+          }
           method.instructions.insertBefore(insn, replacement)
           method.instructions.remove(insn)
           count++
@@ -55,6 +68,7 @@ class StringEncryptionTransformer(
           }
           require(it.instructions.size() > 0) { "StringEncryptionCodec must generate a decryptor body" }
         }
+        node.methods.addAll(largeHelpers)
         node.methods.add(decryptor)
         node.methods.add(cachedAccessor(node.name, accessor, helper, cacheName, access, inInterface))
         val fieldAccess = (if (inInterface) Opcodes.ACC_PUBLIC else Opcodes.ACC_PRIVATE) or
@@ -75,6 +89,45 @@ class StringEncryptionTransformer(
         initializer.instructions.insert(setup)
         initializer.maxStack = maxOf(initializer.maxStack, 3)
       }
+    }
+  }
+
+  private fun modifiedUtf8Size(value: String): Long = value.sumOf { character ->
+    when (character.code) { in 1..127 -> 1L; in 0..2047 -> 2L; else -> 3L }
+  }
+
+  /** Oversized payloads are assembled only on a cache miss, never on repeated reads. */
+  private fun largeLiteralAccessor(owner: String, name: String, accessor: String, field: String,
+    payload: String, key: Int, slot: Int, inInterface: Boolean): MethodNode {
+    val access = (if (inInterface) Opcodes.ACC_PUBLIC else Opcodes.ACC_PRIVATE) or Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC
+    return MethodNode(access, name, "()Ljava/lang/String;", null, null).apply {
+      val miss = LabelNode()
+      instructions.add(FieldInsnNode(Opcodes.GETSTATIC, owner, field, "Ljava/util/concurrent/atomic/AtomicReferenceArray;"))
+      instructions.add(LdcInsnNode(slot))
+      instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/util/concurrent/atomic/AtomicReferenceArray", "get", "(I)Ljava/lang/Object;", false))
+      instructions.add(VarInsnNode(Opcodes.ASTORE, 0))
+      instructions.add(VarInsnNode(Opcodes.ALOAD, 0))
+      instructions.add(JumpInsnNode(Opcodes.IFNULL, miss))
+      instructions.add(VarInsnNode(Opcodes.ALOAD, 0))
+      instructions.add(TypeInsnNode(Opcodes.CHECKCAST, "java/lang/String"))
+      instructions.add(InsnNode(Opcodes.ARETURN))
+      instructions.add(miss)
+      instructions.add(FrameNode(Opcodes.F_NEW, 1, arrayOf<Any>("java/lang/Object"), 0, null))
+      instructions.add(TypeInsnNode(Opcodes.NEW, "java/lang/StringBuilder"))
+      instructions.add(InsnNode(Opcodes.DUP))
+      instructions.add(MethodInsnNode(Opcodes.INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V", false))
+      // Every UTF-16 code unit occupies at most three bytes in a CONSTANT_Utf8 entry.
+      for (chunk in payload.chunked(20000)) {
+        instructions.add(LdcInsnNode(chunk))
+        instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false))
+      }
+      instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false))
+      instructions.add(LdcInsnNode(key))
+      instructions.add(LdcInsnNode(slot))
+      instructions.add(MethodInsnNode(Opcodes.INVOKESTATIC, owner, accessor, "(Ljava/lang/String;II)Ljava/lang/String;", inInterface))
+      instructions.add(InsnNode(Opcodes.ARETURN))
+      maxLocals = 1
+      maxStack = 3
     }
   }
 

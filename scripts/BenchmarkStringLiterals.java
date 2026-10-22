@@ -1,6 +1,8 @@
 import com.peco2282.obfaryn.core.context.ObfuscationContext;
 import com.peco2282.obfaryn.transformer.StringEncryptionTransformer;
 import com.peco2282.obfaryn.transformer.XorStringEncryptionCodec;
+import com.peco2282.obfaryn.transformer.RollingStringEncryptionCodec;
+import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 import java.lang.invoke.MethodHandle;
@@ -13,7 +15,7 @@ import java.util.*;
 class BenchmarkStringLiterals {
   static volatile String sink;
   static final String TEXT = "A representative Unicode literal: 日本語, permissions.example.read";
-  static MethodHandle fixture(boolean cached) throws Exception {
+  static MethodHandle fixture(boolean cached, boolean rolling) throws Exception {
     var node = new ClassNode();
     node.version = Opcodes.V1_8;
     node.access = Opcodes.ACC_PUBLIC;
@@ -24,7 +26,7 @@ class BenchmarkStringLiterals {
     read.instructions.add(new InsnNode(Opcodes.ARETURN));
     read.maxStack = 1;
     node.methods.add(read);
-    var codec = new XorStringEncryptionCodec();
+    StringEncryptionCodec codec = rolling ? new RollingStringEncryptionCodec() : new XorStringEncryptionCodec();
     if (cached) {
       new StringEncryptionTransformer(new Random(1), codec).transform(
         new ObfuscationContext(new LinkedHashMap<>(Map.of(node.name, node)), new LinkedHashMap<>()));
@@ -53,7 +55,7 @@ class BenchmarkStringLiterals {
   public static void main(String[] args) throws Throwable {
     int count = args.length == 0 ? 500_000 : Integer.parseInt(args[0]);
     if (count <= 0) throw new IllegalArgumentException("Iteration count must be positive");
-    MethodHandle[] methods = { fixture(false), fixture(true) };
+    MethodHandle[] methods = { fixture(false, false), fixture(false, true), fixture(true, true) };
     for (var method : methods) {
       if (!TEXT.equals((String) method.invokeExact())) throw new AssertionError("Incorrect decoding");
       loop(method, 200_000);
@@ -61,9 +63,9 @@ class BenchmarkStringLiterals {
     var bean = ManagementFactory.getPlatformMXBean(com.sun.management.ThreadMXBean.class);
     boolean allocations = bean != null && bean.isThreadAllocatedMemorySupported();
     if (allocations && !bean.isThreadAllocatedMemoryEnabled()) bean.setThreadAllocatedMemoryEnabled(true);
-    double[][] times = new double[2][5], bytes = new double[2][5];
-    for (int round = 0; round < 5; round++) for (int offset = 0; offset < 2; offset++) {
-      int variant = (round + offset) % 2;
+    double[][] times = new double[3][5], bytes = new double[3][5];
+    for (int round = 0; round < 5; round++) for (int offset = 0; offset < 3; offset++) {
+      int variant = (round + offset) % 3;
       long beforeBytes = allocations ? bean.getCurrentThreadAllocatedBytes() : 0;
       long before = System.nanoTime();
       loop(methods[variant], count);
@@ -72,10 +74,10 @@ class BenchmarkStringLiterals {
     }
     System.out.println("JDK: " + System.getProperty("java.runtime.version"));
     System.out.println("Warm reads only; " + count + " iterations per round, 5 rounds, alternating order.");
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 3; i++) {
       Arrays.sort(times[i]); Arrays.sort(bytes[i]);
       System.out.printf(Locale.ROOT, "%s: median %.2f ns/read, %.2f allocated bytes/read%n",
-        i == 0 ? "uncached" : "cached", times[i][2], bytes[i][2]);
+        i == 0 ? "legacy XOR uncached" : i == 1 ? "rolling uncached" : "rolling cached", times[i][2], bytes[i][2]);
     }
     System.out.println("Excludes startup, cold misses, full transformation pipelines, and application workloads.");
   }

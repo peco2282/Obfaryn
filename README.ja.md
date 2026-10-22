@@ -211,7 +211,7 @@ obfaryn {
   string {
     enabled = true
     includeConstantFields = true
-    // strategy = XorStringEncryptionCodec() // 暗号化と復号コード生成を対で指定
+    // strategy = RollingStringEncryptionCodec() // 暗号化と復号コード生成を対で指定
   }
   number { enabled = true; includeConstantFields = true }
   metadata {
@@ -354,9 +354,9 @@ val passes = transformers {
 
 `obfaryn-api` の `StringEncryptionCodec` は、`encrypt(value, key): StringEncryptionResult` と `generateDecryptor(owner, method)` を対で実装する拡張口です。方式の実装自体は API モジュールだけに依存できます。標準パスのビルダーでは `string { codec = MyCodec() }`、直接置換する場合は `StringEncryptionTransformer(java.util.Random(10), MyCodec())` を `PipelineConfigurer` から登録してください。
 
-復号結果はクラスごとの固定スロットに遅延キャッシュし、intern によって JVM の文字列リテラルの参照同一性を維持します。再取得時は atomic なキャッシュ参照だけを行い、初回の並行呼び出しでは複数回復号される場合があります。スロット数に応じたメモリを使用し、一度使用した平文はメモリに保持されます。カスタム復号処理は決定的かつ並行実行可能である必要があります。復号メソッドはクラスごとに必要な場合のみ生成され、引数は暗号化結果の `payload: String` と `key: Int`、戻り値は元の文字列です。渡された `MethodNode` の名前・記述子・アクセスフラグを維持し、命令・ローカル変数数・スタック上限と、分岐に必要なスタックマップフレームを生成してください（ホストでフレーム再計算を有効にする場合を除く）。復号コードから参照する外部ライブラリは出力先の実行環境にも必要で、方式の実装クラスが自動で同梱されるわけではありません。
+復号結果はクラスごとの固定スロットに遅延キャッシュし、intern によって JVM の文字列リテラルの参照同一性を維持します。再取得時は atomic なキャッシュ参照だけを行い、初回の並行呼び出しでは複数回復号される場合があります。大きな暗号文は定数プールに収まる単位に分割し、キャッシュ未取得時だけ組み立てます。スロット数に応じたメモリを使用し、一度使用した平文はメモリに保持されます。カスタム復号処理は決定的かつ並行実行可能である必要があります。復号メソッドはクラスごとに必要な場合のみ生成され、引数は暗号化結果の `payload: String` と `key: Int`、戻り値は元の文字列です。渡された `MethodNode` の名前・記述子・アクセスフラグを維持し、命令・ローカル変数数・スタック上限と、分岐に必要なスタックマップフレームを生成してください（ホストでフレーム再計算を有効にする場合を除く）。復号コードから参照する外部ライブラリは出力先の実行環境にも必要で、方式の実装クラスが自動で同梱されるわけではありません。
 
-`codec` の既定値は `XorStringEncryptionCodec()` です。標準XORも独自方式も同じインターフェース・実行経路を使い、暗号化専用の `StringEncryptionStrategy` は削除しました。コアの `stringEncryptionStrategy` とGradleの `string.strategy` も `StringEncryptionCodec` を受け取ります。`encrypt` は難読化時の加工、`generateDecryptor` は出力プログラムで動く復元コードの生成です。アノテーションによる本体変換ポリシーは独自方式でも優先されます。
+`codec` の既定値は `RollingStringEncryptionCodec()` です。鍵付きの状態更新と暗号文フィードバックで UTF-16 コード単位を加工し、孤立サロゲートや NUL も維持します。暗号学的な秘匿性を保証する方式ではなく、復号コードと鍵は出力に含まれます。`XorStringEncryptionCodec()` は互換用に引き続き利用できます。標準方式も独自方式も同じインターフェース・実行経路を使い、暗号化専用の `StringEncryptionStrategy` は削除しました。コアの `stringEncryptionStrategy` とGradleの `string.strategy` も `StringEncryptionCodec` を受け取ります。`encrypt` は難読化時の加工、`generateDecryptor` は出力プログラムで動く復元コードの生成です。アノテーションによる本体変換ポリシーは独自方式でも優先されます。
 
 ### 標準パスのビルダー
 
@@ -367,7 +367,7 @@ import com.peco2282.obfaryn.transformer.builder.transformers
 
 val passes = transformers {
   string {
-    codec = com.peco2282.obfaryn.transformer.XorStringEncryptionCodec()
+    codec = com.peco2282.obfaryn.transformer.RollingStringEncryptionCodec()
     includeConstantFields = true
     random = java.util.Random(10)
   }
@@ -419,7 +419,7 @@ JDK 21 用の検証補助ツールも用意しています。
 - `java -Xverify:all scripts/VerifyClasses.java output.jar dependencies.txt com.example.plugin` はクラスを初期化せず読み込み、宣言メンバーを検証します。`dependencies.txt` には依存 JAR・ディレクトリを1行1件で記載します。再配置した場合は移動先パッケージを指定してください。プラグインの起動・ゲーム動作を実行するものではありません。
 - `java -cp "obfaryn-cli/build/install/obfaryn/lib/*" scripts/RemapTestClasses.java output.mapping.txt original-test-classes remapped-test-classes` はコンパイル済みテストの参照名をマッピングに合わせて更新します。元 JAR に対する元テストと、出力 JAR に対する更新済みテストを、必要な実行時依存とともに実行して比較できます。シンボル参照以外のアサーションと本体は保持します。文字列によるリフレクションは別途対応が必要です。
 
-`java -Xmx512m -cp "obfaryn-cli/build/install/obfaryn/lib/*" scripts/BenchmarkStringLiterals.java` は生成した Java 8 クラスで、復号のみとキャッシュ済み文字列取得を比較します。先に `:obfaryn-cli:installDist` をビルドし、JDK 21 で実行してください。ウォーム状態での取得時間とスレッドの割り当て量を出力します。起動・初回取得・変換パイプライン全体・アプリケーションの性能は測定しません。
+`java -Xmx512m -cp "obfaryn-cli/build/install/obfaryn/lib/*" scripts/BenchmarkStringLiterals.java` は生成した Java 8 クラスで、従来の XOR 復号・状態更新型の復号・キャッシュ済み状態更新型の文字列取得を比較します。先に `:obfaryn-cli:installDist` をビルドし、JDK 21 で実行してください。ウォーム状態での取得時間とスレッドの割り当て量を出力します。起動・初回取得・変換パイプライン全体・アプリケーションの性能は測定しません。
 
 ## メソッドの仮想化（VM化）
 

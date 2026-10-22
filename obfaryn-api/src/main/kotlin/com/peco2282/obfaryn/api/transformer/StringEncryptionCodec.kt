@@ -5,8 +5,8 @@ import org.objectweb.asm.tree.MethodNode
 /**
  * Constants passed to the generated decryptor, including the effective key.
  *
- * @property payload Encoded string loaded as a JVM string constant; it must fit the class-file
- * constant-pool string representation. Encryption can expand data, so account for that limit.
+ * @property payload Encoded string passed to the generated decoder. The standard transformer
+ * splits oversized payloads into legal constant-pool chunks and assembles them on first use.
  * @property key Actual key supplied to the runtime decryptor; it may differ from the requested key.
  */
 data class StringEncryptionResult(val payload: String, val key: Int)
