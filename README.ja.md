@@ -414,6 +414,11 @@ Paper の性能除外はメソッドパターンによる選択に適用しま�
 
 コンストラクタ、モニタなどの未対応部分は読み取れる状態で残る場合があります。重要メソッドごとにレポートを確認してください。VM 化には実行時間とメモリのコストがあるため、実際のサーバー負荷で検証してください。JVM の検証成功やデコンパイル失敗だけでは、動作の同一性や解析への耐性を証明できません。元名を含むマッピング・解析レポートを公開 JAR と一緒に配布しないでください。
 
+JDK 21 用の検証補助ツールも用意しています。
+
+- `java -Xverify:all scripts/VerifyClasses.java output.jar dependencies.txt com.example.plugin` はクラスを初期化せず読み込み、宣言メンバーを検証します。`dependencies.txt` には依存 JAR・ディレクトリを1行1件で記載します。再配置した場合は移動先パッケージを指定してください。プラグインの起動・ゲーム動作を実行するものではありません。
+- `java -cp "obfaryn-cli/build/install/obfaryn/lib/*" scripts/RemapTestClasses.java output.mapping.txt original-test-classes remapped-test-classes` はコンパイル済みテストの参照名をマッピングに合わせて更新します。元 JAR に対する元テストと、出力 JAR に対する更新済みテストを、必要な実行時依存とともに実行して比較できます。シンボル参照以外のアサーションと本体は保持します。文字列によるリフレクションは別途対応が必要です。
+
 ## メソッドの仮想化（VM化）
 
 VM 化は密な switch・疎な switch、クラスリテラル、型別の catch、finally にも対応します。

@@ -426,6 +426,11 @@ Paper applies conservative performance exclusions to method-pattern selections b
 
 Constructors, monitors, and other unsupported patterns can remain readable. Review the report for each sensitive method. VM conversion adds execution and memory costs; validate on a representative server workload. JVM validity or a decompiler failure alone does not prove equivalent behavior or resistance to analysis. Publish the output JAR without the mapping and analysis reports, which contain original names.
 
+Two optional JDK 21 helpers support validation:
+
+- `java -Xverify:all scripts/VerifyClasses.java output.jar dependencies.txt com.example.plugin` loads classes without initialization and checks their declared members. `dependencies.txt` contains one dependency path per line; use the destination package after relocation. This does not exercise plugin lifecycle or gameplay.
+- `java -cp "obfaryn-cli/build/install/obfaryn/lib/*" scripts/RemapTestClasses.java output.mapping.txt original-test-classes remapped-test-classes` updates compiled test references using the output mapping. Run the same tests against the original JAR and the remapped tests against the output JAR with its runtime dependencies. Test assertions and method bodies are preserved apart from symbol references; string-based reflection needs separate handling.
+
 ## Method virtualization
 
 Prefer `@Virtualize` on selected classes or methods. Pattern-based selection is experimental and requires `@file:OptIn(VirtualizeOptIn::class)` in the Gradle Kotlin DSL:
