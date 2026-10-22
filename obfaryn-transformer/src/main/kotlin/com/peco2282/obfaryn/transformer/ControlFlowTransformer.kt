@@ -13,10 +13,12 @@ import java.util.Random
 class ControlFlowTransformer(private val random: Random) : Transformer {
   override val id = "control-flow"
   override val order = 35
+  override val requiresFrameRecomputation = true
   var count = 0
     private set
 
   override fun transform(context: ObfuscationContext) {
+    count = 0
     for (owner in context.classes.values) for (method in owner.methods) {
       if (context.transformationPolicy.canTransformBody(owner, method)) flatten(owner.name, method)
     }
@@ -75,10 +77,21 @@ class ControlFlowTransformer(private val random: Random) : Transformer {
     }
     val starts = leaders.toList()
     if (starts.size < 2 || starts.size > 256) return
-    // Earlier transformers may temporarily exceed the input method's stale maxStack; output frames
-    // are recomputed later by JarWriter.
-    method.maxStack = maxOf(method.maxStack, method.instructions.size() + 8)
-    val frames = try { Analyzer(SourceInterpreter()).analyze(owner, method) } catch (_: Exception) { return }
+    // Compute actual limits instead of allocating an instruction-count-sized stack for every
+    // analysis frame. Earlier passes can leave the original limits stale.
+    val savedMaxStack = method.maxStack
+    val savedMaxLocals = method.maxLocals
+    val frames = try {
+      Analyzer(SourceInterpreter()).analyzeAndComputeMaxs(owner, method)
+    } catch (_: Exception) {
+      method.maxStack = savedMaxStack
+      method.maxLocals = savedMaxLocals
+      return
+    }
+    val computedMaxLocals = method.maxLocals
+    // Eligibility analysis must not mutate methods that we ultimately leave untouched.
+    method.maxStack = savedMaxStack
+    method.maxLocals = savedMaxLocals
     if (starts.any { start ->
         val instruction = original[start]
         val frame = frames[method.instructions.indexOf(instruction)]
@@ -103,7 +116,8 @@ class ControlFlowTransformer(private val random: Random) : Transformer {
       do value = random.nextInt() while (value == 0 || !usedStates.add(value))
       value
     }
-    val stateLocal = method.maxLocals++
+    val stateLocal = computedMaxLocals
+    method.maxLocals = computedMaxLocals + 1
     val dispatch = LabelNode()
     val defaultCase = LabelNode()
     val caseLabels = Array(blocks.size) { LabelNode() }

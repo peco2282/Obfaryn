@@ -127,4 +127,51 @@ class ProtectionTest {
     assertTrue(Files.readAllLines(result.mapping!!).single { it.startsWith("logic/Calc ->") }.substringAfter(" -> ").startsWith("logic/"))
   }
 
+  @Test fun controlFlowComputesStaleLimitsAndResetsInvocationCounts() {
+    val context = JarReader().read(input())
+    val method = context.classes.getValue("logic/Calc").methods.single { it.name == "calc" }
+    method.maxStack = 0
+    method.maxLocals = 0
+    val transformer = com.peco2282.obfaryn.transformer.ControlFlowTransformer(java.util.Random(42))
+    assertTrue(transformer.requiresFrameRecomputation)
+    transformer.transform(context)
+    assertTrue(transformer.count > 0)
+    assertTrue(method.maxLocals >= 2, "dispatcher must not overwrite the argument slot")
+    val writer = ClassWriter(ClassWriter.COMPUTE_FRAMES or ClassWriter.COMPUTE_MAXS)
+    context.classes.getValue("logic/Calc").accept(writer)
+    val bytes = writer.toByteArray()
+    val loaded = object : ClassLoader(platformClassLoader()) {
+      fun define(): Class<*> = defineClass("logic.Calc", bytes, 0, bytes.size)
+    }.define()
+    val calc = loaded.getMethod("calc", Int::class.javaPrimitiveType)
+    assertEquals(16, calc.invoke(null, 9))
+    assertEquals(10, calc.invoke(null, -10))
+    transformer.transform(context)
+    assertEquals(0, transformer.count, "already flattened methods must not retain prior counts")
+  }
+
+  @Test fun rejectedControlFlowAnalysisPreservesInputLimitsAndInstructions() {
+    val context = JarReader().read(input())
+    val method = context.classes.getValue("logic/Calc").methods.single { it.name == "calc" }
+    // Both paths carry a value: valid JVM bytecode, but unsuitable for this dispatcher's
+    // empty-stack block boundaries.
+    method.instructions.clear()
+    val negative = org.objectweb.asm.tree.LabelNode()
+    method.instructions.add(org.objectweb.asm.tree.InsnNode(ICONST_1))
+    method.instructions.add(org.objectweb.asm.tree.VarInsnNode(ILOAD, 0))
+    method.instructions.add(org.objectweb.asm.tree.JumpInsnNode(IFLT, negative))
+    method.instructions.add(org.objectweb.asm.tree.InsnNode(IRETURN))
+    method.instructions.add(negative)
+    method.instructions.add(org.objectweb.asm.tree.InsnNode(IRETURN))
+    method.maxStack = 2
+    method.maxLocals = 1
+    val before = method.instructions.toArray()
+    val transformer = com.peco2282.obfaryn.transformer.ControlFlowTransformer(java.util.Random(42))
+    transformer.transform(context)
+    assertEquals(0, transformer.count)
+    assertEquals(2, method.maxStack)
+    assertEquals(1, method.maxLocals)
+    assertArrayEquals(before, method.instructions.toArray())
+  }
+
 }
