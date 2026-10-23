@@ -1,5 +1,7 @@
 # Obfaryn
 
+Percentage growth budgets include a default cumulative allowance of 64 added instructions so small Kotlin lambdas can still receive string encryption. Configure it with Gradle `performance { growthAllowanceInstructions = 64 }` or CLI `--growth-allowance-instructions 64`; use `0` for a strict ratio. Added-instruction and output-code limits still apply. See [structural budgets](docs/protection.md#structural-budgets) for the formula and precedence.
+
 Feature-by-feature annotations, cumulative structural budgets, integer expressions, bounded prelinking and repeatable public-project/performance checks are documented in [Protection controls](docs/protection.md).
 
 For completed scope, recorded validation and remaining release/runtime checks, see [Implementation status](docs/implementation-status.md).

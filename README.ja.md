@@ -1,5 +1,7 @@
 # Obfaryn
 
+小さなKotlinラムダにも文字列暗号化を適用できるよう、増加率予算には既定64命令の累積増加許容量があります。Gradle の `performance { growthAllowanceInstructions = 64 }`、CLI の `--growth-allowance-instructions 64` で調整でき、`0` は厳密な比率制限です。追加命令数と出力コード長の上限は引き続き適用します。計算式と優先順位は[保護設定の詳細](docs/protection.ja.md#構造的な変換予算)を参照してください。
+
 機能別アノテーション、累積の構造予算、整数演算変換、範囲指定の事前解決、公開プロジェクト・性能の継続検証は [保護設定の詳細](docs/protection.ja.md) を参照してください。
 
 完了した実装範囲、検証記録、残るリリース・実行環境の確認は[実装状況](docs/implementation-status.ja.md)にまとめています。
