@@ -2,6 +2,8 @@
 
 Feature-by-feature annotations, cumulative structural budgets, integer expressions, bounded prelinking and repeatable public-project/performance checks are documented in [Protection controls](docs/protection.md).
 
+Generated helper classes from budgeted body passes participate in code-size budgets and per-method reporting. Output-path checks also reject hard-link and symbolic-link aliases of inputs and other artifacts.
+
 Gradle supports `controlFlow { mode = "light" }`, `calls { enabled = true; prelink = true }`,
 `arithmetic { enabled = true; maxOperationsPerMethod = 4 }`, `reports { methods = "build/methods.json" }`
 and `rules { method("com/example/.*") { calls = false } }`. CLI counterparts include

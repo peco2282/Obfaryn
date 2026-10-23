@@ -186,6 +186,25 @@ class CliParsingTest {
     assertArrayEquals(before, Files.readAllBytes(input))
   }
 
+  @Test fun summaryCannotAliasAFutureOutputThroughSymbolicLinks() {
+    val input = input()
+    val before = Files.readAllBytes(input)
+    val real = Files.createDirectory(dir.resolve("real"))
+    val alias = Files.createSymbolicLink(dir.resolve("alias"), real)
+    val output = real.resolve("result.jar")
+    val summary = alias.resolve("result.jar")
+    val result = run(input.toString(), "--output", output.toString(), "--report", summary.toString())
+    assertEquals(2, result.status)
+    assertTrue(result.err.contains("--report must use a different file"), result.err)
+    assertFalse(Files.exists(output))
+    assertArrayEquals(before, Files.readAllBytes(input))
+
+    val dangling = Files.createSymbolicLink(dir.resolve("future.jar"), output)
+    assertEquals(2, run(input.toString(), "--output", output.toString(), "--report", dangling.toString()).status)
+    assertFalse(Files.exists(output))
+    assertArrayEquals(before, Files.readAllBytes(input))
+  }
+
   @Test fun everyExistingOptionAndNewSwitchesReachConfiguration() {
     val cli = cliCommandLine()
     cli.parseArgs("input.jar", "-o", "out.jar", "--mapping", "mapping.txt", "--report", "report.json",

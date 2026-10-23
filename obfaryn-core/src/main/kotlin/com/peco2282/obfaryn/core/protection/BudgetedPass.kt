@@ -81,8 +81,18 @@ internal class BudgetedPass(
         // Unchanged pre-existing methods do not make a class with no candidate edits fail.
         if (reason != null && (old == null || !sameCode(old, method))) { rejection = reason; break }
       }
-      // Generated runtime classes are also constrained by the class-file method code limit.
-      if (pending.values.any { it.methods.any { m -> MethodSize.of(m).bytes > 65535 } }) rejection = "budget:generated-code-bytes"
+      val helpers = pending.values.filter { it.name != candidate.name }
+      val helperSizes = helpers.associateWith { owner -> owner.methods.associateWith(MethodSize::of) }
+      // Injected classes have no original-body growth baseline, but their code-size policy still applies.
+      if (rejection == null) for ((owner, methods) in helperSizes) {
+        val overLimit = methods.entries.firstOrNull { (method, size) ->
+          size.bytes > context.transformationPolicy.budget(owner, method).maxOutputCodeBytes
+        }
+        if (overLimit != null) {
+          rejection = "budget:generated-code-bytes:${context.transformationInputs.methodIdentity(owner, overLimit.key)}"
+          break
+        }
+      }
       if (rejection == null) try {
         for (node in listOf(candidate) + pending.values) ClassWriter(0).also { node.accept(it) }.toByteArray()
       } catch (_: org.objectweb.asm.ClassTooLargeException) {
@@ -112,6 +122,15 @@ internal class BudgetedPass(
           input.instructions, output.instructions, input.branches, output.branches, input.bytes, output.bytes,
         )
       }
+      if (detailed) for ((owner, methods) in helperSizes) for ((method, size) in methods) {
+        val output = if (accepted) size else MethodSize(0, 0, 0)
+        rows += MethodTransformationReport(
+          context.transformationInputs.methodIdentity(owner, method),
+          if (accepted) "applied" else "rejected",
+          if (accepted) "generated-helper-class" else "class-rollback:$rejection",
+          0, output.instructions, 0, output.branches, 0, output.bytes,
+        )
+      }
     }
     if (rejectedClasses > 0) warnings += "$id rolled back $rejectedClasses classes due to structural or class-file budgets; transformationReport contains per-method reasons"
     metrics["budgetRejectedClasses"] = rejectedClasses
@@ -124,6 +143,12 @@ internal class BudgetedPass(
       method.accept(writer)
       writer.visitEnd()
     }.toByteArray()
-    return bytes(a).contentEquals(bytes(b))
+    return try {
+      bytes(a).contentEquals(bytes(b))
+    } catch (_: org.objectweb.asm.MethodTooLargeException) {
+      false
+    } catch (_: org.objectweb.asm.ClassTooLargeException) {
+      false
+    }
   }
 }

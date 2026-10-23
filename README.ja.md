@@ -2,6 +2,8 @@
 
 機能別アノテーション、累積の構造予算、整数演算変換、範囲指定の事前解決、公開プロジェクト・性能の継続検証は [保護設定の詳細](docs/protection.ja.md) を参照してください。
 
+予算対象パスの生成ヘルパークラスにもコード長の予算とメソッド別報告を適用します。出力先の衝突検査は、入力や他の成果物のハードリンク・シンボリックリンクによる別名も拒否します。
+
 Gradle では `controlFlow { mode = "light" }`・`calls { enabled = true; prelink = true }`・
 `arithmetic { enabled = true; maxOperationsPerMethod = 4 }`・`reports { methods = "build/methods.json" }`・
 `rules { method("com/example/.*") { calls = false } }` で設定を整理できます。CLI では

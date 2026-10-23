@@ -4,6 +4,7 @@ import com.peco2282.obfaryn.core.ObfuscationConfig
 import com.peco2282.obfaryn.core.KotlinMetadataMode
 import com.peco2282.obfaryn.core.ProtectionLevel
 import com.peco2282.obfaryn.core.Obfuscator
+import com.peco2282.obfaryn.core.io.ArtifactPaths
 import com.peco2282.obfaryn.api.protection.BodyFeature
 import com.peco2282.obfaryn.api.protection.ControlFlowMode
 import com.peco2282.obfaryn.api.protection.ProtectionRule
@@ -224,8 +225,7 @@ internal open class ObfuscateCommand : Callable<Int> {
         config.transformationReport, config.virtualizationReport ?: if (config.protectionLevel == ProtectionLevel.STRONG)
           out.resolveSibling(out.fileName.toString().removeSuffix(".jar") + ".virtualization.json") else null,
         config.integrityPrivateKey, config.integrityPublicKey) + config.classpath
-      if (sensitive.any { it.toAbsolutePath().normalize() == summary.toAbsolutePath().normalize() ||
-          Files.exists(it) && Files.exists(summary) && Files.isSameFile(it, summary) }) {
+      if (Files.isDirectory(summary) || sensitive.any { ArtifactPaths.sameFile(it, summary) }) {
         throw CommandLine.ParameterException(spec.commandLine(), "--report must use a different file from input, output, dependencies, keys and other reports")
       }
     }

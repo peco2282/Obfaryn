@@ -9,6 +9,7 @@ import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import com.peco2282.obfaryn.core.integrity.IntegrityProtection
 import com.peco2282.obfaryn.core.jar.JarReader
 import com.peco2282.obfaryn.core.jar.JarWriter
+import com.peco2282.obfaryn.core.io.ArtifactPaths.sameFile
 import com.peco2282.obfaryn.core.keep.KeepRules
 import com.peco2282.obfaryn.core.platform.Platforms
 import com.peco2282.obfaryn.core.platform.PlatformExtensionApplier
@@ -89,16 +90,22 @@ class Obfuscator(
   fun obfuscate(input: Path, output: Path, mapping: Path? = null): ObfuscationResult {
     require(!config.prelinkCalls || config.callIndirection) { "prelinkCalls requires callIndirection" }
     val strong = config.protectionLevel == ProtectionLevel.STRONG
-    fun sameFile(a: Path, b: Path) = a.toAbsolutePath().normalize() == b.toAbsolutePath().normalize() ||
-      Files.exists(a) && Files.exists(b) && Files.isSameFile(a, b)
-    config.transformationReport?.let { report ->
-      val defaultMapping = output.resolveSibling(output.fileName.toString().removeSuffix(".jar") + ".mapping.txt")
-      val virtualReport = config.virtualizationReport ?: if (strong)
-        output.resolveSibling(output.fileName.toString().removeSuffix(".jar") + ".virtualization.json") else null
-      val protectedPaths = listOfNotNull(input, output, mapping ?: defaultMapping, virtualReport,
-        config.integrityPrivateKey, config.integrityPublicKey) + config.classpath
-      require(!Files.isDirectory(report) && protectedPaths.none { sameFile(it, report) }) {
-        "Transformation report must not overwrite inputs, classpath, keys, output, mapping or virtualization report"
+    val defaultMapping = output.resolveSibling(output.fileName.toString().removeSuffix(".jar") + ".mapping.txt")
+    val reportPath = config.virtualizationReport ?: if (strong)
+      output.resolveSibling(output.fileName.toString().removeSuffix(".jar") + ".virtualization.json") else null
+    val destinations = listOfNotNull(
+      "Output JAR" to output, "Mapping" to (mapping ?: defaultMapping),
+      reportPath?.let { "Virtualization report" to it },
+      config.transformationReport?.let { "Transformation report" to it },
+    )
+    val protectedPaths = listOfNotNull(input, config.integrityPrivateKey, config.integrityPublicKey) + config.classpath
+    for ((index, destination) in destinations.withIndex()) {
+      val (label, path) = destination
+      require(!Files.isDirectory(path) && protectedPaths.none { sameFile(it, path) }) {
+        "$label must not overwrite inputs, classpath or keys, or refer to a directory"
+      }
+      require(destinations.take(index).none { sameFile(it.second, path) }) {
+        "$label and other outputs must use different paths"
       }
     }
     val controlFlow = config.effectiveControlFlowMode != ControlFlowMode.NONE
@@ -115,9 +122,6 @@ class Obfuscator(
     require(config.targetPackage == null || config.flattenPackages) {
       "targetPackage is only used with flattenPackages = true"
     }
-    require(
-      input.toAbsolutePath().normalize() != output.toAbsolutePath().normalize()
-    ) { "Input and output paths must be different." }
     require(Files.isRegularFile(input)) { "Input JAR does not exist: $input" }
     val context = jarReader.read(input)
     val classesLoaded = context.classes.size
@@ -176,16 +180,6 @@ class Obfuscator(
       selectors, config.excludeVirtualization, platformVirtualizationExclusions)
       .analyze(context.classes.values.filter { it.name !in excludedClasses })
     val virtualizationRequested = virtualizationAnalysis.selected > 0
-    val reportPath = config.virtualizationReport ?: if (strong)
-      output.resolveSibling(output.fileName.toString().removeSuffix(".jar") + ".virtualization.json") else null
-    require(reportPath == null || config.transformationReport?.toAbsolutePath()?.normalize() != reportPath.toAbsolutePath().normalize()) {
-      "Transformation and virtualization reports must use different paths"
-    }
-    reportPath?.let { report ->
-      require(listOfNotNull(input, output, mapping).none { it.toAbsolutePath().normalize() == report.toAbsolutePath().normalize() }) {
-        "Virtualization report must not overwrite the input, output, or mapping"
-      }
-    }
     reportPath?.let(virtualizationAnalysis::write)
     val analyzeOnly = config.virtualizationAnalyzeOnly || config.virtualizationSelectionMode == VirtualizationSelectionMode.ANALYZE_ONLY
     val selectionMode = config.virtualizationSelectionMode
