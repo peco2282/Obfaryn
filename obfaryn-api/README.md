@@ -98,6 +98,16 @@ Create passes **inside** the callback: a fresh registry is built for each run, b
 
 Implementing a `Transformer` does not make the CLI discover it automatically. Pass it to the host explicitly through `PipelineConfigurer`; this is distinct from platform provider service discovery.
 
+### Budgeted body extensions
+
+For a class-local body pass, opt in with `Transformer.isolatedBodyFeature`. The host supplies one candidate class, dependency lookup for reading and buffered helper injection. Check `context.transformationPolicy.canTransformBody(owner, method, feature)` before editing each method. The opt-in does not automatically make arbitrary edits obey feature exclusions; the pass must use the policy.
+
+Do not mutate dependency nodes returned by lookup, mutate resources or remove classes in this mode. The host commits or rolls back the candidate and injected helpers together, validates cumulative growth and code size, and reports injected helper methods too. A generated helper class uses its own policy identity and the run budget as its default; it does not inherit the originating method's budget automatically. Leave `isolatedBodyFeature` null for global passes needing other semantics.
+
+Use `context.transformationInputs.methodIdentity(owner, method)` for original-name diagnostics. `skipReason` must not mutate nodes or consume randomness. Reset pass counters on every `transform` call: the host can invoke a budgeted pass once per candidate class. Class-node lookup remains cooperative mutable access, not a security sandbox.
+
+See [protection controls](../docs/protection.md) for rule precedence, budgets, helper reports and prelink lifecycle effects, and [implementation status](../docs/implementation-status.md) for the validated scope and extension limits.
+
 ## 4. Contexts, names, and resources
 
 | API | Use |
