@@ -16,9 +16,10 @@ import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationSelector
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
+import javax.inject.Inject
 import java.net.URLClassLoader
-import java.nio.file.Path
 import java.util.Random
 
 
@@ -168,17 +169,7 @@ open class VirtualizationOptions {
  * @constructor Creates a Gradle extension with default configuration values.
  * @see RenameOptions
  */
-open class PerformanceOptions {
-  var maxInputInstructions: Int? = null
-  var maxInputBranches: Int? = null
-  var maxAddedInstructions: Int? = null
-  var maxGrowthPercent: Int? = null
-  var maxOutputCodeBytes = 65535
-  internal fun budget() = com.peco2282.obfaryn.api.protection.TransformationBudget(
-    maxInputInstructions, maxInputBranches, maxAddedInstructions, maxGrowthPercent, maxOutputCodeBytes)
-}
-
-open class ObfarynExtension {
+open class ObfarynExtension @Inject constructor(objects: ObjectFactory) {
   internal val pipelineConfigurers = mutableListOf<PipelineConfigurer>()
 
   /** Configures a fresh registry per execution; create stateful passes inside this block. */
@@ -213,6 +204,7 @@ open class ObfarynExtension {
   var protection = "standard"
   var controlFlow = false
   var lightweightControlFlow = false
+  var controlFlowMode = "inherit"
   var callIndirection = false
   var integerArithmetic = false
   var maxArithmeticOperationsPerMethod = 16
@@ -221,6 +213,16 @@ open class ObfarynExtension {
   var protectionRules = listOf<com.peco2282.obfaryn.api.protection.ProtectionRule>()
   val performance = PerformanceOptions()
   fun performance(action: Action<PerformanceOptions>) = action.execute(performance)
+  val controlFlowOptions = ControlFlowOptions(this)
+  val calls = CallOptions(this)
+  val arithmetic = ArithmeticOptions(this)
+  val reports = ReportOptions(this)
+  val rules = objects.newInstance(ProtectionRulesOptions::class.java, this)
+  fun controlFlow(action: Action<ControlFlowOptions>) = action.execute(controlFlowOptions)
+  fun calls(action: Action<CallOptions>) = action.execute(calls)
+  fun arithmetic(action: Action<ArithmeticOptions>) = action.execute(arithmetic)
+  fun reports(action: Action<ReportOptions>) = action.execute(reports)
+  fun rules(action: Action<ProtectionRulesOptions>) = action.execute(rules)
   var integrityPrivateKey: String? = null
   var integrityPublicKey: String? = null
   val rename = RenameOptions()
@@ -295,7 +297,7 @@ class ObfarynPlugin : Plugin<Project> {
             // dependency classpath must be available even when virtualizeMethods is empty.
             val dependencyClasspath = (listOf("runtimeClasspath", "compileClasspath")
               .mapNotNull(project.configurations::findByName).flatMap { it.files }.map { it.toPath() } +
-              extension.classpath.map(Path::of)).distinct().sortedBy { it.toString() }
+              extension.classpath.map { project.file(it).toPath() }).distinct().sortedBy { it.toString() }
             val config = ObfuscationConfig(
               protectionLevel = ProtectionLevel.valueOf(extension.protection.uppercase()),
               stripDebugInfo = extension.stripDebugInfo,
@@ -331,6 +333,7 @@ class ObfarynPlugin : Plugin<Project> {
               flattenPackages = extension.flattenPackages,
               controlFlow = extension.controlFlow,
               lightweightControlFlow = extension.lightweightControlFlow,
+              controlFlowMode = flowMode(extension.controlFlowMode),
               callIndirection = extension.callIndirection,
               integerArithmetic = extension.integerArithmetic,
               maxArithmeticOperationsPerMethod = extension.maxArithmeticOperationsPerMethod,

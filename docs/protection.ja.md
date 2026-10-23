@@ -50,17 +50,84 @@ obfaryn {
 
 ルールは改名・再配置後も**元のメソッド識別子**に一致します。ルールの `budget` は実行全体の予算を置き換えます。その後、クラス・メソッドの予算アノテーションで項目ごとに継承・上書きします。アノテーションの `-1` は継承で、それ以外の負値は出力前に拒否します。
 
+## Gradle・CLI からの設定
+
+Gradle の Kotlin/Groovy DSL では、機能ごとに設定をまとめられます。
+
+```kotlin
+obfaryn {
+  applicationPackages += "com.example"
+  protection = "strong"
+  controlFlow { mode = "light" }
+  calls { enabled = true; prelink = true }
+  arithmetic { enabled = true; maxOperationsPerMethod = 4 }
+  reports {
+    methods = "build/methods.json"
+    virtualization = "build/virtualization.json"
+  }
+  rules {
+    method("com/example/Physics\\.step\\(I\\)I") {
+      calls = false
+      integerArithmetic = false
+      controlFlow = "none"
+      performance { maxAddedInstructions = 64 }
+    }
+  }
+}
+```
+
+`controlFlow.mode` は `inherit`・`none`・`light`・`dispatch` を受け付け、大文字小文字を区別しません。
+明示モードは従来の制御フローフラグと `protection = "strong"` より優先します。
+`none` はメソッド別指定も含めて制御フローパス全体を無効にします。`inherit` は従来のフラグと
+保護レベルから判断します。どのモードも VM 化を自動選択しません。
+他のネスト項目は従来のトップレベル設定と同じ値を参照するため、最後の代入が有効です。
+`calls.prelink = true` には `calls.enabled = true` が必要です。
+
+ルールの `strings`・`numbers`・`calls`・`integerArithmetic`・`constantFields` は省略または
+`null` で継承する Boolean です。`controlFlow` は上記のモードを指定します。
+宣言順と先述の優先順位を維持します。ルールの `performance` は実行全体の予算を置き換え、
+ブロック内の省略項目は `TransformationBudget` の既定値となります。実行全体の予算項目からは
+継承しません。既存の `protectionRules` API とこの DSL は同じルール一覧を使います。
+
+レポートと Gradle の追加 `classpath` はプロジェクトからの相対パスです。
+`reports.methods` は `transformationReport`、`reports.virtualization` は `virtualize { report = ... }`
+と同じ値です。レポートの指定だけで VM 化の対象や解析を有効にはしません。
+strong では出力先を省略した場合も既定の VM 解析レポートを生成します。
+
+CLI では正規表現を引用符で囲み、シェルによる解釈を防ぎます。
+
+```sh
+obfaryn app.jar --platform generic --application-package com.example \
+  --protection strong --control-flow-mode light \
+  --call-indirection --prelink-calls --integer-arithmetic --arithmetic-operations 4 \
+  --disable-feature 'calls=com/example/Physics\.step\(I\)I' \
+  --disable-feature 'integer-arithmetic=com/example/Physics\.step\(I\)I' \
+  --max-added-instructions 256 --transformation-report methods.json
+```
+
+`--disable-feature FEATURE=REGEX` は繰り返し指定でき、元のメソッド識別子に対する機能ポリシーを
+作ります。機能名は `strings`・`numbers`・`control-flow`・`calls`・`integer-arithmetic`・
+`constant-fields` です。最初の `=` だけを区切りとするため、正規表現内にも `=` を使えます。
+既存のアノテーションは引き続き優先します。strong でも制御フローパス全体を無効にするには
+`--control-flow-mode none` を使います。明示モードは引数の順序によらず
+`--control-flow`・`--lightweight-control-flow` より優先します。
+`--no-rename-classes`・`--no-rename-methods`・`--no-rename-fields` で名前変更を個別に無効化でき、
+`--no-rename` は三つすべてを無効化します。
+
+繰り返し実行する設定は `@args.txt` に引数ごとに一行で保存できます。空白を含む引数は引用符で
+囲んでください。メソッドの正規表現には JVM 内部名（`/`）、アプリケーションのルートには
+パッケージ名（`.`）を使います。構造予算は個数の制限であり、時間制限ではありません。
+
 ## 構造的な変換予算
 
 ```kotlin
 obfaryn {
   applicationPackages += "com.example"
   protection = "strong"
-  lightweightControlFlow = true
-  callIndirection = true
-  integerArithmetic = true
-  maxArithmeticOperationsPerMethod = 4
-  transformationReport = "build/protection-decisions.json"
+  controlFlow { mode = "light" }
+  calls { enabled = true; prelink = true }
+  arithmetic { enabled = true; maxOperationsPerMethod = 4 }
+  reports { methods = "build/protection-decisions.json" }
   performance {
     maxInputInstructions = 2000
     maxInputBranches = 128

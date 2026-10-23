@@ -1,5 +1,6 @@
 package com.peco2282.obfaryn.gradle
 
+import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -11,7 +12,8 @@ class VirtualizationPhase1PluginTest {
   @TempDir lateinit var dir: Path
 
   @Test fun defaultsAreStrictAndNotAnalyzeOnly() {
-    val extension = ObfarynExtension()
+    val extension = ProjectBuilder.builder().build()
+      .extensions.create("obfaryn", ObfarynExtension::class.java)
     assertEquals("strict", extension.virtualization.mode)
     assertFalse(extension.virtualization.analyzeOnly)
     assertFalse(extension.flattenPackages)

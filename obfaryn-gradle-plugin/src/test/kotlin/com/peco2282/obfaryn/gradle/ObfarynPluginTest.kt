@@ -1,5 +1,6 @@
 package com.peco2282.obfaryn.gradle
 
+import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -50,7 +51,8 @@ class ObfarynPluginTest {
   }
 
   @Test fun nestedOptionsShareLegacyValues() {
-    val extension = ObfarynExtension()
+    val extension = ProjectBuilder.builder().build()
+      .extensions.create("obfaryn", ObfarynExtension::class.java)
     extension.string { it.enabled = false; it.includeConstantFields = false }
     extension.number { it.enabled = false }
     extension.metadata {
@@ -71,6 +73,40 @@ class ObfarynPluginTest {
     extension.stripDebugInfo = true
     assertTrue(extension.string.enabled)
     assertTrue(extension.metadata.stripDebugInfo)
+    extension.calls { it.enabled = true; it.prelink = true }
+    extension.arithmetic { it.enabled = true; it.maxOperationsPerMethod = 4 }
+    extension.reports { it.methods = "methods.json"; it.virtualization = "vm.json" }
+    extension.controlFlow { it.mode = "NONE" }
+    assertTrue(extension.callIndirection)
+    assertTrue(extension.prelinkCalls)
+    assertTrue(extension.integerArithmetic)
+    assertEquals(4, extension.maxArithmeticOperationsPerMethod)
+    assertEquals("methods.json", extension.transformationReport)
+    assertEquals("vm.json", extension.virtualization.report)
+    assertEquals("none", extension.controlFlowMode)
+    extension.prelinkCalls = false
+    extension.integerArithmetic = false
+    extension.transformationReport = "other.json"
+    assertFalse(extension.calls.prelink)
+    assertFalse(extension.arithmetic.enabled)
+    assertEquals("other.json", extension.reports.methods)
+    assertThrows(IllegalArgumentException::class.java) { extension.controlFlow { it.mode = "invalid" } }
+    extension.rules { rules ->
+      rules.method("example/.*") { rule ->
+        rule.calls = false
+        rule.controlFlow = "light"
+        rule.performance { it.maxAddedInstructions = 64 }
+      }
+    }
+    val rule = extension.protectionRules.single()
+    assertEquals(mapOf(com.peco2282.obfaryn.api.protection.BodyFeature.CALLS to false), rule.features)
+    assertEquals(com.peco2282.obfaryn.api.protection.ControlFlowMode.LIGHT, rule.controlFlow)
+    assertEquals(64, rule.budget!!.maxAddedInstructions)
+    assertNull(rule.budget!!.maxInputInstructions)
+    assertThrows(IllegalArgumentException::class.java) {
+      extension.rules { it.method("[") { rule -> rule.calls = false } }
+    }
+    assertEquals(1, extension.protectionRules.size)
   }
 
   @Test fun nestedDslConfiguresTransformationsAndOutputPaths() {
@@ -90,11 +126,18 @@ class ObfarynPluginTest {
         platform = "generic"
         seed = 4L
         applicationPackages = listOf("example")
-        callIndirection = true
-        prelinkCalls = true
-        integerArithmetic = true
-        maxArithmeticOperationsPerMethod = 4
-        transformationReport = "build/method-decisions.json"
+        protection = "strong"
+        controlFlow { mode = "none" }
+        calls { enabled = true; prelink = true }
+        arithmetic { enabled = true; maxOperationsPerMethod = 4 }
+        reports { methods = "build/method-decisions.json" }
+        rules {
+          method("example/.*") {
+            calls = false
+            controlFlow = "light"
+            performance { maxAddedInstructions = 256; maxGrowthPercent = 300 }
+          }
+        }
         performance { maxAddedInstructions = 256; maxGrowthPercent = 300 }
         pipeline {
           add(object : Transformer {
@@ -149,13 +192,15 @@ class ObfarynPluginTest {
     assertFalse(Files.exists(dir.resolve("strategy-used")))
     assertFalse(Files.exists(dir.resolve("pipeline-used")))
     runner.withArguments("obfuscateJar", "--stacktrace")
-    runner.build()
+    val transformed = runner.build()
+    assertFalse(transformed.output.contains("Obfaryn control-flow:"), transformed.output)
     val output = dir.resolve("build/protected jars/release.jar")
     assertTrue(Files.exists(output))
     assertTrue(Files.exists(dir.resolve("build/maps/release.txt")))
     assertTrue(Files.exists(dir.resolve("strategy-used")))
     assertTrue(Files.exists(dir.resolve("pipeline-used")))
     assertTrue(Files.exists(dir.resolve("build/method-decisions.json")))
+    assertTrue(Files.readString(dir.resolve("build/method-decisions.json")).contains("feature-policy:callIndirection"))
     assertFalse(Files.exists(dir.resolve("build/libs/sample-obfuscated.jar")))
     JarFile(output.toFile()).use { jar ->
       val bytes = jar.getInputStream(jar.getJarEntry("example/App.class")).readBytes()
@@ -183,6 +228,20 @@ class ObfarynPluginTest {
     Files.writeString(dir.resolve("build.gradle"), """
       plugins { id 'java'; id 'com.peco2282.obfaryn' }
       obfaryn {
+        platform = 'generic'
+        applicationPackages = ['example']
+        protection = 'strong'
+        controlFlow { mode = 'none' }
+        calls { enabled = true; prelink = true }
+        arithmetic { enabled = true; maxOperationsPerMethod = 4 }
+        reports { methods = 'build/methods.json' }
+        rules {
+          method('example/.*') {
+            calls = false
+            controlFlow = 'none'
+            performance { maxAddedInstructions = 64 }
+          }
+        }
         string { enabled = false; includeConstantFields = false }
         number { enabled = false }
         metadata { stripDebugInfo = false }
@@ -193,6 +252,7 @@ class ObfarynPluginTest {
       .withArguments("obfuscateJar", "--stacktrace").build()
     assertTrue(Files.exists(dir.resolve("build/secure/app.jar")))
     assertTrue(Files.exists(dir.resolve("build/secure/app.mapping.txt")))
+    assertTrue(Files.exists(dir.resolve("build/methods.json")))
   }
 
   @Test fun outputCannotOverwriteTheInputOrMapping() {

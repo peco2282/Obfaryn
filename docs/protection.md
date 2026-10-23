@@ -46,17 +46,86 @@ val rules = listOf(ProtectionRule(
 
 Rules match ORIGINAL identities even after renaming/relocation. A rule budget replaces the run budget; class/method budget annotations then inherit or override its individual properties. Annotation values of `-1` inherit. Other negative values fail before output.
 
+## Gradle and CLI configuration
+
+Gradle Kotlin and Groovy builds can group settings by feature:
+
+```kotlin
+obfaryn {
+  applicationPackages += "com.example"
+  protection = "strong"
+  controlFlow { mode = "light" }
+  calls { enabled = true; prelink = true }
+  arithmetic { enabled = true; maxOperationsPerMethod = 4 }
+  reports {
+    methods = "build/methods.json"
+    virtualization = "build/virtualization.json"
+  }
+  rules {
+    method("com/example/Physics\\.step\\(I\\)I") {
+      calls = false
+      integerArithmetic = false
+      controlFlow = "none"
+      performance { maxAddedInstructions = 64 }
+    }
+  }
+}
+```
+
+`controlFlow.mode` accepts `inherit`, `none`, `light` or `dispatch`, ignoring case.
+An explicit mode overrides the legacy control-flow flags and `protection = "strong"`.
+`none` disables the entire control-flow pass, including per-method requests. `inherit`
+uses the existing flags and protection level. The mode never selects virtualization.
+Other nested properties share their values with the existing flat settings, so the last
+assignment wins. `calls.prelink = true` requires `calls.enabled = true`.
+
+Rule properties `strings`, `numbers`, `calls`, `integerArithmetic` and `constantFields`
+are nullable booleans: omitted/null inherits. `controlFlow` uses the modes above.
+Rules retain declaration order and the policy precedence described earlier. A rule's
+`performance` block replaces the run budget; unspecified limits in that block use
+`TransformationBudget` defaults, rather than inheriting run limits. Existing
+`protectionRules` API values and this DSL share one rule list.
+
+Report paths and additional Gradle `classpath` entries resolve relative to the project.
+`reports.methods` aliases `transformationReport`; `reports.virtualization` aliases
+`virtualize { report = ... }` and does not select or analyze methods by itself.
+The strong profile still supplies its default virtualization report when no path is set.
+
+CLI example (quote regexes so the shell does not interpret them):
+
+```sh
+obfaryn app.jar --platform generic --application-package com.example \
+  --protection strong --control-flow-mode light \
+  --call-indirection --prelink-calls --integer-arithmetic --arithmetic-operations 4 \
+  --disable-feature 'calls=com/example/Physics\.step\(I\)I' \
+  --disable-feature 'integer-arithmetic=com/example/Physics\.step\(I\)I' \
+  --max-added-instructions 256 --transformation-report methods.json
+```
+
+`--disable-feature FEATURE=REGEX` is repeatable and creates ordinary feature-policy
+rules using original method identities. Features are `strings`, `numbers`, `control-flow`,
+`calls`, `integer-arithmetic` and `constant-fields`. Only the first `=` separates the
+feature and regex; a regex may contain `=`. Existing annotations retain their higher
+priority. To disable the whole control-flow pass even under `strong`, use
+`--control-flow-mode none`. Explicit mode selection takes precedence over
+`--control-flow` and `--lightweight-control-flow`, regardless of argument order.
+`--no-rename-classes`, `--no-rename-methods` and `--no-rename-fields` control renaming
+independently; `--no-rename` disables all three.
+
+For repeatable invocations, put one argument per line in an `@args.txt` file, quoting
+arguments that contain spaces. Use JVM internal names (`/`) in method regexes and
+package names (`.`) in application roots. Structural limits are counts, not time limits.
+
 ## Structural budgets
 
 ```kotlin
 obfaryn {
   applicationPackages += "com.example"
   protection = "strong"
-  lightweightControlFlow = true
-  callIndirection = true
-  integerArithmetic = true
-  maxArithmeticOperationsPerMethod = 4
-  transformationReport = "build/protection-decisions.json"
+  controlFlow { mode = "light" }
+  calls { enabled = true; prelink = true }
+  arithmetic { enabled = true; maxOperationsPerMethod = 4 }
+  reports { methods = "build/protection-decisions.json" }
   performance {
     maxInputInstructions = 2000
     maxInputBranches = 128

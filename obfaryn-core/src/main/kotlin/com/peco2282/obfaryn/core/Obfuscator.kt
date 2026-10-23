@@ -101,7 +101,7 @@ class Obfuscator(
         "Transformation report must not overwrite inputs, classpath, keys, output, mapping or virtualization report"
       }
     }
-    val controlFlow = config.controlFlow || config.lightweightControlFlow || strong
+    val controlFlow = config.effectiveControlFlowMode != ControlFlowMode.NONE
     val classExclusions = config.excludeClasses.map(::Regex)
     val resourceExclusions = config.excludeResources.map(::Regex)
     val renameExclusions = config.excludeRenaming.map(::Regex)
@@ -259,7 +259,7 @@ class Obfuscator(
         numbers = config.numberObfuscation && config.numberConstantFields,
       )
     val rename = RenameTransformer(config, keep)
-    val flow = ControlFlowTransformer(random, config.lightweightControlFlow)
+    val flow = ControlFlowTransformer(random, config.effectiveControlFlowMode == ControlFlowMode.LIGHT)
     // Scope is captured before renaming; the final pass receives renamed classes and annotations.
     val callClasses = context.classes.keys.filter { name ->
       name !in excludedClasses && applicationRoots.any { name.startsWith("$it/") }

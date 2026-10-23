@@ -13,6 +13,34 @@ import java.nio.file.*
 class ProtectionPolicyTest {
   @TempDir lateinit var dir: Path
 
+  @Test fun explicitRunModesOverrideStrongAndLegacyFlagsWithoutSelectingVirtualization() {
+    val input = JavaJarFixture.compile(dir, mapOf("app/Choice" to """
+      package app; public class Choice {
+        public static int choose(int n) { if (n > 0) return n + 3; return n - 3; }
+      }
+    """.trimIndent()))
+    for (mode in listOf(ControlFlowMode.NONE, ControlFlowMode.LIGHT, ControlFlowMode.DISPATCH)) {
+      val output = dir.resolve("mode-${mode.name}.jar")
+      val result = Obfuscator(ObfuscationConfig(protectionLevel = ProtectionLevel.STRONG,
+        applicationPackages = listOf("app"), keep = listOf("app.Choice"),
+        stringEncryption = false, numberObfuscation = false, controlFlow = true,
+        lightweightControlFlow = true, controlFlowMode = mode, seed = 1)).obfuscate(input, output)
+      val flow = result.transformerReports.firstOrNull { it.id == "control-flow" }
+      when (mode) {
+        ControlFlowMode.NONE -> assertNull(flow)
+        ControlFlowMode.LIGHT -> assertTrue(flow!!.metrics.getValue("rearrangedMethods") > 0)
+        ControlFlowMode.DISPATCH -> assertTrue(flow!!.metrics.getValue("dispatchedMethods") > 0)
+        else -> error("Unexpected test mode")
+      }
+      assertEquals(0, result.methodsVirtualized)
+      URLClassLoader(arrayOf(output.toUri().toURL()), null).use { loader ->
+        val method = loader.loadClass("app.Choice").getMethod("choose", Int::class.javaPrimitiveType)
+        assertEquals(8, method.invoke(null, 5))
+        assertEquals(-8, method.invoke(null, -5))
+      }
+    }
+  }
+
   @Test fun methodOverridesClassFeatureDefaultsButNeverHotPath() {
     val input = JavaJarFixture.compile(dir, mapOf("app/Main" to """
       package app;

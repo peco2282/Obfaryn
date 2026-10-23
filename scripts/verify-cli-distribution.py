@@ -49,7 +49,7 @@ public class Main {
         run([launcher, original, '--output', protected, '--platform', 'generic',
              '--application-package', 'smoke', '--keep', 'smoke.**',
              '--call-indirection', '--prelink-calls', '--integer-arithmetic',
-             '--lightweight-control-flow', '--verify-output', '--seed', '20261023',
+             '--control-flow-mode', 'light', '--verify-output', '--seed', '20261023',
              '--classpath', runtimes[0]])
         # No original classes, runtime JAR or engine on the application classpath.
         actual = run(['java', '-Xverify:all', '-jar', protected])

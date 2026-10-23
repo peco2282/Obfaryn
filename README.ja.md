@@ -2,6 +2,12 @@
 
 機能別アノテーション、累積の構造予算、整数演算変換、範囲指定の事前解決、公開プロジェクト・性能の継続検証は [保護設定の詳細](docs/protection.ja.md) を参照してください。
 
+Gradle では `controlFlow { mode = "light" }`・`calls { enabled = true; prelink = true }`・
+`arithmetic { enabled = true; maxOperationsPerMethod = 4 }`・`reports { methods = "build/methods.json" }`・
+`rules { method("com/example/.*") { calls = false } }` で設定を整理できます。CLI では
+`--control-flow-mode light`・`--disable-feature 'calls=com/example/.*'` を使えます。
+[設定例と優先順位](docs/protection.ja.md#gradlecli-からの設定)も参照してください。
+
 ## 配布とリリース
 
 全モジュールのバージョンは既定で `0.0.0-SNAPSHOT` に統一され、

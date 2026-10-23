@@ -1,5 +1,7 @@
 package com.peco2282.obfaryn.cli
 
+import com.peco2282.obfaryn.api.protection.BodyFeature
+import com.peco2282.obfaryn.api.protection.ControlFlowMode
 import com.peco2282.obfaryn.core.KotlinMetadataMode
 import com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode
 import org.junit.jupiter.api.Assertions.*
@@ -46,6 +48,73 @@ class CliParsingTest {
     assertTrue(help.contains("--keep-debug-info"))
     assertTrue(help.contains("--no-string-constant-fields"))
     assertTrue(help.contains("--no-number-constant-fields"))
+  }
+
+  @Test fun explicitModesAndFeatureExclusionsReachConfigurationInBothInvocations() {
+    for (prefix in listOf(emptyList(), listOf("obfuscate"))) {
+      val cli = cliCommandLine()
+      val parsed = cli.parseArgs(*(prefix + listOf("input.jar", "--protection", "strong",
+        "--lightweight-control-flow", "--control-flow-mode", "none",
+        "--disable-feature", "calls=example/Physics\\.step\\(I\\)I",
+        "--disable-feature", "integer-arithmetic=example/.*", "--no-rename-methods")).toTypedArray())
+      val command = if (prefix.isEmpty()) cli.getCommand<RootCommand>().obfuscation
+        else parsed.subcommand().commandSpec().userObject() as ObfuscateCommand
+      val config = command.configuration()
+      assertEquals(ControlFlowMode.NONE, config.effectiveControlFlowMode)
+      assertEquals(2, config.protectionRules.size)
+      assertEquals(mapOf(BodyFeature.CALLS to false), config.protectionRules[0].features)
+      assertTrue(Regex(config.protectionRules[0].methodPattern).matches("example/Physics.step(I)I"))
+      assertTrue(config.renameClasses)
+      assertFalse(config.renameMethods)
+      assertTrue(config.renameFields)
+    }
+  }
+
+  @Test fun invalidFeatureRulesFailBeforeWritingArtifacts() {
+    val input = input()
+    for (value in listOf("calls", "calls=", "unknown=.*", "strings=[")) {
+      assertEquals(2, run(input.toString(), "--disable-feature", value).status, value)
+      assertFalse(Files.exists(dir.resolve("input-obfuscated.jar")))
+    }
+    assertEquals(2, run(input.toString(), "--control-flow-mode", "invalid").status)
+  }
+
+  @Test fun explicitNoneOverridesStrongAndFeatureRulesAffectTheEmittedJar() {
+    val source = dir.resolve("App.java")
+    source.writeText("""
+      package example;
+      public class App {
+        public static String first() { return "first secret"; }
+        public static String second() { return "second secret"; }
+      }
+    """.trimIndent())
+    val classes = dir.resolve("classes")
+    Files.createDirectories(classes)
+    assertEquals(0, javax.tools.ToolProvider.getSystemJavaCompiler().run(null, null, null,
+      "--release", "8", "-d", classes.toString(), source.toString()))
+    val input = dir.resolve("application.jar")
+    JarOutputStream(Files.newOutputStream(input)).use { jar ->
+      jar.putNextEntry(JarEntry("example/App.class"))
+      jar.write(Files.readAllBytes(classes.resolve("example/App.class")))
+      jar.closeEntry()
+    }
+    val result = run(input.toString(), "--platform", "generic", "--application-package", "example",
+      "--protection", "strong", "--control-flow-mode", "none", "--no-rename",
+      "--disable-feature", "strings=example/App\\.first\\(\\)Ljava/lang/String;")
+    assertEquals(0, result.status, result.err)
+    assertFalse(result.out.contains("Transformer control-flow:"), result.out)
+    val output = dir.resolve("application-obfuscated.jar")
+    java.util.jar.JarFile(output.toFile()).use { jar ->
+      val bytes = jar.getInputStream(jar.getJarEntry("example/App.class")).readBytes()
+      val text = String(bytes, Charsets.ISO_8859_1)
+      assertTrue(text.contains("first secret"))
+      assertFalse(text.contains("second secret"))
+    }
+    java.net.URLClassLoader(arrayOf(output.toUri().toURL()), ClassLoader.getSystemClassLoader().parent).use { loader ->
+      val type = loader.loadClass("example.App")
+      assertEquals("first secret", type.getMethod("first").invoke(null))
+      assertEquals("second secret", type.getMethod("second").invoke(null))
+    }
   }
 
   @Test fun validationErrorsReturnWithoutExitingJvm() {

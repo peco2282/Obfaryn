@@ -4,6 +4,9 @@ import com.peco2282.obfaryn.core.ObfuscationConfig
 import com.peco2282.obfaryn.core.KotlinMetadataMode
 import com.peco2282.obfaryn.core.ProtectionLevel
 import com.peco2282.obfaryn.core.Obfuscator
+import com.peco2282.obfaryn.api.protection.BodyFeature
+import com.peco2282.obfaryn.api.protection.ControlFlowMode
+import com.peco2282.obfaryn.api.protection.ProtectionRule
 import com.peco2282.obfaryn.core.mapping.Mapping
 import com.peco2282.obfaryn.core.platform.Platforms
 import com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode
@@ -18,6 +21,7 @@ import picocli.CommandLine.Model.CommandSpec
 import java.io.PrintWriter
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.Locale
 import java.util.concurrent.Callable
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
@@ -92,6 +96,10 @@ internal open class ObfuscateCommand : Callable<Int> {
   var flattenPackages = false
   @Option(names = ["--control-flow"], description = ["Obfuscate branches and switches."])
   var controlFlow = false
+  @Option(names = ["--control-flow-mode"], paramLabel = "MODE", description = ["Mode: inherit (default), none, light or dispatch. Explicit modes override --protection and legacy control-flow switches."])
+  var controlFlowMode = ControlFlowMode.INHERIT
+  @Option(names = ["--disable-feature"], paramLabel = "FEATURE=REGEX", converter = [FeatureExclusionConverter::class], description = ["Disable a feature for matching original methods; repeatable. Features: strings, numbers, control-flow, calls, integer-arithmetic, constant-fields."])
+  var featureExclusions = mutableListOf<ProtectionRule>()
   @Option(names = ["--call-indirection"], description = ["Encrypt call linkage using constant invokedynamic sites; requires application roots."])
   var callIndirection = false
   @Option(names = ["--integer-arithmetic"], description = ["Rewrite bounded int/long addition, subtraction and XOR expressions."])
@@ -100,17 +108,17 @@ internal open class ObfuscateCommand : Callable<Int> {
   var arithmeticOperations = 16
   @Option(names = ["--prelink-calls"], description = ["Generate an explicit bounded prelink API; requires --call-indirection."])
   var prelinkCalls = false
-  @Option(names = ["--max-input-instructions"])
+  @Option(names = ["--max-input-instructions"], paramLabel = "N", description = ["Skip a body pass above this input instruction count (default: unlimited)."])
   var maxInputInstructions: Int? = null
-  @Option(names = ["--max-input-branches"])
+  @Option(names = ["--max-input-branches"], paramLabel = "N", description = ["Skip a body pass above this input branch count (default: unlimited)."])
   var maxInputBranches: Int? = null
-  @Option(names = ["--max-added-instructions"])
+  @Option(names = ["--max-added-instructions"], paramLabel = "N", description = ["Maximum cumulative added instructions per method (default: unlimited)."])
   var maxAddedInstructions: Int? = null
   @Option(names = ["--max-growth-percent"], description = ["Maximum cumulative instruction size relative to original (100 = unchanged)."])
   var maxGrowthPercent: Int? = null
-  @Option(names = ["--max-output-code-bytes"])
+  @Option(names = ["--max-output-code-bytes"], paramLabel = "N", description = ["Maximum estimated method code bytes, 1..65535 (default: 65535)."])
   var maxOutputCodeBytes = 65535
-  @Option(names = ["--transformation-report"], description = ["Write per-method decisions, reasons and structural costs as JSON."])
+  @Option(names = ["--transformation-report"], paramLabel = "FILE", description = ["Write per-method decisions, reasons and structural costs as JSON."])
   var transformationReport: Path? = null
   @Option(names = ["--lightweight-control-flow"], description = ["Reorder direct-branch blocks without a state dispatcher; overrides dispatch mode."])
   var lightweightControlFlow = false
@@ -144,6 +152,12 @@ internal open class ObfuscateCommand : Callable<Int> {
   var noNumberConstantFields = false
   @Option(names = ["--no-rename"], description = ["Disable class, method, and field renaming."])
   var noRename = false
+  @Option(names = ["--no-rename-classes"], description = ["Disable class renaming."])
+  var noRenameClasses = false
+  @Option(names = ["--no-rename-methods"], description = ["Disable method renaming."])
+  var noRenameMethods = false
+  @Option(names = ["--no-rename-fields"], description = ["Disable field renaming."])
+  var noRenameFields = false
   @Option(names = ["--strip-kotlin-metadata"], description = ["Strip Kotlin metadata throughout the JAR."])
   fun stripKotlinMetadata(enabled: Boolean) {
     stripMetadata = enabled
@@ -178,7 +192,8 @@ internal open class ObfuscateCommand : Callable<Int> {
       stripKotlinMetadata = stripMetadata, stringEncryption = !noStringEncryption, numberObfuscation = !noNumberObfuscation,
       stringConstantFields = !noStringConstantFields, numberConstantFields = !noNumberConstantFields,
       kotlinMetadataMode = kotlinMetadataMode, applicationPackages = applicationPackages,
-      renameClasses = !noRename, renameMethods = !noRename, renameFields = !noRename,
+      renameClasses = !noRename && !noRenameClasses, renameMethods = !noRename && !noRenameMethods,
+      renameFields = !noRename && !noRenameFields,
       seed = seed, platform = platform, platformOptions = platformOptions.associate { it.key to it.value }, keep = keep,
       verifyOutput = verifyOutput, dryRun = dryRun,
       stripGenericSignatures = stripGenericSignatures, stripMethodParameters = !keepMethodParameters,
@@ -186,6 +201,7 @@ internal open class ObfuscateCommand : Callable<Int> {
       excludeClasses = excludeClasses, excludeResources = excludeResources, excludeRenaming = excludeRenaming,
       targetPackage = targetPackage, flattenPackages = flattenPackages, controlFlow = controlFlow,
       lightweightControlFlow = lightweightControlFlow, callIndirection = callIndirection,
+      controlFlowMode = controlFlowMode, protectionRules = featureExclusions.toList(),
       integerArithmetic = integerArithmetic, maxArithmeticOperationsPerMethod = arithmeticOperations,
       prelinkCalls = prelinkCalls, transformationReport = transformationReport,
       transformationBudget = com.peco2282.obfaryn.api.protection.TransformationBudget(
@@ -262,6 +278,22 @@ internal open class ObfuscateCommand : Callable<Int> {
 }
 
 internal data class PlatformOption(val key: String, val value: String)
+internal class FeatureExclusionConverter : CommandLine.ITypeConverter<ProtectionRule> {
+  override fun convert(value: String): ProtectionRule {
+    val feature = value.substringBefore('=')
+    val pattern = value.substringAfter('=', "")
+    if (pattern.isBlank()) throw CommandLine.TypeConversionException("--disable-feature requires FEATURE=REGEX with a non-empty regex")
+    val key = feature.replace('-', '_').uppercase(Locale.ROOT)
+    val selected = BodyFeature.values().firstOrNull { it.name == key }
+      ?: throw CommandLine.TypeConversionException("Unknown feature '$feature'; use strings, numbers, control-flow, calls, integer-arithmetic or constant-fields")
+    return try {
+      ProtectionRule(pattern, mapOf(selected to false))
+    } catch (error: IllegalArgumentException) {
+      throw CommandLine.TypeConversionException("Invalid method regex: ${error.message}")
+    }
+  }
+}
+
 internal class PlatformOptionConverter : CommandLine.ITypeConverter<PlatformOption> {
   override fun convert(value: String): PlatformOption {
     if ('=' !in value || value.substringBefore('=').isBlank()) {

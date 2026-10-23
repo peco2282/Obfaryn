@@ -1,5 +1,8 @@
 package com.peco2282.obfaryn.core
 
+import com.peco2282.obfaryn.api.protection.ControlFlowMode
+import com.peco2282.obfaryn.api.protection.ProtectionRule
+import com.peco2282.obfaryn.api.protection.TransformationBudget
 import com.peco2282.obfaryn.api.PlatformConfiguration
 import com.peco2282.obfaryn.api.transformer.TransformerReport
 import com.peco2282.obfaryn.core.transformer.VirtualizationAnalysisReport
@@ -27,7 +30,7 @@ import java.util.Random
  */
 enum class KotlinMetadataMode { AUTO, PRESERVE, STRIP }
 
-/** STRONG adds application-scoped control flow, output checks, and a virtualization report. */
+/** STRONG defaults to application-scoped control flow and adds output checks and a virtualization report. */
 enum class ProtectionLevel { STANDARD, STRONG }
 
 /**
@@ -58,6 +61,7 @@ enum class ProtectionLevel { STANDARD, STRONG }
  * @property renameFields Enable eligible field renaming.
  * @property controlFlow Apply keyed dispatch with direct-branch fallback for incompatible methods.
  * @property lightweightControlFlow Enable direct-branch block layout changes instead of keyed dispatch.
+ * @property controlFlowMode Explicit run mode; overrides legacy flow flags and the protection-level default.
  * @property callIndirection Encode call targets using constant invokedynamic sites after renaming; requires application roots.
  * @property seed Optional random seed; identical input, settings, seed, and tool version are reproducible.
  * @property platform Platform ID, or `auto` for detection.
@@ -146,10 +150,21 @@ data class ObfuscationConfig(
   val integerArithmetic: Boolean = false,
   val maxArithmeticOperationsPerMethod: Int = 16,
   val prelinkCalls: Boolean = false,
-  val transformationBudget: com.peco2282.obfaryn.api.protection.TransformationBudget = com.peco2282.obfaryn.api.protection.TransformationBudget(),
-  val protectionRules: List<com.peco2282.obfaryn.api.protection.ProtectionRule> = emptyList(),
+  val transformationBudget: TransformationBudget = TransformationBudget(),
+  val protectionRules: List<ProtectionRule> = emptyList(),
   val transformationReport: Path? = null,
+  /** Explicit run mode; INHERIT derives the mode from the existing flags and protection level. */
+  val controlFlowMode: ControlFlowMode = ControlFlowMode.INHERIT,
 ) {
+  /** Final run mode before per-method policy; NONE prevents registration of the control-flow pass. */
+  val effectiveControlFlowMode: ControlFlowMode
+    get() = when {
+      controlFlowMode != ControlFlowMode.INHERIT -> controlFlowMode
+      lightweightControlFlow -> ControlFlowMode.LIGHT
+      controlFlow || protectionLevel == ProtectionLevel.STRONG -> ControlFlowMode.DISPATCH
+      else -> ControlFlowMode.NONE
+    }
+
   companion object {
     /** Keeps runtime body transformations disabled; callers can opt in with copy(). */
     @JvmStatic

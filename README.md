@@ -2,6 +2,12 @@
 
 Feature-by-feature annotations, cumulative structural budgets, integer expressions, bounded prelinking and repeatable public-project/performance checks are documented in [Protection controls](docs/protection.md).
 
+Gradle supports `controlFlow { mode = "light" }`, `calls { enabled = true; prelink = true }`,
+`arithmetic { enabled = true; maxOperationsPerMethod = 4 }`, `reports { methods = "build/methods.json" }`
+and `rules { method("com/example/.*") { calls = false } }`. CLI counterparts include
+`--control-flow-mode light` and `--disable-feature 'calls=com/example/.*'`.
+See [configuration examples and precedence](docs/protection.md#gradle-and-cli-configuration).
+
 ## Distribution and releases
 
 All modules share one version: `0.0.0-SNAPSHOT` by default, overridden with
