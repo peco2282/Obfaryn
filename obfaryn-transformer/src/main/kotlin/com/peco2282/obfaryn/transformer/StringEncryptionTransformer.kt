@@ -1,5 +1,6 @@
 package com.peco2282.obfaryn.transformer
 
+import com.peco2282.obfaryn.api.protection.BodyFeature
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
 import com.peco2282.obfaryn.api.transformer.Transformer
@@ -12,12 +13,21 @@ class StringEncryptionTransformer(
   private val random: Random,
   private val codec: StringEncryptionCodec = RollingStringEncryptionCodec(),
 ) : Transformer {
+  override val isolatedBodyFeature = BodyFeature.STRINGS
   override val id = "string-encryption"
   override val order = 20
   var count = 0
     private set
 
+  override fun skipReason(context: ObfuscationContext, owner: org.objectweb.asm.tree.ClassNode,
+    method: MethodNode): String = when {
+    owner.version and 0xffff < Opcodes.V1_8 -> "requires-java8-classfile"
+    owner.access and (Opcodes.ACC_ANNOTATION or Opcodes.ACC_MODULE) != 0 -> "unsupported-class-kind"
+    else -> "no-eligible-string-literals"
+  }
+
   override fun transform(context: ObfuscationContext) {
+    count = 0
     for (node in context.classes.values) {
       if (node.version < Opcodes.V1_8 || node.access and Opcodes.ACC_ANNOTATION != 0 || node.access and Opcodes.ACC_MODULE != 0) continue
       val helper = uniqueName(node)
@@ -30,7 +40,7 @@ class StringEncryptionTransformer(
       val reserved = mutableSetOf(helper, accessor)
       var slots = 0
       for (method in node.methods) {
-        if (!context.transformationPolicy.canTransformBody(node, method)) continue
+        if (!context.transformationPolicy.canTransformBody(node, method, BodyFeature.STRINGS)) continue
         desugarStringConcats(method)
         for (insn in method.instructions.toArray()) {
           if (insn !is LdcInsnNode || insn.cst !is String) continue

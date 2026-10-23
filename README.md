@@ -1,5 +1,7 @@
 # Obfaryn
 
+Feature-by-feature annotations, cumulative structural budgets, integer expressions, bounded prelinking and repeatable public-project/performance checks are documented in [Protection controls](docs/protection.md).
+
 ## Distribution and releases
 
 All modules share one version: `0.0.0-SNAPSHOT` by default, overridden with
@@ -44,8 +46,10 @@ normal plugin dependency, so build scripts may still explicitly import and call
 its classes. The DSL is not a security boundary restricting arbitrary code.
 
 Before an external release, run `./gradlew test`, inspect the local repository,
-and test a separate consumer against it. Run `python3 gradle/verify-distribution.py`
-to validate local artifacts (pass an overridden version as its argument).
+and test a separate consumer against it. Run `./gradlew :obfaryn-cli:installDist` and
+`python3 scripts/verify-cli-distribution.py` to check the installed CLI, embedded
+call-linkage runtime, and execution of a transformed Java 8 fixture. This check
+does not validate Maven publications or a separate Gradle consumer.
 To publish, create `secrets.properties` in the repository root (ignored by Git):
 
 ```properties
@@ -86,12 +90,13 @@ Obfaryn is an ASM-based obfuscator for Kotlin/JVM and Java JARs. It strips debug
 
 ## Requirements
 
-The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The `obfaryn-api`, `obfaryn-annotations`, `obfaryn-core`, `obfaryn-transformer`, and CLI modules use Kotlin language/API version 2.1 and Java 8 bytecode. The Gradle plugin requires Java 17 or later. The Java version needed by an obfuscated JAR also depends on the input and enabled transformations.
+The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The `obfaryn-api`, `obfaryn-annotations`, `obfaryn-core`, `obfaryn-transformer`, and CLI modules use Kotlin language/API version 2.1 and Java 8 bytecode. The optional `obfaryn-runtime` module is Java-only, targets Java 8 and has no external dependencies. The Gradle plugin requires Java 17 or later. The Java version needed by an obfuscated JAR also depends on the input and enabled transformations.
 
 | Module | Purpose |
 | --- | --- |
 | `obfaryn-api` | Platform and transformer interfaces |
 | `obfaryn-annotations` | Source-level transformation policies |
+| `obfaryn-runtime` | Optional Java 8 prelink API and zero-dependency runtime templates |
 | `obfaryn-core` | Obfuscation engine |
 | `obfaryn-transformer` | Standard transformers (strings, numbers, control flow, metadata) |
 | `obfaryn-cli` | Command-line application |
@@ -329,7 +334,7 @@ ASM transformers are intentionally not part of the platform extension API.
 
 For complete beginner-friendly implementation and launcher examples, see the [API development guide](obfaryn-api/README.md). It explains dependencies, contexts, platform providers, literal algorithms, and validation.
 
-External extensions implement `Transformer` and `PipelineConfigurer` from `obfaryn-api`; the launcher passes them to core. String encryption, number obfuscation, control flow, constant-field conversion, and metadata stripping live in `obfaryn-transformer`. Its only project dependency is API (it also uses ASM). Existing package names are retained, and core exposes the module transitively.
+External extensions implement `Transformer` and `PipelineConfigurer` from `obfaryn-api`; the launcher passes them to core. String encryption, number obfuscation, control flow, constant-field conversion, and metadata stripping live in `obfaryn-transformer`. Its project dependencies are API and the small runtime-template module (it also uses ASM); it does not depend on core or a platform. Existing package names are retained, and core exposes the module transitively.
 
 Renaming, virtualization, and standard pipeline assembly remain in core pending API contracts for their configuration, name preservation, and analysis results. This is incremental separation, not yet a fully independent execution engine.
 
@@ -404,7 +409,7 @@ val passes = transformers {
 
 `context.transformationInputs` supplies application scope, constant preservation and per-class Kotlin metadata stripping decisions. Core populates it from the current run, including for custom passes and filtered contexts. Unknown scope defaults to no application classes, not all classes. The legacy constructor arguments for roots, keep predicates and metadata class sets remain available; new builders need only user options. Explicit roots override context scope, keep decisions are combined, and metadata strip requests are additive. Existing annotation policy checks remain unchanged. Standard assembly and the core-to-transformer dependency have not yet been removed.
 
-Virtualization selection and name preservation are not yet part of this shared policy. Replacing `rename` is unsupported until mapping, counts, and reference updates in excluded classes have a common reporting contract. Paper-specific tick detection remains in `platforms/paper`.
+Virtualization selection and name preservation are not yet part of this shared policy. Replacing `rename` is unsupported until mapping, counts, and reference updates in excluded classes have a common reporting contract. Paper-specific callback detection remains in `platforms/paper`.
 
 ## Exclusions and control flow
 
@@ -416,9 +421,35 @@ The CLI accepts repeated `--exclude-class regex`, `--exclude-resource regex`, `-
 
 `--control-flow` rewrites eligible methods into keyed switch dispatch. Transitions derive the next state from the current state using per-edge XOR or addition, and numeric payloads inside transformed blocks are decoded using that block state. This couples numeric recovery to control-flow analysis, but does not prevent symbolic recovery. Methods that cannot be flattened retain the configured numeric strategy. The additional integer operations can increase runtime cost. Constructors, class initializers, and large methods are excluded. Control flow and virtualization automatically trigger frame recomputation; external dependencies may be needed on the classpath.
 
-Existing `tableswitch` and `lookupswitch` branches (including Kotlin `when`) can also participate in flattening. Methods rejected because of stack-carrying boundaries or reused local-slot types now fall back to shuffled basic blocks connected by direct JVM branches. No interpreter, boxing, helper calls or state dispatch is added by this fallback. Exception handlers, constructors and oversized methods remain excluded; annotation and class exclusions still apply.
+Existing `tableswitch` and `lookupswitch` branches (including Kotlin `when`) can also participate in flattening. Methods rejected because of stack-carrying boundaries or reused local-slot types now fall back to shuffled basic blocks connected by direct JVM branches. No interpreter, boxing, helper calls or state dispatch is added by this fallback. Exception handlers are supported by splitting protected ranges at block boundaries while preserving handler priority; constructors and oversized methods remain excluded; annotation and class exclusions still apply.
 
 For speed-sensitive ordinary code, use `--lightweight-control-flow` (Gradle/core: `lightweightControlFlow = true`). This enables the direct-branch layout transformation alone, overriding keyed dispatch even with strong protection. It changes physical block order without changing conditions or operand-stack transfers. Added jumps and code layout can still affect JIT compilation and throughput; near-original speed and decompiler failure are not guaranteed. Modern decompilers can reconstruct these blocks. Benchmark the actual workload before deployment; this option does not disable separately selected virtualization, string encryption or numeric obfuscation. `@HotPath` continues to suppress body transformations.
+
+## Non-VM call indirection
+
+`--call-indirection` (Gradle/core: `callIndirection = true`) replaces eligible static, virtual and interface calls with `invokedynamic`. Each site stores encoded owner, member and descriptor strings with its own key. A generated Java 8 helper resolves the target with the original caller's lookup and installs a `ConstantCallSite`. Decoding and method lookup occur during linkage, not on every invocation; the JVM can optimize the linked handle. This adds cold-linkage work and can affect warm performance. It is obfuscation, not a cryptographic boundary: an analyst can recover the keys and resolved handles.
+
+The pass runs after renaming, so encoded references use final names. It requires application roots (`applicationPackages` or discovered entrypoints) and leaves bundled dependency bodies alone. Constructors, class initializers, synthetic methods, special invocations, array owners, signature-polymorphic calls and selected caller-sensitive APIs are skipped. Body policy annotations and class exclusions apply. Existing lambdas and string-concatenation bootstrap sites are preserved. The generated helper only needs the JDK; no interpreter or Obfaryn runtime dependency is shipped separately. Custom pipelines must keep this pass after all renaming and relocation. Calls can remain direct when encoded strings, code size or constant-pool growth would exceed class-file limits.
+
+For a Paper fat JAR, start with this configurable non-VM setup:
+
+```kotlin
+obfaryn {
+  platform = "paper"
+  applicationPackages += "com.example.plugin"
+  protection = "strong"
+  lightweightControlFlow = true
+  callIndirection = true
+  flattenPackages = true
+  targetPackage = "com.example.plugin"
+}
+```
+
+Use `@HotPath` to preserve performance-sensitive bodies and `@Virtualize` only where interpreter costs are acceptable. Without virtualization annotations or explicit selectors, this configuration does not virtualize methods. For stronger flow transformations at additional runtime cost, set `lightweightControlFlow = false`; strong protection then enables keyed dispatch where eligible. `transformers { ... }` builds a list and does not register it with the Gradle plugin merely by appearing inside `obfaryn { ... }`. Use `pipeline { replace("control-flow", ControlFlowTransformer(Random(42))) }` to replace an enabled pass; use `add` for new IDs. CLI output, JSON reports and Gradle logs include per-pass metrics such as `indirectedCalls`, `rearrangedMethods` and `dispatchedMethods`.
+
+To disable existing `@Virtualize` selections for a non-VM comparison, pass `--exclude-virtualization ".*"`. In Gradle, use `virtualize { excludeMethods = listOf(".*") }` with `@file:OptIn(com.peco2282.obfaryn.gradle.VirtualizeOptIn::class)` at the top of the build script. Remove that exclusion to restore annotation-based selection.
+
+Paper does not infer performance sensitivity from arbitrary method names such as `tick` or `onTick`. Its automatic virtualization exclusions use event annotations and actual scheduler/lifecycle contracts. Application-specific hot paths belong in annotations or explicit configuration. Core transformations have no Paper-specific name tests.
 
 ## Strong protection
 
@@ -438,7 +469,7 @@ Strong protection enables control-flow transformations and ASM output validation
 
 Strong protection writes `<output-name>.virtualization.json` beside the output, unless `virtualizationReport` supplies another path. Explicit selections retain the configured selection mode, including strict failures for unsupported methods. Zero virtualized methods is valid. `@HotPath` and user exclusions can exclude methods from virtualization.
 
-Paper applies conservative performance exclusions to method-pattern selections by default. Explicit `@Virtualize` annotations override these Paper exclusions. To disable the exclusions for pattern selections, set `platformOptions["virtualization-protect-hot-paths"] = "false"` in Gradle or pass `--platform-option virtualization-protect-hot-paths=false` to the CLI. This removes Paper's automatic lifecycle, event, tick, and transitive-call exclusions; entrypoint name and descriptor protection still applies. User exclusions and source `@HotPath` directives still apply. This can substantially increase tick costs; measure a representative workload before deployment.
+Paper applies conservative performance exclusions to method-pattern selections by default. Explicit `@Virtualize` annotations override these Paper exclusions. To disable the exclusions for pattern selections, set `platformOptions["virtualization-protect-hot-paths"] = "false"` in Gradle or pass `--platform-option virtualization-protect-hot-paths=false` to the CLI. This removes Paper's automatic lifecycle, event, scheduled-task, and transitive-call exclusions; entrypoint name and descriptor protection still applies. User exclusions and source `@HotPath` directives still apply. This can substantially increase tick costs; measure a representative workload before deployment.
 
 Constructors, monitors, and other unsupported patterns can remain readable. Review the report for each sensitive method. VM conversion adds execution and memory costs; validate on a representative server workload. JVM validity or a decompiler failure alone does not prove equivalent behavior or resistance to analysis. Publish the output JAR without the mapping and analysis reports, which contain original names.
 
@@ -486,7 +517,7 @@ fun updateProjectilePositions() { /* rename without changing the body */ }
 fun externallyReferencedEntryPoint() { /* keep the name and body */ }
 ```
 
-Paper excludes lifecycle callbacks, `@EventHandler`, `Runnable`/`BukkitRunnable.run()V`, no-argument `tick()V` and `onTick()V`, and methods they call within the JAR. The analysis report (schema version 2) lists policy exclusions and reasons. Use `@HotPath` or an explicit exclusion for other frequently called methods.
+Paper excludes lifecycle callbacks, `@EventHandler`, `Runnable`/`BukkitRunnable.run()V`, and methods they call within the JAR. The analysis report (schema version 2) lists policy exclusions and reasons. Use `@HotPath` or an explicit exclusion for other frequently called methods.
 
 The compiler translates supported bytecode into a typed, block-based IR; its verifier checks locals, branches, stack bounds, value kinds, and merge points. The output JAR contains interpreters and integer-ID bridges for selected field, invocation, cast, array, and constructor operations. Obfaryn itself is not needed at runtime. Supported values include int-like, reference, float, long, double, and void returns. Arrays, branches, loops, dense and sparse switches, class literals, typed exception handlers, finally blocks, throws, and selected calls are supported. Method-body constructors, class initializers, monitors, arbitrary uninitialized objects and legacy subroutines are not virtualized. Only straight-line `NEW → DUP → arguments → invokespecial <init>` constructor calls meeting safety checks can become bridges.
 

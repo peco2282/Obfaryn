@@ -91,6 +91,7 @@ class PaperPlatformTest {
     val ticker = ClassNode().apply {
       version = Opcodes.V17; access = Opcodes.ACC_PUBLIC; name = "sample/Ticker"; superName = "java/lang/Object"
       methods.add(method(Opcodes.ACC_PRIVATE, "tick", "()V"))
+      methods.add(method(Opcodes.ACC_PRIVATE, "onTick", "()V"))
     }
     val listener = ClassNode().apply {
       version = Opcodes.V17; access = Opcodes.ACC_PUBLIC; name = "sample/Listener"; superName = "java/lang/Object"
@@ -99,7 +100,7 @@ class PaperPlatformTest {
       })
     }
     val plugin = ClassNode().apply {
-      version = Opcodes.V17; access = Opcodes.ACC_PUBLIC; name = "sample/Main"; superName = "java/lang/Object"
+      version = Opcodes.V17; access = Opcodes.ACC_PUBLIC; name = "sample/Main"; superName = "org/bukkit/plugin/java/JavaPlugin"
       methods.add(method(Opcodes.ACC_PUBLIC, "onEnable", "()V"))
     }
     val context = object : PlatformContext {
@@ -112,7 +113,8 @@ class PaperPlatformTest {
     assertEquals("paper scheduled callback", excluded["sample/TickTask.run()V"])
     assertEquals("paper hot callback dependency", excluded["sample/TickTask.hot()V"])
     assertEquals("paper hot callback dependency", excluded["sample/TickTask.deep()V"])
-    assertEquals("paper tick callback", excluded["sample/Ticker.tick()V"])
+    assertFalse("sample/Ticker.tick()V" in excluded)
+    assertFalse("sample/Ticker.onTick()V" in excluded)
     assertEquals("paper event callback", excluded["sample/Listener.onMove(Ljava/lang/Object;)V"])
     assertEquals("paper plugin lifecycle", excluded["sample/Main.onEnable()V"])
     assertFalse("sample/TickTask.getTickKey()Ljava/lang/String;" in excluded)

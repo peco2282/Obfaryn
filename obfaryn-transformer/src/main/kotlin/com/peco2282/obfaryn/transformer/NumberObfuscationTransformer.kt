@@ -1,5 +1,6 @@
 package com.peco2282.obfaryn.transformer
 
+import com.peco2282.obfaryn.api.protection.BodyFeature
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationSite
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector
@@ -15,14 +16,18 @@ class NumberObfuscationTransformer @JvmOverloads constructor(
   private val strategy: NumberObfuscationStrategy = DefaultNumberObfuscationStrategy(),
   private val selector: NumberObfuscationSelector = DefaultNumberObfuscationSelector(),
 ) : Transformer {
+  override val isolatedBodyFeature = BodyFeature.NUMBERS
   override val id = "number-obfuscation"
   override val order = 30
   var count = 0
     private set
 
+  override fun skipReason(context: ObfuscationContext, owner: org.objectweb.asm.tree.ClassNode,
+    method: MethodNode): String = "no-numeric-literals-or-selector-strategy-exclusion"
+
   override fun transform(context: ObfuscationContext) {
     count = 0
-    context.forEachTransformableMethod { node, method ->
+    context.forEachTransformableMethod(BodyFeature.NUMBERS) { node, method ->
       for (insn in method.instructions.toArray()) {
         val value: Number = when (insn) {
           is LdcInsnNode -> insn.cst as? Number ?: continue

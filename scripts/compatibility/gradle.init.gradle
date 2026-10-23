@@ -1,0 +1,33 @@
+// Export the upstream test runtime and run the SAME compiled tests against the processed JAR.
+// Paths and task names are supplied by the local runner, never interpolated as Groovy source.
+gradle.beforeProject { configured ->
+  if (configured.path == System.getProperty('obfaryn.testProject', ':')) configured.afterEvaluate {
+  def selected = configured
+  def original = selected.tasks.named(System.getProperty('obfaryn.testTask', 'test'), Test).get()
+  def destination = new File(System.getProperty('obfaryn.resultDir'))
+  selected.tasks.register('obfarynExportTestPaths') {
+    doLast {
+      destination.mkdirs()
+      new File(destination, 'test-paths.txt').text = original.classpath.files.collect { it.absolutePath }.join('\n')
+      new File(destination, 'test-roots.txt').text = original.testClassesDirs.files.collect { it.absolutePath }.join('\n')
+    }
+  }
+  selected.tasks.register('obfarynCompatibilityTest', Test) {
+    def transformed = new File(System.getProperty('obfaryn.transformedJar', new File(destination, 'protected.jar').path))
+    def remapped = new File(destination, 'remapped-tests')
+    def mainOutputs = System.getProperty('obfaryn.mainOutputs', '').split(File.pathSeparator).findAll { it }.collect { new File(it).canonicalFile }
+    testClassesDirs = selected.files(remapped)
+    def excluded = mainOutputs + original.testClassesDirs.files.collect { it.canonicalFile }
+    classpath = selected.files(remapped, transformed) + original.classpath.filter { !excluded.contains(it.canonicalFile) }
+    if (original.testFramework.class.name.contains('JUnitPlatform')) useJUnitPlatform() else useJUnit()
+    systemProperties(original.systemProperties)
+    jvmArgs '-Xverify:all'
+    maxHeapSize = '1g'
+    reports.junitXml.outputLocation.set(new File(destination, 'test-results'))
+    reports.html.outputLocation.set(new File(destination, 'test-report'))
+    binaryResultsDirectory.set(new File(destination, 'binary-results'))
+    outputs.upToDateWhen { false }
+    testLogging { events 'failed'; exceptionFormat 'full' }
+  }
+}
+}

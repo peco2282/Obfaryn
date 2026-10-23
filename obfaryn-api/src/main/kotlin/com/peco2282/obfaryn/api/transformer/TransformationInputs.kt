@@ -8,6 +8,9 @@ package com.peco2282.obfaryn.api.transformer
  * These analysis decisions do not replace the permission checks in [TransformationPolicy].
  */
 interface TransformationInputs {
+  /** Stable original identity, including after the built-in renamer. */
+  fun methodIdentity(owner: org.objectweb.asm.tree.ClassNode, method: org.objectweb.asm.tree.MethodNode): String =
+    owner.name + "." + method.name + method.desc
   /**
    * Whether [internalName] belongs to the application's configured or inferred package scope.
    * Defaults to `false`: missing scope must not select bundled library classes for conversion.

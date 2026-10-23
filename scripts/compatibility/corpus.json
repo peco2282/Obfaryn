@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "projects": [
+    {
+      "id": "joml",
+      "url": "https://github.com/JOML-CI/JOML.git",
+      "commit": "c3dd86042d17773622c940f9175a4ccdc6093e35",
+      "checkout": "JOML",
+      "build": [
+        "clean",
+        "test",
+        "jar",
+        "-PbuildProfile=java8"
+      ],
+      "testProject": ":",
+      "testTask": "test",
+      "jar": "build/libs/joml-1.10.8.jar",
+      "package": "org.joml",
+      "mainOutputs": [
+        "build/classes/java/main",
+        "build/classes/kotlin/main"
+      ]
+    },
+    {
+      "id": "colormath",
+      "url": "https://github.com/ajalt/colormath.git",
+      "commit": "5e776b66ea6ffc5dc5dc360ab88ca5aefbd2a310",
+      "checkout": "colormath",
+      "build": [
+        "--configure-on-demand",
+        ":colormath:jvmJar",
+        ":test:jvmTest"
+      ],
+      "testProject": ":test",
+      "testTask": "jvmTest",
+      "jar": "colormath/build/libs/colormath-jvm.jar",
+      "package": "com.github.ajalt.colormath",
+      "mainOutputs": [
+        "colormath/build/classes/kotlin/jvm/main"
+      ]
+    }
+  ]
+}

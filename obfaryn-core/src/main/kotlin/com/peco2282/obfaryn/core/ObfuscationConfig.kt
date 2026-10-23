@@ -58,6 +58,7 @@ enum class ProtectionLevel { STANDARD, STRONG }
  * @property renameFields Enable eligible field renaming.
  * @property controlFlow Apply keyed dispatch with direct-branch fallback for incompatible methods.
  * @property lightweightControlFlow Enable direct-branch block layout changes instead of keyed dispatch.
+ * @property callIndirection Encode call targets using constant invokedynamic sites after renaming; requires application roots.
  * @property seed Optional random seed; identical input, settings, seed, and tool version are reproducible.
  * @property platform Platform ID, or `auto` for detection.
  * @property platformOptions String options passed to platform contributions, configuration, and entrypoint discovery.
@@ -140,6 +141,14 @@ data class ObfuscationConfig(
   val numberRandom: Random? = null,
   val protectionLevel: ProtectionLevel = ProtectionLevel.STANDARD,
   val lightweightControlFlow: Boolean = false,
+  /** Encrypt call linkage after renaming using constant invokedynamic call sites; requires application roots. */
+  val callIndirection: Boolean = false,
+  val integerArithmetic: Boolean = false,
+  val maxArithmeticOperationsPerMethod: Int = 16,
+  val prelinkCalls: Boolean = false,
+  val transformationBudget: com.peco2282.obfaryn.api.protection.TransformationBudget = com.peco2282.obfaryn.api.protection.TransformationBudget(),
+  val protectionRules: List<com.peco2282.obfaryn.api.protection.ProtectionRule> = emptyList(),
+  val transformationReport: Path? = null,
 ) {
   companion object {
     /** Keeps runtime body transformations disabled; callers can opt in with copy(). */

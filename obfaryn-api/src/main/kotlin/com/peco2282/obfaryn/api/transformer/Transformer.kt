@@ -39,6 +39,17 @@ interface Transformer {
   val id: String
 
   /**
+   * Opts into class-atomic body budgeting and diagnostics. The host supplies one candidate class
+   * in classes, full read-only dependency lookup, and buffered class injection. Resource mutation
+   * and class removal are forbidden. Leave null for global/custom passes that need other semantics.
+   */
+  val isolatedBodyFeature: com.peco2282.obfaryn.api.protection.BodyFeature? get() = null
+
+  /** Best-effort explanation for an unchanged method, without consuming randomness or mutating it. */
+  fun skipReason(context: ObfuscationContext, owner: org.objectweb.asm.tree.ClassNode,
+    method: org.objectweb.asm.tree.MethodNode): String? = null
+
+  /**
    * The execution order/priority of this transformer in the pipeline.
    *
    * Transformers with lower order values are executed before transformers
@@ -101,4 +112,5 @@ data class TransformerReport(
   val id: String,
   val metrics: Map<String, Long> = emptyMap(),
   val warnings: List<String> = emptyList(),
+  val methods: List<com.peco2282.obfaryn.api.protection.MethodTransformationReport> = emptyList(),
 )

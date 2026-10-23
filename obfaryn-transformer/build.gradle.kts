@@ -25,7 +25,9 @@ repositories {
 
 dependencies {
   api(project(":obfaryn-api"))
+  implementation(project(":obfaryn-runtime"))
   implementation(libs.asm.analysis)
+  implementation(libs.asm.commons)
 
   testImplementation(platform(libs.junit5.bom))
   testImplementation(libs.junit.jupiter)

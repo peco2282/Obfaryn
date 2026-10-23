@@ -105,13 +105,27 @@ class CliParsingTest {
     assertFalse(Files.exists(dir.resolve("file with spaces-obfuscated.jar")))
   }
 
+  @Test fun summaryAndDetailedReportCannotOverwriteOneAnotherOrTheInput() {
+    val input = input()
+    val shared = dir.resolve("shared.json")
+    val before = Files.readAllBytes(input)
+    val collision = run(input.toString(), "--report", shared.toString(), "--transformation-report", shared.toString())
+    assertEquals(2, collision.status)
+    assertTrue(collision.err.contains("--report must use a different file"))
+    assertFalse(Files.exists(shared))
+    assertEquals(2, run(input.toString(), "--report", input.toString()).status)
+    assertArrayEquals(before, Files.readAllBytes(input))
+  }
+
   @Test fun everyExistingOptionAndNewSwitchesReachConfiguration() {
     val cli = cliCommandLine()
     cli.parseArgs("input.jar", "-o", "out.jar", "--mapping", "mapping.txt", "--report", "report.json",
       "--platform", "generic", "--platform-option", "mode=first", "--platform-option=mode=second=value", "--platform-option", "empty=",
       "--seed", "-10", "--keep", "example.Keep", "--keep", "example.Keep#method()V",
       "--exclude-class", "excluded/.*", "--exclude-resource", "private/.*", "--exclude-renaming", "stable/.*",
-      "--target-package", "hidden", "--flatten-packages", "--control-flow",
+      "--target-package", "hidden", "--flatten-packages", "--control-flow", "--call-indirection", "--prelink-calls", "--integer-arithmetic", "--arithmetic-operations", "4",
+      "--max-input-instructions", "1000", "--max-input-branches", "64", "--max-added-instructions", "128",
+      "--max-growth-percent", "200", "--max-output-code-bytes", "60000", "--transformation-report", "methods.json",
       "--integrity-private-key", "private.der", "--integrity-public-key", "public.der",
       "--virtualize-method", "example/Calc.*", "--exclude-virtualization", ".*skip.*", "--virtualization-mode", "eligible",
       "--virtualization-analyze-only", "--virtualization-report", "analysis.json", "--virtualization-runtime-group-size", "3",
@@ -135,6 +149,16 @@ class CliParsingTest {
     assertEquals("hidden", config.targetPackage)
     assertTrue(config.flattenPackages)
     assertTrue(config.controlFlow)
+    assertTrue(config.callIndirection)
+    assertTrue(config.prelinkCalls)
+    assertTrue(config.integerArithmetic)
+    assertEquals(4, config.maxArithmeticOperationsPerMethod)
+    assertEquals(1000, config.transformationBudget.maxInputInstructions)
+    assertEquals(64, config.transformationBudget.maxInputBranches)
+    assertEquals(128, config.transformationBudget.maxAddedInstructions)
+    assertEquals(200, config.transformationBudget.maxGrowthPercent)
+    assertEquals(60000, config.transformationBudget.maxOutputCodeBytes)
+    assertEquals("methods.json", config.transformationReport.toString())
     assertEquals("private.der", config.integrityPrivateKey.toString())
     assertEquals("public.der", config.integrityPublicKey.toString())
     assertEquals(listOf("example/Calc.*"), config.virtualizeMethods)

@@ -1,5 +1,6 @@
 package com.peco2282.obfaryn.transformer
 
+import com.peco2282.obfaryn.api.protection.BodyFeature
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.transformer.Transformer
 import com.peco2282.obfaryn.api.transformer.TransformerReport
@@ -14,6 +15,7 @@ import java.util.WeakHashMap
 
 /** Uses keyed dispatch or direct-branch block layout changes without an interpreter. */
 class ControlFlowTransformer(private val random: Random, private val lightweight: Boolean = false) : Transformer {
+  override val isolatedBodyFeature = BodyFeature.CONTROL_FLOW
   override val id = "control-flow"
   override val order = 35
   override val requiresFrameRecomputation = true
@@ -27,13 +29,26 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
     "dispatchedMethods" to dispatchedMethods, "rearrangedMethods" to rearrangedMethods,
   ))
 
+  override fun skipReason(context: ObfuscationContext, owner: org.objectweb.asm.tree.ClassNode,
+    method: MethodNode): String = when {
+    method.name.startsWith('<') -> "constructor-or-class-initializer"
+    method.instructions.size() > 10000 -> "control-flow-instruction-limit"
+    method.access and (Opcodes.ACC_ABSTRACT or Opcodes.ACC_NATIVE) != 0 -> "no-bytecode-body"
+    method.instructions.none { it is JumpInsnNode || it is TableSwitchInsnNode || it is LookupSwitchInsnNode } && method.tryCatchBlocks.isEmpty() -> "no-control-flow-edges"
+    else -> "unsupported-control-flow-shape-or-block-limit"
+  }
+
   override fun transform(context: ObfuscationContext) {
     count = 0
     dispatchedMethods = 0
     rearrangedMethods = 0
     for (owner in context.classes.values) for (method in owner.methods) {
-      if (context.transformationPolicy.canTransformBody(owner, method)) {
-        if (!lightweight) flatten(owner.name, method)
+      if (context.transformationPolicy.canTransformBody(owner, method, BodyFeature.CONTROL_FLOW)) {
+        val mode = context.transformationPolicy.controlFlowMode(owner, method)
+        if (mode == com.peco2282.obfaryn.api.protection.ControlFlowMode.NONE) continue
+        val light = mode == com.peco2282.obfaryn.api.protection.ControlFlowMode.LIGHT ||
+          mode == com.peco2282.obfaryn.api.protection.ControlFlowMode.INHERIT && lightweight
+        if (!light) flatten(owner.name, method)
         if (method !in flattened) rearrange(method)
       }
     }
@@ -41,7 +56,7 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
 
   private fun rearrange(method: MethodNode) {
     if (method in flattened || method.name.startsWith('<') || method.instructions.size() > 10000 ||
-      method.tryCatchBlocks.isNotEmpty() || method.access and (Opcodes.ACC_ABSTRACT or Opcodes.ACC_NATIVE) != 0) return
+      method.access and (Opcodes.ACC_ABSTRACT or Opcodes.ACC_NATIVE) != 0) return
     val original = method.instructions.toArray().filterNot { it is FrameNode }
     if (original.any { it.opcode == Opcodes.JSR || it.opcode == Opcodes.RET }) return
     val positions = original.withIndex().associate { it.value to it.index }
@@ -62,12 +77,36 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
         if (index + 1 < original.size) leaders += index + 1
       }
     }
-    if (edges == 0 || leaders.size !in 2..256) return
+    // Exception boundaries are leaders so each block has one unchanged ordered handler set.
+    val handlers = method.tryCatchBlocks.toList()
+    for (handler in handlers) {
+      leaders += positions[handler.start] ?: return
+      leaders += positions[handler.end] ?: return
+      leaders += positions[handler.handler] ?: return
+    }
+    if (edges == 0 && handlers.isEmpty() || leaders.size !in 2..256) return
+    if (handlers.size.toLong() * leaders.size > 60000) return
     val starts = leaders.toList()
     val blocks = starts.mapIndexed { index, start ->
       original.subList(start, starts.getOrElse(index + 1) { original.size })
     }
     val entries = Array(blocks.size) { LabelNode() }
+    val exits = Array(blocks.size) { LabelNode() }
+    val rewrittenHandlers = mutableListOf<TryCatchBlockNode>()
+    // Keep original exception-table priority, including overlapping catches and finally.
+    for (handler in handlers) for (index in blocks.indices) {
+      val start = starts[index]
+      if (start >= positions.getValue(handler.start) && start < positions.getValue(handler.end) &&
+        blocks[index].any { it.opcode >= 0 }) {
+        rewrittenHandlers += TryCatchBlockNode(entries[index], exits[index], handler.handler, handler.type).apply {
+          fun copy(annotations: List<TypeAnnotationNode>?) = annotations?.map { annotation ->
+            TypeAnnotationNode(annotation.typeRef, annotation.typePath, annotation.desc).also { annotation.accept(it) }
+          }?.toMutableList()
+          visibleTypeAnnotations = copy(handler.visibleTypeAnnotations)
+          invisibleTypeAnnotations = copy(handler.invisibleTypeAnnotations)
+        }
+      }
+    }
     val labels = original.filterIsInstance<LabelNode>().associateWith { LabelNode() }
     val output = InsnList()
     output.add(JumpInsnNode(Opcodes.GOTO, entries[0]))
@@ -77,6 +116,7 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
       output.add(entries[index])
       val nodes = blocks[index]
       for (node in nodes) output.add(node.clone(labels))
+      output.add(exits[index])
       val last = nodes.lastOrNull { it.opcode >= 0 }
       // Preserve each original fall-through edge, including its operand stack and local types.
       if (last !is TableSwitchInsnNode && last !is LookupSwitchInsnNode &&
@@ -85,6 +125,8 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
         output.add(JumpInsnNode(Opcodes.GOTO, entries[index + 1]))
       }
     }
+    for (handler in rewrittenHandlers) handler.handler = labels.getValue(handler.handler)
+    method.tryCatchBlocks = rewrittenHandlers
     method.instructions.clear()
     method.instructions.add(output)
     method.localVariables?.clear()
@@ -92,7 +134,7 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
     method.invisibleLocalVariableAnnotations?.clear()
     flattened.add(method)
     rearrangedMethods++
-    count += edges
+    count += edges + handlers.size
   }
 
   private fun flatten(owner: String, method: MethodNode) {

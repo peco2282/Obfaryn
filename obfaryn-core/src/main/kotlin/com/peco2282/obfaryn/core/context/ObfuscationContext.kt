@@ -26,6 +26,8 @@ class ObfuscationContext(
   classes: MutableMap<String, ClassNode>,
   resources: MutableMap<String, ResourceEntry>,
 ) : ObfuscationContextApi, PlatformContext {
+  internal val originalClassNames = mutableMapOf<String, String>()
+  internal val originalMethodIdentities = mutableMapOf<String, String>()
   override var transformationInputs: TransformationInputs = TransformationInputs.EMPTY
     internal set
   private val classMap = LinkedHashMap(classes)
@@ -33,7 +35,7 @@ class ObfuscationContext(
   override val classes: Map<String, ClassNode> = Collections.unmodifiableMap(classMap)
   override val resources: Map<String, ResourceEntry> = Collections.unmodifiableMap(resourceMap)
   /** Evaluates the current annotations on each query; it is not a cached eligibility result. */
-  override val transformationPolicy = object : TransformationPolicy {
+  override var transformationPolicy: TransformationPolicy = object : TransformationPolicy {
     override fun canTransformBody(owner: ClassNode, method: org.objectweb.asm.tree.MethodNode) =
       !ObfuscationAnnotationPolicy.skipBody(owner, method)
 

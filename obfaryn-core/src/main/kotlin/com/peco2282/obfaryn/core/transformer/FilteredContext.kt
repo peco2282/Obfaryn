@@ -20,6 +20,8 @@ class FilteredContext(
 ) : ObfuscationContext by delegate {
   override val classes get() = delegate.classes.filterKeys { it !in excludedClasses }
   override val resources get() = delegate.resources.filterKeys { it !in excludedResources }
+  override operator fun plusAssign(node: ClassNode) { putClass(node) }
+  override operator fun plusAssign(entry: ResourceEntry) { putResource(entry) }
   override fun putClass(node: ClassNode) {
     require(node.name !in excludedClasses)
     delegate.putClass(node)

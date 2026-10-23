@@ -14,7 +14,12 @@ import com.peco2282.obfaryn.core.platform.Platforms
 import com.peco2282.obfaryn.core.platform.PlatformExtensionApplier
 import com.peco2282.obfaryn.core.rename.RenameTransformer
 import com.peco2282.obfaryn.core.transformer.*
+import com.peco2282.obfaryn.core.protection.*
+import com.peco2282.obfaryn.transformer.linkage.PrelinkRuntimeTransformer
+import com.peco2282.obfaryn.api.protection.*
+import com.peco2282.obfaryn.transformer.arithmetic.IntegerArithmeticTransformer
 import com.peco2282.obfaryn.transformer.ConstantFieldTransformer
+import com.peco2282.obfaryn.transformer.CallIndirectionTransformer
 import com.peco2282.obfaryn.transformer.ControlFlowTransformer
 import com.peco2282.obfaryn.transformer.MetadataStripTransformer
 import com.peco2282.obfaryn.transformer.NumberObfuscationTransformer
@@ -82,7 +87,20 @@ class Obfuscator(
    * @throws IllegalStateException If a transformation pass fails, with its ID and original cause.
    */
   fun obfuscate(input: Path, output: Path, mapping: Path? = null): ObfuscationResult {
+    require(!config.prelinkCalls || config.callIndirection) { "prelinkCalls requires callIndirection" }
     val strong = config.protectionLevel == ProtectionLevel.STRONG
+    fun sameFile(a: Path, b: Path) = a.toAbsolutePath().normalize() == b.toAbsolutePath().normalize() ||
+      Files.exists(a) && Files.exists(b) && Files.isSameFile(a, b)
+    config.transformationReport?.let { report ->
+      val defaultMapping = output.resolveSibling(output.fileName.toString().removeSuffix(".jar") + ".mapping.txt")
+      val virtualReport = config.virtualizationReport ?: if (strong)
+        output.resolveSibling(output.fileName.toString().removeSuffix(".jar") + ".virtualization.json") else null
+      val protectedPaths = listOfNotNull(input, output, mapping ?: defaultMapping, virtualReport,
+        config.integrityPrivateKey, config.integrityPublicKey) + config.classpath
+      require(!Files.isDirectory(report) && protectedPaths.none { sameFile(it, report) }) {
+        "Transformation report must not overwrite inputs, classpath, keys, output, mapping or virtualization report"
+      }
+    }
     val controlFlow = config.controlFlow || config.lightweightControlFlow || strong
     val classExclusions = config.excludeClasses.map(::Regex)
     val resourceExclusions = config.excludeResources.map(::Regex)
@@ -131,13 +149,14 @@ class Obfuscator(
     }
     val applicationRoots = (entrypoints.mapNotNull { it.substringBeforeLast('/', "").takeIf(String::isNotEmpty) } +
         config.applicationPackages.map { it.replace('.', '/').trimEnd('/') }).filter(String::isNotEmpty).distinct()
-    require(!strong || applicationRoots.isNotEmpty()) {
-      "Strong protection requires an application package or a platform/manifest entrypoint"
+    require(!(strong || config.callIndirection || config.integerArithmetic) || applicationRoots.isNotEmpty()) {
+      "Strong protection, call indirection and integer arithmetic require an application package or a platform/manifest entrypoint"
     }
     val annotatedNoObfuscationClasses = context.classes.values
       .filter(ObfuscationAnnotationPolicy::noObfuscation).mapTo(linkedSetOf()) { it.name }
     val excludedClasses = context.classes.keys.filter { name -> classExclusions.any { it.matches(name) } }.toSet() +
-      annotatedNoObfuscationClasses + if (strong) context.classes.keys.filter { name ->
+      annotatedNoObfuscationClasses +
+      (if (config.prelinkCalls && context.hasClass(PrelinkRuntimeTransformer.RUNTIME_NAME)) setOf(PrelinkRuntimeTransformer.RUNTIME_NAME) else emptySet()) + if (strong) context.classes.keys.filter { name ->
         applicationRoots.none { name.startsWith("$it/") }
       }.toSet() else emptySet()
     val excludedResources =
@@ -159,6 +178,9 @@ class Obfuscator(
     val virtualizationRequested = virtualizationAnalysis.selected > 0
     val reportPath = config.virtualizationReport ?: if (strong)
       output.resolveSibling(output.fileName.toString().removeSuffix(".jar") + ".virtualization.json") else null
+    require(reportPath == null || config.transformationReport?.toAbsolutePath()?.normalize() != reportPath.toAbsolutePath().normalize()) {
+      "Transformation and virtualization reports must use different paths"
+    }
     reportPath?.let { report ->
       require(listOfNotNull(input, output, mapping).none { it.toAbsolutePath().normalize() == report.toAbsolutePath().normalize() }) {
         "Virtualization report must not overwrite the input, output, or mapping"
@@ -211,9 +233,24 @@ class Obfuscator(
     val random = Random(config.seed ?: SecureRandom().nextLong())
     context.transformationInputs = object : TransformationInputs {
       override fun isApplicationClass(internalName: String) =
-        applicationRoots.any { internalName.startsWith("$it/") }
+        applicationRoots.any { (context.originalClassNames[internalName] ?: internalName).startsWith("$it/") }
       override fun keepConstant(owner: String, field: String) = keep.field(owner, field)
+      override fun methodIdentity(owner: org.objectweb.asm.tree.ClassNode, method: org.objectweb.asm.tree.MethodNode) =
+        context.originalMethodIdentities[owner.name + "." + method.name + method.desc]
+          ?: (owner.name + "." + method.name + method.desc)
     }
+    context.transformationPolicy = FeaturePolicy(context.transformationPolicy, config.transformationBudget,
+      config.protectionRules, context.transformationInputs::methodIdentity)
+    // Fail invalid annotation budgets before emitting any transformed artifact.
+    for (owner in context.classes.values) for (method in owner.methods) context.transformationPolicy.budget(owner, method)
+    val audit = config.transformationReport != null || config.transformationBudget != TransformationBudget() ||
+      config.protectionRules.any { it.budget != null } || context.classes.values.any { owner ->
+        (owner.visibleAnnotations.orEmpty() + owner.invisibleAnnotations.orEmpty()).any { it.desc == FeaturePolicy.BUDGET } ||
+          owner.methods.any { method -> (method.visibleAnnotations.orEmpty() + method.invisibleAnnotations.orEmpty()).any { it.desc == FeaturePolicy.BUDGET } }
+      }
+    val baseline = if (audit) context.classes.values.flatMap { owner -> owner.methods.map { method ->
+      context.transformationInputs.methodIdentity(owner, method) to MethodSize.of(method)
+    } }.toMap() else emptyMap()
     val strings = StringEncryptionTransformer(config.stringRandom ?: random, config.stringEncryptionStrategy)
     val numbers = NumberObfuscationTransformer(config.numberRandom ?: random, config.numberStrategy, config.numberSelector)
     val constantFields =
@@ -223,6 +260,14 @@ class Obfuscator(
       )
     val rename = RenameTransformer(config, keep)
     val flow = ControlFlowTransformer(random, config.lightweightControlFlow)
+    // Scope is captured before renaming; the final pass receives renamed classes and annotations.
+    val callClasses = context.classes.keys.filter { name ->
+      name !in excludedClasses && applicationRoots.any { name.startsWith("$it/") }
+    }
+    val calls = CallIndirectionTransformer(random, prelink = config.prelinkCalls) { name ->
+      callClasses.any { (rename.classMapping[it] ?: it) == name }
+    }
+    val arithmetic = IntegerArithmeticTransformer(random, config.maxArithmeticOperationsPerMethod)
     val virtualization = VirtualizationTransformer(
       selectors, random, config.virtualizationRuntimeGroupSize, selectionMode,
       config.classpath + listOf(input), config.excludeVirtualization, platformVirtualizationExclusions
@@ -241,8 +286,11 @@ class Obfuscator(
       },
       strings.takeIf { config.stringEncryption },
       numbers.takeIf { config.numberObfuscation },
+      arithmetic.takeIf { config.integerArithmetic },
       flow.takeIf { controlFlow },
       rename.takeIf { config.renameClasses || config.renameMethods || config.renameFields },
+      calls.takeIf { config.callIndirection },
+      PrelinkRuntimeTransformer().takeIf { config.prelinkCalls },
     )
     val orderedPipeline = TransformerPipeline(emptyList()).apply {
       pipeline.forEach(::add)
@@ -252,12 +300,42 @@ class Obfuscator(
     val transformerReports = mutableListOf<TransformerReport>()
     for (transformer in orderedPipeline) {
       try {
-        transformer.transform(
-          if (transformer === rename) context else
-            FilteredContext(context, excludedClasses, excludedResources)
-        )
-        val report = transformer.report()
-        val count = when (transformer) {
+        val originalNames = if (transformer === rename) context.classes.values.associate { owner ->
+          owner.name to owner.methods.map { context.transformationInputs.methodIdentity(owner, it) }
+        } else emptyMap()
+        val feature = transformer.isolatedBodyFeature
+        fun operations(): Int? = when (transformer) {
+          is StringEncryptionTransformer -> transformer.count
+          is NumberObfuscationTransformer -> transformer.count
+          is ConstantFieldTransformer -> transformer.count
+          is ControlFlowTransformer -> transformer.count
+          is IntegerArithmeticTransformer -> transformer.count
+          else -> null
+        }
+        val effective = if (feature != null) BudgetedPass(transformer, feature, baseline,
+          config.transformationReport != null, ::operations) else transformer
+        effective.transform(if (transformer === rename) context else FilteredContext(context, excludedClasses, excludedResources))
+        if (transformer === rename) for ((owner, identities) in originalNames) {
+          val mapped = context.findClass(rename.classMapping[owner] ?: owner) ?: continue
+          context.originalClassNames[mapped.name] = context.originalClassNames[owner] ?: owner
+          mapped.methods.forEachIndexed { index, method -> identities.getOrNull(index)?.let {
+            context.originalMethodIdentities[mapped.name + "." + method.name + method.desc] = it
+          } }
+        }
+        val baseReport = effective.report()
+        val report = if (config.transformationReport != null && feature != null) {
+          val excludedRows = excludedClasses.flatMap { name ->
+            val owner = context.findClass(name) ?: return@flatMap emptyList()
+            owner.methods.map { method ->
+              val size = MethodSize.of(method)
+              MethodTransformationReport(context.transformationInputs.methodIdentity(owner, method), "skipped",
+                if (ObfuscationAnnotationPolicy.noObfuscation(owner)) "annotation:NoObfuscation" else "class-exclusion-or-application-scope",
+                size.instructions, size.instructions, size.branches, size.branches, size.bytes, size.bytes)
+            }
+          }
+          baseReport.copy(methods = baseReport.methods + excludedRows)
+        } else baseReport
+        val count = if (effective !== transformer) null else when (transformer) {
           strings -> strings.count
           numbers -> numbers.count
           constantFields -> constantFields.count
@@ -271,6 +349,7 @@ class Obfuscator(
         throw IllegalStateException("Failed transforming with ${transformer.id}", cause)
       }
     }
+    config.transformationReport?.let { TransformationReportWriter.write(it, transformerReports) }
     warnings += transformerReports.flatMap { it.warnings }
     warnings += rename.warnings
     integrity?.inject(context, excludedClasses, random)
@@ -293,9 +372,12 @@ class Obfuscator(
       mappingOutput.writeText(rename.mappingText())
     }
     return ObfuscationResult(
-      classesLoaded, resourcesLoaded, platform.id, strings.count, numbers.count,
+      classesLoaded, resourcesLoaded, platform.id,
+      (transformerReports.firstOrNull { it.id == strings.id }?.metrics?.get("transformed") ?: strings.count.toLong()).toInt(),
+      (transformerReports.firstOrNull { it.id == numbers.id }?.metrics?.get("transformed") ?: numbers.count.toLong()).toInt(),
       rename.classMapping.size, rename.methodMapping.size, rename.fieldMapping.size, output, mappingOutput, warnings,
-      if (config.dryRun) rename.mappingText() else null, flow.count, virtualization.count, virtualizationAnalysis, transformerReports
+      if (config.dryRun) rename.mappingText() else null,
+      (transformerReports.firstOrNull { it.id == flow.id }?.metrics?.get("transformed") ?: flow.count.toLong()).toInt(), virtualization.count, virtualizationAnalysis, transformerReports
     )
   }
 }

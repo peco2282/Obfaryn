@@ -90,6 +90,12 @@ class ObfarynPluginTest {
         platform = "generic"
         seed = 4L
         applicationPackages = listOf("example")
+        callIndirection = true
+        prelinkCalls = true
+        integerArithmetic = true
+        maxArithmeticOperationsPerMethod = 4
+        transformationReport = "build/method-decisions.json"
+        performance { maxAddedInstructions = 256; maxGrowthPercent = 300 }
         pipeline {
           add(object : Transformer {
             override val id = "custom-marker"
@@ -149,6 +155,7 @@ class ObfarynPluginTest {
     assertTrue(Files.exists(dir.resolve("build/maps/release.txt")))
     assertTrue(Files.exists(dir.resolve("strategy-used")))
     assertTrue(Files.exists(dir.resolve("pipeline-used")))
+    assertTrue(Files.exists(dir.resolve("build/method-decisions.json")))
     assertFalse(Files.exists(dir.resolve("build/libs/sample-obfuscated.jar")))
     JarFile(output.toFile()).use { jar ->
       val bytes = jar.getInputStream(jar.getJarEntry("example/App.class")).readBytes()

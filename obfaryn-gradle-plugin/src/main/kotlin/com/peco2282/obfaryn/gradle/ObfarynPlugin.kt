@@ -156,7 +156,9 @@ open class VirtualizationOptions {
  * @property excludeResources A list of resource files to exclude from the obfuscation process.
  * @property excludeRenaming A list of patterns specifying elements to be excluded from renaming.
  * @property targetPackage Specifies the target package for relocating renamed classes.
- * @property controlFlow Enables branch inversion and keyed switch dispatch.
+ * @property controlFlow Enables keyed switch dispatch with direct-branch fallback.
+ * @property lightweightControlFlow Restricts control flow to direct-branch block layout changes.
+ * @property callIndirection Encodes call linkage using constant invokedynamic sites after renaming.
  * @property flattenPackages Move eligible renamed classes into [targetPackage].
  * @property virtualizationRuntimeGroupSize The group size for runtime virtualization of methods.
  * @property integrityPrivateKey The path to the private key file used for generating integrity checks.
@@ -166,6 +168,16 @@ open class VirtualizationOptions {
  * @constructor Creates a Gradle extension with default configuration values.
  * @see RenameOptions
  */
+open class PerformanceOptions {
+  var maxInputInstructions: Int? = null
+  var maxInputBranches: Int? = null
+  var maxAddedInstructions: Int? = null
+  var maxGrowthPercent: Int? = null
+  var maxOutputCodeBytes = 65535
+  internal fun budget() = com.peco2282.obfaryn.api.protection.TransformationBudget(
+    maxInputInstructions, maxInputBranches, maxAddedInstructions, maxGrowthPercent, maxOutputCodeBytes)
+}
+
 open class ObfarynExtension {
   internal val pipelineConfigurers = mutableListOf<PipelineConfigurer>()
 
@@ -201,6 +213,14 @@ open class ObfarynExtension {
   var protection = "standard"
   var controlFlow = false
   var lightweightControlFlow = false
+  var callIndirection = false
+  var integerArithmetic = false
+  var maxArithmeticOperationsPerMethod = 16
+  var prelinkCalls = false
+  var transformationReport: String? = null
+  var protectionRules = listOf<com.peco2282.obfaryn.api.protection.ProtectionRule>()
+  val performance = PerformanceOptions()
+  fun performance(action: Action<PerformanceOptions>) = action.execute(performance)
   var integrityPrivateKey: String? = null
   var integrityPublicKey: String? = null
   val rename = RenameOptions()
@@ -311,6 +331,13 @@ class ObfarynPlugin : Plugin<Project> {
               flattenPackages = extension.flattenPackages,
               controlFlow = extension.controlFlow,
               lightweightControlFlow = extension.lightweightControlFlow,
+              callIndirection = extension.callIndirection,
+              integerArithmetic = extension.integerArithmetic,
+              maxArithmeticOperationsPerMethod = extension.maxArithmeticOperationsPerMethod,
+              prelinkCalls = extension.prelinkCalls,
+              transformationBudget = extension.performance.budget(),
+              protectionRules = extension.protectionRules,
+              transformationReport = extension.transformationReport?.let(project::file)?.toPath(),
               virtualizeMethods = extension.virtualization.methods,
               excludeVirtualization = extension.virtualization.excludeMethods,
               virtualizationRuntimeGroupSize = extension.virtualization.runtimeGroupSize,
@@ -340,6 +367,9 @@ class ObfarynPlugin : Plugin<Project> {
             }
             project.logger.lifecycle("Obfaryn: ${result.classesLoaded} classes, ${result.stringsEncrypted} strings, ${result.constantsObfuscated} constants; output: $output")
             project.logger.lifecycle("Obfaryn: ${result.branchesObfuscated} branches, ${result.methodsVirtualized} virtualized methods")
+            result.transformerReports.forEach { pass ->
+              project.logger.lifecycle("Obfaryn ${pass.id}: ${pass.metrics}")
+            }
             result.warnings.forEach { project.logger.warn("Obfaryn: $it") }
           }
         }

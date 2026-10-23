@@ -33,6 +33,19 @@ fun transformers(builder: TransformersBuilder.() -> Unit): List<Transformer> =
  * extraction when enabled.
  */
 class TransformersBuilder {
+  /** Bounded modular integer expressions; application scope comes from the execution context. */
+  fun integerArithmetic(random: Random = KotlinRandom.asJavaRandom(), maxOperationsPerMethod: Int = 16) = apply {
+    require(transformers.none { it.id == "integer-arithmetic" }) { "integerArithmetic is already configured" }
+    transformers.add(com.peco2282.obfaryn.transformer.arithmetic.IntegerArithmeticTransformer(random, maxOperationsPerMethod))
+  }
+
+  /** Final-name linkage conversion; default scope is the host's application classes. */
+  fun callIndirection(random: Random = KotlinRandom.asJavaRandom(), prelink: Boolean = false,
+    includeClass: ((String) -> Boolean)? = null) = apply {
+    require(transformers.none { it.id == "call-indirection" }) { "callIndirection is already configured" }
+    transformers.add(com.peco2282.obfaryn.transformer.CallIndirectionTransformer(random, prelink, includeClass))
+  }
+
   private val transformers: MutableList<Transformer> = mutableListOf()
   private val constantOptions = mutableMapOf<Transformer, Pair<Boolean, Boolean>>()
 

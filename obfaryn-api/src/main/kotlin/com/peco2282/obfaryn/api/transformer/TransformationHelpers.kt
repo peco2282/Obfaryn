@@ -25,3 +25,13 @@ fun ClassNode.uniqueMethodName(prefix: String): String {
   while (candidate in names) candidate = "$prefix$${++suffix}"
   return candidate
 }
+
+/** Feature-aware variant; legacy policy restrictions always remain in force. */
+fun ObfuscationContext.forEachTransformableMethod(
+  feature: com.peco2282.obfaryn.api.protection.BodyFeature,
+  action: (ClassNode, MethodNode) -> Unit,
+) {
+  for (owner in classes.values.toList()) for (method in owner.methods.toList()) {
+    if (transformationPolicy.canTransformBody(owner, method, feature)) action(owner, method)
+  }
+}

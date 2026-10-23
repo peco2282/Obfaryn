@@ -1,5 +1,7 @@
 # Obfaryn
 
+機能別アノテーション、累積の構造予算、整数演算変換、範囲指定の事前解決、公開プロジェクト・性能の継続検証は [保護設定の詳細](docs/protection.ja.md) を参照してください。
+
 ## 配布とリリース
 
 全モジュールのバージョンは既定で `0.0.0-SNAPSHOT` に統一され、
@@ -44,8 +46,10 @@ Gradle プラグインでは、利用側の `settings.gradle.kts` の
 この DSL は任意コードの実行を制限するセキュリティ境界ではありません。
 
 外部公開前に `./gradlew test`、ローカル配布物の確認、および別プロジェクトからの
-利用確認を行ってください。`python3 gradle/verify-distribution.py` でローカル公開物を検証できます。
-バージョンを変更した場合は引数に指定します。公開時はルートに `secrets.properties` を作成します（Git 管理対象外）。
+利用確認を行ってください。`./gradlew :obfaryn-cli:installDist` の後に
+`python3 scripts/verify-cli-distribution.py` を実行すると、配布 CLI、埋め込みの呼び出し解決ランタイム、
+変換した Java 8 サンプルの実行を確認できます。Maven 公開物や別の Gradle 利用プロジェクトは、この確認の対象外です。
+公開時はルートに `secrets.properties` を作成します（Git 管理対象外）。
 
 ```properties
 releaseUrl=https://maven.peco2282.com/maven-releases/
@@ -82,12 +86,13 @@ Obfaryn は Kotlin/JVM および Java の JAR を対象とした ASM ベース�
 
 ## 要件
 
-ビルドには JDK 21 および Kotlin Gradle Plugin 2.4.21 を使用します。`obfaryn-api`、`obfaryn-annotations`、`obfaryn-core`、`obfaryn-transformer`、および CLI モジュールは Kotlin 言語/API バージョン 2.1 と Java 8 バイトコードを使用します。Gradle プラグインは Java 17 以降を必要とします。難読化対象の JAR に必要な Java バージョンは、入力ファイルと有効化された変換内容に依存します。
+ビルドには JDK 21 および Kotlin Gradle Plugin 2.4.21 を使用します。`obfaryn-api`、`obfaryn-annotations`、`obfaryn-core`、`obfaryn-transformer`、および CLI モジュールは Kotlin 言語/API バージョン 2.1 と Java 8 バイトコードを使用します。任意の `obfaryn-runtime` は Java のみで Java 8 を対象とし、外部依存はありません。Gradle プラグインは Java 17 以降を必要とします。難読化対象の JAR に必要な Java バージョンは、入力ファイルと有効化された変換内容に依存します。
 
 | モジュール | 用途 |
 | --- | --- |
 | `obfaryn-api` | プラットフォームおよびトランスフォーマーのインターフェース |
 | `obfaryn-annotations` | ソースレベルの変換ポリシーアノテーション |
+| `obfaryn-runtime` | 任意の Java 8 事前解決 API と依存なしの実行時テンプレート |
 | `obfaryn-core` | 難読化エンジン本体 |
 | `obfaryn-transformer` | 標準トランスフォーマー（文字列、数値、制御フロー、メタデータ） |
 | `obfaryn-cli` | コマンドラインアプリケーション |
@@ -317,7 +322,7 @@ class CustomPlatform(
 
 初めて拡張を書く方向けの実装・実行例は [API 開発ガイド](obfaryn-api/README.ja.md) を参照してください。依存関係、コンテキスト、プラットフォームの登録、リテラル変換、検証手順を説明しています。
 
-外部拡張は `obfaryn-api` の `Transformer` と `PipelineConfigurer` を実装し、ランチャーがこれらを core に渡します。文字列暗号化、数値難読化、制御フロー変換、定数フィールド変換、およびメタデータ削除は `obfaryn-transformer` に分離されています。このモジュールの唯一のプロジェクト依存関係は API です（バイトコード解析に ASM も使用します）。既存のパッケージ名は維持され、core がこのモジュールを推移的に公開します。
+外部拡張は `obfaryn-api` の `Transformer` と `PipelineConfigurer` を実装し、ランチャーがこれらを core に渡します。文字列暗号化、数値難読化、制御フロー変換、定数フィールド変換、およびメタデータ削除は `obfaryn-transformer` に分離されています。このモジュールは API と小さな実行時テンプレートのモジュールに依存し、core やプラットフォームには依存しません（バイトコード解析に ASM も使用します）。既存のパッケージ名は維持され、core がこのモジュールを推移的に公開します。
 
 名前変更、仮想化、および標準パイプラインの組み立ては、設定、名前保持、および解析結果に関する API 契約が整うまで core に残ります。これは段階的な分離であり、まだ完全に独立した実行エンジンではありません。
 
@@ -392,7 +397,7 @@ val passes = transformers {
 
 `context.transformationInputs` はアプリケーションスコープ、定数保持判定、およびクラスごとの Kotlin メタデータ削除判定を提供します。core はカスタムパスやフィルタリングされたコンテキストを含め、現在の実行からこれらを設定します。未知のスコープはすべてのクラスではなく、対象クラスなし（アプリケーションクラスなし）として扱われます。ルート、keep 述語、メタデータクラスセットを受け取る従来のコンストラクタ引数は引き続き利用可能ですが、新しいビルダーではユーザーオプションのみを指定します。明示的なルートはコンテキストのスコープを上書きし、keep 判定は合算され、メタデータ削除要求は加算的に適用されます。既存のアノテーションポリシーのチェックは変更されていません。標準パイプラインの組み立てと core から transformer への依存関係は、現時点では維持されています。
 
-仮想化の選択および名前の保持は、現時点ではこの共通ポリシーに含まれていません。マッピング、件数、除外クラス内の参照更新に関する共通のレポート規約が確立されるまで、`rename` の置換はサポートされていません。Paper 固有の tick 検出は引き続き `platforms/paper` に配置されます。
+仮想化の選択および名前の保持は、現時点ではこの共通ポリシーに含まれていません。マッピング、件数、除外クラス内の参照更新に関する共通のレポート規約が確立されるまで、`rename` の置換はサポートされていません。Paper 固有のコールバック検出は引き続き `platforms/paper` に配置されます。
 
 ## 正規表現除外と制御フロー
 
@@ -404,9 +409,37 @@ CLI は繰り返し可能な `--exclude-class regex`、`--exclude-resource regex
 
 `--control-flow` は適用可能なメソッドをキー付き switch ディスパッチへ変換します。遷移先は現在の状態から辺ごとの XOR または加算で求め、変換したブロック内の数値もその状態を使って復元します。数値の復元と制御フロー解析を関連付けますが、記号実行による復元を防ぐものではありません。適用できないメソッドは設定された数値変換方式を維持します。追加の整数演算により実行負荷が増える場合があります。コンストラクタ、クラス初期化子、および大きなメソッドは対象外です。制御フローおよび仮想化を適用するとフレームの再計算が自動でトリガーされるため、クラスパスに外部依存関係が必要になる場合があります。
 
-既存の `tableswitch`・`lookupswitch` 分岐（Kotlin の `when` など）も平坦化に組み込めます。スタックに値が残る境界やローカルスロットの型再利用で平坦化できないメソッドには、基本ブロックを再配置し、直接の JVM 分岐で接続する軽量変換を適用します。この代替変換はインタープリタ、ボックス化、ヘルパー呼び出し、状態ディスパッチを追加しません。例外ハンドラ、コンストラクタ、大きすぎるメソッドは引き続き除外し、アノテーションとクラス除外設定も維持します。
+既存の `tableswitch`・`lookupswitch` 分岐（Kotlin の `when` など）も平坦化に組み込めます。スタックに値が残る境界やローカルスロットの型再利用で平坦化できないメソッドには、基本ブロックを再配置し、直接の JVM 分岐で接続する軽量変換を適用します。この代替変換はインタープリタ、ボックス化、ヘルパー呼び出し、状態ディスパッチを追加しません。例外処理の保護範囲はブロック境界で分割して維持します。コンストラクタと大きすぎるメソッドは引き続き除外し、アノテーションとクラス除外設定も維持します。
 
 速度を重視する通常コードには `--lightweight-control-flow`（Gradle/core: `lightweightControlFlow = true`）を指定してください。強化保護でも状態ディスパッチより優先し、条件式やスタック上の値の受け渡しを変えずに、直接分岐によるブロック再配置だけを行います。ただし追加ジャンプや配置変更は JIT・実行速度に影響し得るため、難読前と同等速度や���コンパイル失敗は保証しません。最新のデコンパイラでは構造を復元される場合があります。実負荷で測定してください。この設定は別途選択した VM 化・文字列暗号化・数値難読化を無効化しません。`@HotPath` によるメソッド本体変換の除外は維持します。
+
+## VM を使わない呼び出しの間接化
+
+CLI の `--call-indirection`、Gradle/core の `callIndirection = true` で、対象の static・virtual・interface 呼び出しを `invokedynamic` に変換できます。呼び出し先のクラス名・メソッド名・ディスクリプタは、名前変更後に呼び出し箇所ごとの鍵で符号化します。生成した Java 8 対応ヘルパーが元の呼び出し元の lookup で解決し、`ConstantCallSite` に固定します。復号と検索はリンク時に実施し、通常の呼び出しごとには行いません。JVM による最適化が可能ですが、初回リンクと実行時のコストがなくなる保証はありません。鍵と解決済みハンドルは解析可能であり、暗号学的な保護境界ではありません。
+
+この機能は `applicationPackages` または起点から得られるアプリケーション範囲を必須とし、fat JAR の依存ライブラリ本体には適用しません。コンストラクタ・クラス初期化子・synthetic メソッド・special 呼び出し・配列所有者・シグネチャ多態呼び出し・一部の呼び出し元依存 API は除外します。既存のラムダや文字列連結の bootstrap は維持します。`@HotPath`、`@NoObfuscation`、`@RenameOnly` とクラス除外を尊重します。生成物は JDK のみで動作し、別配布の Obfaryn ランタイムは不要です。カスタムパイプラインでは、名前変更と再配置をすべて終えた後に適用してください。文字列・メソッドサイズ・定数プールが class ファイルの上限を超える場合は、一部を直接呼び出しのまま残します。
+
+Paper の fat JAR では、次のように VM を使わず設定できます。
+
+```kotlin
+obfaryn {
+  platform = "paper"
+  applicationPackages += "com.example.plugin"
+  protection = "strong"
+  lightweightControlFlow = true
+  callIndirection = true
+  flattenPackages = true
+  targetPackage = "com.example.plugin"
+}
+```
+
+`@Virtualize` や明示的な選択がなければ、この設定による VM 化はありません。高頻度な処理には `@HotPath` を指定してください。実行コストを増やして制御フローを強めたい場合は `lightweightControlFlow = false` にすると、strong によって対応可能なメソッドへ状態ディスパッチを適用します。`transformers { ... }` はリストを作る関数であり、`obfaryn { ... }` 内に置くだけでは Gradle のパイプラインに登録されません。有効な変換の差し替えには `pipeline { replace("control-flow", ControlFlowTransformer(Random(42))) }` を使い、新しい ID の変換には `add` を使ってください。CLI・JSON レポート・Gradle ログで `indirectedCalls`、`rearrangedMethods`、`dispatchedMethods` などの変換量を確認できます。
+
+ブロック再配置は `try/catch/finally` を含むメソッドにも対応します。保護範囲をブロック境界で分割し、例外ハンドラの優先順位を維持します。コンストラクタと大きすぎるメソッドは引き続き除外します。
+
+既存の `@Virtualize` も無効にして比較する場合は、CLI で `--exclude-virtualization ".*"` を指定します。Gradle ではビルドスクリプトの先頭に `@file:OptIn(com.peco2282.obfaryn.gradle.VirtualizeOptIn::class)` を置き、`virtualize { excludeMethods = listOf(".*") }` を指定します。この除外を外せば、アノテーションに基づく VM 化に戻ります。
+
+Paper は `tick` / `onTick` のような任意の名前から高頻度処理を推測しません。イベントのアノテーションや実際のスケジューラ・ライフサイクルの契約に基づく VM 化除外のみを提供します。アプリ固有の性能方針はアノテーションか設定で指定し、core の変換は Paper 固有の名前判定を持ちません。
 
 ## 強化保護
 
@@ -426,7 +459,7 @@ strong は制御フロー変換、ASM 出力検証、フレーム再計算を有
 
 strong は出力 JAR の隣に `<出力名>.virtualization.json` を生成します。`virtualizationReport` による出力先指定も可能です。明示指定には設定した選択モードを適用し、`strict` では未対応なら失敗します。VM 化されるメソッドがゼロでも成功します。`@HotPath` とユーザー指定の除外も利用できます。
 
-Paper の性能除外はメソッドパターンによる選択に適用します。明示的な `@Virtualize` は Paper の性能除外を上書きします。パターン選択で性能除外を解除する場合は、Gradle で `platformOptions["virtualization-protect-hot-paths"] = "false"`、CLI で `--platform-option virtualization-protect-hot-paths=false` を指定できます。Paper による起動・イベント・tick・その呼び出し先の自動除外を解除し、起点名とプラグイン記述ファイルの保護は維持します。ユーザー指定の除外とソースの `@HotPath` は引き続き適用されます。tick の実行コストが増える可能性があるため、配備前に実際の負荷で計測してください。
+Paper の性能除外はメソッドパターンによる選択に適用します。明示的な `@Virtualize` は Paper の性能除外を上書きします。パターン選択で性能除外を解除する場合は、Gradle で `platformOptions["virtualization-protect-hot-paths"] = "false"`、CLI で `--platform-option virtualization-protect-hot-paths=false` を指定できます。Paper による起動・イベント・スケジューラ・その呼び出し先の自動除外を解除し、起点名とプラグイン記述ファイルの保護は維持します。ユーザー指定の除外とソースの `@HotPath` は引き続き適用されます。tick の実行コストが増える可能性があるため、配備前に実際の負荷で計測してください。
 
 コンストラクタ、モニタなどの未対応部分は読み取れる状態で残る場合があります。重要メソッドごとにレポートを確認してください。VM 化には実行時間とメモリのコストがあるため、実際のサーバー負荷で検証してください。JVM の検証成功やデコンパイル失敗だけでは、動作の同一性や解析への耐性を証明できません。元名を含むマッピング・解析レポートを公開 JAR と一緒に配布しないでください。
 
@@ -476,7 +509,7 @@ fun updateProjectilePositions() { /* 本体の変換を行わずに名前のみ�
 fun externallyReferencedEntryPoint() { /* 名前と本体の両方を維持 */ }
 ```
 
-Paper プラットフォームはライフサイクルコールバック、`@EventHandler`、`Runnable`/`BukkitRunnable.run()V`、引数なしの `tick()V` / `onTick()V`、およびそれらから呼び出される JAR 内メソッドを自動的に除外します。解析レポート（スキーマバージョン 2）にはポリシーによる除外と理由が記載されます。その他の高頻度メソッドには `@HotPath` または明示的な除外パターンを使用してください。
+Paper プラットフォームはライフサイクルコールバック、`@EventHandler`、`Runnable`/`BukkitRunnable.run()V`、およびそれらから呼び出される JAR 内メソッドを自動的に除外します。解析レポート（スキーマバージョン 2）にはポリシーによる除外と理由が記載されます。その他の高頻度メソッドには `@HotPath` または明示的な除外パターンを使用してください。
 
 コンパイラはサポート対象のバイトコードを型付きブロックベースの独自 IR に変換します。IR ベリファイアがローカル変数、分岐、スタック境界、値の種類、合流点を検証します。出力 JAR には専用のインタープリターと、選択されたフィールド、メソッド呼び出し、キャスト、配列、コンストラクタ操作用の整数 ID ブリッジが含まれます。実行時に Obfaryn 自体は不要です。サポートされる値には int 相当のプリミティブ、参照型、float、long、double、void 戻り値が含まれます。配列、分岐、ループ、throw、および特定のメソッド呼び出しがサポートされます。メソッド本体内のコンストラクタ、クラス初期化子、モニター、任意の未初期化オブジェクト、レガシーサブルーチンは仮想化されません。安全基準を満たす直線的な `NEW → DUP → 引数評価 → invokespecial <init>` コンストラクタ呼び出しのみがブリッジ化されます。
 

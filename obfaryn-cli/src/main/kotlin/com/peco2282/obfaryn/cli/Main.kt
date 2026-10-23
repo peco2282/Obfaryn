@@ -92,6 +92,26 @@ internal open class ObfuscateCommand : Callable<Int> {
   var flattenPackages = false
   @Option(names = ["--control-flow"], description = ["Obfuscate branches and switches."])
   var controlFlow = false
+  @Option(names = ["--call-indirection"], description = ["Encrypt call linkage using constant invokedynamic sites; requires application roots."])
+  var callIndirection = false
+  @Option(names = ["--integer-arithmetic"], description = ["Rewrite bounded int/long addition, subtraction and XOR expressions."])
+  var integerArithmetic = false
+  @Option(names = ["--arithmetic-operations"], description = ["Maximum arithmetic rewrites per method (default: 16)."])
+  var arithmeticOperations = 16
+  @Option(names = ["--prelink-calls"], description = ["Generate an explicit bounded prelink API; requires --call-indirection."])
+  var prelinkCalls = false
+  @Option(names = ["--max-input-instructions"])
+  var maxInputInstructions: Int? = null
+  @Option(names = ["--max-input-branches"])
+  var maxInputBranches: Int? = null
+  @Option(names = ["--max-added-instructions"])
+  var maxAddedInstructions: Int? = null
+  @Option(names = ["--max-growth-percent"], description = ["Maximum cumulative instruction size relative to original (100 = unchanged)."])
+  var maxGrowthPercent: Int? = null
+  @Option(names = ["--max-output-code-bytes"])
+  var maxOutputCodeBytes = 65535
+  @Option(names = ["--transformation-report"], description = ["Write per-method decisions, reasons and structural costs as JSON."])
+  var transformationReport: Path? = null
   @Option(names = ["--lightweight-control-flow"], description = ["Reorder direct-branch blocks without a state dispatcher; overrides dispatch mode."])
   var lightweightControlFlow = false
   @Option(names = ["--integrity-private-key"], paramLabel = "FILE", description = ["PKCS#8 RSA private key; requires a public key."])
@@ -165,7 +185,11 @@ internal open class ObfuscateCommand : Callable<Int> {
       classpath = classpath, recomputeFrames = recomputeFrames,
       excludeClasses = excludeClasses, excludeResources = excludeResources, excludeRenaming = excludeRenaming,
       targetPackage = targetPackage, flattenPackages = flattenPackages, controlFlow = controlFlow,
-      lightweightControlFlow = lightweightControlFlow,
+      lightweightControlFlow = lightweightControlFlow, callIndirection = callIndirection,
+      integerArithmetic = integerArithmetic, maxArithmeticOperationsPerMethod = arithmeticOperations,
+      prelinkCalls = prelinkCalls, transformationReport = transformationReport,
+      transformationBudget = com.peco2282.obfaryn.api.protection.TransformationBudget(
+        maxInputInstructions, maxInputBranches, maxAddedInstructions, maxGrowthPercent, maxOutputCodeBytes),
       virtualizeMethods = virtualizeMethods,
       excludeVirtualization = excludeVirtualization,
       integrityPrivateKey = integrityPrivateKey, integrityPublicKey = integrityPublicKey,
@@ -178,7 +202,18 @@ internal open class ObfuscateCommand : Callable<Int> {
   override fun call(): Int {
     if (!::input.isInitialized) throw CommandLine.ParameterException(spec.commandLine(), "Missing required parameter: 'INPUT'. Use --help for usage.")
     val out = output ?: input.resolveSibling(input.fileName.toString().removeSuffix(".jar") + "-obfuscated.jar")
-    val result = Obfuscator(configuration()).obfuscate(input, out, mapping)
+    val config = configuration()
+    report?.let { summary ->
+      val sensitive = listOfNotNull(input, out, mapping ?: out.resolveSibling(out.fileName.toString().removeSuffix(".jar") + ".mapping.txt"),
+        config.transformationReport, config.virtualizationReport ?: if (config.protectionLevel == ProtectionLevel.STRONG)
+          out.resolveSibling(out.fileName.toString().removeSuffix(".jar") + ".virtualization.json") else null,
+        config.integrityPrivateKey, config.integrityPublicKey) + config.classpath
+      if (sensitive.any { it.toAbsolutePath().normalize() == summary.toAbsolutePath().normalize() ||
+          Files.exists(it) && Files.exists(summary) && Files.isSameFile(it, summary) }) {
+        throw CommandLine.ParameterException(spec.commandLine(), "--report must use a different file from input, output, dependencies, keys and other reports")
+      }
+    }
+    val result = Obfuscator(config).obfuscate(input, out, mapping)
     val writer = spec.commandLine().out
     writer.println("Loaded ${result.classesLoaded} classes, ${result.resourcesLoaded} resources")
     writer.println("Platform: ${result.platform}")
@@ -189,6 +224,9 @@ internal open class ObfuscateCommand : Callable<Int> {
     writer.println("Fields renamed: ${result.fieldsRenamed}")
     writer.println("Branches obfuscated: ${result.branchesObfuscated}")
     writer.println("Methods virtualized: ${result.methodsVirtualized}")
+    result.transformerReports.forEach { pass ->
+      writer.println("Transformer ${pass.id}: ${pass.metrics.entries.joinToString { "${it.key}=${it.value}" }}")
+    }
     if (virtualizationAnalyzeOnly) writer.println("Analyze only: no output or mapping written")
     else if (dryRun) writer.println("Dry run: no output or mapping written") else writer.println("Output: ${result.output}")
     result.mappingPreview?.takeIf { it.isNotBlank() }?.let { writer.println("Planned renames:\n$it") }
@@ -209,6 +247,9 @@ internal open class ObfuscateCommand : Callable<Int> {
   "branchesObfuscated": ${result.branchesObfuscated},
   "methodsVirtualized": ${result.methodsVirtualized},
   "virtualizationAnalysis": ${result.virtualizationAnalysis?.toJson() ?: "null"},
+  "transformerReports": ${result.transformerReports.joinToString(", ", "[", "]") { pass ->
+    "{\"id\": ${quote(pass.id)}, \"metrics\": ${pass.metrics.entries.joinToString(", ", "{", "}") { (key, value) -> "${quote(key)}: $value" }}}"
+  }},
   "dryRun": $dryRun,
   "warnings": ${result.warnings.joinToString(", ", "[", "]") { quote(it) }}
 }

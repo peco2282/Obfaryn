@@ -1,0 +1,134 @@
+# Feature policy, structural budgets and explicit prelinking
+
+These features apply to JVM programs independently of Paper. Method identities use original JVM internal names: `com/example/Physics.step(I)I`. Application roots are required for call indirection and integer arithmetic. Existing `@Virtualize` selection, exclusions and its analysis report remain separate; ordinary body budgets do not predict or bound interpreter execution time.
+
+## Per-feature annotations
+
+```kotlin
+import com.peco2282.obfaryn.annotations.*
+
+@Protection(
+  controlFlow = FlowProtection.LIGHT,
+  callIndirection = ProtectionMode.DISABLED,
+  integerArithmetic = ProtectionMode.DISABLED,
+)
+class Physics {
+  @Protection(stringEncryption = ProtectionMode.ENABLED)
+  @PerformanceBudget(maxAddedInstructions = 64, maxGrowthPercent = 175)
+  fun step(n: Int): Int = n + 17
+}
+```
+
+`Protection` has independent `stringEncryption`, `numberObfuscation`, `callIndirection`, `integerArithmetic` and `constantFields` permissions (`INHERIT`, `ENABLED`, `DISABLED`). `controlFlow` is `INHERIT`, `NONE`, `LIGHT` or `DISPATCH`. A class supplies defaults; a method overrides individual properties. `ENABLED` permits an already enabled pass; it does not register a globally disabled pass. A method's `constantFields` setting is meaningful on a class initializer, rather than on arbitrary methods.
+
+Precedence, from strongest to weakest:
+
+1. Class exclusions and existing `NoObfuscation`, `RenameOnly`, `HotPath` body policy.
+2. Explicit method `Protection` properties.
+3. Explicit class `Protection` properties.
+4. Matching API rules (last matching rule wins per feature).
+5. Run defaults.
+
+Existing method-level `@Virtualize` behavior under class-level `@HotPath`/`@RenameOnly` remains as before. A new `Protection` annotation cannot bypass those restrictions. `KeepName` only preserves names. No arbitrary names such as `tick` or `onTick` influence core policy.
+
+For source-independent configuration:
+
+```kotlin
+import com.peco2282.obfaryn.api.protection.*
+
+val rules = listOf(ProtectionRule(
+  methodPattern = "com/example/Physics\\.step\\(I\\)I",
+  features = mapOf(BodyFeature.CALLS to false),
+  controlFlow = ControlFlowMode.LIGHT,
+  budget = TransformationBudget(maxAddedInstructions = 64),
+))
+```
+
+Rules match ORIGINAL identities even after renaming/relocation. A rule budget replaces the run budget; class/method budget annotations then inherit or override its individual properties. Annotation values of `-1` inherit. Other negative values fail before output.
+
+## Structural budgets
+
+```kotlin
+obfaryn {
+  applicationPackages += "com.example"
+  protection = "strong"
+  lightweightControlFlow = true
+  callIndirection = true
+  integerArithmetic = true
+  maxArithmeticOperationsPerMethod = 4
+  transformationReport = "build/protection-decisions.json"
+  performance {
+    maxInputInstructions = 2000
+    maxInputBranches = 128
+    maxAddedInstructions = 256
+    maxGrowthPercent = 175
+    maxOutputCodeBytes = 60000
+  }
+}
+```
+
+The core API exposes `transformationBudget`, `protectionRules`, `integerArithmetic`, `maxArithmeticOperationsPerMethod`, `prelinkCalls` and `transformationReport` on `ObfuscationConfig`. `TransformationBudget.latencySensitive()` supplies the limits above. It is a starting point for measurement, not a latency guarantee.
+
+- Input instruction and branch-instruction limits are checked before each pass. A switch counts as one branch instruction.
+- Added instructions and percentage growth are cumulative against the original method body, across ordinary passes. `175` means at most 175% of the original instruction count; zero added instructions is valid.
+- Output code size uses ASM's conservative maximum encoded size, including possible branch widening. It may reject a method whose actual encoding would be smaller.
+- Generated synthetic helpers are checked against output code limits but do not have a meaningful original-body growth ratio. New initializers also respect the added-instruction limit.
+- The engine always checks class-file code/constant-pool limits for participating passes. Optional structural limits default to unlimited; the class-file limit remains mandatory.
+
+Candidates commit **per class and pass**. If one changed method exceeds an output budget, that entire class's changes for that pass are rejected, including generated fields, initializers and helper classes. Changes committed by previous passes remain. This deliberately conservative behavior prevents partially extracted constants or decoders with missing cache initialization. It can leave more code readable than a method-only rollback would.
+
+String/number transformations, constant extraction, control flow, integer arithmetic and call indirection use this isolation. Global transformations such as renaming and virtualization have their own semantics. Custom passes may opt in with `Transformer.isolatedBodyFeature`; the contract permits one candidate class, dependency lookup for reading and buffered class injection, but prohibits resource mutation, dependency mutation and class removal. `skipReason` supplies a pure, randomness-free diagnostic. `transformers { integerArithmetic(...); callIndirection(...) }` builds a list; register or supply that list explicitly as described in the main README.
+
+## Integer expressions
+
+`integerArithmetic = true` / `--integer-arithmetic` rewrites bounded int/long addition, subtraction and XOR with keyed modular identities. It preserves JVM overflow, left-to-right operand evaluation and side effects. It does not rewrite floating-point expressions, multiplication, division, remainder or shifts. Constructors, initializers and synthetic methods are excluded. There is no interpreter, boxing or added method invocation in the generated expression. Extra instructions can still affect execution and JIT decisions; the JIT may simplify them and an analyst can recover the identity.
+
+## Explicit call preparation
+
+Enable `prelinkCalls = true` / `--prelink-calls` together with call indirection. Applications that call the optional API can compile against the small, zero-dependency Java 8 module:
+
+```kotlin
+dependencies {
+  compileOnly("com.peco2282.obfaryn:obfaryn-runtime:<your-version>")
+}
+```
+
+The obfuscator embeds the API when enabled; the engine is not a runtime dependency. Generated helpers use `ClassValue` to avoid retaining child-loader caller classes in a parent-held global map.
+
+```kotlin
+import com.peco2282.obfaryn.runtime.ProtectionRuntime
+
+// At an explicitly chosen startup point, outside latency-sensitive work:
+var offset = 0
+while (true) {
+  val prepared = ProtectionRuntime.prelink(Physics::class.java, offset, 32)
+  if (prepared == 0) break
+  offset += prepared
+}
+```
+
+`prelink(caller, startSite, maxSites)` returns the number of sites processed in that stable range. `prelink(caller, maxSites)` starts at zero. Repeated calls are safe but do not advance an implicit cursor. Arguments must be non-negative. A class without a generated entry returns zero.
+
+This API **does not invoke call targets**. It loads their classes without initialization, resolves handles using the original caller's lookup, and caches constant call sites. Invoking the generated entry **does initialize the selected caller**; choose its lifecycle point explicitly. Resolution may fail if a dependency, member or access permission is unavailable, even for a path the application would not yet execute. Failures propagate; no silent success is reported. One resolved site can load dependencies and take substantial time: a site-count limit is not a time limit.
+
+Preparation reduces decoding/lookup work in the first real invocation. The JVM still performs the actual `invokedynamic` linkage on first use and may compile code later. It does not guarantee zero first-use latency. Generated entries are chunked to avoid one oversized preparation method. Nothing automatically scans or initializes classes, and no Paper lifecycle method is intercepted.
+
+## Decision reports
+
+`--transformation-report PATH` writes schema version 1 JSON. `ObfuscationResult.transformerReports[*].methods` exposes the same method rows. Only executed passes appear; detailed rows cover the class-local ordinary body passes.
+
+Each row contains original identity, `applied` / `skipped` / `rejected`, a reason, input/output executable instruction and branch-instruction counts, and conservative input/output code bytes. Reasons distinguish legacy annotations, individual feature restrictions, input limits, class rollback, unsupported shapes and generated helpers. Excluded classes are included as skipped rows. Rejected helper rows have zero output size because those helpers are not committed. The report is optional and contains original names: do not distribute it with the protected JAR.
+
+CLI counterparts: `--max-input-instructions`, `--max-input-branches`, `--max-added-instructions`, `--max-growth-percent`, `--max-output-code-bytes`, `--arithmetic-operations`.
+
+## Repeatable verification
+
+- `./gradlew test`: feature regression suites, including modular overflow, floating-point non-interference, operand side effects, policy inheritance, original-name rules, cumulative budgets, class-atomic rollback, bounded/concurrent preparation and Kotlin-style enum array cloning.
+- `python3 scripts/compatibility/run.py`: clones pinned public commits from `scripts/compatibility/corpus.json`, builds upstream sources, transforms their JVM JARs and runs the same compiled tests against the transformed artifacts. Production output directories AND the original production JAR are removed from the replacement test classpath. Public API names are kept for these library projects. JVM verification is enabled. Upstream source algorithms are not edited. `--skip-build` is for an existing matching local build; do not use it for fresh CI validation.
+- `python3 scripts/performance/run.py`: synthetic entity-loop comparison, independent JVM forks, alternating run order and a minimum timed warmup before resetting inputs for the measured phase. Records cold invocation, explicit preparation cost, warm p50/p95/p99/max, thread allocations and a bit-exact checksum. It includes a `HotPath` control group. Optional `--max-p99-ratio` and `--max-extra-bytes-per-tick` fail a local regression gate. Shared-runner timing is noisy; this is not a Minecraft TPS benchmark.
+
+The GitHub workflow runs unit/integration tests on changes, public-project builds weekly/manually and the synthetic benchmark manually. Logs and JSON results are retained as artifacts. These checks strengthen release evidence; they do not establish that every JVM framework is compatible or that commercial readiness and unchanged runtime performance are guaranteed. Actual server startup, workload tails, memory/GC and deployment combinations still require representative testing.
+
+API default hooks use JVM defaults with Kotlin `DefaultImpls` compatibility bridges. A regression test compiles a policy implementation against the old interface shape and loads it against the current API. See the [Kotlin compiler options](https://kotlinlang.org/docs/gradle-compiler-options.html).
+
+The prelink embedding path is validated for classpath JARs. Named-module descriptors and `requires` directives are not rewritten; JPMS deployment needs separate validation. Static handle lookup initialization semantics are described by [MethodHandles.Lookup](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/invoke/MethodHandles.Lookup.html#findStatic(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)).

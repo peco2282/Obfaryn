@@ -1,5 +1,6 @@
 package com.peco2282.obfaryn.api.transformer
 
+import com.peco2282.obfaryn.api.protection.*
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldNode
 import org.objectweb.asm.tree.MethodNode
@@ -43,6 +44,15 @@ fun interface TransformationPolicy {
    * @return Whether constant-field conversion is permitted for this declaration.
    */
   fun canTransformConstant(owner: ClassNode, field: FieldNode): Boolean = true
+
+  /** Feature permission supplements, and must not bypass, legacy body policy. */
+  fun canTransformBody(owner: ClassNode, method: MethodNode, feature: BodyFeature): Boolean =
+    canTransformBody(owner, method)
+
+  fun controlFlowMode(owner: ClassNode, method: MethodNode): ControlFlowMode = ControlFlowMode.INHERIT
+  fun budget(owner: ClassNode, method: MethodNode): TransformationBudget = TransformationBudget()
+  fun exclusionReason(owner: ClassNode, method: MethodNode, feature: BodyFeature): String? =
+    if (canTransformBody(owner, method, feature)) null else "body-policy"
 
   companion object {
     /**

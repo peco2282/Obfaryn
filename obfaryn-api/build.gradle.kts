@@ -46,3 +46,8 @@ publishing {
 tasks.test {
   useJUnitPlatform()
 }
+
+// Keep DefaultImpls bridges for existing Kotlin clients, and real JVM defaults for added hooks.
+kotlin {
+  compilerOptions.jvmDefault.set(org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode.ENABLE)
+}

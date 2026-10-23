@@ -63,12 +63,12 @@ class PaperPlatform(override val metadata: PlatformMetadata) : Platform {
       val annotations = method.visibleAnnotations.orEmpty() + method.invisibleAnnotations.orEmpty()
       val reason = when {
         annotations.any { it.desc == "Lorg/bukkit/event/EventHandler;" } -> "paper event callback"
-        key.descriptor == "()V" && key.name in setOf("tick", "onTick") -> "paper tick callback"
         key.descriptor == "()V" && key.name == "run" &&
           (inherits(key.owner, "org/bukkit/scheduler/BukkitRunnable") || inherits(key.owner, "java/lang/Runnable")) ->
           "paper scheduled callback"
 
-        key.owner in entrypoints && key.descriptor == "()V" && key.name in setOf("onLoad", "onEnable", "onDisable") ->
+        key.owner in entrypoints && inherits(key.owner, "org/bukkit/plugin/java/JavaPlugin") &&
+          key.descriptor == "()V" && key.name in setOf("onLoad", "onEnable", "onDisable") ->
           "paper plugin lifecycle"
 
         else -> null
