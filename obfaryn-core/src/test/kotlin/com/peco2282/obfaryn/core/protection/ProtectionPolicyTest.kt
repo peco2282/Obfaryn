@@ -183,8 +183,62 @@ class ProtectionPolicyTest {
     assertEquals(listOf("app/Main"), JavaJarFixture.classes(output).map { it.name })
   }
 
+  @Test fun growthAllowanceIsCumulativeAndNeverResetsPerPass() {
+    val input = JavaJarFixture.compile(dir, mapOf("app/Main" to
+      "package app; public class Main { public static int value(int x) { return x; } }"))
+    val output = dir.resolve("allowance.jar")
+    val result = Obfuscator(ObfuscationConfig(stringEncryption = false, numberObfuscation = false,
+      renameClasses = false, renameMethods = false, renameFields = false,
+      transformationReport = dir.resolve("allowance.json"),
+      transformationBudget = TransformationBudget(maxGrowthPercent = 100)), configurePipeline = {
+      for (index in 1..2) add(object : com.peco2282.obfaryn.api.transformer.Transformer {
+        override val id = "grow-$index"
+        override val isolatedBodyFeature = BodyFeature.INTEGER_ARITHMETIC
+        override fun transform(context: com.peco2282.obfaryn.api.ObfuscationContext) {
+          val method = context.classes.values.single().methods.single { it.name == "value" }
+          repeat(40) { method.instructions.insert(InsnNode(org.objectweb.asm.Opcodes.NOP)) }
+        }
+      })
+    }).obfuscate(input, output)
+    assertTrue(result.transformerReports.single { it.id == "grow-1" }.methods.any { it.status == "applied" })
+    assertTrue(result.transformerReports.single { it.id == "grow-2" }.methods.any {
+      it.status == "rejected" && it.reason.contains("budget:growth-percent")
+    })
+    URLClassLoader(arrayOf(output.toUri().toURL()), null).use {
+      assertEquals(7, it.loadClass("app.Main").getMethod("value", Int::class.javaPrimitiveType).invoke(null, 7))
+    }
+  }
+
+  @Test fun annotationsOverrideGrowthAllowancePerPropertyIncludingZero() {
+    val input = JavaJarFixture.compile(dir, listOf("Allowed", "Strict").associate { name ->
+      "app/$name" to """
+        package app; import com.peco2282.obfaryn.annotations.*;
+        @PerformanceBudget(maxGrowthPercent=100,growthAllowanceInstructions=0)
+        public class $name {
+          ${if (name == "Allowed") "@PerformanceBudget(growthAllowanceInstructions=32)" else ""}
+          public static String text() { return "lambda secret"; }
+        }
+      """.trimIndent()
+    })
+    val output = dir.resolve("annotation.jar")
+    val result = Obfuscator(ObfuscationConfig(numberObfuscation = false,
+      renameClasses = false, renameMethods = false, renameFields = false,
+      transformationReport = dir.resolve("annotation.json"),
+      protectionRules = listOf(ProtectionRule("app/.*", budget = TransformationBudget(
+        maxGrowthPercent = 175, growthAllowanceInstructions = 64))),
+      transformationBudget = TransformationBudget(growthAllowanceInstructions = 128))).obfuscate(input, output)
+    val rows = result.transformerReports.single { it.id == "string-encryption" }.methods
+    assertTrue(rows.any { it.method.startsWith("app/Allowed.text(") && it.status == "applied" })
+    assertTrue(rows.any { it.method.startsWith("app/Strict.text(") && it.reason.contains("budget:growth-percent") })
+    URLClassLoader(arrayOf(output.toUri().toURL()), null).use { loader ->
+      for (name in listOf("Allowed", "Strict"))
+        assertEquals("lambda secret", loader.loadClass("app.$name").getMethod("text").invoke(null))
+    }
+  }
+
   @Test fun invalidBudgetsAndReportCollisionsFailBeforeOutput() {
     assertThrows(IllegalArgumentException::class.java) { TransformationBudget(maxGrowthPercent = 99) }
+    assertThrows(IllegalArgumentException::class.java) { TransformationBudget(growthAllowanceInstructions = -1) }
     val input = JavaJarFixture.compile(dir, mapOf("app/Main" to """
       package app; import com.peco2282.obfaryn.annotations.*;
       @PerformanceBudget(maxAddedInstructions=-2) public class Main { public static int f() { return 3; } }

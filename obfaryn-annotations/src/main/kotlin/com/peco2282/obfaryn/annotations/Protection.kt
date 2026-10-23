@@ -30,4 +30,6 @@ annotation class PerformanceBudget(
   val maxAddedInstructions: Int = -1,
   val maxGrowthPercent: Int = -1,
   val maxOutputCodeBytes: Int = -1,
+  /** Minimum added-instruction allowance for the percentage check; -1 inherits, 0 uses a strict ratio. */
+  val growthAllowanceInstructions: Int = -1,
 )

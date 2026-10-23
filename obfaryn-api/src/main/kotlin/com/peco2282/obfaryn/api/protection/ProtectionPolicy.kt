@@ -14,11 +14,14 @@ data class TransformationBudget @JvmOverloads constructor(
   val maxAddedInstructions: Int? = null,
   val maxGrowthPercent: Int? = null,
   val maxOutputCodeBytes: Int = 65535,
+  /** Minimum cumulative added-instruction allowance for the percentage check; 0 restores a strict ratio. */
+  val growthAllowanceInstructions: Int = 64,
 ) {
   init {
     listOfNotNull(maxInputInstructions, maxInputBranches, maxAddedInstructions).forEach {
       require(it >= 0) { "Instruction and branch budgets must be non-negative" }
     }
+    require(growthAllowanceInstructions >= 0) { "Growth allowance must be non-negative" }
     require(maxGrowthPercent == null || maxGrowthPercent >= 100) { "Growth percent must be at least 100" }
     require(maxOutputCodeBytes in 1..65535) { "Output code budget must be in 1..65535" }
   }

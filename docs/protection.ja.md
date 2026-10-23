@@ -133,6 +133,7 @@ obfaryn {
     maxInputBranches = 128
     maxAddedInstructions = 256
     maxGrowthPercent = 175
+    growthAllowanceInstructions = 64
     maxOutputCodeBytes = 60000
   }
 }
@@ -141,7 +142,9 @@ obfaryn {
 core の `ObfuscationConfig` にも `transformationBudget`・`protectionRules`・`integerArithmetic`・`maxArithmeticOperationsPerMethod`・`prelinkCalls`・`transformationReport` があります。`TransformationBudget.latencySensitive()` は上の予算を作成します。これは測定の出発点であり、実行時間の保証ではありません。
 
 - 入力命令数と分岐命令数は各パスの直前に判定します。switch は分岐命令一つとして数えます。
-- 追加命令数と増加率は、各パス単独ではなく元のメソッドからの**累積増加**を制限します。`175` は元の命令数の 175% まで、追加命令数 `0` も有効です。
+- 追加命令数と増加率は、各パス単独ではなく元のメソッドからの**累積増加**を制限します。`maxAddedInstructions = 0` も有効で、追加を許可しません。
+- 増加率の判定は `出力命令数 <= max(元の命令数 × maxGrowthPercent / 100, 元の命令数 + growthAllowanceInstructions)` です。小さなKotlinラムダやコンパイラ生成メソッドも暗号化できるよう、`growthAllowanceInstructions` の既定値は64です。この許容量は各パスでリセットせず、`maxGrowthPercent` の指定時だけ使います。型やメソッド名によるラムダの特別扱いはありません。`maxAddedInstructions`・出力コード長・classファイルの上限は独立して適用します。
+- `growthAllowanceInstructions = 0` にすると従来の厳密な比率制限になります。例えば元が4命令、増加率175の場合、既定値では68命令まで、許容量0では7命令までです。アノテーションの `@PerformanceBudget(growthAllowanceInstructions = ...)` とルール内の `performance` でも指定でき、アノテーションの `-1` は継承、`0` は明示的な厳密指定です。
 - 命令数からラベル・行番号・フレームを除きます。byte 数は ASM が算出する保守的な最大値です。分岐の拡張も見込むため、実際の符号化なら収まるメソッドを拒否する場合があります。
 - 別クラスへ注入したものも含め、生成した補助メソッドには解決済みのコード長上限を適用します。別の補助クラスは自身の識別子・アノテーションと実行全体の既定予算を使います。元の本体がないため増加率の比較からは除きます。新規の初期化子には追加命令数の制限を適用します。
 - 任意の構造制限の既定値は無制限です。対応するパスでは、class ファイルのコード長・定数プールの上限を常に検査します。
@@ -209,7 +212,7 @@ VM解析レポートの出力先が、互いに重複しないことと、入力
 トランザクションになるわけではありません。
 
 
-CLI の予算指定は `--max-input-instructions`、`--max-input-branches`、`--max-added-instructions`、`--max-growth-percent`、`--max-output-code-bytes`、`--arithmetic-operations` です。
+CLI の予算指定は `--max-input-instructions`、`--max-input-branches`、`--max-added-instructions`、`--max-growth-percent`、`--growth-allowance-instructions`、`--max-output-code-bytes`、`--arithmetic-operations` です。
 
 ## 継続検証と測定
 

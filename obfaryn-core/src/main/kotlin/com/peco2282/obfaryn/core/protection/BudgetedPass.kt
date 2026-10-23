@@ -74,7 +74,10 @@ internal class BudgetedPass(
           after.bytes > budget.maxOutputCodeBytes -> "budget:output-code-bytes:$identity"
           (old != null || method.access and org.objectweb.asm.Opcodes.ACC_SYNTHETIC == 0) && budget.maxAddedInstructions != null && after.instructions.toLong() - base.instructions > budget.maxAddedInstructions!! ->
             "budget:added-instructions:$identity"
-          old != null && budget.maxGrowthPercent != null && after.instructions.toLong() * 100 > maxOf(1, base.instructions).toLong() * budget.maxGrowthPercent!! ->
+          old != null && budget.maxGrowthPercent != null && after.instructions.toLong() * 100 > maxOf(
+            maxOf(1, base.instructions).toLong() * budget.maxGrowthPercent!!,
+            (base.instructions.toLong() + budget.growthAllowanceInstructions) * 100,
+          ) ->
             "budget:growth-percent:$identity"
           else -> null
         }

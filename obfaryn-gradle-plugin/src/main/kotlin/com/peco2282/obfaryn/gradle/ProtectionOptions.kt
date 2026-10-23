@@ -90,7 +90,8 @@ open class PerformanceOptions {
   var maxAddedInstructions: Int? = null
   var maxGrowthPercent: Int? = null
   var maxOutputCodeBytes = 65535
+  var growthAllowanceInstructions = 64
   internal fun budget() = TransformationBudget(
-    maxInputInstructions, maxInputBranches, maxAddedInstructions, maxGrowthPercent, maxOutputCodeBytes)
+    maxInputInstructions, maxInputBranches, maxAddedInstructions, maxGrowthPercent, maxOutputCodeBytes, growthAllowanceInstructions)
 }
 

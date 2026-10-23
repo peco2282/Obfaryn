@@ -205,6 +205,21 @@ class CliParsingTest {
     assertArrayEquals(before, Files.readAllBytes(input))
   }
 
+  @Test fun growthAllowanceWorksForDefaultAndExplicitCommands() {
+    for (prefix in listOf(emptyArray<String>(), arrayOf("obfuscate"))) {
+      for (allowance in listOf(0, 48)) {
+        val cli = cliCommandLine()
+        cli.parseArgs(*prefix, "input.jar", "--growth-allowance-instructions", allowance.toString())
+        val command = if (prefix.isEmpty()) cli.getCommand<RootCommand>().obfuscation
+          else cli.subcommands.getValue("obfuscate").getCommand<ObfuscateCommand>()
+        assertEquals(allowance, command.configuration().transformationBudget.growthAllowanceInstructions)
+      }
+      val result = run(*prefix, input().toString(), "--growth-allowance-instructions", "-1")
+      assertNotEquals(0, result.status)
+      assertTrue(result.err.contains("Growth allowance must be non-negative"), result.err)
+    }
+  }
+
   @Test fun everyExistingOptionAndNewSwitchesReachConfiguration() {
     val cli = cliCommandLine()
     cli.parseArgs("input.jar", "-o", "out.jar", "--mapping", "mapping.txt", "--report", "report.json",
@@ -213,7 +228,7 @@ class CliParsingTest {
       "--exclude-class", "excluded/.*", "--exclude-resource", "private/.*", "--exclude-renaming", "stable/.*",
       "--target-package", "hidden", "--flatten-packages", "--control-flow", "--call-indirection", "--prelink-calls", "--integer-arithmetic", "--arithmetic-operations", "4",
       "--max-input-instructions", "1000", "--max-input-branches", "64", "--max-added-instructions", "128",
-      "--max-growth-percent", "200", "--max-output-code-bytes", "60000", "--transformation-report", "methods.json",
+      "--max-growth-percent", "200", "--growth-allowance-instructions", "48", "--max-output-code-bytes", "60000", "--transformation-report", "methods.json",
       "--integrity-private-key", "private.der", "--integrity-public-key", "public.der",
       "--virtualize-method", "example/Calc.*", "--exclude-virtualization", ".*skip.*", "--virtualization-mode", "eligible",
       "--virtualization-analyze-only", "--virtualization-report", "analysis.json", "--virtualization-runtime-group-size", "3",
@@ -245,6 +260,7 @@ class CliParsingTest {
     assertEquals(64, config.transformationBudget.maxInputBranches)
     assertEquals(128, config.transformationBudget.maxAddedInstructions)
     assertEquals(200, config.transformationBudget.maxGrowthPercent)
+    assertEquals(48, config.transformationBudget.growthAllowanceInstructions)
     assertEquals(60000, config.transformationBudget.maxOutputCodeBytes)
     assertEquals("methods.json", config.transformationReport.toString())
     assertEquals("private.der", config.integrityPrivateKey.toString())

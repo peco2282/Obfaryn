@@ -71,6 +71,7 @@ internal class FeaturePolicy(
         limit("maxInputInstructions", result.maxInputInstructions), limit("maxInputBranches", result.maxInputBranches),
         limit("maxAddedInstructions", result.maxAddedInstructions), limit("maxGrowthPercent", result.maxGrowthPercent),
         limit("maxOutputCodeBytes", result.maxOutputCodeBytes)!!,
+        limit("growthAllowanceInstructions", result.growthAllowanceInstructions)!!,
       )
     }
     return result

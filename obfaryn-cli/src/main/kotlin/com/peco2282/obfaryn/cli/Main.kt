@@ -115,8 +115,10 @@ internal open class ObfuscateCommand : Callable<Int> {
   var maxInputBranches: Int? = null
   @Option(names = ["--max-added-instructions"], paramLabel = "N", description = ["Maximum cumulative added instructions per method (default: unlimited)."])
   var maxAddedInstructions: Int? = null
-  @Option(names = ["--max-growth-percent"], description = ["Maximum cumulative instruction size relative to original (100 = unchanged)."])
+  @Option(names = ["--max-growth-percent"], description = ["Maximum cumulative instruction size relative to original; subject to --growth-allowance-instructions (100 = unchanged with allowance 0)."])
   var maxGrowthPercent: Int? = null
+  @Option(names = ["--growth-allowance-instructions"], paramLabel = "N", description = ["Minimum cumulative added-instruction allowance for the percentage check (default: 64; 0 = strict ratio). Other limits still apply."])
+  var growthAllowanceInstructions = 64
   @Option(names = ["--max-output-code-bytes"], paramLabel = "N", description = ["Maximum estimated method code bytes, 1..65535 (default: 65535)."])
   var maxOutputCodeBytes = 65535
   @Option(names = ["--transformation-report"], paramLabel = "FILE", description = ["Write per-method decisions, reasons and structural costs as JSON."])
@@ -206,7 +208,7 @@ internal open class ObfuscateCommand : Callable<Int> {
       integerArithmetic = integerArithmetic, maxArithmeticOperationsPerMethod = arithmeticOperations,
       prelinkCalls = prelinkCalls, transformationReport = transformationReport,
       transformationBudget = com.peco2282.obfaryn.api.protection.TransformationBudget(
-        maxInputInstructions, maxInputBranches, maxAddedInstructions, maxGrowthPercent, maxOutputCodeBytes),
+        maxInputInstructions, maxInputBranches, maxAddedInstructions, maxGrowthPercent, maxOutputCodeBytes, growthAllowanceInstructions),
       virtualizeMethods = virtualizeMethods,
       excludeVirtualization = excludeVirtualization,
       integrityPrivateKey = integrityPrivateKey, integrityPublicKey = integrityPublicKey,

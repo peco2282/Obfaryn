@@ -131,6 +131,7 @@ obfaryn {
     maxInputBranches = 128
     maxAddedInstructions = 256
     maxGrowthPercent = 175
+    growthAllowanceInstructions = 64
     maxOutputCodeBytes = 60000
   }
 }
@@ -139,7 +140,9 @@ obfaryn {
 The core API exposes `transformationBudget`, `protectionRules`, `integerArithmetic`, `maxArithmeticOperationsPerMethod`, `prelinkCalls` and `transformationReport` on `ObfuscationConfig`. `TransformationBudget.latencySensitive()` supplies the limits above. It is a starting point for measurement, not a latency guarantee.
 
 - Input instruction and branch-instruction limits are checked before each pass. A switch counts as one branch instruction.
-- Added instructions and percentage growth are cumulative against the original method body, across ordinary passes. `175` means at most 175% of the original instruction count; zero added instructions is valid.
+- Added instructions and percentage growth are cumulative against the original method body, across ordinary passes. `maxAddedInstructions = 0` is valid and permits no added instructions.
+- The percentage check allows `outputInstructions <= max(originalInstructions * maxGrowthPercent / 100, originalInstructions + growthAllowanceInstructions)`. The allowance defaults to 64 instructions so small Kotlin lambdas and compiler-generated methods can still receive encryption. It is cumulative, never resets per pass, and is used only when `maxGrowthPercent` is set. No lambda detection or naming heuristics are used. Added-instruction, output-code and class-file limits still apply independently.
+- Set `growthAllowanceInstructions = 0` for the previous strict ratio. For example, a four-instruction body at 175% permits 68 output instructions by default, or seven with allowance zero. The option also works in rule-level `performance` blocks and `@PerformanceBudget(growthAllowanceInstructions = ...)`; annotation `-1` inherits while `0` explicitly selects a strict ratio.
 - Output code size uses ASM's conservative maximum encoded size, including possible branch widening. It may reject a method whose actual encoding would be smaller.
 - Generated synthetic helpers, including methods in separately injected helper classes, are checked against their resolved output code limits but do not have a meaningful original-body growth ratio. A helper class uses its own feature-policy identity and annotations with the run budget as its default. New initializers also respect the added-instruction limit.
 - The engine always checks class-file code/constant-pool limits for participating passes. Optional structural limits default to unlimited; the class-file limit remains mandatory.
@@ -190,7 +193,7 @@ Each row contains original identity, `applied` / `skipped` / `rejected`, a reaso
 
 Before reading or transforming the input, core checks JAR, mapping (including its default destination), method report and virtualization report destinations against one another and against inputs, dependencies and integrity keys. CLI summary reports use the same file-identity check. Existing hard links and symbolic links, including aliases of future destinations, cannot bypass this check. A collision fails before any output is written. These checks do not make the separate artifact writes one transaction.
 
-CLI counterparts: `--max-input-instructions`, `--max-input-branches`, `--max-added-instructions`, `--max-growth-percent`, `--max-output-code-bytes`, `--arithmetic-operations`.
+CLI counterparts: `--max-input-instructions`, `--max-input-branches`, `--max-added-instructions`, `--max-growth-percent`, `--growth-allowance-instructions`, `--max-output-code-bytes`, `--arithmetic-operations`.
 
 ## Repeatable verification
 

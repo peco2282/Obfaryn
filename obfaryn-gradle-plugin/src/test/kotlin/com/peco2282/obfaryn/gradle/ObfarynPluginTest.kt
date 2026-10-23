@@ -95,13 +95,14 @@ class ObfarynPluginTest {
       rules.method("example/.*") { rule ->
         rule.calls = false
         rule.controlFlow = "light"
-        rule.performance { it.maxAddedInstructions = 64 }
+        rule.performance { it.maxAddedInstructions = 64; it.growthAllowanceInstructions = 48 }
       }
     }
     val rule = extension.protectionRules.single()
     assertEquals(mapOf(com.peco2282.obfaryn.api.protection.BodyFeature.CALLS to false), rule.features)
     assertEquals(com.peco2282.obfaryn.api.protection.ControlFlowMode.LIGHT, rule.controlFlow)
     assertEquals(64, rule.budget!!.maxAddedInstructions)
+    assertEquals(48, rule.budget!!.growthAllowanceInstructions)
     assertNull(rule.budget!!.maxInputInstructions)
     assertThrows(IllegalArgumentException::class.java) {
       extension.rules { it.method("[") { rule -> rule.calls = false } }
@@ -135,10 +136,10 @@ class ObfarynPluginTest {
           method("example/.*") {
             calls = false
             controlFlow = "light"
-            performance { maxAddedInstructions = 256; maxGrowthPercent = 300 }
+            performance { maxAddedInstructions = 256; maxGrowthPercent = 300; growthAllowanceInstructions = 48 }
           }
         }
-        performance { maxAddedInstructions = 256; maxGrowthPercent = 300 }
+        performance { maxAddedInstructions = 256; maxGrowthPercent = 300; growthAllowanceInstructions = 48 }
         pipeline {
           add(object : Transformer {
             override val id = "custom-marker"
@@ -239,7 +240,7 @@ class ObfarynPluginTest {
           method('example/.*') {
             calls = false
             controlFlow = 'none'
-            performance { maxAddedInstructions = 64 }
+            performance { maxAddedInstructions = 64; growthAllowanceInstructions = 48 }
           }
         }
         string { enabled = false; includeConstantFields = false }
