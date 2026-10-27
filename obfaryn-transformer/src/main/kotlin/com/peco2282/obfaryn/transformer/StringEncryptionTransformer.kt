@@ -112,6 +112,11 @@ class StringEncryptionTransformer(
     val access = (if (inInterface) Opcodes.ACC_PUBLIC else Opcodes.ACC_PRIVATE) or Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC
     return MethodNode(access, name, "()Ljava/lang/String;", null, null).apply {
       val miss = LabelNode()
+      // A supertype initializer can call this method before our <clinit> has run.
+      instructions.add(InsnNode(Opcodes.ACONST_NULL))
+      instructions.add(VarInsnNode(Opcodes.ASTORE, 0))
+      instructions.add(FieldInsnNode(Opcodes.GETSTATIC, owner, field, "Ljava/util/concurrent/atomic/AtomicReferenceArray;"))
+      instructions.add(JumpInsnNode(Opcodes.IFNULL, miss))
       instructions.add(FieldInsnNode(Opcodes.GETSTATIC, owner, field, "Ljava/util/concurrent/atomic/AtomicReferenceArray;"))
       instructions.add(LdcInsnNode(slot))
       instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/util/concurrent/atomic/AtomicReferenceArray", "get", "(I)Ljava/lang/Object;", false))
@@ -154,6 +159,19 @@ class StringEncryptionTransformer(
         instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/util/concurrent/atomic/AtomicReferenceArray",
           "get", "(I)Ljava/lang/Object;", false))
       }
+      val initialized = LabelNode()
+      cache()
+      instructions.add(JumpInsnNode(Opcodes.IFNONNULL, initialized))
+      // Preserve LDC semantics during supertype initialization without depending on our cache.
+      instructions.add(VarInsnNode(Opcodes.ALOAD, 0))
+      instructions.add(VarInsnNode(Opcodes.ILOAD, 1))
+      instructions.add(MethodInsnNode(Opcodes.INVOKESTATIC, owner, decoder,
+        "(Ljava/lang/String;I)Ljava/lang/String;", inInterface))
+      instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/String", "intern", "()Ljava/lang/String;", false))
+      instructions.add(InsnNode(Opcodes.ARETURN))
+      instructions.add(initialized)
+      instructions.add(FrameNode(Opcodes.F_NEW, 3,
+        arrayOf<Any>("java/lang/String", Opcodes.INTEGER, Opcodes.INTEGER), 0, null))
       read()
       instructions.add(VarInsnNode(Opcodes.ASTORE, 3))
       instructions.add(VarInsnNode(Opcodes.ALOAD, 3))

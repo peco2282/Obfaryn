@@ -206,7 +206,7 @@ Kotlin value classes can rename ordinary functions, properties, and backing fiel
 
 Enum class names follow normal keep rules, while enum constant names are retained for `name()` and `valueOf()`. Annotation type names may change, but annotation element names are retained. Keep any declaration addressed by external code or configuration.
 
-Eligible `static final` and Kotlin `const val` string and numeric fields inside application packages are moved from `ConstantValue` attributes into class initialization so literal passes can transform them. Explicitly kept fields are excluded. These fields cease to be Java compile-time constants, so keep constants that form an external API.
+Eligible `static final` and Kotlin `const val` string and numeric fields inside application packages are moved from `ConstantValue` attributes into class initialization so literal passes can transform them. Explicitly kept fields are excluded. These fields cease to be Java compile-time constants, so keep constants that form an external API. Classes with a superclass other than `Object`, or with any implemented/extended interfaces, retain `ConstantValue`: supertype initialization may reenter the class before its `<clinit>`. The constant-field report counts these as `initializationSkippedClasses`; method literals are still transformed. String decoding also works during such reentry before its cache is initialized. See [semantic regression testing](docs/semantic-validation.md) for the differential test scope.
 
 ## Gradle plugin
 
