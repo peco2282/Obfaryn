@@ -7,8 +7,10 @@ Obfaryn is an ASM-based obfuscator for Kotlin/JVM and Java JARs. Gradle modules 
 - `obfaryn-api`: platform and transformer interfaces.
 - `obfaryn-annotations`: transformation policy annotations.
 - `obfaryn-runtime`: optional Java 8 prelink API and dependency-free linkage templates embedded in output JARs.
-- `obfaryn-core`: obfuscation engine and runtime helpers.
-- `obfaryn-transformer`: standard transformations and builders.
+- `obfaryn-core`: standard-free archive engine, assembly, policy, budgets and reporting.
+- `obfaryn-standard`: standard recipe, configured Obfuscator facade, renaming, VM and integrity tools.
+- `obfaryn-transformer`: optional standard transformations and builders.
+- `examples/custom-extension`: API-only external-style recipe and platform example.
 - `obfaryn-cli`: Picocli command-line application.
 - `obfaryn-gradle-plugin`: Gradle integration.
 - `platforms/paper`: Paper platform provider and cache support.
@@ -23,11 +25,13 @@ Use JDK 21 and the checked-in Gradle wrapper (`gradlew.bat` on Windows).
 
 - `./gradlew build`: compile, test, and assemble the project.
 - `./gradlew test`: run the test suites.
-- `./gradlew :obfaryn-core:test`: run engine tests only.
+- `./gradlew :obfaryn-core:test`: run engine tests without standard implementations.
+- `./gradlew :obfaryn-standard:test`: run standard transformation and facade regressions.
 - `./gradlew :obfaryn-gradle-plugin:test`: run Gradle integration tests.
 - `./gradlew :obfaryn-cli:run --args='--help'`: run the CLI locally.
 - `./gradlew :obfaryn-cli:installDist`: generate the runnable distribution under `obfaryn-cli/build/install/obfaryn`.
 - `python3 scripts/verify-cli-distribution.py`: after `installDist`, transform and execute a Java 8 fixture using only the installed CLI and output JAR.
+- `python3 scripts/verify-custom-extension.py`: after `installDist` and `:examples:custom-extension:jar`, load an API-only provider with the installed CLI and verify the output JAR independently.
 - `python3 scripts/compatibility/run.py`: build pinned JOML/colormath sources and run their tests against transformed JARs. Use `--project joml` or `--project colormath` to narrow the run; `--skip-build` requires an existing matching upstream build.
 - `python3 scripts/performance/run.py`: synthetic workload, three JVM forks by default, timed warmup, latency percentiles, allocations and result checks. Run separately from builds/tests for useful timing.
 
@@ -44,6 +48,8 @@ Use JUnit Jupiter; plugin integration tests also use Gradle TestKit. Name test c
 For Gradle DSL changes, exercise Kotlin and Groovy through TestKit; nested rule objects use Gradle's `ObjectFactory` so Groovy closures configure the intended target. For CLI changes, cover both default and `obfuscate` invocations. Validate processed JARs with JVM verification and remapped consumer tests, excluding original application classes/JARs from the runtime classpath. Previously passing artifacts do not validate changed code.
 
 ## Transformation and Configuration Invariants
+
+- Keep core free of standard/transformer dependencies. Public assembly contracts belong in API; external recipes and platform packages use the same registry and executor. See `docs/assembly.md`.
 
 - VM selection stays annotation/explicit-pattern driven. Never infer execution frequency from names such as `tick` or `onTick`, and never expand VM selection through a protection profile.
 - Explicit `controlFlowMode` overrides legacy flow flags and the `strong` default. `NONE` disables registration of that pass; a per-method permission cannot enable a globally absent pass.

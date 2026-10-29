@@ -15,6 +15,50 @@ import javax.tools.ToolProvider
 class ObfarynPluginTest {
   @TempDir lateinit var dir: Path
 
+  @Test fun apiOnlyPackageProvidersWorkInKotlinAndGroovyBuilds() {
+    for (kotlin in listOf(true, false)) {
+      val project = dir.resolve(if (kotlin) "kotlin" else "groovy")
+      Files.createDirectories(project)
+      Files.writeString(project.resolve("settings.gradle"), "rootProject.name = 'sample'")
+      val jars = System.getProperty("obfaryn.test.extensionClasspath").split(java.io.File.pathSeparator)
+      jars.forEachIndexed { index, path -> Files.copy(Path.of(path), project.resolve("extension-$index.jar")) }
+      val files = jars.indices.joinToString(", ") { "\"extension-$it.jar\"" }
+      val configuration = if (kotlin) """
+        plugins { java; id("com.peco2282.obfaryn") }
+        dependencies { obfarynPlatform(files($files)) }
+        obfaryn {
+          useDefaultPackage = false
+          packageIds = listOf("example-padding")
+          reports { methods = "build/methods.json" }
+          rules { method("example/.*") { feature("example:padding", false) } }
+          pipeline { check(this["example-padding"] != null); check(this["rename"] == null) }
+        }
+      """ else """
+        plugins { id 'java'; id 'com.peco2282.obfaryn' }
+        dependencies { obfarynPlatform files($files) }
+        obfaryn {
+          useDefaultPackage = false
+          packageIds = ['example-padding']
+          reports { methods = 'build/methods.json' }
+          rules { method('example/.*') { feature('example:padding', false) } }
+          pipeline { assert it['example-padding'] != null; assert it['rename'] == null }
+        }
+      """
+      Files.writeString(project.resolve(if (kotlin) "build.gradle.kts" else "build.gradle"), configuration.trimIndent())
+      val source = project.resolve("src/main/java/example/Main.java")
+      Files.createDirectories(source.parent)
+      Files.writeString(source, "package example; public class Main { public static int answer() { return 7; } }")
+      val build = GradleRunner.create().withProjectDir(project.toFile()).withPluginClasspath()
+        .withArguments("obfuscateJar", "--stacktrace").build()
+      assertTrue(build.output.contains("Obfaryn example-padding"), build.output)
+      assertFalse(build.output.contains("Obfaryn string-encryption"), build.output)
+      assertTrue(Files.readString(project.resolve("build/methods.json")).contains("feature-policy:example:padding"))
+      java.net.URLClassLoader(arrayOf(project.resolve("build/libs/sample-obfuscated.jar").toUri().toURL()), null).use {
+        assertEquals(7, it.loadClass("example.Main").getMethod("answer").invoke(null))
+      }
+    }
+  }
+
   @Test fun loadsPaperFromDedicatedClasspath() {
     Files.writeString(dir.resolve("settings.gradle.kts"), "rootProject.name = \"sample\"")
     val jars = System.getProperty("obfaryn.test.paperClasspath").split(java.io.File.pathSeparator)

@@ -30,7 +30,7 @@ repositories {
 dependencies {
   compileOnly(project(":obfaryn-api"))
 
-  testImplementation(project(":obfaryn-core"))
+  testImplementation(project(":obfaryn-standard"))
   testImplementation(platform(libs.junit5.bom))
   testImplementation(libs.junit.jupiter)
   testRuntimeOnly(libs.junit.platform.launcher)

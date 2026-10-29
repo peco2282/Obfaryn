@@ -11,12 +11,12 @@ import java.io.ByteArrayInputStream
 import java.util.jar.JarInputStream
 
 /** Removes only synthesized policy annotations, in reverse insertion order, when cleaned up. */
-internal class AppliedPlatformExtensions(private val cleanupActions: List<() -> Unit>) {
+class AppliedPlatformExtensions(private val cleanupActions: List<() -> Unit>) {
   fun cleanup() = cleanupActions.asReversed().forEach { it() }
 }
 
 /** Applies platform content contributions before translating platform annotation policies. */
-internal object PlatformExtensionApplier {
+object PlatformExtensionApplier {
   /**
    * Mutates [context] in extension order, rejecting existing class/resource keys rather than
    * overwriting them. Contributions already applied are not rolled back if a later one fails.

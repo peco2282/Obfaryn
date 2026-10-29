@@ -34,7 +34,7 @@ object Platforms {
    */
   fun select(id: String, context: PlatformContext): Platform = select(id, context, all())
 
-  internal fun select(id: String, context: PlatformContext, platforms: List<Platform>): Platform {
+  fun select(id: String, context: PlatformContext, platforms: List<Platform>): Platform {
     require(platforms.map { it.id }.distinct().size == platforms.size) { "Duplicate platform IDs" }
     require(platforms.none { it.id.isBlank() || it.id == "auto" }) { "Invalid platform ID" }
     require(platforms.all { it.metadata.apiVersion == PlatformApi.VERSION }) { "Unsupported platform API version" }
@@ -46,5 +46,24 @@ object Platforms {
       best.single().first
     }
     else platforms.firstOrNull { it.id == id } ?: error("Unknown platform: $id")
+  }
+}
+
+/** Explicit composition: contributions and keep rules run in list order; duplicate parts are errors. */
+class CompositePlatform(private val parts: List<Platform>) : Platform {
+  init {
+    require(parts.isNotEmpty()) { "A composite platform requires at least one platform" }
+    require(parts.all { it.id.isNotBlank() && it.id != "auto" }) { "Invalid selected platform ID" }
+    require(parts.map { it.id }.distinct().size == parts.size) { "Duplicate selected platforms" }
+    require(parts.all { it.metadata.apiVersion == PlatformApi.VERSION }) { "Unsupported platform API version" }
+  }
+  override val metadata = DefaultPlatformMetadata(parts.joinToString("+") { it.id }, "Composite", "builtin")
+  private val snapshot by lazy { parts.flatMap { it.extensions() } }
+  override fun detect(context: PlatformContext) = DefaultPlatformDetection(0)
+  override fun extensions() = snapshot
+  override fun entrypoints(context: PlatformContext, options: PlatformOptions) =
+    parts.flatMap { it.entrypoints(context, options) }.toSet()
+  override fun configure(context: PlatformContext, options: PlatformOptions, target: PlatformConfiguration) {
+    parts.forEach { it.configure(context, options, target) }
   }
 }

@@ -177,7 +177,15 @@ open class ObfarynExtension @Inject constructor(objects: ObjectFactory) {
     pipelineConfigurers += PipelineConfigurer { action.execute(this) }
   }
 
+  /** Named providers are loaded from obfarynPlatform; no installed provider runs implicitly. */
+  var packageIds = listOf<String>()
+  var useDefaultPackage = true
+  internal val customPackages = mutableListOf<com.peco2282.obfaryn.api.assembly.TransformationPackage>()
+  /** Supply an API-only recipe directly from a build or convention plugin. */
+  fun transformationPackage(value: com.peco2282.obfaryn.api.assembly.TransformationPackage) { customPackages += value }
+
   var platform = "auto"
+  var additionalPlatforms = listOf<String>()
   var platformOptions = mapOf<String, String>()
   var outputSuffix = "obfuscated"
 
@@ -246,7 +254,7 @@ open class ObfarynExtension @Inject constructor(objects: ObjectFactory) {
 class ObfarynPlugin : Plugin<Project> {
   override fun apply(project: Project) {
     val platformClasspath = project.configurations.create("obfarynPlatform") {
-      it.description = "Platform providers used by Obfaryn during obfuscation"
+      it.description = "Platform and transformation package providers used by Obfaryn during obfuscation"
       it.isCanBeConsumed = false
       it.isCanBeResolved = true
       it.attributes.attribute(
@@ -324,6 +332,7 @@ class ObfarynPlugin : Plugin<Project> {
               renameFields = extension.rename.fields,
               seed = extension.seed,
               platform = extension.platform,
+              additionalPlatforms = extension.additionalPlatforms,
               platformOptions = extension.platformOptions,
               keep = extension.keep,
               excludeClasses = extension.excludeClasses,
@@ -362,7 +371,11 @@ class ObfarynPlugin : Plugin<Project> {
               val previousLoader = thread.contextClassLoader
               try {
                 thread.contextClassLoader = loader
-                Obfuscator(config, pipelineConfigurers = extension.pipelineConfigurers.toList())
+                val packages = (if (extension.useDefaultPackage) listOf(com.peco2282.obfaryn.standard.StandardPackage(config)) else emptyList()) +
+                  com.peco2282.obfaryn.core.TransformationPackages.select(extension.packageIds,
+                    com.peco2282.obfaryn.api.MapPlatformOptions(extension.platformOptions)) + extension.customPackages
+                Obfuscator(config, pipelineConfigurers = extension.pipelineConfigurers.toList(), packages = packages,
+                  protectedInputs = platformClasspath.files.map { it.toPath() })
                   .obfuscate(input, output, mapping)
               } finally {
                 thread.contextClassLoader = previousLoader

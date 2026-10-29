@@ -16,6 +16,7 @@ import java.util.WeakHashMap
 /** Uses keyed dispatch or direct-branch block layout changes without an interpreter. */
 class ControlFlowTransformer(private val random: Random, private val lightweight: Boolean = false) : Transformer {
   override val isolatedBodyFeature = BodyFeature.CONTROL_FLOW
+  override val transformedCount: Int get() = count
   override val id = "control-flow"
   override val order = 35
   override val requiresFrameRecomputation = true

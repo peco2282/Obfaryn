@@ -14,6 +14,7 @@ class IntegerArithmeticTransformer @JvmOverloads constructor(
 ) : Transformer {
   init { require(maxOperationsPerMethod >= 0) }
   override val isolatedBodyFeature = BodyFeature.INTEGER_ARITHMETIC
+  override val transformedCount: Int get() = count
   override val id = "integer-arithmetic"
   override val order = 32
   override val requiresFrameRecomputation = true

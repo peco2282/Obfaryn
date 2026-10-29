@@ -112,6 +112,7 @@ data class ObfuscationConfig(
   val controlFlow: Boolean = false,
   val seed: Long? = null,
   val platform: String = "auto",
+  val additionalPlatforms: List<String> = emptyList(),
   val platformOptions: Map<String, String> = emptyMap(),
   val keep: List<String> = emptyList(),
   val reproducible: Boolean = true,

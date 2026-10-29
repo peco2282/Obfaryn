@@ -17,7 +17,7 @@ import org.objectweb.asm.tree.FieldInsnNode
 import org.objectweb.asm.tree.MethodInsnNode
 
 /** Original member identity used for mapping and reference rewriting. */
-data class MemberKey(val owner: String, val name: String, val desc: String)
+typealias MemberKey = com.peco2282.obfaryn.api.transformer.MemberKey
 
 /**
  * Plans and applies class, method, and field renames while honoring keep and hierarchy rules.
@@ -26,16 +26,27 @@ data class MemberKey(val owner: String, val name: String, val desc: String)
  * families are retained. Package flattening pins packages whose access or relative resource
  * behavior cannot safely survive relocation. Mapping tables retain original identities.
  */
-class RenameTransformer(private val config: ObfuscationConfig, private val keep: KeepRules) : Transformer {
+class RenameTransformer(private val config: ObfuscationConfig, private val keep: KeepRules) : com.peco2282.obfaryn.api.transformer.RenamingTransformer {
   override val id = "rename"
   override val order = 40
-  val classMapping = linkedMapOf<String, String>()
-  val methodMapping = linkedMapOf<MemberKey, String>()
-  val fieldMapping = linkedMapOf<MemberKey, String>()
+  override val classMapping = linkedMapOf<String, String>()
+  override val methodMapping = linkedMapOf<MemberKey, String>()
+  override val fieldMapping = linkedMapOf<MemberKey, String>()
   val warnings = mutableListOf<String>()
+  private var names = com.peco2282.obfaryn.api.transformer.NamePreservation.NONE
+
+  override val transformedCount: Int get() = classMapping.size + methodMapping.size + fieldMapping.size
+  override fun report() = com.peco2282.obfaryn.api.transformer.TransformerReport(id, warnings = warnings.toList())
 
   override fun transform(context: ObfuscationContext) {
+    names = context.namePreservation
     val nodes = context.classes.values.toList()
+    // Capture shared rules at execution time, including rules added by later recipes.
+    for (owner in nodes) {
+      if (names.keepsClassName(owner)) keep.keepClassNameOnly(owner.name)
+      owner.methods.filter { names.keepsMethodName(owner, it) }.forEach { keep.keepMethod(owner.name, it.name, it.desc) }
+      owner.fields.filter { names.keepsFieldName(owner, it) }.forEach { keep.keepField(owner.name, it.name) }
+    }
     val metadata = KotlinMetadataRemapper.prepare(nodes, context.resources.mapValues { it.value.data })
     KotlinMemberConstraints.protect(nodes, keep)
     val defaultHelpers = nodes.flatMap { owner -> owner.methods.mapNotNull { helper ->
@@ -136,7 +147,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
       for (method in node.methods) {
         val virtual = method.access and (Opcodes.ACC_PRIVATE or Opcodes.ACC_STATIC) == 0
         if (MemberKey(node.name, method.name, method.desc) in defaultHelpers || !config.renameMethods || virtual || method.name.startsWith('<') || method.access and Opcodes.ACC_NATIVE != 0 ||
-          keep.method(node.name, method.name, method.desc) || ObfuscationAnnotationPolicy.keepName(method) ||
+          keep.method(node.name, method.name, method.desc) || names.keepsMethodName(node, method) || ObfuscationAnnotationPolicy.keepName(method) ||
           protectedMembers(node) || objectMethod(method.name, method.desc)) continue
         if (node.name !in classMapping && method.access and (Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC) == (Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC)) continue
         if (method.name == "main" && method.desc == "([Ljava/lang/String;)V") continue
@@ -148,7 +159,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
       val fieldNames = node.fields.map { it.name }.toMutableSet()
       val fieldGenerator = SequentialNameGenerator()
       for (field in node.fields) {
-        if (!config.renameFields || keep.field(node.name, field.name) || ObfuscationAnnotationPolicy.keepName(field) || protectedFieldOwner(node) ||
+        if (!config.renameFields || keep.field(node.name, field.name) || names.keepsFieldName(node, field) || ObfuscationAnnotationPolicy.keepName(field) || protectedFieldOwner(node) ||
           field.access and Opcodes.ACC_ENUM != 0 ||
           (field.access and Opcodes.ACC_PRIVATE == 0 && descendants[node.name].orEmpty().isNotEmpty()) ||
           field.name == "serialVersionUID" ||
@@ -195,7 +206,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
       node.innerClasses.any { it.name == node.name && it.outerName != null && field.desc == "L${it.outerName};" }
 
   private fun protectedClass(node: ClassNode): Boolean =
-    keep.className(node.name) || ObfuscationAnnotationPolicy.keepName(node) || node.name.endsWith("/package-info") ||
+    keep.className(node.name) || names.keepsClassName(node) || ObfuscationAnnotationPolicy.keepName(node) || node.name.endsWith("/package-info") ||
       node.name == "module-info" || protectedStructure(node, keepEnum = false, keepAnnotationType = false, keepRecord = false)
 
   private fun protectedMembers(node: ClassNode) = protectedStructure(node)
@@ -229,7 +240,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     else -> false
   }
 
-  fun mappingText(): String = buildString {
+  override fun mappingText(): String = buildString {
     for ((old, new) in classMapping) appendLine("$old -> $new")
     for ((key, new) in methodMapping) appendLine("  ${key.owner}.${key.name}${key.desc} -> $new")
     for ((key, new) in fieldMapping) appendLine("  ${key.owner}.${key.name}:${key.desc} -> $new")

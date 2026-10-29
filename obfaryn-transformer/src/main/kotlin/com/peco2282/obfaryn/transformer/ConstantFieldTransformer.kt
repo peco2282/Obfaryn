@@ -19,6 +19,7 @@ class ConstantFieldTransformer(
   private val keep: ((String, String) -> Boolean)? = null,
 ) : Transformer {
   override val isolatedBodyFeature = BodyFeature.CONSTANT_FIELDS
+  override val transformedCount: Int get() = count
   override val id = "constant-fields"
   override val order = 15
 

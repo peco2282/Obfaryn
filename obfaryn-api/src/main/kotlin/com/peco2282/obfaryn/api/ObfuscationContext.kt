@@ -18,6 +18,9 @@ import org.objectweb.asm.tree.ClassNode
  * and consult [transformationPolicy] before modifying method bodies.
  */
 interface ObfuscationContext {
+  /** Shared name-preservation requirements; custom renamers must consult them before mapping. */
+  val namePreservation: com.peco2282.obfaryn.api.transformer.NamePreservation
+    get() = com.peco2282.obfaryn.api.transformer.NamePreservation.NONE
   /** Scope and analysis for this execution; unavailable scope defaults to no application classes. */
   val transformationInputs: TransformationInputs
     get() = TransformationInputs.EMPTY

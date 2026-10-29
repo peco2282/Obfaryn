@@ -17,6 +17,7 @@ class NumberObfuscationTransformer @JvmOverloads constructor(
   private val selector: NumberObfuscationSelector = DefaultNumberObfuscationSelector(),
 ) : Transformer {
   override val isolatedBodyFeature = BodyFeature.NUMBERS
+  override val transformedCount: Int get() = count
   override val id = "number-obfuscation"
   override val order = 30
   var count = 0

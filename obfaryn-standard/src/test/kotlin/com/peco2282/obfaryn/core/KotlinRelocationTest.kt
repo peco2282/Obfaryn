@@ -215,7 +215,7 @@ class KotlinRelocationTest {
       "ModelKt", "Operations", "Operations__FirstKt", "Operations__SecondKt")
       .map { "fixture/relocation/$it" }
     val nodes = names.map(::fixture)
-    val modulePath = "META-INF/com.peco2282.obfaryn_obfaryn-core_test.kotlin_module"
+    val modulePath = "META-INF/com.peco2282.obfaryn_obfaryn-standard_test.kotlin_module"
     val moduleBytes = javaClass.classLoader.getResourceAsStream(modulePath)!!.use { it.readBytes() }
     val context = ObfuscationContext(nodes.associateByTo(linkedMapOf()) { it.name },
       linkedMapOf(modulePath to ResourceEntry(modulePath, moduleBytes)))

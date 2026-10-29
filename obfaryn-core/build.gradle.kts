@@ -25,15 +25,14 @@ repositories {
 
 dependencies {
   api(project(":obfaryn-api"))
-  api(project(":obfaryn-transformer"))
   implementation(project(":obfaryn-annotations"))
 
   implementation(libs.asm)
   implementation(libs.asm.tree)
   implementation(libs.asm.commons)
   implementation(libs.asm.util)
-  implementation("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
 
+  testImplementation(project(":examples:custom-extension"))
   testImplementation(platform(libs.junit5.bom))
   testImplementation(kotlin("reflect"))
   testImplementation(kotlin("compiler-embeddable"))

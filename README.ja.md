@@ -1,5 +1,7 @@
 # Obfaryn
 
+APIだけに依存して独自パーツ・構成パッケージを定義できます。coreは標準Transformerへ依存しません。[組み立てと拡張契約](docs/assembly.ja.md)を参照してください。
+
 小さなKotlinラムダにも文字列暗号化を適用できるよう、増加率予算には既定64命令の累積増加許容量があります。Gradle の `performance { growthAllowanceInstructions = 64 }`、CLI の `--growth-allowance-instructions 64` で調整でき、`0` は厳密な比率制限です。追加命令数と出力コード長の上限は引き続き適用します。計算式と優先順位は[保護設定の詳細](docs/protection.ja.md#構造的な変換予算)を参照してください。
 
 機能別アノテーション、累積の構造予算、整数演算変換、範囲指定の事前解決、公開プロジェクト・性能の継続検証は [保護設定の詳細](docs/protection.ja.md) を参照してください。
@@ -38,7 +40,7 @@ repositories {
   mavenCentral()
 }
 dependencies {
-  implementation("com.peco2282.obfaryn:obfaryn-core:0.0.0-SNAPSHOT")
+  implementation("com.peco2282.obfaryn:obfaryn-standard:0.0.0-SNAPSHOT")
   // 拡張の実装のみなら obfaryn-api を使用します。
   // 任意: implementation("com.peco2282.obfaryn:obfaryn-platform-paper:0.0.0-SNAPSHOT")
 }
@@ -98,14 +100,15 @@ Obfaryn は Kotlin/JVM および Java の JAR を対象とした ASM ベース�
 
 ## 要件
 
-ビルドには JDK 21 および Kotlin Gradle Plugin 2.4.21 を使用します。`obfaryn-api`、`obfaryn-annotations`、`obfaryn-core`、`obfaryn-transformer`、および CLI モジュールは Kotlin 言語/API バージョン 2.1 と Java 8 バイトコードを使用します。任意の `obfaryn-runtime` は Java のみで Java 8 を対象とし、外部依存はありません。Gradle プラグインは Java 17 以降を必要とします。難読化対象の JAR に必要な Java バージョンは、入力ファイルと有効化された変換内容に依存します。
+ビルドには JDK 21 および Kotlin Gradle Plugin 2.4.21 を使用します。`obfaryn-api`、`obfaryn-annotations`、`obfaryn-core`、`obfaryn-standard`、`obfaryn-transformer`、および CLI モジュールは Kotlin 言語/API バージョン 2.1 と Java 8 バイトコードを使用します。任意の `obfaryn-runtime` は Java のみで Java 8 を対象とし、外部依存はありません。Gradle プラグインは Java 17 以降を必要とします。難読化対象の JAR に必要な Java バージョンは、入力ファイルと有効化された変換内容に依存します。
 
 | モジュール | 用途 |
 | --- | --- |
 | `obfaryn-api` | プラットフォームおよびトランスフォーマーのインターフェース |
 | `obfaryn-annotations` | ソースレベルの変換ポリシーアノテーション |
 | `obfaryn-runtime` | 任意の Java 8 事前解決 API と依存なしの実行時テンプレート |
-| `obfaryn-core` | 難読化エンジン本体 |
+| `obfaryn-standard` | 標準構成・改名・VM・整合性保護・設定付き実行API |
+| `obfaryn-core` | 標準処理に依存しない実行エンジン・構成・予算・検証 |
 | `obfaryn-transformer` | 標準トランスフォーマー（文字列、数値、制御フロー、メタデータ） |
 | `obfaryn-cli` | コマンドラインアプリケーション |
 | `obfaryn-gradle-plugin` | Gradle 統合プラグイン |
@@ -328,15 +331,15 @@ class CustomPlatform(
 
 プラットフォームは `Platform.extensions()` から制限付き拡張を返すことができます。`AnnotationPolicyProvider` はサードパーティのバイナリアノテーションを `obfaryn-annotations` に追加することなく、`NO_OBFUSCATION`、`RENAME_ONLY`、`KEEP_NAME`、`VIRTUALIZE`、または `HOT_PATH` にマッピングします。`ResourceContributor` は非クラス JAR エントリを追加し、`ClassContributor` はコンパイル済みの完全なクラスファイルを追加します。追加されたクラスは通常の Obfaryn パイプラインに入り、名前変更、パッケージ平坦化、本体変換、フレーム計算、および検証に参加します。
 
-`ArchiveContributor` は `MERGE` と `EMBED_AS_RESOURCE` をサポートします。Merge は重複エントリ、署名付きアーカイブ、`module-info.class`、マルチリリースエントリを拒否し、マニフェストはコピーされません。埋め込みアーカイブは明示的なリソースパスを必要とし、データとして扱われます。ソースコードのコンパイルや任意の ASM トランスフォーマーの注入は、意図的にプラットフォーム拡張 API に含めていません。
+`ArchiveContributor` は `MERGE` と `EMBED_AS_RESOURCE` をサポートします。Merge は重複エントリ、署名付きアーカイブ、`module-info.class`、マルチリリースエントリを拒否し、マニフェストはコピーされません。埋め込みアーカイブは明示的なリソースパスを必要とし、データとして扱われます。`PlatformPackages`から独自の構成パッケージとASM変換を共通レジストリへ登録できます。ソースのコンパイルは拡張実装の責務です。
 
 ## Transformer 拡張 API
 
 初めて拡張を書く方向けの実装・実行例は [API 開発ガイド](obfaryn-api/README.ja.md) を参照してください。依存関係、コンテキスト、プラットフォームの登録、リテラル変換、検証手順を説明しています。
 
-外部拡張は `obfaryn-api` の `Transformer` と `PipelineConfigurer` を実装し、ランチャーがこれらを core に渡します。文字列暗号化、数値難読化、制御フロー変換、定数フィールド変換、およびメタデータ削除は `obfaryn-transformer` に分離されています。このモジュールは API と小さな実行時テンプレートのモジュールに依存し、core やプラットフォームには依存しません（バイトコード解析に ASM も使用します）。既存のパッケージ名は維持され、core がこのモジュールを推移的に公開します。
+外部拡張は `obfaryn-api` の `Transformer` と `PipelineConfigurer` を実装し、ランチャーがこれらを core に渡します。文字列暗号化、数値難読化、制御フロー変換、定数フィールド変換、およびメタデータ削除は `obfaryn-transformer` に分離されています。このモジュールは API と小さな実行時テンプレートのモジュールに依存し、core やプラットフォームには依存しません（バイトコード解析に ASM も使用します）。既存のパッケージ名は維持され、`obfaryn-standard`が標準パーツを推移的に公開します。coreはtransformerへ依存しません。
 
-名前変更、仮想化、および標準パイプラインの組み立ては、設定、名前保持、および解析結果に関する API 契約が整うまで core に残ります。これは段階的な分離であり、まだ完全に独立した実行エンジンではありません。
+名前変更・仮想化・整合性保護・標準構成は`obfaryn-standard`に配置しました。coreはAPIで定義した利用者のパッケージを独立して実行できます。[組み立て契約](docs/assembly.ja.md)を参照してください。
 
 ```kotlin
 import com.peco2282.obfaryn.api.transformer.PipelineConfigurer
@@ -407,9 +410,9 @@ val passes = transformers {
 
 `string()` および `number()` は登録時にオプションをスナップショットします。`includeConstantFields` の既定値は `true` です。`build()` は要求された値の型に対して最大 1 つの共有定数フィールドプリプロセッサを追加します。要求されていない型に対するパスは追加されません。文字列/数値の重複登録や、手動で追加された定数プリプロセッサとの競合は拒否されます。旧 `constants {}` / `ConstantsBuilder` / `ObfTransformers.constants*` エントリポイントはこれらのオプションに置き換えられました。戦略や乱数の引数は `string {}` または `number {}` 内に移動してください。ビルダーとパスは実行ごとに新しく作成してください。`build()` を繰り返し呼び出すとリストはスナップショットされますが、登録済みパスインスタンスは再利用されます。乱数の既定値はホストのシードと連動しないため、再現性が必要な場合はシード付きの `java.util.Random` インスタンスを渡してください。core は引き続き依存関係の検証とパスの順序付けを行います。標準パスを置き換えるには、`PipelineConfigurer` と `replace`（存在しない場合は `add`）を使用し、必要に応じてプリプロセッサも含めてください。
 
-`context.transformationInputs` はアプリケーションスコープ、定数保持判定、およびクラスごとの Kotlin メタデータ削除判定を提供します。core はカスタムパスやフィルタリングされたコンテキストを含め、現在の実行からこれらを設定します。未知のスコープはすべてのクラスではなく、対象クラスなし（アプリケーションクラスなし）として扱われます。ルート、keep 述語、メタデータクラスセットを受け取る従来のコンストラクタ引数は引き続き利用可能ですが、新しいビルダーではユーザーオプションのみを指定します。明示的なルートはコンテキストのスコープを上書きし、keep 判定は合算され、メタデータ削除要求は加算的に適用されます。既存のアノテーションポリシーのチェックは変更されていません。標準パイプラインの組み立てと core から transformer への依存関係は、現時点では維持されています。
+`context.transformationInputs` はアプリケーションスコープ、定数保持判定、およびクラスごとの Kotlin メタデータ削除判定を提供します。core はカスタムパスやフィルタリングされたコンテキストを含め、現在の実行からこれらを設定します。未知のスコープはすべてのクラスではなく、対象クラスなし（アプリケーションクラスなし）として扱われます。ルート、keep 述語、メタデータクラスセットを受け取る従来のコンストラクタ引数は引き続き利用可能ですが、新しいビルダーではユーザーオプションのみを指定します。明示的なルートはコンテキストのスコープを上書きし、keep 判定は合算され、メタデータ削除要求は加算的に適用されます。既存のアノテーションポリシーのチェックは変更されていません。標準構成は`obfaryn-standard`の`StandardPackage`が担当し、coreからtransformerへの依存はありません。
 
-仮想化の選択および名前の保持は、現時点ではこの共通ポリシーに含まれていません。マッピング、件数、除外クラス内の参照更新に関する共通のレポート規約が確立されるまで、`rename` の置換はサポートされていません。Paper 固有のコールバック検出は引き続き `platforms/paper` に配置されます。
+VM選択は明示指定主体です。`context.namePreservation`からAPIのみの独自renamerも保持ルールを参照でき、`RenamingTransformer`が公開するマッピングを元識別子の追跡と出力に使います。置換するrenamerは、除外クラスを含む影響する全参照を更新する責任を持ちます。Paper 固有のコールバック検出は引き続き `platforms/paper` に配置されます。
 
 ## 正規表現除外と制御フロー
 

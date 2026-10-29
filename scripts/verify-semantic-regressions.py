@@ -19,9 +19,9 @@ def main():
   }
 }
 ''', encoding='utf-8')
-        command = ['bash', str(root / 'gradlew'), '-I', str(init), '--console=plain', ':obfaryn-core:test']
+        command = ['bash', str(root / 'gradlew'), '-I', str(init), '--console=plain', ':obfaryn-standard:test']
         if args.full:
-            command += [':obfaryn-transformer:test', ':obfaryn-cli:test']
+            command += [':obfaryn-core:test', ':obfaryn-transformer:test', ':obfaryn-cli:test']
         else:
             command += ['--tests', '*StatefulDifferentialTest', '--tests', '*InitializationSemanticsTest']
         return subprocess.run(command, cwd=root).returncode

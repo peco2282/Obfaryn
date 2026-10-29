@@ -38,6 +38,9 @@ interface Transformer {
    */
   val id: String
 
+  /** Count for the most recent invocation, including a class-local budget candidate. */
+  val transformedCount: Int? get() = null
+
   /**
    * Opts into class-atomic body budgeting and diagnostics. The host supplies one candidate class
    * in classes, full read-only dependency lookup, and buffered class injection. Resource mutation

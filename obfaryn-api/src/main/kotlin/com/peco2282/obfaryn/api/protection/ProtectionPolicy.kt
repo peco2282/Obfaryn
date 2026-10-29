@@ -1,8 +1,19 @@
 package com.peco2282.obfaryn.api.protection
 
 /** Independent ordinary body passes. Enabling one never selects interpreter conversion. */
-enum class BodyFeature {
-  STRINGS, NUMBERS, CONTROL_FLOW, CALLS, INTEGER_ARITHMETIC, CONSTANT_FIELDS
+data class BodyFeature(val name: String) {
+  init { require(Regex("[A-Za-z][A-Za-z0-9_.:-]*").matches(name)) { "Invalid body feature: $name" } }
+  override fun toString() = name
+  companion object {
+    @JvmField val STRINGS = BodyFeature("STRINGS")
+    @JvmField val NUMBERS = BodyFeature("NUMBERS")
+    @JvmField val CONTROL_FLOW = BodyFeature("CONTROL_FLOW")
+    @JvmField val CALLS = BodyFeature("CALLS")
+    @JvmField val INTEGER_ARITHMETIC = BodyFeature("INTEGER_ARITHMETIC")
+    @JvmField val CONSTANT_FIELDS = BodyFeature("CONSTANT_FIELDS")
+    /** Built-in names only; custom IDs do not require global registration. */
+    @JvmStatic fun values() = arrayOf(STRINGS, NUMBERS, CONTROL_FLOW, CALLS, INTEGER_ARITHMETIC, CONSTANT_FIELDS)
+  }
 }
 
 enum class ControlFlowMode { INHERIT, NONE, LIGHT, DISPATCH }

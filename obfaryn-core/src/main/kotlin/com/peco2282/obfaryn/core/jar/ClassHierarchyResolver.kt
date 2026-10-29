@@ -10,8 +10,8 @@ import java.nio.file.Path
 import java.util.jar.JarFile
 
 /** Resolves hierarchy from transformed input, dependency archives/directories and JDK class resources. */
-internal class ClassHierarchyResolver(context: ObfuscationContext, classpath: List<Path>) : AutoCloseable {
-  internal data class Info(
+class ClassHierarchyResolver(context: ObfuscationContext, classpath: List<Path>) : AutoCloseable {
+  data class Info(
     val superName: String?, val interfaces: List<String>, val access: Int,
     val methods: Map<Pair<String, String>, Int>,
   ) {

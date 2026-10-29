@@ -9,8 +9,9 @@ repositories {
 }
 
 dependencies {
-  implementation(project(":obfaryn-core"))
+  implementation(project(":obfaryn-standard"))
   implementation(libs.picocli)
+  testImplementation(project(":examples:custom-extension"))
   testImplementation(platform(libs.junit5.bom))
   testImplementation(libs.junit.jupiter)
   testRuntimeOnly(libs.junit.platform.launcher)

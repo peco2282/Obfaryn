@@ -17,3 +17,6 @@ include("obfaryn-transformer")
 
 // external platform
 include("platforms:paper")
+
+include("obfaryn-standard")
+include("examples:custom-extension")

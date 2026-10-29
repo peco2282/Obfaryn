@@ -1,6 +1,6 @@
 package com.peco2282.obfaryn.core.integrity
 
-import com.peco2282.obfaryn.core.context.ObfuscationContext
+import com.peco2282.obfaryn.api.ObfuscationContext
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type

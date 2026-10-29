@@ -20,7 +20,7 @@ dependencies {
 }
 ```
 
-ASM core and tree types are exposed transitively by the API. Put Kotlin files under `src/main/kotlin/com/example/extension/`. A separate **launcher** module that executes the example below also needs `implementation(project(":obfaryn-core"))` and a dependency on your extension module. Do not add core to an extension merely to implement an interface.
+ASM core and tree types are exposed transitively by the API. Put Kotlin files under `src/main/kotlin/com/example/extension/`. A separate **launcher** module that executes the example below also needs `implementation(project(":obfaryn-standard"))` and a dependency on your extension module. Do not add core to an extension merely to implement an interface.
 
 For a separate local build, first run `./gradlew :obfaryn-api:publishToMavenLocal` in this repository, then use `mavenLocal()` and `mavenCentral()` with `implementation("com.peco2282.obfaryn:obfaryn-api:0.0.0-SNAPSHOT")`. This is the current local publication coordinate, not a promise of a Maven Central release. Publishing the API alone does not publish the engine.
 
@@ -94,7 +94,7 @@ fun main() {
 
 Run this `main` from IntelliJ IDEA with the launcher module's runtime classpath and a working directory containing `input.jar`. Input and output must differ. `lightweight()` disables standard string/number body passes but retains renaming and metadata cleanup. Test the transformed application, not just the successful return from `obfuscate`.
 
-Create passes **inside** the callback: a fresh registry is built for each run, but callbacks may be reused. `add` requires a unique non-blank ID. `replace(id, pass)` requires an existing pass and the same ID on the replacement. `disable(id)` requires an existing pass and does not disable its dependants. Inspect optional passes with `this[id]` before replacing/disabling them. Replacing `rename` is currently unsupported because mapping and reference-update reporting are not a shared API contract.
+Create passes **inside** the callback: a fresh registry is built for each run, but callbacks may be reused. `add` requires a unique non-blank ID. `replace(id, pass)` requires an existing pass and the same ID on the replacement. `disable(id)` requires an existing pass and does not disable its dependants. Inspect optional passes with `this[id]` before replacing/disabling them. A replacement `rename` implements `RenamingTransformer`, consults `context.namePreservation`, rewrites all affected references, and publishes original-input mappings.
 
 Implementing a `Transformer` does not make the CLI discover it automatically. Pass it to the host explicitly through `PipelineConfigurer`; this is distinct from platform provider service discovery.
 

@@ -14,6 +14,7 @@ class StringEncryptionTransformer(
   private val codec: StringEncryptionCodec = RollingStringEncryptionCodec(),
 ) : Transformer {
   override val isolatedBodyFeature = BodyFeature.STRINGS
+  override val transformedCount: Int get() = count
   override val id = "string-encryption"
   override val order = 20
   var count = 0

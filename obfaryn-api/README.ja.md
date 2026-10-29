@@ -20,7 +20,7 @@ dependencies {
 }
 ```
 
-ASM の core/tree 型は API から推移的に利用できます。Kotlin ファイルは `src/main/kotlin/com/example/extension/` 以下に配置します。後述の例を実行する別の **ランチャーモジュール** には `implementation(project(":obfaryn-core"))` と拡張モジュールへの依存も追加してください。インターフェースを実装するだけの拡張に core を依存させる必要はありません。
+ASM の core/tree 型は API から推移的に利用できます。Kotlin ファイルは `src/main/kotlin/com/example/extension/` 以下に配置します。後述の例を実行する別の **ランチャーモジュール** には `implementation(project(":obfaryn-standard"))` と拡張モジュールへの依存も追加してください。インターフェースを実装するだけの拡張に core を依存させる必要はありません。
 
 別のローカルビルドから利用する場合は、このリポジトリで `./gradlew :obfaryn-api:publishToMavenLocal` を実行した後、利用側に `mavenLocal()` と `mavenCentral()`、`implementation("com.peco2282.obfaryn:obfaryn-api:0.0.0-SNAPSHOT")` を指定します。これは現在のローカル公開用の座標であり、Maven Central での公開を保証するものではありません。API の公開だけではエンジンは公開されません。
 
@@ -94,9 +94,9 @@ fun main() {
 
 IntelliJ IDEA で、ランチャーモジュールの実行時クラスパスを使ってこの `main` を実行してください。作業ディレクトリには `input.jar` を置き、入出力を別のパスにします。`lightweight()` は標準の文字列・数値の本体変換を無効にしますが、名前変更とメタデータ削除は維持します。`obfuscate` の正常終了だけでなく、出力アプリケーションの動作も確認してください。
 
-パスのインスタンスはコールバックの **内部** で作ります。実行ごとに新しいレジストリが用意されますが、コールバック自体は再利用される場合があります。`add` の ID は空白不可・重複不可です。`replace(id, pass)` は対象の存在と同じ ID を要求します。`disable(id)` は存在するパスに対して使い、依存元を自動的には無効化しません。任意のパスを置換・無効化する場合は `this[id]` で存在を確認してください。`rename` の置換は、マッピングや参照更新の報告が共通 API 化されていないため現在未サポートです。
+パスのインスタンスはコールバックの **内部** で作ります。実行ごとに新しいレジストリが用意されますが、コールバック自体は再利用される場合があります。`add` の ID は空白不可・重複不可です。`replace(id, pass)` は対象の存在と同じ ID を要求します。`disable(id)` は存在するパスに対して使い、依存元を自動的には無効化しません。任意のパスを置換・無効化する場合は `this[id]` で存在を確認してください。`rename`を置換する場合は`RenamingTransformer`を実装し、`context.namePreservation`を確認し、影響する全参照を更新して改名前の識別子に対応するマッピングを公開します。
 
-`Transformer` を実装するだけで CLI が自動検出することはありません。`PipelineConfigurer` を通してホストに明示的に渡してください。これは PlatformProvider のサービス検出とは別の仕組みです。
+`Transformer` を実装するだけで CLI が自動検出することはありません。`PipelineConfigurer` を通してホストに明示的に渡してください。パッケージのサービス検出とplatformの`PlatformPackages`からも登録できます。[組み立て](../docs/assembly.ja.md)を参照してください。
 
 ### 予算管理された本体変換の拡張
 

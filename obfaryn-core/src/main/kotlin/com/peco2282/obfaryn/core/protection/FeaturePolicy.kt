@@ -6,7 +6,7 @@ import com.peco2282.obfaryn.api.transformer.TransformationPolicy
 import org.objectweb.asm.tree.*
 
 /** Resolves original-name rules, class defaults and method overrides beneath legacy restrictions. */
-internal class FeaturePolicy(
+class FeaturePolicy(
   private val legacy: TransformationPolicy,
   private val defaultBudget: TransformationBudget,
   rules: List<ProtectionRule>,
@@ -33,6 +33,7 @@ internal class FeaturePolicy(
       BodyFeature.INTEGER_ARITHMETIC -> "integerArithmetic"
       BodyFeature.CONSTANT_FIELDS -> "constantFields"
       BodyFeature.CONTROL_FLOW -> "controlFlow"
+      else -> feature.name
     }
     for (values in listOf(protection(owner), protection(method))) {
       enumValue(values[property])?.let { value ->

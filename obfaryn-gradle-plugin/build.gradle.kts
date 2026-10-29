@@ -32,7 +32,7 @@ repositories {
 
 dependencies {
   implementation(gradleApi())
-  implementation(project(":obfaryn-core"))
+  implementation(project(":obfaryn-standard"))
   testImplementation(gradleTestKit())
 
   testImplementation(platform(libs.junit6.bom))
@@ -71,4 +71,11 @@ tasks.test {
     systemProperty("obfaryn.test.paperClasspath", paperPlatformFixture.asPath)
   }
   useJUnitPlatform()
+}
+
+val extensionFixture = configurations.create("extensionFixture") { isCanBeConsumed = false }
+dependencies { add(extensionFixture.name, project(":examples:custom-extension")) }
+tasks.test {
+  dependsOn(extensionFixture)
+  doFirst { systemProperty("obfaryn.test.extensionClasspath", extensionFixture.asPath) }
 }

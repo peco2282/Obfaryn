@@ -31,7 +31,9 @@ class VirtualizationTransformer(patterns: List<String>, private val random: Rand
   init { require(runtimeGroupSize > 0) { "Virtualization runtime group size must be positive" } }
   private val selectors = patterns.map { Regex(it) }
   private val exclusions = exclusions.map { Regex(it) }
+  override val transformedCount: Int get() = count
   override val id = "virtualization"
+  override val requiresFrameRecomputation = true
   override val order = 5
   var count = 0
     private set

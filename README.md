@@ -1,5 +1,7 @@
 # Obfaryn
 
+Build your own parts and recipes with API-only dependencies; core has no standard transformation dependency. See [assembly and extension contracts](docs/assembly.md).
+
 Percentage growth budgets include a default cumulative allowance of 64 added instructions so small Kotlin lambdas can still receive string encryption. Configure it with Gradle `performance { growthAllowanceInstructions = 64 }` or CLI `--growth-allowance-instructions 64`; use `0` for a strict ratio. Added-instruction and output-code limits still apply. See [structural budgets](docs/protection.md#structural-budgets) for the formula and precedence.
 
 Feature-by-feature annotations, cumulative structural budgets, integer expressions, bounded prelinking and repeatable public-project/performance checks are documented in [Protection controls](docs/protection.md).
@@ -38,7 +40,7 @@ repositories {
   mavenCentral()
 }
 dependencies {
-  implementation("com.peco2282.obfaryn:obfaryn-core:0.0.0-SNAPSHOT")
+  implementation("com.peco2282.obfaryn:obfaryn-standard:0.0.0-SNAPSHOT")
   // For extension-only projects, use obfaryn-api instead.
   // Optional: implementation("com.peco2282.obfaryn:obfaryn-platform-paper:0.0.0-SNAPSHOT")
 }
@@ -102,14 +104,15 @@ Obfaryn is an ASM-based obfuscator for Kotlin/JVM and Java JARs. It strips debug
 
 ## Requirements
 
-The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The `obfaryn-api`, `obfaryn-annotations`, `obfaryn-core`, `obfaryn-transformer`, and CLI modules use Kotlin language/API version 2.1 and Java 8 bytecode. The optional `obfaryn-runtime` module is Java-only, targets Java 8 and has no external dependencies. The Gradle plugin requires Java 17 or later. The Java version needed by an obfuscated JAR also depends on the input and enabled transformations.
+The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The `obfaryn-api`, `obfaryn-annotations`, `obfaryn-core`, `obfaryn-standard`, `obfaryn-transformer`, and CLI modules use Kotlin language/API version 2.1 and Java 8 bytecode. The optional `obfaryn-runtime` module is Java-only, targets Java 8 and has no external dependencies. The Gradle plugin requires Java 17 or later. The Java version needed by an obfuscated JAR also depends on the input and enabled transformations.
 
 | Module | Purpose |
 | --- | --- |
 | `obfaryn-api` | Platform and transformer interfaces |
 | `obfaryn-annotations` | Source-level transformation policies |
 | `obfaryn-runtime` | Optional Java 8 prelink API and zero-dependency runtime templates |
-| `obfaryn-core` | Obfuscation engine |
+| `obfaryn-standard` | Standard recipe, renaming, VM, integrity and configured facade |
+| `obfaryn-core` | Standard-free archive engine, assembly, budgets and verification |
 | `obfaryn-transformer` | Standard transformers (strings, numbers, control flow, metadata) |
 | `obfaryn-cli` | Command-line application |
 | `obfaryn-gradle-plugin` | Gradle integration |
@@ -339,16 +342,15 @@ calculation, and verification.
 
 `ArchiveContributor` supports `MERGE` and `EMBED_AS_RESOURCE`. Merge rejects duplicate entries,
 signed archives, `module-info.class`, and multi-release entries; manifests are not copied. Embedded
-archives require an explicit resource path and are treated as data. Source compilation and arbitrary
-ASM transformers are intentionally not part of the platform extension API.
+archives require an explicit resource path and are treated as data. `PlatformPackages` supplies ordinary user-defined recipes and their ASM transformers through the shared registry. Source compilation belongs to the extension implementation.
 
 ## Transformer extension API
 
 For complete beginner-friendly implementation and launcher examples, see the [API development guide](obfaryn-api/README.md). It explains dependencies, contexts, platform providers, literal algorithms, and validation.
 
-External extensions implement `Transformer` and `PipelineConfigurer` from `obfaryn-api`; the launcher passes them to core. String encryption, number obfuscation, control flow, constant-field conversion, and metadata stripping live in `obfaryn-transformer`. Its project dependencies are API and the small runtime-template module (it also uses ASM); it does not depend on core or a platform. Existing package names are retained, and core exposes the module transitively.
+External extensions implement `Transformer` and `PipelineConfigurer` from `obfaryn-api`; the launcher passes them to core. String encryption, number obfuscation, control flow, constant-field conversion, and metadata stripping live in `obfaryn-transformer`. Its project dependencies are API and the small runtime-template module (it also uses ASM); it does not depend on core or a platform. Existing package names are retained; `obfaryn-standard` exposes the standard parts transitively, while core has no transformer dependency.
 
-Renaming, virtualization, and standard pipeline assembly remain in core pending API contracts for their configuration, name preservation, and analysis results. This is incremental separation, not yet a fully independent execution engine.
+Renaming, virtualization, integrity and standard recipe assembly live in `obfaryn-standard`. Core executes user-defined API recipes independently. See [assembly contracts](docs/assembly.md).
 
 ```kotlin
 import com.peco2282.obfaryn.api.transformer.PipelineConfigurer
@@ -419,9 +421,9 @@ val passes = transformers {
 
 `string()` and `number()` snapshot their options when registered. `includeConstantFields` defaults to `true`; `build()` adds at most one shared constant-field preprocessor for the requested value types. No pass is added for an unrequested type. Duplicate string/number registrations and conflicting manual constant preprocessors are rejected. The old `constants {}` / `ConstantsBuilder` / `ObfTransformers.constants*` entry points are replaced by these options; move strategy/random arguments into `string {}` or `number {}`. Create a builder and passes per execution; repeated `build()` calls snapshot the list but reuse registered pass instances. Random defaults are not tied to the host seed; supply seeded `java.util.Random` instances for reproducibility. Core still validates dependencies and orders passes. To replace standard passes, use `PipelineConfigurer` and `replace` (or `add` when absent), including the preprocessor as needed.
 
-`context.transformationInputs` supplies application scope, constant preservation and per-class Kotlin metadata stripping decisions. Core populates it from the current run, including for custom passes and filtered contexts. Unknown scope defaults to no application classes, not all classes. The legacy constructor arguments for roots, keep predicates and metadata class sets remain available; new builders need only user options. Explicit roots override context scope, keep decisions are combined, and metadata strip requests are additive. Existing annotation policy checks remain unchanged. Standard assembly and the core-to-transformer dependency have not yet been removed.
+`context.transformationInputs` supplies application scope, constant preservation and per-class Kotlin metadata stripping decisions. Core populates it from the current run, including for custom passes and filtered contexts. Unknown scope defaults to no application classes, not all classes. The legacy constructor arguments for roots, keep predicates and metadata class sets remain available; new builders need only user options. Explicit roots override context scope, keep decisions are combined, and metadata strip requests are additive. Existing annotation policy checks remain unchanged. Standard assembly is provided by `StandardPackage` in `obfaryn-standard`; core has no transformer dependency.
 
-Virtualization selection and name preservation are not yet part of this shared policy. Replacing `rename` is unsupported until mapping, counts, and reference updates in excluded classes have a common reporting contract. Paper-specific callback detection remains in `platforms/paper`.
+Virtualization selection stays explicit. `context.namePreservation` exposes live keep rules to API-only renamers, and `RenamingTransformer` publishes mappings for identity tracking and host output. A replacement renamer must rewrite all affected references, including references in excluded classes. Paper-specific callback detection remains in `platforms/paper`.
 
 ## Exclusions and control flow
 

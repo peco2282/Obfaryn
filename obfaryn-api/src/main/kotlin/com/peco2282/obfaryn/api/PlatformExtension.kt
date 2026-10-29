@@ -5,7 +5,8 @@ package com.peco2282.obfaryn.api
  *
  * Implement a supported subtype such as [AnnotationPolicyProvider], [ResourceContributor],
  * [ClassContributor], or [ArchiveContributor]. Extensions supply policy or content; this SPI
- * deliberately does not expose arbitrary bytecode transformers or source compilation.
+ * supports recipes through [com.peco2282.obfaryn.api.assembly.PlatformPackages]. Source compilation
+ * belongs to the extension implementation.
  */
 interface PlatformExtension
 

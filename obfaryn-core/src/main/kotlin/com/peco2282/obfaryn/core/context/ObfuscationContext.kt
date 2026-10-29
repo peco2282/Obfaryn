@@ -26,10 +26,12 @@ class ObfuscationContext(
   classes: MutableMap<String, ClassNode>,
   resources: MutableMap<String, ResourceEntry>,
 ) : ObfuscationContextApi, PlatformContext {
-  internal val originalClassNames = mutableMapOf<String, String>()
-  internal val originalMethodIdentities = mutableMapOf<String, String>()
+  override var namePreservation: com.peco2282.obfaryn.api.transformer.NamePreservation =
+    com.peco2282.obfaryn.api.transformer.NamePreservation.NONE
+  val originalClassNames = mutableMapOf<String, String>()
+  val originalMethodIdentities = mutableMapOf<String, String>()
   override var transformationInputs: TransformationInputs = TransformationInputs.EMPTY
-    internal set
+    set
   private val classMap = LinkedHashMap(classes)
   private val resourceMap = LinkedHashMap(resources)
   override val classes: Map<String, ClassNode> = Collections.unmodifiableMap(classMap)

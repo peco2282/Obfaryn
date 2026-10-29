@@ -58,6 +58,8 @@ open class MethodProtectionOptions {
   var constantFields: Boolean? = null
   var controlFlow = "inherit"
   private var limits: PerformanceOptions? = null
+  private val customFeatures = linkedMapOf<BodyFeature, Boolean>()
+  fun feature(id: String, enabled: Boolean) { customFeatures[BodyFeature(id)] = enabled }
 
   /** A rule budget replaces the run budget, just like ProtectionRule.budget. */
   fun performance(action: Action<PerformanceOptions>) {
@@ -68,7 +70,7 @@ open class MethodProtectionOptions {
   internal fun rule(pattern: String) = ProtectionRule(pattern, listOf(
     BodyFeature.STRINGS to strings, BodyFeature.NUMBERS to numbers, BodyFeature.CALLS to calls,
     BodyFeature.INTEGER_ARITHMETIC to integerArithmetic, BodyFeature.CONSTANT_FIELDS to constantFields,
-  ).mapNotNull { (feature, enabled) -> enabled?.let { feature to it } }.toMap(), flowMode(controlFlow), limits?.budget())
+  ).mapNotNull { (feature, enabled) -> enabled?.let { feature to it } }.toMap() + customFeatures, flowMode(controlFlow), limits?.budget())
 }
 
 open class ProtectionRulesOptions @Inject constructor(

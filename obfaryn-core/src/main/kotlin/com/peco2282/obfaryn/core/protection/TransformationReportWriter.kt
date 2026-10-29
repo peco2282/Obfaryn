@@ -4,7 +4,7 @@ import com.peco2282.obfaryn.api.transformer.TransformerReport
 import java.nio.file.*
 
 /** Streaming, atomically replaced JSON; no serializer dependency in processed applications. */
-internal object TransformationReportWriter {
+object TransformationReportWriter {
   private fun quote(text: String): String = buildString {
     append('"')
     for (c in text) when (c) {

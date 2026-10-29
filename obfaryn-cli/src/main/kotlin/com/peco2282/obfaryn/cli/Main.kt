@@ -75,8 +75,17 @@ internal open class ObfuscateCommand : Callable<Int> {
   var mapping: Path? = null
   @Option(names = ["--report"], paramLabel = "FILE", description = ["Write a JSON summary."])
   var report: Path? = null
+  @Option(names = ["--package"], paramLabel = "ID", description = ["Add an explicitly selected transformation package; repeatable."])
+  var packageIds = mutableListOf<String>()
+  @Option(names = ["--no-default-package"], description = ["Start with an empty pipeline instead of the standard recipe."])
+  var noDefaultPackage = false
+  @Option(names = ["--extension"], paramLabel = "JAR", description = ["Host extension JAR containing package or platform providers; repeatable."])
+  var extensionJars = mutableListOf<Path>()
+
   @Option(names = ["--platform"], paramLabel = "ID", completionCandidates = PlatformCandidates::class, description = ["Platform ID (default: auto)."])
   var platform = "auto"
+  @Option(names = ["--also-platform"], paramLabel = "ID", description = ["Compose an additional explicitly named platform; repeatable."])
+  var additionalPlatforms = mutableListOf<String>()
   @Option(names = ["--platform-option"], paramLabel = "KEY=VALUE", converter = [PlatformOptionConverter::class], description = ["Platform option; repeatable."])
   var platformOptions = mutableListOf<PlatformOption>()
   @Option(names = ["--protection"], paramLabel = "LEVEL", description = ["Protection level: standard (default) or strong; strong requires application roots and enables control flow and output checks; VM selection stays explicit."])
@@ -197,7 +206,7 @@ internal open class ObfuscateCommand : Callable<Int> {
       kotlinMetadataMode = kotlinMetadataMode, applicationPackages = applicationPackages,
       renameClasses = !noRename && !noRenameClasses, renameMethods = !noRename && !noRenameMethods,
       renameFields = !noRename && !noRenameFields,
-      seed = seed, platform = platform, platformOptions = platformOptions.associate { it.key to it.value }, keep = keep,
+      seed = seed, platform = platform, additionalPlatforms = additionalPlatforms.toList(), platformOptions = platformOptions.associate { it.key to it.value }, keep = keep,
       verifyOutput = verifyOutput, dryRun = dryRun,
       stripGenericSignatures = stripGenericSignatures, stripMethodParameters = !keepMethodParameters,
       classpath = classpath, recomputeFrames = recomputeFrames,
@@ -226,12 +235,26 @@ internal open class ObfuscateCommand : Callable<Int> {
       val sensitive = listOfNotNull(input, out, mapping ?: out.resolveSibling(out.fileName.toString().removeSuffix(".jar") + ".mapping.txt"),
         config.transformationReport, config.virtualizationReport ?: if (config.protectionLevel == ProtectionLevel.STRONG)
           out.resolveSibling(out.fileName.toString().removeSuffix(".jar") + ".virtualization.json") else null,
-        config.integrityPrivateKey, config.integrityPublicKey) + config.classpath
+        config.integrityPrivateKey, config.integrityPublicKey) + config.classpath + extensionJars
       if (Files.isDirectory(summary) || sensitive.any { ArtifactPaths.sameFile(it, summary) }) {
         throw CommandLine.ParameterException(spec.commandLine(), "--report must use a different file from input, output, dependencies, keys and other reports")
       }
     }
-    val result = Obfuscator(config).obfuscate(input, out, mapping)
+    extensionJars.forEach { require(Files.isRegularFile(it)) { "Extension JAR does not exist: $it" } }
+    val result = java.net.URLClassLoader(extensionJars.map { it.toUri().toURL() }.toTypedArray(),
+      Thread.currentThread().contextClassLoader).use { loader ->
+      val thread = Thread.currentThread()
+      val previous = thread.contextClassLoader
+      try {
+        thread.contextClassLoader = loader
+        val packages = (if (noDefaultPackage) emptyList() else listOf(com.peco2282.obfaryn.standard.StandardPackage(config))) +
+          com.peco2282.obfaryn.core.TransformationPackages.select(packageIds,
+            com.peco2282.obfaryn.api.MapPlatformOptions(config.platformOptions))
+        Obfuscator(config, packages = packages, protectedInputs = extensionJars).obfuscate(input, out, mapping)
+      } finally {
+        thread.contextClassLoader = previous
+      }
+    }
     val writer = spec.commandLine().out
     writer.println("Loaded ${result.classesLoaded} classes, ${result.resourcesLoaded} resources")
     writer.println("Platform: ${result.platform}")
@@ -287,6 +310,7 @@ internal class FeatureExclusionConverter : CommandLine.ITypeConverter<Protection
     if (pattern.isBlank()) throw CommandLine.TypeConversionException("--disable-feature requires FEATURE=REGEX with a non-empty regex")
     val key = feature.replace('-', '_').uppercase(Locale.ROOT)
     val selected = BodyFeature.values().firstOrNull { it.name == key }
+      ?: (if (':' in feature) runCatching { BodyFeature(feature) }.getOrNull() else null)
       ?: throw CommandLine.TypeConversionException("Unknown feature '$feature'; use strings, numbers, control-flow, calls, integer-arithmetic or constant-fields")
     return try {
       ProtectionRule(pattern, mapOf(selected to false))
