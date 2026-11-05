@@ -78,12 +78,15 @@ subprojects {
         }
       }
     }
-    if (providers.environmentVariable("SIGNING_KEY").isPresent) {
+    val signingKey = publishingSecrets.getProperty("signingKey")
+      ?: providers.environmentVariable("SIGNING_KEY").orNull
+    if (signingKey != null) {
       pluginManager.apply("signing")
       extensions.configure<SigningExtension> {
         useInMemoryPgpKeys(
-          providers.environmentVariable("SIGNING_KEY").get(),
-          providers.environmentVariable("SIGNING_PASSWORD").orNull,
+          signingKey,
+          publishingSecrets.getProperty("signingPassword")
+            ?: providers.environmentVariable("SIGNING_PASSWORD").orNull,
         )
         sign(project.extensions.getByType<PublishingExtension>().publications)
       }
