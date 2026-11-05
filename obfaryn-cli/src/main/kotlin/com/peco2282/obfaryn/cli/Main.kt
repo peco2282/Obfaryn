@@ -84,15 +84,32 @@ internal fun expandPresets(args: Array<String>): Array<String> {
   return expanded.toTypedArray()
 }
 
+/** Prints the full cause chain and stack trace of [throwable] to [writer], one frame per line. */
+private fun printStackTrace(throwable: Throwable, writer: PrintWriter) {
+  var cause: Throwable? = throwable
+  var prefix = ""
+  while (cause != null) {
+    writer.println("$prefix${cause.javaClass.name}: ${cause.message}")
+    cause.stackTrace.forEach { writer.println("\tat $it") }
+    cause = cause.cause
+    prefix = "Caused by: "
+  }
+}
+
 fun runCli(
   args: Array<String>,
   out: PrintWriter = PrintWriter(System.out, true),
   err: PrintWriter = PrintWriter(System.err, true),
 ): Int {
+  // Not an ordinary option: consumed here, like --preset/--preset-dir, so it works uniformly
+  // across preset-expansion failures and ordinary command failures alike.
+  val stacktrace = "--stacktrace" in args
+  val withoutStacktrace = if (stacktrace) args.filter { it != "--stacktrace" }.toTypedArray() else args
   val expanded = try {
-    expandPresets(args)
+    expandPresets(withoutStacktrace)
   } catch (e: IllegalArgumentException) {
     err.println("Error: ${e.message}")
+    if (stacktrace) printStackTrace(e, err)
     return 2
   }
   return cliCommandLine().apply {
@@ -100,6 +117,7 @@ fun runCli(
     setErr(err)
     setExecutionExceptionHandler { exception, command, _ ->
       command.err.println("Error: ${exception.message ?: exception.javaClass.simpleName}")
+      if (stacktrace) printStackTrace(exception, command.err)
       2
     }
   }.execute(*expanded)
@@ -116,7 +134,9 @@ internal fun cliCommandLine(): CommandLine = CommandLine(RootCommand()).apply {
   footer = ["Options may precede or follow INPUT. Use @args.txt to read arguments from a file.",
     "Use --preset NAME to expand <dir>/NAME.args from --preset-dir (highest priority, repeatable) or " +
       ".obfaryn/presets then ~/.obfaryn/presets; see 'list-presets'. --preset/--preset-dir are not " +
-      "ordinary options: they are consumed before parsing, the same way as @file."],
+      "ordinary options: they are consumed before parsing, the same way as @file.",
+    "Add --stacktrace to print the full cause chain and stack trace on failure, instead of just " +
+      "the one-line error; like --preset, it is consumed before parsing, not an ordinary option."],
   subcommands = [ObfuscateCommand::class, DeobfuscateCommand::class, ListExtensionsCommand::class, ListPresetsCommand::class, CompletionCommand::class],
 )
 internal class RootCommand : Callable<Int> {

@@ -94,6 +94,27 @@ class CliParsingTest {
     assertTrue(result.err.contains("Invalid preset name"), result.err)
   }
 
+  @Test fun stacktraceIsOmittedByDefaultAndPrintedWhenRequested() {
+    val missing = dir.resolve("missing.jar").toString()
+    val quiet = run(missing)
+    assertEquals(2, quiet.status)
+    assertTrue(quiet.err.contains("Error: Input JAR does not exist"), quiet.err)
+    assertFalse(quiet.err.contains("\tat "), quiet.err)
+
+    val verbose = run(missing, "--stacktrace")
+    assertEquals(2, verbose.status)
+    assertTrue(verbose.err.contains("Error: Input JAR does not exist"), verbose.err)
+    assertTrue(verbose.err.contains("IllegalArgumentException"), verbose.err)
+    assertTrue(verbose.err.contains("\tat "), verbose.err)
+  }
+
+  @Test fun stacktraceAlsoAppliesToPresetExpansionFailures() {
+    val result = run(input().toString(), "--preset", "missing-preset", "--stacktrace")
+    assertEquals(2, result.status)
+    assertTrue(result.err.contains("Error: Unknown preset: missing-preset"), result.err)
+    assertTrue(result.err.contains("\tat "), result.err)
+  }
+
   @Test fun listPresetsReportsPresetsVisibleInTheGivenDirectory() {
     val presets = preset("mypreset", "--no-rename")
     val result = run("list-presets", "--preset-dir", presets.toString())

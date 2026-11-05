@@ -193,6 +193,7 @@ Keep the generated file and source it from `.bashrc` / `.zshrc` for subsequent s
 | `--application-package package` | Add an application package root; repeat as needed. |
 | `--strip-generic-signatures`, `--keep-method-parameters` | Control signature and parameter metadata. |
 | `--no-string-encryption`, `--no-number-obfuscation`, `--no-rename` | Disable individual passes. |
+| `--stacktrace` | Print the full cause chain and stack trace on failure, instead of just the one-line error. Consumed before parsing, like `--preset`; not an ordinary option. |
 
 `--keep` accepts an exact class, `com.example.*` for one package, `com.example.api.**` recursively, `com.example.Class#method()V` for a method, and `com.example.Class#field` for a field. Method signatures use JVM descriptors. `@KeepName` preserves only a declaration's name.
 
@@ -561,6 +562,8 @@ The compiler translates supported bytecode into a typed, block-based IR; its ver
 The IR retains JVM local indexes; long and double advance the index by two. Float and double values use raw-bit storage so negative zero and NaN reach bridges intact. Decoded programs are cached lazily, and small execution frames are reused per thread. Layouts may reorder blocks, make fallthrough explicit, invert conditions, and fuse selected constant arithmetic operations. These fusions currently cover addition and multiplication with constants, rather than arbitrary generated handlers.
 
 `runtimeGroupSize` must be positive and defaults to 8. Groups stay within the original package to preserve access. A value of 1 creates a runtime per method but increases class count and memory use; 16–32 favors lower overhead. Seeded layouts produce reproducible output for the same input, settings, seed, and tool version. Runtime code and keys remain analyzable; virtualization does not guarantee cryptographic secrecy.
+
+A virtualized method runs through an interpreter instead of JIT-compiled bytecode, so calling it costs meaningfully more than the original; this is the expected trade-off, not a defect. A local, synthetic measurement (same JVM, 500,000 interleaved warmup calls then 500,000 interleaved measured calls to a virtualized vs. a plain method with identical logic — branches, a loop, array access, a nested call, a typed exception handler) found roughly a **60× median (p50) latency increase**, with the tail (p99) 60–100× and noisier across runs. Treat this as an order-of-magnitude expectation for a similarly-shaped method, not a guarantee for any specific one: actual overhead depends on the method's own shape (loop-heavy methods interpret more instructions per call) and the host JVM/JIT. This is exactly why `@Virtualize` is explicit and opt-in per method, and why `@HotPath` exists to exclude latency-sensitive methods — virtualize infrequently-called, sensitive logic, not hot paths.
 
 Each runtime group varies instruction IDs, word width, slot layout, header and mask positions, branch-table shape, and encoding keys. Unused words are randomized and contribute to subsequent decoding state. Bridges live as synthetic static methods in the original caller class, use ordinary JVM access instructions, and follow later renaming. The runtime is still specialized from a Java template; method-to-program correspondence remains recoverable by analysis.
 
