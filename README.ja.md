@@ -1,5 +1,83 @@
 # Obfaryn
 
+ASMベースのKotlin/JVM・Java JAR難読化ツールです: 文字列/数値リテラル暗号化、クラス・メソッド・フィールドのリネーム、任意の制御フロー・呼び出し間接化保護、VM風メソッド仮想化、オフライン整合性封印。リリースは`https://maven.peco2282.com/maven-releases/`で公開しています。
+
+## クイックスタート
+
+### パターン1 — Gradle plugin、デフォルトのみ
+
+`settings.gradle.kts`:
+```kotlin
+pluginManagement {
+  repositories {
+    maven { url = uri("https://maven.peco2282.com/maven-releases/") }
+    gradlePluginPortal()
+    mavenCentral()
+  }
+}
+```
+
+`build.gradle.kts`:
+```kotlin
+plugins {
+  java
+  id("com.peco2282.obfaryn") version "0.1.14" // 実際に公開されている最新バージョンに置き換えてください
+}
+```
+
+`obfaryn { ... }`ブロックは不要です——`protection = "standard"`、`platform = "auto"`、文字列/数値暗号化、デバッグ情報除去、リネームはいずれも既定で有効です。実行:
+```bash
+./gradlew obfuscateJar
+```
+出力は`build/libs/<名前>-obfuscated.jar`、同じ場所に`.mapping.txt`も出力されます。全オプションは[Gradle プラグイン](#gradle-プラグイン)を参照してください。
+
+### パターン2 — Gradle plugin、シード指定とstrong保護
+
+```kotlin
+obfaryn {
+  seed = 123L                              // 実行ごとに再現可能な出力
+  protection = "strong"                    // 制御フローと厳格な出力チェックを追加
+  applicationPackages = listOf("com.example.myapp") // strong保護に必須
+  keep = listOf("com.example.myapp.PublicApi")      // 公開エントリポイントの名前を保持
+}
+```
+
+### パターン3 — CLI、デフォルトのみ
+
+ビルド済みのCLI配布物はまだ公開していないため、一度チェックアウトしてビルドします:
+```bash
+git clone https://github.com/peco2282/Obfaryn.git && cd Obfaryn
+./gradlew :obfaryn-cli:installDist
+```
+以降はどこからでも:
+```bash
+./obfaryn-cli/build/install/obfaryn/bin/obfaryn input.jar
+```
+Gradle pluginと同じ`standard`デフォルトです。出力は入力と同じ場所の`input-obfuscated.jar`。全フラグは[CLI](#cli)を参照してください。
+
+### パターン4 — CLI、よく使う数個のフラグ
+
+```bash
+obfaryn input.jar -o output.jar --seed 123 --protection strong \
+  --application-package com.example.myapp --keep com.example.myapp.PublicApi
+```
+
+複数プロジェクトで使い回すフラグ組み合わせは名前付きプリセットとして保存できます——[名前付きプリセット](#名前付きプリセット)を参照。
+
+### パターン5 — platform指定(例: Paper)
+
+```kotlin
+dependencies {
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:0.1.14")
+}
+obfaryn {
+  platform = "paper"
+}
+```
+`obfarynPlatform`はplugin自身と同じリリースリポジトリから解決され、アプリケーション自身のクラスパスや出力JARには追加されません。CLIで同じことをするには、`obfaryn-platform-paper`のJARを自分でダウンロードし`--extension`で渡します: `obfaryn input.jar --extension obfaryn-platform-paper-0.1.14.jar --platform paper`。[拡張JARの読み込み](docs/assembly.ja.md#拡張jarとして配る)を参照してください。
+
+---
+
 APIだけに依存して独自パーツ・構成パッケージを定義できます。coreは標準Transformerへ依存しません。[組み立てと拡張契約](docs/assembly.ja.md)を参照してください。
 
 小さなKotlinラムダにも文字列暗号化を適用できるよう、増加率予算には既定64命令の累積増加許容量があります。Gradle の `performance { growthAllowanceInstructions = 64 }`、CLI の `--growth-allowance-instructions 64` で調整でき、`0` は厳密な比率制限です。追加命令数と出力コード長の上限は引き続き適用します。計算式と優先順位は[保護設定の詳細](docs/protection.ja.md#構造的な変換予算)を参照してください。
@@ -226,30 +304,42 @@ enum クラス名は通常の keep ルールに従いますが、列挙定数名
 
 ## Gradle プラグイン
 
-プラグイン ID は `com.peco2282.obfaryn` です。ローカルチェックアウトを利用する場合は、利用側プロジェクトの `settings.gradle.kts` に追加してください:
+プラグイン ID は `com.peco2282.obfaryn` で、`https://maven.peco2282.com/maven-releases/` に公開しています。利用側プロジェクトの `settings.gradle.kts`の`pluginManagement.repositories`に、このリポジトリと`gradlePluginPortal()`・`mavenCentral()`を追加してください:
+
+```kotlin
+pluginManagement {
+  repositories {
+    maven { url = uri("https://maven.peco2282.com/maven-releases/") }
+    gradlePluginPortal()
+    mavenCentral()
+  }
+}
+```
+
+Obfaryn自身の未リリースのローカルチェックアウトを対象にする場合は、上記の代わりにコンポジットビルドを使います:
 
 ```kotlin
 pluginManagement { includeBuild("../Obfaryn") }
 ```
 
-利用側プロジェクトの `build.gradle.kts` で設定します:
+利用側プロジェクトの `build.gradle.kts` で設定します(デフォルトのみ・`obfaryn{}`ブロック不要なケースは[クイックスタート](#クイックスタート)参照):
 
-プロバイダーと推移的な実行時依存は `obfarynPlatform` から難読化時に読み込まれ、アプリケーションのクラスパスや出力 JAR には追加されません。Obfaryn プラグインとバージョンを揃え、公開先リポジトリを指定してください（例は SNAPSHOT 用）。Groovy DSL: `obfarynPlatform "com.peco2282.obfaryn:obfaryn-platform-paper:VERSION"`。
+プロバイダーと推移的な実行時依存は `obfarynPlatform` から難読化時に読み込まれ、アプリケーションのクラスパスや出力 JAR には追加されません。Obfaryn プラグインとバージョンを揃えてください。Groovy DSL: `obfarynPlatform "com.peco2282.obfaryn:obfaryn-platform-paper:VERSION"`。
 
 ```kotlin
 plugins {
   java
-  id("com.peco2282.obfaryn")
+  id("com.peco2282.obfaryn") version "0.1.14" // 実際に公開されている最新バージョンに置き換えてください
 }
 
 repositories {
-  maven { url = uri("https://maven.peco2282.com/maven-snapshots/") }
+  maven { url = uri("https://maven.peco2282.com/maven-releases/") }
   mavenCentral()
 }
 
 dependencies {
-  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0-SNAPSHOT")
-  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:1.0-SNAPSHOT")
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:0.1.14")
+  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:0.1.14")
 }
 
 obfaryn {

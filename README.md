@@ -1,5 +1,83 @@
 # Obfaryn
 
+An ASM-based obfuscator for Kotlin/JVM and Java JARs: string/number literal encryption, class/method/field renaming, optional control-flow and call-indirection protection, VM-style method virtualization, and offline integrity sealing. Releases are published to `https://maven.peco2282.com/maven-releases/`.
+
+## Quickstart
+
+### Pattern 1 — Gradle plugin, defaults only
+
+`settings.gradle.kts`:
+```kotlin
+pluginManagement {
+  repositories {
+    maven { url = uri("https://maven.peco2282.com/maven-releases/") }
+    gradlePluginPortal()
+    mavenCentral()
+  }
+}
+```
+
+`build.gradle.kts`:
+```kotlin
+plugins {
+  java
+  id("com.peco2282.obfaryn") version "0.1.14" // replace with the latest published version
+}
+```
+
+No `obfaryn { ... }` block is needed — `protection = "standard"`, `platform = "auto"`, string/number encryption, debug-info stripping and renaming are all on by default. Run:
+```bash
+./gradlew obfuscateJar
+```
+Output: `build/libs/<name>-obfuscated.jar`, with a `.mapping.txt` beside it. See [Gradle plugin](#gradle-plugin) for every option.
+
+### Pattern 2 — Gradle plugin, a seed and strong protection
+
+```kotlin
+obfaryn {
+  seed = 123L                              // reproducible output across runs
+  protection = "strong"                    // adds control flow + stricter output checks
+  applicationPackages = listOf("com.example.myapp") // required by strong protection
+  keep = listOf("com.example.myapp.PublicApi")      // keep a public entry point's name
+}
+```
+
+### Pattern 3 — CLI, defaults only
+
+No pre-built CLI distribution is published yet; build it from a checkout once:
+```bash
+git clone https://github.com/peco2282/Obfaryn.git && cd Obfaryn
+./gradlew :obfaryn-cli:installDist
+```
+Then, from anywhere:
+```bash
+./obfaryn-cli/build/install/obfaryn/bin/obfaryn input.jar
+```
+Same `standard` defaults as the Gradle plugin. Output: `input-obfuscated.jar` beside the input. See [CLI](#cli) for every flag.
+
+### Pattern 4 — CLI with a few common flags
+
+```bash
+obfaryn input.jar -o output.jar --seed 123 --protection strong \
+  --application-package com.example.myapp --keep com.example.myapp.PublicApi
+```
+
+Save a flag combination you reuse across projects as a named preset — see [Named presets](#named-presets).
+
+### Pattern 5 — targeting a platform (e.g. Paper)
+
+```kotlin
+dependencies {
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:0.1.14")
+}
+obfaryn {
+  platform = "paper"
+}
+```
+`obfarynPlatform` resolves from the same release repository as the plugin itself; it is not added to the application's own classpath or the output JAR. CLI equivalent: download `obfaryn-platform-paper`'s JAR yourself and pass it with `--extension`, e.g. `obfaryn input.jar --extension obfaryn-platform-paper-0.1.14.jar --platform paper`. See [Discover an extension JAR](docs/assembly.md#discover-an-extension-jar).
+
+---
+
 Build your own parts and recipes with API-only dependencies; core has no standard transformation dependency. See [assembly and extension contracts](docs/assembly.md).
 
 Percentage growth budgets include a default cumulative allowance of 64 added instructions so small Kotlin lambdas can still receive string encryption. Configure it with Gradle `performance { growthAllowanceInstructions = 64 }` or CLI `--growth-allowance-instructions 64`; use `0` for a strict ratio. Added-instruction and output-code limits still apply. See [structural budgets](docs/protection.md#structural-budgets) for the formula and precedence.
@@ -230,30 +308,42 @@ Eligible `static final` and Kotlin `const val` string and numeric fields inside 
 
 ## Gradle plugin
 
-The plugin ID is `com.peco2282.obfaryn`. To use a local checkout, add it to the consuming project's `settings.gradle.kts`:
+The plugin ID is `com.peco2282.obfaryn`, published to `https://maven.peco2282.com/maven-releases/`. Add that repository, plus `gradlePluginPortal()` and `mavenCentral()`, to `pluginManagement.repositories` in the consuming project's `settings.gradle.kts`:
+
+```kotlin
+pluginManagement {
+  repositories {
+    maven { url = uri("https://maven.peco2282.com/maven-releases/") }
+    gradlePluginPortal()
+    mavenCentral()
+  }
+}
+```
+
+To work against an unreleased local checkout of Obfaryn itself instead, use a composite build in place of the repository above:
 
 ```kotlin
 pluginManagement { includeBuild("../Obfaryn") }
 ```
 
-Configure the consuming project's `build.gradle.kts`:
+Configure the consuming project's `build.gradle.kts` (see [Quickstart](#quickstart) for the minimal, no-`obfaryn{}`-block case):
 
-Platform providers and their runtime dependencies are loaded from `obfarynPlatform` during obfuscation. They are not added to application classpaths or the output JAR. Match the Obfaryn plugin version and configure its publication repository (the example uses snapshots). Groovy DSL: `obfarynPlatform "com.peco2282.obfaryn:obfaryn-platform-paper:VERSION"`.
+Platform providers and their runtime dependencies are loaded from `obfarynPlatform` during obfuscation. They are not added to application classpaths or the output JAR. Match the Obfaryn plugin version. Groovy DSL: `obfarynPlatform "com.peco2282.obfaryn:obfaryn-platform-paper:VERSION"`.
 
 ```kotlin
 plugins {
   java
-  id("com.peco2282.obfaryn")
+  id("com.peco2282.obfaryn") version "0.1.14" // replace with the latest published version
 }
 
 repositories {
-  maven { url = uri("https://maven.peco2282.com/maven-snapshots/") }
+  maven { url = uri("https://maven.peco2282.com/maven-releases/") }
   mavenCentral()
 }
 
 dependencies {
-  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0-SNAPSHOT")
-  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:1.0-SNAPSHOT")
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:0.1.14")
+  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:0.1.14")
 }
 
 obfaryn {
