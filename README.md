@@ -155,6 +155,23 @@ input.jar
 
 Quote values containing spaces or `#`. `--keep-debug-info` preserves source/debug data. `--no-string-constant-fields` and `--no-number-constant-fields` disable field extraction independently without disabling method literal transformations.
 
+### Named presets
+
+An `obfaryn.args` file works, but needs its full path on every invocation and has no name to discover or share. `--preset NAME` is the named counterpart: it expands to `@<dir>/NAME.args`, resolved against (highest priority first) `--preset-dir DIR` (repeatable), then the project-local `.obfaryn/presets/`, then the user-global `~/.obfaryn/presets/`. The user-global directory covers the case of an individual's own reusable recipe library: save a recipe there once and reuse it with `--preset NAME` from any project, no path typing. `--preset`/`--preset-dir` are not ordinary options — they are substituted into `@file` syntax before Picocli parses anything, so a preset file uses exactly the `obfaryn.args` format above, and may itself contain further `@file`/`--preset` entries.
+
+```shell
+mkdir -p ~/.obfaryn/presets
+cat > ~/.obfaryn/presets/strong-paper.args <<'EOF'
+--platform paper
+--protection strong
+--control-flow-mode light
+EOF
+obfaryn input.jar --preset strong-paper -o output.jar
+obfaryn list-presets   # Discover what's available, without applying anything
+```
+
+A preset name may contain letters, digits, `-`, `_` and `.`, not path separators; an unresolved name fails before any other argument is parsed. `list-presets` accepts the same `--preset-dir`, but — unlike `--preset` on every other command — parses it as an ordinary option to control what it scans, rather than consuming it to resolve a preset.
+
 ### Shell completion
 
 Generate and source the completion script in your shell to complete commands, options, choices, and file paths:

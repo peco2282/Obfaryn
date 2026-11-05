@@ -22,6 +22,7 @@ import picocli.CommandLine.Model.CommandSpec
 import java.io.PrintWriter
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.Locale
 import java.util.concurrent.Callable
 import kotlin.io.path.readText
@@ -33,18 +34,76 @@ fun main(args: Array<String>) {
   if (status != 0) exitProcess(status)
 }
 
+/** Project-local, then user-global, preset directories searched when no `--preset-dir` is given. */
+internal fun defaultPresetDirs(): List<Path> =
+  listOf(Paths.get(".obfaryn", "presets"), Paths.get(System.getProperty("user.home"), ".obfaryn", "presets"))
+
+private val presetNamePattern = Regex("[A-Za-z0-9][A-Za-z0-9_.-]*")
+
+/** Resolves [name] to `<dir>/<name>.args` in the first of [dirs] that contains it, or null. */
+internal fun resolvePreset(name: String, dirs: List<Path>): Path? {
+  require(presetNamePattern.matches(name)) { "Invalid preset name: $name (use letters, digits, '-', '_' or '.', no path separators)" }
+  return dirs.map { it.resolve("$name.args") }.firstOrNull(Files::isRegularFile)
+}
+
+/**
+ * Expands every `--preset NAME` into Picocli's own `@<file>` argument-file syntax, resolving `NAME`
+ * against `--preset-dir` directories (collected first, highest priority, in the order given) and then
+ * [defaultPresetDirs]. Both `--preset` and `--preset-dir` are consumed here and never reach Picocli;
+ * this is a textual preprocessing step, the same as `@file` itself, not a parsed CLI option. A no-op
+ * when `list-presets` is one of [args]: that subcommand parses its own `--preset-dir` normally,
+ * to scan rather than apply presets.
+ *
+ * @throws IllegalArgumentException If a name is unsafe or no directory contains `<name>.args`.
+ */
+internal fun expandPresets(args: Array<String>): Array<String> {
+  if ("list-presets" in args) return args
+  val presetDirs = mutableListOf<Path>()
+  var i = 0
+  while (i < args.size) {
+    if (args[i] == "--preset-dir" && i + 1 < args.size) presetDirs.add(Paths.get(args[i + 1]))
+    i++
+  }
+  val searchDirs = presetDirs + defaultPresetDirs()
+  val expanded = mutableListOf<String>()
+  i = 0
+  while (i < args.size) {
+    when {
+      args[i] == "--preset-dir" && i + 1 < args.size -> i += 2
+      args[i] == "--preset" && i + 1 < args.size -> {
+        val name = args[i + 1]
+        val file = resolvePreset(name, searchDirs)
+          ?: throw IllegalArgumentException(
+            "Unknown preset: $name (searched ${searchDirs.joinToString(", ")}; create <dir>/$name.args)")
+        expanded += "@$file"
+        i += 2
+      }
+      else -> { expanded += args[i]; i++ }
+    }
+  }
+  return expanded.toTypedArray()
+}
+
 fun runCli(
   args: Array<String>,
   out: PrintWriter = PrintWriter(System.out, true),
   err: PrintWriter = PrintWriter(System.err, true),
-): Int = cliCommandLine().apply {
-  setOut(out)
-  setErr(err)
-  setExecutionExceptionHandler { exception, command, _ ->
-    command.err.println("Error: ${exception.message ?: exception.javaClass.simpleName}")
-    2
+): Int {
+  val expanded = try {
+    expandPresets(args)
+  } catch (e: IllegalArgumentException) {
+    err.println("Error: ${e.message}")
+    return 2
   }
-}.execute(*args)
+  return cliCommandLine().apply {
+    setOut(out)
+    setErr(err)
+    setExecutionExceptionHandler { exception, command, _ ->
+      command.err.println("Error: ${exception.message ?: exception.javaClass.simpleName}")
+      2
+    }
+  }.execute(*expanded)
+}
 
 internal fun cliCommandLine(): CommandLine = CommandLine(RootCommand()).apply {
   isCaseInsensitiveEnumValuesAllowed = true
@@ -54,8 +113,11 @@ internal fun cliCommandLine(): CommandLine = CommandLine(RootCommand()).apply {
 @Command(
   name = "obfaryn", mixinStandardHelpOptions = true,
   description = ["Obfuscate a JAR. The default output is INPUT-obfuscated.jar beside the input."],
-  footer = ["Options may precede or follow INPUT. Use @args.txt to read arguments from a file."],
-  subcommands = [ObfuscateCommand::class, DeobfuscateCommand::class, ListExtensionsCommand::class, CompletionCommand::class],
+  footer = ["Options may precede or follow INPUT. Use @args.txt to read arguments from a file.",
+    "Use --preset NAME to expand <dir>/NAME.args from --preset-dir (highest priority, repeatable) or " +
+      ".obfaryn/presets then ~/.obfaryn/presets; see 'list-presets'. --preset/--preset-dir are not " +
+      "ordinary options: they are consumed before parsing, the same way as @file."],
+  subcommands = [ObfuscateCommand::class, DeobfuscateCommand::class, ListExtensionsCommand::class, ListPresetsCommand::class, CompletionCommand::class],
 )
 internal class RootCommand : Callable<Int> {
   @Mixin var obfuscation = ObfuscateCommand()
@@ -368,6 +430,36 @@ internal class ListExtensionsCommand : Callable<Int> {
       extensionJars.map { it.toUri().toURL() }, Thread.currentThread().contextClassLoader) {
       com.peco2282.obfaryn.core.ExtensionListing.lines().forEach(writer::println)
     }
+    writer.flush()
+    return 0
+  }
+}
+
+@Command(
+  name = "list-presets", mixinStandardHelpOptions = true,
+  description = ["List named presets (<dir>/NAME.args files) visible in the preset directories, without applying one."],
+)
+internal class ListPresetsCommand : Callable<Int> {
+  @Spec lateinit var spec: CommandSpec
+  @Option(names = ["--preset-dir"], paramLabel = "DIR", description = ["Additional preset directory to scan, highest priority first; repeatable."])
+  var presetDirs = mutableListOf<Path>()
+
+  override fun call(): Int {
+    val writer = spec.commandLine().out
+    val dirs = presetDirs + defaultPresetDirs()
+    writer.println("Presets (--preset NAME):")
+    val seen = linkedSetOf<String>()
+    for (dir in dirs) {
+      if (!Files.isDirectory(dir)) continue
+      Files.list(dir).use { entries ->
+        entries.filter { Files.isRegularFile(it) && it.fileName.toString().endsWith(".args") }
+          .sorted().forEach { file ->
+            val name = file.fileName.toString().removeSuffix(".args")
+            if (seen.add(name)) writer.println("  $name  ($file)")
+          }
+      }
+    }
+    if (seen.isEmpty()) writer.println("  (none found; create <dir>/NAME.args under ${dirs.joinToString(" or ")})")
     writer.flush()
     return 0
   }

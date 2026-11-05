@@ -54,6 +54,61 @@ class CliParsingTest {
     assertTrue(result.err.contains("Extension JAR does not exist"), result.err)
   }
 
+  private fun preset(name: String, vararg lines: String): Path {
+    val presets = dir.resolve("presets")
+    Files.createDirectories(presets)
+    val file = presets.resolve("$name.args")
+    file.writeText(lines.joinToString("\n"))
+    return presets
+  }
+
+  @Test fun presetExpandsIntoTheSameArgumentsAsAnArgsFile() {
+    val presets = preset("dry", "--dry-run")
+    val input = input()
+    val output = dir.resolve("out.jar")
+    val report = dir.resolve("report.json")
+    val result = run(input.toString(), "--preset-dir", presets.toString(), "--preset", "dry",
+      "-o", output.toString(), "--report", report.toString())
+    assertEquals(0, result.status, result.err)
+    assertFalse(Files.exists(output))
+    assertTrue(report.readText().contains("\"dryRun\": true"), report.readText())
+  }
+
+  @Test fun presetComposesWithOrdinaryFlagsAndSubcommand() {
+    val presets = preset("no-rename", "--no-rename")
+    val input = input()
+    val output = dir.resolve("out.jar")
+    val result = run("obfuscate", input.toString(), "--preset-dir", presets.toString(),
+      "--preset", "no-rename", "--seed=7", "-o", output.toString())
+    assertEquals(0, result.status, result.err)
+    assertTrue(Files.exists(output))
+  }
+
+  @Test fun presetRejectsAnUnknownName() {
+    val result = run(input().toString(), "--preset-dir", dir.toString(), "--preset", "missing-preset")
+    assertEquals(2, result.status)
+    assertTrue(result.err.contains("Unknown preset: missing-preset"), result.err)
+  }
+
+  @Test fun presetRejectsAnUnsafeName() {
+    val result = run(input().toString(), "--preset", "../escape")
+    assertEquals(2, result.status)
+    assertTrue(result.err.contains("Invalid preset name"), result.err)
+  }
+
+  @Test fun listPresetsReportsPresetsVisibleInTheGivenDirectory() {
+    val presets = preset("mypreset", "--no-rename")
+    val result = run("list-presets", "--preset-dir", presets.toString())
+    assertEquals(0, result.status, result.err)
+    assertTrue(result.out.contains("mypreset"), result.out)
+  }
+
+  @Test fun listPresetsReportsNoneFoundWhenEmpty() {
+    val result = run("list-presets", "--preset-dir", dir.resolve("empty").toString())
+    assertEquals(0, result.status, result.err)
+    assertTrue(result.out.contains("none found"), result.out)
+  }
+
   @Test fun helpSucceedsWithoutRequiredInputs() {
     for (args in listOf(arrayOf("--help"), arrayOf("-h"), arrayOf("obfuscate", "--help"),
       arrayOf("deobfuscate-stacktrace", "--help"), arrayOf("completion", "--help"))) {

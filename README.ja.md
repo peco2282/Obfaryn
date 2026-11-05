@@ -151,6 +151,23 @@ input.jar
 
 空白や `#` を含む値はクォートで囲んでください。`--keep-debug-info` はソース/デバッグ情報を保持します。`--no-string-constant-fields` および `--no-number-constant-fields` はメソッド内のリテラル変換を無効化することなく、定数フィールドの展開処理のみを個別に無効化します。
 
+### 名前付きプリセット
+
+`obfaryn.args`は便利ですが、毎回フルパスを書く必要があり、名前で発見・共有する手段がありません。`--preset NAME`はその名前付き版です — `@<dir>/NAME.args`に展開され、優先度順に`--preset-dir DIR`(繰り返し指定可、最優先)、プロジェクトローカルの`.obfaryn/presets/`、ユーザー全体の`~/.obfaryn/presets/`から解決されます。ユーザー全体用ディレクトリは、個人が自分用のレシピを一度保存してどのプロジェクトからでも`--preset NAME`で再利用できる、パス入力不要のケースに対応します。`--preset`/`--preset-dir`は通常のオプションではありません——Picocliが解析する前に`@file`構文へ置き換えられるので、プリセットファイルは上記の`obfaryn.args`と全く同じ形式で、さらに`@file`/`--preset`を含めることもできます。
+
+```shell
+mkdir -p ~/.obfaryn/presets
+cat > ~/.obfaryn/presets/strong-paper.args <<'EOF'
+--platform paper
+--protection strong
+--control-flow-mode light
+EOF
+obfaryn input.jar --preset strong-paper -o output.jar
+obfaryn list-presets   # 何も適用せずに利用可能なプリセットを確認
+```
+
+プリセット名に使えるのは英数字・`-`・`_`・`.`のみで、パス区切り文字は使えません。解決できない名前は他の引数解析より前にエラーになります。`list-presets`も同じ`--preset-dir`を受け付けますが——他のすべてのコマンドにおける`--preset`とは異なり——プリセットを解決するために消費するのではなく、スキャン対象を指定する通常のオプションとして解析します。
+
 ### シェルの補完
 
 シェルで補完スクリプトを生成して読み込むことで、コマンド、オプション、選択肢、ファイルパスの補完が可能になります:
