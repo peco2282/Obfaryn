@@ -10,7 +10,7 @@ import java.util.ServiceLoader
 object PipelineConfigurers {
   fun providers(): List<PipelineConfigurerProvider> =
     ServiceLoader.load(PipelineConfigurerProvider::class.java).toList().also { providers ->
-      require(providers.all { it.id.isNotBlank() }) { "Invalid pipeline configurer provider ID" }
+      require(providers.all { it.id.isNotBlank() && it.id != "none" }) { "Invalid pipeline configurer provider ID" }
       require(providers.map { it.id }.distinct().size == providers.size) { "Duplicate pipeline configurer provider IDs" }
     }
 

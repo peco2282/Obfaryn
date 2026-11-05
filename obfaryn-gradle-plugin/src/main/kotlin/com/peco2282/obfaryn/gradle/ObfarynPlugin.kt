@@ -19,7 +19,6 @@ import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import javax.inject.Inject
-import java.net.URLClassLoader
 import java.util.Random
 
 
@@ -270,29 +269,9 @@ class ObfarynPlugin : Plugin<Project> {
       task.description = "Lists platform, transformation-package and pipeline-configurer providers visible on obfarynPlatform, without obfuscating."
       task.inputs.files(platformClasspath).withPropertyName("obfarynPlatform").withNormalizer(org.gradle.api.tasks.ClasspathNormalizer::class.java)
       task.doLast {
-        java.net.URLClassLoader(
-          platformClasspath.files.map { it.toURI().toURL() }.toTypedArray(),
-          ObfarynPlugin::class.java.classLoader,
-        ).use { loader ->
-          val thread = Thread.currentThread()
-          val previousLoader = thread.contextClassLoader
-          try {
-            thread.contextClassLoader = loader
-            project.logger.lifecycle("Platforms (platform / additionalPlatforms):")
-            for (platform in com.peco2282.obfaryn.core.platform.Platforms.all().sortedBy { it.id }) {
-              project.logger.lifecycle("  ${platform.id} - ${platform.metadata.displayName} (API ${platform.metadata.apiVersion}, impl ${platform.metadata.implementationVersion})")
-            }
-            project.logger.lifecycle("Transformation packages (packageIds):")
-            val packages = com.peco2282.obfaryn.core.TransformationPackages.providers().sortedBy { it.id }
-            if (packages.isEmpty()) project.logger.lifecycle("  (none found; add a provider JAR to obfarynPlatform)")
-            packages.forEach { project.logger.lifecycle("  ${it.id}") }
-            project.logger.lifecycle("Pipeline configurers (configurerIds):")
-            val configurers = com.peco2282.obfaryn.core.PipelineConfigurers.providers().sortedBy { it.id }
-            if (configurers.isEmpty()) project.logger.lifecycle("  (none found; add a provider JAR to obfarynPlatform)")
-            configurers.forEach { project.logger.lifecycle("  ${it.id}") }
-          } finally {
-            thread.contextClassLoader = previousLoader
-          }
+        com.peco2282.obfaryn.core.withExtensionClassLoader(
+          platformClasspath.files.map { it.toURI().toURL() }, ObfarynPlugin::class.java.classLoader) {
+          com.peco2282.obfaryn.core.ExtensionListing.lines().forEach { project.logger.lifecycle(it) }
         }
       }
     }
@@ -396,25 +375,16 @@ class ObfarynPlugin : Plugin<Project> {
               integrityPrivateKey = extension.integrityPrivateKey?.let { project.file(it).toPath() },
               integrityPublicKey = extension.integrityPublicKey?.let { project.file(it).toPath() },
             )
-            val result = URLClassLoader(
-              platformClasspath.files.map { it.toURI().toURL() }.toTypedArray(),
-              ObfarynPlugin::class.java.classLoader,
-            ).use { loader ->
-              val thread = Thread.currentThread()
-              val previousLoader = thread.contextClassLoader
-              try {
-                thread.contextClassLoader = loader
-                val packages = (if (extension.useDefaultPackage) listOf(com.peco2282.obfaryn.standard.StandardPackage(config)) else emptyList()) +
-                  com.peco2282.obfaryn.core.TransformationPackages.select(extension.packageIds,
-                    com.peco2282.obfaryn.api.MapPlatformOptions(extension.platformOptions)) + extension.customPackages
-                val discoveredConfigurers = com.peco2282.obfaryn.core.PipelineConfigurers.select(extension.configurerIds,
-                  com.peco2282.obfaryn.api.MapPlatformOptions(extension.platformOptions))
-                Obfuscator(config, pipelineConfigurers = extension.pipelineConfigurers.toList() + discoveredConfigurers,
-                  packages = packages, protectedInputs = platformClasspath.files.map { it.toPath() })
-                  .obfuscate(input, output, mapping)
-              } finally {
-                thread.contextClassLoader = previousLoader
-              }
+            val result = com.peco2282.obfaryn.core.withExtensionClassLoader(
+              platformClasspath.files.map { it.toURI().toURL() }, ObfarynPlugin::class.java.classLoader) {
+              val packages = (if (extension.useDefaultPackage) listOf(com.peco2282.obfaryn.standard.StandardPackage(config)) else emptyList()) +
+                com.peco2282.obfaryn.core.TransformationPackages.select(extension.packageIds,
+                  com.peco2282.obfaryn.api.MapPlatformOptions(extension.platformOptions)) + extension.customPackages
+              val discoveredConfigurers = com.peco2282.obfaryn.core.PipelineConfigurers.select(extension.configurerIds,
+                com.peco2282.obfaryn.api.MapPlatformOptions(extension.platformOptions))
+              Obfuscator(config, pipelineConfigurers = extension.pipelineConfigurers.toList() + discoveredConfigurers,
+                packages = packages, protectedInputs = platformClasspath.files.map { it.toPath() })
+                .obfuscate(input, output, mapping)
             }
             project.logger.lifecycle("Obfaryn: ${result.classesLoaded} classes, ${result.stringsEncrypted} strings, ${result.constantsObfuscated} constants; output: $output")
             project.logger.lifecycle("Obfaryn: ${result.branchesObfuscated} branches, ${result.methodsVirtualized} virtualized methods")

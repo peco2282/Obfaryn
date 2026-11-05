@@ -68,7 +68,7 @@ A module that only needs to add, replace, or disable passes through `Transformer
 META-INF/services/com.peco2282.obfaryn.api.transformer.PipelineConfigurerProvider
 ```
 
-`create(options)` returns a fresh `PipelineConfigurer` per run; construct stateful transformers inside it, the same as a programmatic `PipelineConfigurer`. Installing the provider never applies it: hosts select IDs explicitly, with `PipelineConfigurers.select(...)` in core, `--configurer ID` on the CLI, or `configurerIds` in Gradle — the same explicit-selection contract as `TransformationPackageProvider`/`--package`/`packageIds`. Both provider kinds share one `TransformerRegistry` and the same pipeline; pick `TransformationPackageProvider` when the recipe also needs assembly-level context (e.g. `excludeClass`, `protectInput`, `outputProcessor`).
+`create(options)` returns a fresh `PipelineConfigurer` per run; construct stateful transformers inside it, the same as a programmatic `PipelineConfigurer`. Installing the provider never applies it: hosts select IDs explicitly, with `PipelineConfigurers.select(...)` in core, `--configurer ID` on the CLI, or `configurerIds` in Gradle — the same explicit-selection contract as `TransformationPackageProvider`/`--package`/`packageIds`, including the reserved `none` ID. Both provider kinds share one `TransformerRegistry` and the same pipeline; pick `TransformationPackageProvider` when the recipe also needs assembly-level context (e.g. `excludeClass`, `protectInput`, `outputProcessor`).
 
 ## CLI
 

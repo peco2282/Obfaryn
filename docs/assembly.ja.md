@@ -70,7 +70,7 @@ JARを導入しただけではパッケージは実行されません。ホス�
 META-INF/services/com.peco2282.obfaryn.api.transformer.PipelineConfigurerProvider
 ```
 
-`create(options)`は実行ごとに新しい`PipelineConfigurer`を返します。状態を持つパスはプログラム的な`PipelineConfigurer`と同様、その内部で生成してください。providerを導入しただけでは適用されず、ホストが明示的にIDを選択します——coreの`PipelineConfigurers.select(...)`、CLIの`--configurer ID`、Gradleの`configurerIds`で、`TransformationPackageProvider`/`--package`/`packageIds`と同じ明示選択の契約です。両方のproviderは同じ`TransformerRegistry`とパイプラインを共有します。recipeがassembly側のコンテキスト(`excludeClass`、`protectInput`、`outputProcessor`など)も必要とするなら`TransformationPackageProvider`を選んでください。
+`create(options)`は実行ごとに新しい`PipelineConfigurer`を返します。状態を持つパスはプログラム的な`PipelineConfigurer`と同様、その内部で生成してください。providerを導入しただけでは適用されず、ホストが明示的にIDを選択します——coreの`PipelineConfigurers.select(...)`、CLIの`--configurer ID`、Gradleの`configurerIds`で、`TransformationPackageProvider`/`--package`/`packageIds`と同じ明示選択の契約です(予約語`none`も同様)。両方のproviderは同じ`TransformerRegistry`とパイプラインを共有します。recipeがassembly側のコンテキスト(`excludeClass`、`protectInput`、`outputProcessor`など)も必要とするなら`TransformationPackageProvider`を選んでください。
 
 ## CLI
 

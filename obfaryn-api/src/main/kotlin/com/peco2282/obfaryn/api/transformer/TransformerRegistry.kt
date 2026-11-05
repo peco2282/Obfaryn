@@ -89,7 +89,12 @@ interface PipelineConfigurer {
  * and execute in the same pipeline.
  */
 interface PipelineConfigurerProvider {
-  /** Unique, non-blank ID selected by the host, e.g. a CLI `--configurer` or Gradle `configurerIds` entry. */
+  /**
+   * Unique, non-blank ID selected by the host, e.g. a CLI `--configurer` or Gradle `configurerIds`
+   * entry. `none` is reserved, the same as [TransformationPackageProvider][
+   * com.peco2282.obfaryn.api.assembly.TransformationPackageProvider].[id][
+   * com.peco2282.obfaryn.api.assembly.TransformationPackageProvider.id].
+   */
   val id: String
 
   /** Creates a fresh [PipelineConfigurer] for one run; construct stateful transformers inside it. */

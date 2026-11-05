@@ -243,22 +243,15 @@ internal open class ObfuscateCommand : Callable<Int> {
       }
     }
     extensionJars.forEach { require(Files.isRegularFile(it)) { "Extension JAR does not exist: $it" } }
-    val result = java.net.URLClassLoader(extensionJars.map { it.toUri().toURL() }.toTypedArray(),
-      Thread.currentThread().contextClassLoader).use { loader ->
-      val thread = Thread.currentThread()
-      val previous = thread.contextClassLoader
-      try {
-        thread.contextClassLoader = loader
-        val packages = (if (noDefaultPackage) emptyList() else listOf(com.peco2282.obfaryn.standard.StandardPackage(config))) +
-          com.peco2282.obfaryn.core.TransformationPackages.select(packageIds,
-            com.peco2282.obfaryn.api.MapPlatformOptions(config.platformOptions))
-        val configurers = com.peco2282.obfaryn.core.PipelineConfigurers.select(configurerIds,
+    val result = com.peco2282.obfaryn.core.withExtensionClassLoader(
+      extensionJars.map { it.toUri().toURL() }, Thread.currentThread().contextClassLoader) {
+      val packages = (if (noDefaultPackage) emptyList() else listOf(com.peco2282.obfaryn.standard.StandardPackage(config))) +
+        com.peco2282.obfaryn.core.TransformationPackages.select(packageIds,
           com.peco2282.obfaryn.api.MapPlatformOptions(config.platformOptions))
-        Obfuscator(config, packages = packages, pipelineConfigurers = configurers,
-          protectedInputs = extensionJars).obfuscate(input, out, mapping)
-      } finally {
-        thread.contextClassLoader = previous
-      }
+      val configurers = com.peco2282.obfaryn.core.PipelineConfigurers.select(configurerIds,
+        com.peco2282.obfaryn.api.MapPlatformOptions(config.platformOptions))
+      Obfuscator(config, packages = packages, pipelineConfigurers = configurers,
+        protectedInputs = extensionJars).obfuscate(input, out, mapping)
     }
     val writer = spec.commandLine().out
     writer.println("Loaded ${result.classesLoaded} classes, ${result.resourcesLoaded} resources")
@@ -371,27 +364,9 @@ internal class ListExtensionsCommand : Callable<Int> {
   override fun call(): Int {
     extensionJars.forEach { require(Files.isRegularFile(it)) { "Extension JAR does not exist: $it" } }
     val writer = spec.commandLine().out
-    java.net.URLClassLoader(extensionJars.map { it.toUri().toURL() }.toTypedArray(),
-      Thread.currentThread().contextClassLoader).use { loader ->
-      val thread = Thread.currentThread()
-      val previous = thread.contextClassLoader
-      try {
-        thread.contextClassLoader = loader
-        writer.println("Platforms (--platform / --also-platform):")
-        for (platform in Platforms.all().sortedBy { it.id }) {
-          writer.println("  ${platform.id} - ${platform.metadata.displayName} (API ${platform.metadata.apiVersion}, impl ${platform.metadata.implementationVersion})")
-        }
-        writer.println("Transformation packages (--package):")
-        val packages = com.peco2282.obfaryn.core.TransformationPackages.providers().sortedBy { it.id }
-        if (packages.isEmpty()) writer.println("  (none found; pass --extension JAR to scan a provider JAR)")
-        packages.forEach { writer.println("  ${it.id}") }
-        writer.println("Pipeline configurers (--configurer):")
-        val configurers = com.peco2282.obfaryn.core.PipelineConfigurers.providers().sortedBy { it.id }
-        if (configurers.isEmpty()) writer.println("  (none found; pass --extension JAR to scan a provider JAR)")
-        configurers.forEach { writer.println("  ${it.id}") }
-      } finally {
-        thread.contextClassLoader = previous
-      }
+    com.peco2282.obfaryn.core.withExtensionClassLoader(
+      extensionJars.map { it.toUri().toURL() }, Thread.currentThread().contextClassLoader) {
+      com.peco2282.obfaryn.core.ExtensionListing.lines().forEach(writer::println)
     }
     writer.flush()
     return 0
