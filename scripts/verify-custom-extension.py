@@ -43,7 +43,6 @@ public class Main {
                 ('package', ['--package', 'example-padding']),
                 ('platform', ['--also-platform', 'example']),
                 ('disabled', ['--package', 'example-padding', '--disable-feature', 'example:padding=example/.*']),
-                ('configurer', ['--configurer', 'example-configurer']),
             ):
                 output = work / f'output-{len(prefix)}-{mode}.jar'
                 report = output.with_suffix('.json')
@@ -53,11 +52,6 @@ public class Main {
                 passes = data['transformerReports']
                 if mode == 'empty':
                     assert passes == [], passes
-                elif mode == 'configurer':
-                    # PipelineConfigurerProvider: ServiceLoader-discovered and explicitly selected by
-                    # ID, independently of --package, using only TransformerRegistry (no AssemblyContext).
-                    assert [entry['id'] for entry in passes] == ['example-configurer'], passes
-                    assert passes[0]['metrics']['transformed'] > 0, passes
                 else:
                     assert [entry['id'] for entry in passes] == ['example-padding'], passes
                     assert passes[0]['metrics']['transformed'] == (0 if mode == 'disabled' else 1), passes
@@ -68,13 +62,7 @@ public class Main {
                                 capture_output=True, text=True)
         assert result.returncode != 0 and 'Unknown transformation package' in result.stderr, result.stderr
         assert not (work / 'missing.jar').exists()
-        # Same explicit-selection-only contract for PipelineConfigurerProvider: no --extension, no ID.
-        result = subprocess.run([str(CLI), str(original), '-o', str(work / 'missing2.jar'),
-                                 '--no-default-package', '--configurer', 'example-configurer'],
-                                capture_output=True, text=True)
-        assert result.returncode != 0 and 'Unknown pipeline configurer' in result.stderr, result.stderr
-        assert not (work / 'missing2.jar').exists()
-    print('API-only extension: both CLI invocations, explicit packages/platforms/configurers, custom policy and JVM verification passed')
+    print('API-only extension: both CLI invocations, explicit packages/platforms, custom policy and JVM verification passed')
 
 
 if __name__ == '__main__':

@@ -165,21 +165,6 @@ class AssemblyTest {
     TransformationEngine().transform(input(), dir.resolve("names.jar"), listOf(inspect, lateRules))
   }
 
-  @Test fun `PipelineConfigurerProvider is explicit, ServiceLoader-discovered and registry-only`() {
-    val source = input()
-    val configurers = PipelineConfigurers.select(listOf("example-configurer"))
-    val result = TransformationEngine().transform(source, dir.resolve("configurer.jar"), emptyList(), configurers)
-    assertEquals(listOf("example-configurer"), result.transformerReports.map { it.id })
-    assertTrue(result.transformerReports.single().metrics.getValue("transformed") > 0)
-    assertEquals(7, answer(result.output))
-    assertEquals(emptyList<PipelineConfigurer>(), PipelineConfigurers.select(emptyList()))
-    assertThrows(IllegalStateException::class.java) { PipelineConfigurers.select(listOf("missing-configurer")) }
-    assertThrows(IllegalArgumentException::class.java) {
-      PipelineConfigurers.select(listOf("example-configurer", "example-configurer"))
-    }
-    assertTrue(PipelineConfigurers.providers().map { it.id }.contains("example-configurer"))
-  }
-
   @Test fun `package inputs cannot be overwritten and rejection preserves existing destination`() {
     val output = dir.resolve("secret.key")
     Files.write(output, byteArrayOf(1, 2, 3))

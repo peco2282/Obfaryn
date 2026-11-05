@@ -179,8 +179,6 @@ open class ObfarynExtension @Inject constructor(objects: ObjectFactory) {
   /** Named providers are loaded from obfarynPlatform; no installed provider runs implicitly. */
   var packageIds = listOf<String>()
   var useDefaultPackage = true
-  /** Named `PipelineConfigurerProvider` IDs loaded from obfarynPlatform; no installed provider runs implicitly. */
-  var configurerIds = listOf<String>()
   internal val customPackages = mutableListOf<com.peco2282.obfaryn.api.assembly.TransformationPackage>()
   /** Supply an API-only recipe directly from a build or convention plugin. */
   fun transformationPackage(value: com.peco2282.obfaryn.api.assembly.TransformationPackage) { customPackages += value }
@@ -266,7 +264,7 @@ class ObfarynPlugin : Plugin<Project> {
     val extension = project.extensions.create("obfaryn", ObfarynExtension::class.java)
     project.tasks.register("listObfarynExtensions") { task ->
       task.group = "help"
-      task.description = "Lists platform, transformation-package and pipeline-configurer providers visible on obfarynPlatform, without obfuscating."
+      task.description = "Lists platform and transformation-package providers visible on obfarynPlatform, without obfuscating."
       task.inputs.files(platformClasspath).withPropertyName("obfarynPlatform").withNormalizer(org.gradle.api.tasks.ClasspathNormalizer::class.java)
       task.doLast {
         com.peco2282.obfaryn.core.withExtensionClassLoader(
@@ -380,9 +378,7 @@ class ObfarynPlugin : Plugin<Project> {
               val packages = (if (extension.useDefaultPackage) listOf(com.peco2282.obfaryn.standard.StandardPackage(config)) else emptyList()) +
                 com.peco2282.obfaryn.core.TransformationPackages.select(extension.packageIds,
                   com.peco2282.obfaryn.api.MapPlatformOptions(extension.platformOptions)) + extension.customPackages
-              val discoveredConfigurers = com.peco2282.obfaryn.core.PipelineConfigurers.select(extension.configurerIds,
-                com.peco2282.obfaryn.api.MapPlatformOptions(extension.platformOptions))
-              Obfuscator(config, pipelineConfigurers = extension.pipelineConfigurers.toList() + discoveredConfigurers,
+              Obfuscator(config, pipelineConfigurers = extension.pipelineConfigurers.toList(),
                 packages = packages, protectedInputs = platformClasspath.files.map { it.toPath() })
                 .obfuscate(input, output, mapping)
             }

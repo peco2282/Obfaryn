@@ -72,7 +72,6 @@ class ObfarynPluginTest {
       .withArguments("listObfarynExtensions", "--stacktrace").build()
     assertTrue(build.output.contains("example - Example framework"), build.output)
     assertTrue(build.output.contains("example-padding"), build.output)
-    assertTrue(build.output.contains("example-configurer"), build.output)
     assertFalse(Files.exists(dir.resolve("build/libs")))
   }
 

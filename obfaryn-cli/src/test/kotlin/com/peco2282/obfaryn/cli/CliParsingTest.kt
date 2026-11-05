@@ -44,8 +44,6 @@ class CliParsingTest {
     assertTrue(result.out.contains("example - Example framework"))
     assertTrue(result.out.contains("Transformation packages"))
     assertTrue(result.out.contains("example-padding"))
-    assertTrue(result.out.contains("Pipeline configurers"))
-    assertTrue(result.out.contains("example-configurer"))
   }
 
   @Test fun listExtensionsRejectsAMissingExtensionJar() {

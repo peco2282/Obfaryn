@@ -96,7 +96,7 @@ IntelliJ IDEA で、ランチャーモジュールの実行時クラスパスを
 
 パスのインスタンスはコールバックの **内部** で作ります。実行ごとに新しいレジストリが用意されますが、コールバック自体は再利用される場合があります。`add` の ID は空白不可・重複不可です。`replace(id, pass)` は対象の存在と同じ ID を要求します。`disable(id)` は存在するパスに対して使い、依存元を自動的には無効化しません。任意のパスを置換・無効化する場合は `this[id]` で存在を確認してください。`rename`を置換する場合は`RenamingTransformer`を実装し、`context.namePreservation`を確認し、影響する全参照を更新して改名前の識別子に対応するマッピングを公開します。
 
-`Transformer` を実装するだけで CLI が自動検出することはありません。上記のようにランチャー内で`PipelineConfigurer` を通してホストに明示的に渡してください。自前のランチャーを持たずJARとしてモジュールを配布するなら、代わりに`PipelineConfigurerProvider`でラップし、`META-INF/services/com.peco2282.obfaryn.api.transformer.PipelineConfigurerProvider`に登録してください。CLIの`--configurer ID`とGradleの`configurerIds`が、`TransformationPackageProvider`を`--package`/`packageIds`で選ぶのと同じ方法で明示選択します。パッケージのサービス検出とplatformの`PlatformPackages`からも登録できます。[組み立て](../docs/assembly.ja.md#より軽量な選択肢pipelineconfigurerprovider)を参照してください。
+`Transformer` を実装するだけで CLI が自動検出することはありません。上記のようにランチャー内で`PipelineConfigurer` を通してホストに明示的に渡してください。自前のランチャーを持たずJARとしてモジュールを配布するなら、代わりに`TransformationPackage`でラップし、`TransformationPackageProvider`として`META-INF/services/com.peco2282.obfaryn.api.assembly.TransformationPackageProvider`に登録してください。CLIの`--package ID`とGradleの`packageIds`が明示選択します。recipeがレジストリしか必要としない場合は、`TransformationPackage.configure`が受け取る`context`引数を無視するだけで済みます——これはplatform providerのサービス検出とは別の仕組みです。[組み立て](../docs/assembly.ja.md)を参照してください。
 
 ### 予算管理された本体変換の拡張
 

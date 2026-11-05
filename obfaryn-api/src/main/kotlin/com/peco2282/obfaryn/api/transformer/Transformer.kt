@@ -28,8 +28,10 @@ import com.peco2282.obfaryn.api.ObfuscationContext
  * ```
  * Pass the resulting configurer to the execution host; creating it alone does not execute a pass.
  * A bare [Transformer] implementation is not automatically discovered through ServiceLoader. Wrap it
- * in a [PipelineConfigurer] and expose that through [PipelineConfigurerProvider] to make it
- * ServiceLoader-discoverable and explicitly selectable by ID from a host-loaded extension JAR.
+ * in a [PipelineConfigurer] inside a [com.peco2282.obfaryn.api.assembly.TransformationPackage] and
+ * expose that through [com.peco2282.obfaryn.api.assembly.TransformationPackageProvider] to make it
+ * ServiceLoader-discoverable and explicitly selectable by ID from a host-loaded extension JAR; the
+ * package's `context` parameter can simply be ignored when a pass only needs the registry.
  */
 interface Transformer {
   /**

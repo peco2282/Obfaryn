@@ -5,9 +5,9 @@ import java.net.URLClassLoader
 
 /**
  * Runs [block] with a fresh [URLClassLoader] over [urls] installed as the current thread's context
- * classloader, so ServiceLoader-based discovery ([Platforms], [TransformationPackages],
- * [PipelineConfigurers]) sees providers packaged in those JARs. The previous context classloader is
- * restored afterward, even if [block] throws; the created loader is closed when this call returns.
+ * classloader, so ServiceLoader-based discovery ([Platforms], [TransformationPackages]) sees
+ * providers packaged in those JARs. The previous context classloader is restored afterward, even if
+ * [block] throws; the created loader is closed when this call returns.
  *
  * Shared by every host entry point that scans extension JARs (CLI `obfuscate`/`list-extensions`,
  * Gradle `obfuscateJar`/`listObfarynExtensions`) so the classloader-swap contract stays in one place.

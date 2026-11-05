@@ -1,7 +1,5 @@
 package com.peco2282.obfaryn.api.transformer
 
-import com.peco2282.obfaryn.api.PlatformOptions
-
 /**
  * Mutable pipeline registration window exposed to a [PipelineConfigurer].
  *
@@ -74,29 +72,4 @@ interface PipelineConfigurer {
         override fun configure(registry: TransformerRegistry) = registry.configure()
       }
   }
-}
-
-/**
- * ServiceLoader entry point for [PipelineConfigurer]. Merely installing a provider never applies
- * its configurer; the host selects it explicitly by [id], the same way as [TransformationPackageProvider][
- * com.peco2282.obfaryn.api.assembly.TransformationPackageProvider]. Register implementations in
- * `META-INF/services/com.peco2282.obfaryn.api.transformer.PipelineConfigurerProvider`.
- *
- * Use this when a module only needs to add, replace, or disable passes and does not need
- * [com.peco2282.obfaryn.api.assembly.AssemblyContext] (classpath, random, output processors, or
- * class/resource exclusion). Modules needing that broader context should expose a
- * [com.peco2282.obfaryn.api.assembly.TransformationPackageProvider] instead; both share one registry
- * and execute in the same pipeline.
- */
-interface PipelineConfigurerProvider {
-  /**
-   * Unique, non-blank ID selected by the host, e.g. a CLI `--configurer` or Gradle `configurerIds`
-   * entry. `none` is reserved, the same as [TransformationPackageProvider][
-   * com.peco2282.obfaryn.api.assembly.TransformationPackageProvider].[id][
-   * com.peco2282.obfaryn.api.assembly.TransformationPackageProvider.id].
-   */
-  val id: String
-
-  /** Creates a fresh [PipelineConfigurer] for one run; construct stateful transformers inside it. */
-  fun create(options: PlatformOptions): PipelineConfigurer
 }

@@ -62,30 +62,22 @@ JARを導入しただけではパッケージは実行されません。ホス�
 
 [独自拡張のサンプル](../examples/custom-extension/src/main/kotlin/example/extension/ExamplePackage.kt)はAPIだけでコンパイルします。独自機能ID、メソッドの変換許可確認、クラス単位の予算巻き戻しに対応し、同じパッケージを専用platformからも提供します。core・transformer・standard実装には依存しません。
 
-### より軽量な選択肢:`PipelineConfigurerProvider`
-
-`AssemblyContext`(classpath、乱数、出力処理、クラス/リソース除外)まで必要とせず、`TransformerRegistry`経由のパス追加・置換・無効化だけで済むモジュールは、代わりに`PipelineConfigurerProvider`を実装できます。
-
-```text
-META-INF/services/com.peco2282.obfaryn.api.transformer.PipelineConfigurerProvider
-```
-
-`create(options)`は実行ごとに新しい`PipelineConfigurer`を返します。状態を持つパスはプログラム的な`PipelineConfigurer`と同様、その内部で生成してください。providerを導入しただけでは適用されず、ホストが明示的にIDを選択します——coreの`PipelineConfigurers.select(...)`、CLIの`--configurer ID`、Gradleの`configurerIds`で、`TransformationPackageProvider`/`--package`/`packageIds`と同じ明示選択の契約です(予約語`none`も同様)。両方のproviderは同じ`TransformerRegistry`とパイプラインを共有します。recipeがassembly側のコンテキスト(`excludeClass`、`protectInput`、`outputProcessor`など)も必要とするなら`TransformationPackageProvider`を選んでください。
+`AssemblyContext`(classpath、乱数、出力処理、クラス/リソース除外)まで必要とせず、`TransformerRegistry`経由のパス追加・置換・無効化だけで済むモジュールのために別のSPIは不要です——上記のように`TransformationPackageProvider`を実装し、`TransformationPackage.configure`が受け取る`context`引数を`ExamplePackageProvider`と同様に無視するだけで済みます。
 
 ## CLI
 
 ```shell
 obfaryn input.jar -o output.jar --extension my-extension.jar \
-  --no-default-package --package my-package --configurer my-configurer --platform-option rounds=2
+  --no-default-package --package my-package --platform-option rounds=2
 ```
 
-`--extension`はその実行中のホスト側にJARを追加します。拡張の依存JARも繰り返し指定でき、アプリケーションの出力へは混入しません。`--package`は明示選択する構成です。`--configurer`は`--package`とは独立に、`PipelineConfigurerProvider`をIDで明示選択します。`--no-default-package`を省略すると設定済みの標準構成へ追加します。標準構成にさらに`--package standard`を重ねるなど、同一パスIDの重複はエラーです。通常呼び出しと`obfuscate`の両方に対応します。
+`--extension`はその実行中のホスト側にJARを追加します。拡張の依存JARも繰り返し指定でき、アプリケーションの出力へは混入しません。`--package`は明示選択する構成です。`--no-default-package`を省略すると設定済みの標準構成へ追加します。標準構成にさらに`--package standard`を重ねるなど、同一パスIDの重複はエラーです。通常呼び出しと`obfuscate`の両方に対応します。
 
 `--platform paper --also-platform my-framework`でplatformを明示順に合成できます。主platformの自動検出が同点なら失敗し、追加platformは名前指定が必要です。クラス・リソースの重複追加、アノテーション方針の矛盾、パスIDの衝突はエラーになります。
 
 ### 拡張JARの内容を確認する
 
-`obfaryn list-extensions [--extension JAR]...`は、ホストから見える`PlatformProvider`・`TransformationPackageProvider`・`PipelineConfigurerProvider`のIDを(組み込み分と、スキャンした`--extension` JAR分すべて)入力JARを読まず・変換も実行せずに一覧表示します。`--platform`/`--also-platform`・`--package`・`--configurer`でIDを選択する前に、モジュールのJARが実際にクラスパス上にあり、サービスファイルが正しいかを確認するのに使えます。
+`obfaryn list-extensions [--extension JAR]...`は、ホストから見える`PlatformProvider`・`TransformationPackageProvider`のIDを(組み込み分と、スキャンした`--extension` JAR分すべて)入力JARを読まず・変換も実行せずに一覧表示します。`--platform`/`--also-platform`・`--package`でIDを選択する前に、モジュールのJARが実際にクラスパス上にあり、サービスファイルが正しいかを確認するのに使えます。
 
 ## Gradle
 
@@ -96,21 +88,20 @@ dependencies {
 obfaryn {
   useDefaultPackage = false
   packageIds = listOf("my-package")
-  configurerIds = listOf("my-configurer")
   additionalPlatforms = listOf("my-framework")
   pipeline {
-    // 利用者・platform・サービス発見したconfigurerパッケージを適用した後の最終調整。
+    // 利用者・platformのパッケージを適用した後の最終調整。
   }
 }
 ```
 
-Groovyでは`packageIds = ['my-package']`、`configurerIds = ['my-configurer']`、`useDefaultPackage = false`と指定します。`obfarynPlatform`はplatform・パッケージ・pipeline-configurerのproviderを読み込み、アプリケーションのcompile/runtime依存には追加しません。ビルドやconvention pluginから`transformationPackage(myPackage)`で直接渡すこともできます。状態を持つパーツはパッケージまたは`pipeline`のコールバック内で生成してください。
+Groovyでは`packageIds = ['my-package']`、`useDefaultPackage = false`と指定します。`obfarynPlatform`はplatform・パッケージのproviderを読み込み、アプリケーションのcompile/runtime依存には追加しません。ビルドやconvention pluginから`transformationPackage(myPackage)`で直接渡すこともできます。状態を持つパーツはパッケージまたは`pipeline`のコールバック内で生成してください。
 
-`./gradlew listObfarynExtensions`を実行すると、`obfuscateJar`を実行せずに`obfarynPlatform`上の全provider ID(platform・transformation package・pipeline configurer)を表示します。CLIの`list-extensions`のGradle版です。
+`./gradlew listObfarynExtensions`を実行すると、`obfuscateJar`を実行せずに`obfarynPlatform`上の全provider ID(platform・transformation package)を表示します。CLIの`list-extensions`のGradle版です。
 
 ## 専用ツールと高度な拡張
 
-platformの`extensions()`から`PlatformPackages { context, options -> listOf(myPackage) }`を返すと、専用パーツも共通の登録経路を使います。生成物の追加後、利用者のパッケージ、選択したplatformのパッケージ、最終調整(Gradleの`pipeline { }`ブロック、続いて`obfarynPlatform`経由でサービス発見された`configurerIds`。CLIには`--configurer`のみがあります)の順に適用します。coreの`EngineOptions.additionalPlatforms`は利用者が直接定義したplatformオブジェクトも受け付け、ライブラリ側で`CompositePlatform`を作ることもできます。合成した全platformの生成物を追加してからアノテーション方針を適用するため、別platformが追加したクラスも対象になります。
+platformの`extensions()`から`PlatformPackages { context, options -> listOf(myPackage) }`を返すと、専用パーツも共通の登録経路を使います。生成物の追加後、利用者のパッケージ、選択したplatformのパッケージ、最終調整(Gradleの`pipeline { }`ブロック、または`Obfuscator`を直接呼ぶ際の`pipelineConfigurers`引数)の順に適用します。coreの`EngineOptions.additionalPlatforms`は利用者が直接定義したplatformオブジェクトも受け付け、ライブラリ側で`CompositePlatform`を作ることもできます。合成した全platformの生成物を追加してからアノテーション方針を適用するため、別platformが追加したクラスも対象になります。
 
 独自の改名パスは`RenamingTransformer`を実装し、改名前のクラス・メンバー識別子に対応するマッピングを公開します。`context.namePreservation`でplatformや後続パッケージが追加したクラス・メンバー・リソースの保持要件を参照します。階層やリフレクションの安全性確認と参照の書き換え自体はパスの責任です。エンジンはこの結果を使い、メソッド順や記述子が変わっても元識別子とアプリケーション範囲を追跡し、マッピング文字列を返します。1実行につき改名パスは1個までで、標準の実装クラスである必要はありません。
 

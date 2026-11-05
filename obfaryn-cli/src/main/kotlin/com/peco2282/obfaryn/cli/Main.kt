@@ -141,9 +141,7 @@ internal open class ObfuscateCommand : Callable<Int> {
   var packageIds = mutableListOf<String>()
   @Option(names = ["--no-default-package"], description = ["Start with an empty pipeline instead of the standard recipe."])
   var noDefaultPackage = false
-  @Option(names = ["--configurer"], paramLabel = "ID", description = ["Add an explicitly selected pipeline configurer from a loaded extension; repeatable."])
-  var configurerIds = mutableListOf<String>()
-  @Option(names = ["--extension"], paramLabel = "JAR", description = ["Host extension JAR containing package, platform or pipeline-configurer providers; repeatable."])
+  @Option(names = ["--extension"], paramLabel = "JAR", description = ["Host extension JAR containing package or platform providers; repeatable."])
   var extensionJars = mutableListOf<Path>()
 
   @Option(names = ["--platform"], paramLabel = "ID", completionCandidates = PlatformCandidates::class, description = ["Platform ID (default: auto)."])
@@ -310,10 +308,7 @@ internal open class ObfuscateCommand : Callable<Int> {
       val packages = (if (noDefaultPackage) emptyList() else listOf(com.peco2282.obfaryn.standard.StandardPackage(config))) +
         com.peco2282.obfaryn.core.TransformationPackages.select(packageIds,
           com.peco2282.obfaryn.api.MapPlatformOptions(config.platformOptions))
-      val configurers = com.peco2282.obfaryn.core.PipelineConfigurers.select(configurerIds,
-        com.peco2282.obfaryn.api.MapPlatformOptions(config.platformOptions))
-      Obfuscator(config, packages = packages, pipelineConfigurers = configurers,
-        protectedInputs = extensionJars).obfuscate(input, out, mapping)
+      Obfuscator(config, packages = packages, protectedInputs = extensionJars).obfuscate(input, out, mapping)
     }
     val writer = spec.commandLine().out
     writer.println("Loaded ${result.classesLoaded} classes, ${result.resourcesLoaded} resources")
@@ -416,7 +411,7 @@ internal class DeobfuscateCommand : Callable<Int> {
 
 @Command(
   name = "list-extensions", mixinStandardHelpOptions = true,
-  description = ["List platform, transformation-package and pipeline-configurer providers visible to the host, without transforming a JAR."],
+  description = ["List platform and transformation-package providers visible to the host, without transforming a JAR."],
 )
 internal class ListExtensionsCommand : Callable<Int> {
   @Spec lateinit var spec: CommandSpec
