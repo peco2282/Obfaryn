@@ -23,7 +23,7 @@ pluginManagement {
 ```kotlin
 plugins {
   java
-  id("com.peco2282.obfaryn") version "0.2.0" // 実際に公開されている最新バージョンに置き換えてください
+  id("com.peco2282.obfaryn") version "1.0.0" // 実際に公開されている最新バージョンに置き換えてください
 }
 ```
 
@@ -70,13 +70,13 @@ obfaryn input.jar -o output.jar --seed 123 --protection strong \
 
 ```kotlin
 dependencies {
-  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:0.2.0")
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0.0")
 }
 obfaryn {
   platform = "paper"
 }
 ```
-`obfarynPlatform`はplugin自身と同じリリースリポジトリから解決され、アプリケーション自身のクラスパスや出力JARには追加されません。CLIで同じことをするには、`obfaryn-platform-paper`のJARを自分でダウンロードし`--extension`で渡します: `obfaryn input.jar --extension obfaryn-platform-paper-0.2.0.jar --platform paper`。[拡張JARの読み込み](docs/assembly.ja.md#拡張jarとして配る)を参照してください。
+`obfarynPlatform`はplugin自身と同じリリースリポジトリから解決され、アプリケーション自身のクラスパスや出力JARには追加されません。CLIで同じことをするには、`obfaryn-platform-paper`のJARを自分でダウンロードし`--extension`で渡します: `obfaryn input.jar --extension obfaryn-platform-paper-1.0.0.jar --platform paper`。[拡張JARの読み込み](docs/assembly.ja.md#拡張jarとして配る)を参照してください。
 
 ---
 
@@ -248,7 +248,7 @@ pluginManagement { includeBuild("../Obfaryn") }
 ```kotlin
 plugins {
   java
-  id("com.peco2282.obfaryn") version "0.2.0" // 実際に公開されている最新バージョンに置き換えてください
+  id("com.peco2282.obfaryn") version "1.0.0" // 実際に公開されている最新バージョンに置き換えてください
 }
 
 repositories {
@@ -257,8 +257,8 @@ repositories {
 }
 
 dependencies {
-  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:0.2.0")
-  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:0.2.0")
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0.0")
+  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:1.0.0")
 }
 
 obfaryn {

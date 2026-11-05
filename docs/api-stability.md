@@ -1,10 +1,9 @@
-# API stability policy (draft for 1.0.0)
+# API stability policy
 
 [日本語](api-stability.ja.md)
 
-This is a proposal, not yet a settled decision — it needs the maintainer's sign-off before the
-first 1.0.0 tag. Its purpose: once 1.0.0 ships, "is this change breaking?" should have one
-answer everyone can check against, instead of being re-litigated per pull request.
+Accepted for the 1.0.0 release. Its purpose: "is this change breaking?" has one answer everyone
+can check against, instead of being re-litigated per pull request.
 
 ## What 1.0.0 promises (semver-breaking requires a major bump)
 
@@ -58,10 +57,10 @@ answer everyone can check against, instead of being re-litigated per pull reques
 ## Process going forward
 
 1. A pull request that changes anything in the "what 1.0.0 promises" list gets called out as
-   breaking in its description, even pre-1.0.0 — this builds the habit before it's load-bearing.
-2. After 1.0.0, a breaking change to a stable surface requires either a major version bump or an
-   explicit, documented deprecation window (old API kept working, marked `@Deprecated`, for at
-   least one minor release before removal).
+   breaking in its description.
+2. A breaking change to a stable surface requires either a major version bump or an explicit,
+   documented deprecation window (old API kept working, marked `@Deprecated`, for at least one
+   minor release before removal).
 3. `obfaryn-api/src/test/kotlin/.../BinaryPolicyCompatibilityTest.kt`'s pattern (compile against
    an older interface shape, load against the current one) is the mechanical check for the
    "adding a method is not breaking" rule above; extend it when a new stable interface gains a

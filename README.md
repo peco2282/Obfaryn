@@ -23,7 +23,7 @@ pluginManagement {
 ```kotlin
 plugins {
   java
-  id("com.peco2282.obfaryn") version "0.2.0" // replace with the latest published version
+  id("com.peco2282.obfaryn") version "1.0.0" // replace with the latest published version
 }
 ```
 
@@ -70,13 +70,13 @@ Save a flag combination you reuse across projects as a named preset — see [Nam
 
 ```kotlin
 dependencies {
-  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:0.2.0")
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0.0")
 }
 obfaryn {
   platform = "paper"
 }
 ```
-`obfarynPlatform` resolves from the same release repository as the plugin itself; it is not added to the application's own classpath or the output JAR. CLI equivalent: download `obfaryn-platform-paper`'s JAR yourself and pass it with `--extension`, e.g. `obfaryn input.jar --extension obfaryn-platform-paper-0.2.0.jar --platform paper`. See [Discover an extension JAR](docs/assembly.md#discover-an-extension-jar).
+`obfarynPlatform` resolves from the same release repository as the plugin itself; it is not added to the application's own classpath or the output JAR. CLI equivalent: download `obfaryn-platform-paper`'s JAR yourself and pass it with `--extension`, e.g. `obfaryn input.jar --extension obfaryn-platform-paper-1.0.0.jar --platform paper`. See [Discover an extension JAR](docs/assembly.md#discover-an-extension-jar).
 
 ---
 
@@ -248,7 +248,7 @@ Platform providers and their runtime dependencies are loaded from `obfarynPlatfo
 ```kotlin
 plugins {
   java
-  id("com.peco2282.obfaryn") version "0.2.0" // replace with the latest published version
+  id("com.peco2282.obfaryn") version "1.0.0" // replace with the latest published version
 }
 
 repositories {
@@ -257,8 +257,8 @@ repositories {
 }
 
 dependencies {
-  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:0.2.0")
-  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:0.2.0")
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0.0")
+  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:1.0.0")
 }
 
 obfaryn {

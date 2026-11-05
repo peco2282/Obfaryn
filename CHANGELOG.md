@@ -4,10 +4,11 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). No tags 
 repository yet; versions below are correlated with `gradle.properties`' `releaseVersion` at the
 time of the "Bump to" commit, not with a Git tag.
 
-## [Unreleased]
+## [1.0.0]
 
-Committed on `main`, not yet published to `https://maven.peco2282.com/maven-releases/` under any
-version. The last `publish` ran at `0.2.0` (see below) **before** these landed.
+First release with a defined API stability contract — see
+[docs/api-stability.md](docs/api-stability.md) ([日本語](docs/api-stability.ja.md)) for exactly
+what is and isn't covered by semver going forward.
 
 ### Fixed
 
@@ -17,6 +18,17 @@ version. The last `publish` ran at `0.2.0` (see below) **before** these landed.
   claimed the wrong location. `uses`/`provides`/the module's main class already followed renamed
   classes correctly before this fix, independent of flattening. `requires` directives and the
   module's own declared name are still never rewritten, by design.
+
+### Added
+
+- `scripts/verify-jpms-module.py`, run in CI: builds a real `module-info`-bearing fixture,
+  transforms it with `--flatten-packages`, and confirms the descriptor is correct and the output
+  runs both on the classpath and on the module path (`java -p out.jar -m <module>`).
+- CLI `--stacktrace`: prints the full cause chain and stack trace on failure instead of just the
+  one-line message. Off by default; consumed before parsing, like `--preset`/`--preset-dir`.
+- `docs/api-stability.md`/`.ja.md`: the stability policy referenced above.
+- README/README.ja.md: documented a measured `@Virtualize` call-overhead order of magnitude
+  (~60x median latency in a local synthetic benchmark; see the "Method virtualization" section).
 
 ### Changed
 
@@ -30,11 +42,32 @@ version. The last `publish` ran at `0.2.0` (see below) **before** these landed.
 - Fixed several long-dangling links to `docs/implementation-status.md`, which was never a tracked
   file (README.md/.ja.md, obfaryn-api's READMEs, obfaryn-runtime's README, AGENTS.md).
 
-### Added
+### Validation for this release
 
-- `scripts/verify-jpms-module.py`, run in CI: builds a real `module-info`-bearing fixture,
-  transforms it with `--flatten-packages`, and confirms the descriptor is correct and the output
-  runs both on the classpath and on the module path (`java -p out.jar -m <module>`).
+- Live Paper 1.21.8 run of a `--flatten-packages`/`strong`-protected plugin (BallGame): loads,
+  enables, and disables cleanly.
+- Local Maven publish, consumed from a separate throwaway Gradle project (plugin +
+  `obfaryn-annotations` `compileOnly` + a `keep` rule) end to end.
+- Remote CI (`Verification` workflow) green on `main`.
+- A combined-feature correctness suite (sealed interfaces, records, pattern-matching switch,
+  enums with abstract methods, default interface methods, lambdas/method references/closures,
+  streams, varargs, try-with-resources, exception cause chains, reflection on methods and fields,
+  deep non-tail recursion, and an 8-thread/160k-operation concurrent read/write/`synchronized`
+  stress test) under every strong-protection feature simultaneously: byte-for-byte identical
+  output to the unobfuscated baseline across 5 runs, zero rejected transformations.
+- A deliberately tangled control-flow stress test (goto-style state machine, labeled
+  break/continue across nested loops, switch fallthrough, try/finally interacting with
+  continue/return, mutual recursion) under the same full protection: correct output. One
+  unreproducible `Failed transforming with rename` failure was observed once; 23 immediate
+  retries of the identical invocation all succeeded. Not a confirmed defect, but not fully
+  explained either — `--stacktrace` (added this release) would help diagnose a recurrence.
+- Execution under real JDK 8 and JDK 17 runtimes (not just targeted bytecode versions), including
+  the embedded prelink-runtime path under JDK 8.
+- Synthetic scale check: a 20,000-class application obfuscates correctly with `strong` protection
+  in ~34s; enabling `--call-indirection` broadly across that many call sites adds tens of seconds
+  of first-use `invokedynamic` linkage cost at startup (not reduced by `--prelink-calls`, which
+  only moves when the cost is paid). Not yet mitigated or warned about automatically — worth
+  being deliberate about `--call-indirection`'s scope on large applications.
 
 ## [0.2.0]
 
