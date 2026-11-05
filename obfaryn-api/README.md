@@ -96,7 +96,7 @@ Run this `main` from IntelliJ IDEA with the launcher module's runtime classpath 
 
 Create passes **inside** the callback: a fresh registry is built for each run, but callbacks may be reused. `add` requires a unique non-blank ID. `replace(id, pass)` requires an existing pass and the same ID on the replacement. `disable(id)` requires an existing pass and does not disable its dependants. Inspect optional passes with `this[id]` before replacing/disabling them. A replacement `rename` implements `RenamingTransformer`, consults `context.namePreservation`, rewrites all affected references, and publishes original-input mappings.
 
-Implementing a `Transformer` does not make the CLI discover it automatically. Pass it to the host explicitly through `PipelineConfigurer`; this is distinct from platform provider service discovery.
+Implementing a `Transformer` does not make the CLI discover it automatically. Pass it to the host explicitly through `PipelineConfigurer`, as shown above for a launcher. For a module distributed as a JAR (no launcher of your own), wrap it in `PipelineConfigurerProvider` instead and register it under `META-INF/services/com.peco2282.obfaryn.api.transformer.PipelineConfigurerProvider`; the CLI's `--configurer ID` and Gradle's `configurerIds` then select it explicitly, the same way `--package`/`packageIds` select a `TransformationPackageProvider`. See [assembly contracts](../docs/assembly.md#a-lighter-alternative-pipelineconfigurerprovider).
 
 ### Budgeted body extensions
 

@@ -60,14 +60,24 @@ Installing a provider does not execute its recipe. Hosts explicitly select IDs w
 
 The [custom extension example](../examples/custom-extension/src/main/kotlin/example/extension/ExamplePackage.kt) compiles against API alone. It defines a namespaced body feature, respects method policy, participates in class-atomic budgets, and also exposes a platform that supplies the same recipe. It does not depend on core, transformer or standard implementations.
 
+### A lighter alternative: `PipelineConfigurerProvider`
+
+A module that only needs to add, replace, or disable passes through `TransformerRegistry`, without the broader `AssemblyContext` (classpath, random, output processors, class/resource exclusion), can implement `PipelineConfigurerProvider` instead:
+
+```text
+META-INF/services/com.peco2282.obfaryn.api.transformer.PipelineConfigurerProvider
+```
+
+`create(options)` returns a fresh `PipelineConfigurer` per run; construct stateful transformers inside it, the same as a programmatic `PipelineConfigurer`. Installing the provider never applies it: hosts select IDs explicitly, with `PipelineConfigurers.select(...)` in core, `--configurer ID` on the CLI, or `configurerIds` in Gradle — the same explicit-selection contract as `TransformationPackageProvider`/`--package`/`packageIds`. Both provider kinds share one `TransformerRegistry` and the same pipeline; pick `TransformationPackageProvider` when the recipe also needs assembly-level context (e.g. `excludeClass`, `protectInput`, `outputProcessor`).
+
 ## CLI
 
 ```shell
 obfaryn input.jar -o output.jar --extension my-extension.jar \
-  --no-default-package --package my-package --platform-option rounds=2
+  --no-default-package --package my-package --configurer my-configurer --platform-option rounds=2
 ```
 
-`--extension` adds a host-side JAR for the duration of the invocation; repeat it for additional extension dependencies. These JARs do not enter the application output. `--package` adds an explicitly selected recipe. Without `--no-default-package`, configured standard parts are registered first. Adding a second recipe with the same pass IDs is an error, including explicitly adding `standard` on top of the default recipe. Both the default invocation and `obfuscate` support these flags.
+`--extension` adds a host-side JAR for the duration of the invocation; repeat it for additional extension dependencies. These JARs do not enter the application output. `--package` adds an explicitly selected recipe; `--configurer` adds an explicitly selected `PipelineConfigurerProvider` by ID, independently of `--package`. Without `--no-default-package`, configured standard parts are registered first. Adding a second recipe with the same pass IDs is an error, including explicitly adding `standard` on top of the default recipe. Both the default invocation and `obfuscate` support these flags.
 
 Use `--platform paper --also-platform my-framework` to compose platform behavior in explicit order. A tied primary automatic detection still fails; secondary platforms must be named explicitly. Contributions reject duplicate classes/resources, conflicting annotation policies fail, and duplicate transformer IDs fail before passes execute.
 
@@ -80,18 +90,19 @@ dependencies {
 obfaryn {
   useDefaultPackage = false
   packageIds = listOf("my-package")
+  configurerIds = listOf("my-configurer")
   additionalPlatforms = listOf("my-framework")
   pipeline {
-    // Final edits after user and platform packages have registered their parts.
+    // Final edits after user, platform and service-discovered configurer packages have registered their parts.
   }
 }
 ```
 
-Groovy uses `packageIds = ['my-package']` and `useDefaultPackage = false`. `obfarynPlatform` loads both platform and package providers without adding them to application compile/runtime dependencies. A build/convention plugin can supply a recipe directly with `transformationPackage(myPackage)` instead of service discovery. Create stateful transformers inside each recipe or `pipeline` callback.
+Groovy uses `packageIds = ['my-package']`, `configurerIds = ['my-configurer']` and `useDefaultPackage = false`. `obfarynPlatform` loads platform, package and pipeline-configurer providers without adding them to application compile/runtime dependencies. A build/convention plugin can supply a recipe directly with `transformationPackage(myPackage)` instead of service discovery. Create stateful transformers inside each recipe or `pipeline` callback.
 
 ## Dedicated tools and advanced contracts
 
-A platform returns `PlatformPackages { context, options -> listOf(myPackage) }` from `extensions()`. Content contributions run before recipe assembly. Execution order is explicit user recipes, selected platforms' recipes, then final pipeline configurers. `EngineOptions.additionalPlatforms` accepts directly defined platform objects; `CompositePlatform` also supports library composition. All selected platforms' content is contributed before their annotation aliases are applied, including aliases targeting another selected platform's contributed classes.
+A platform returns `PlatformPackages { context, options -> listOf(myPackage) }` from `extensions()`. Content contributions run before recipe assembly. Execution order is explicit user recipes, selected platforms' recipes, then final pipeline configurers in list order: in Gradle that is the build script's `pipeline { }` block(s) first, then `configurerIds` service-discovered through `obfarynPlatform`; the CLI only has `--configurer`. `EngineOptions.additionalPlatforms` accepts directly defined platform objects; `CompositePlatform` also supports library composition. All selected platforms' content is contributed before their annotation aliases are applied, including aliases targeting another selected platform's contributed classes.
 
 For a custom renamer, implement `RenamingTransformer` and publish original-input class/member mappings. The pass itself must consult `context.namePreservation` and rewrite affected references. The API exposes live class/member/resource name requirements, including platform rules and rules added by later recipes. Additional hierarchy and reflection safety remain the renamer's responsibility. The engine uses mappings to retain original method identities even when methods are reordered or descriptors change, preserve application scope after renaming, and expose mapping text. At most one renaming pass is supported per run; a replacement need not use the built-in renamer class.
 
