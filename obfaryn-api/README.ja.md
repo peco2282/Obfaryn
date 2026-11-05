@@ -106,7 +106,7 @@ IntelliJ IDEA で、ランチャーモジュールの実行時クラスパスを
 
 元名での診断には `context.transformationInputs.methodIdentity(owner, method)` を使います。`skipReason` はノードを変更せず、乱数も消費しないでください。予算管理されたパスは候補クラスごとに呼び出されるため、件数などは毎回の `transform` でリセットします。依存ノードへのアクセスは協調的な読み取り契約であり、セキュリティ用のサンドボックスではありません。
 
-優先順位・予算・ヘルパー報告・事前解決の初期化への影響は[保護設定](../docs/protection.ja.md)、検証済み範囲と拡張制約は[実装状況](../docs/implementation-status.ja.md)を参照してください。
+優先順位・予算・ヘルパー報告・事前解決の初期化への影響は[保護設定](../docs/protection.ja.md)、拡張の制約は[組み立ての契約](../docs/assembly.ja.md)を参照してください。
 
 ## 4. コンテキスト・名前・リソースの扱い
 

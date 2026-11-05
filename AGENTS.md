@@ -62,9 +62,9 @@ For Gradle DSL changes, exercise Kotlin and Groovy through TestKit; nested rule 
 
 ## Implementation Status and Validation Scope
 
-See [implementation status](docs/implementation-status.md) ([日本語](docs/implementation-status.ja.md)) and [protection controls](docs/protection.md) ([日本語](docs/protection.ja.md)). The six requested features are implemented; do not treat historical handoff failures as current TODOs without reproducing them against current artifacts.
+See [protection controls](docs/protection.md) ([日本語](docs/protection.ja.md)) and [assembly contracts](docs/assembly.md) ([日本語](docs/assembly.ja.md)). The six originally requested features are implemented; do not treat historical handoff failures as current TODOs without reproducing them against current artifacts.
 
-Separate implementation work from remaining release/runtime validation. Local JDK 21 tests, classpath JAR checks, TestKit, public-project tests and synthetic measurements do not establish live Paper behavior, all supported JVM/OS combinations or remote CI success. JPMS descriptor/`requires` rewriting is not implemented. Do not claim unchanged performance, universal compatibility or commercial readiness from these checks. Repeat relevant validation after code changes; avoid rerunning unchanged expensive checks without a reason.
+Separate implementation work from remaining release/runtime validation. Local JDK 21 tests, classpath JAR checks, TestKit, public-project tests and synthetic measurements do not establish live Paper behavior, all supported JVM/OS combinations or remote CI success. `module-info`'s `exports`/`opens`/concealed-package entries are rewritten under `--flatten-packages` (see `RenamingTransformer.packageMapping`); `requires` directives and the module's own declared name are intentionally never rewritten, and running the output on the module path is not part of the repeatable test suite. Do not claim unchanged performance, universal compatibility or commercial readiness from these checks. Repeat relevant validation after code changes; avoid rerunning unchanged expensive checks without a reason.
 
 ## Commit & Pull Request Guidelines
 

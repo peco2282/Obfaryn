@@ -4,4 +4,4 @@ A Java 8 module with no external dependencies. It contains `ProtectionRuntime.pr
 
 See [English protection controls](../docs/protection.md) or [日本語の保護設定](../docs/protection.ja.md) for lifecycle effects, bounded ranges, failures and limitations. Prelinking does not execute target methods. Invoking a generated entry can initialize its caller, and actual JVM linkage/JIT costs remain on first use.
 
-Embedding is validated for classpath JARs. The tool does not rewrite JPMS module descriptors or `requires` directives. See [implementation status](../docs/implementation-status.md) ([日本語](../docs/implementation-status.ja.md)) for release and runtime checks that remain separate from implementation.
+Embedding is validated for classpath JARs; running on the module path is not separately validated. The tool rewrites `module-info`'s `exports`/`opens`/concealed-package entries under `--flatten-packages`, but never `requires` directives or the module's own declared name. See [protection controls](../docs/protection.md) ([日本語](../docs/protection.ja.md)) for release and runtime checks that remain separate from implementation.

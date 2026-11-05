@@ -1,5 +1,7 @@
 # Obfaryn
 
+[English](README.md)
+
 ASMベースのKotlin/JVM・Java JAR難読化ツールです: 文字列/数値リテラル暗号化、クラス・メソッド・フィールドのリネーム、任意の制御フロー・呼び出し間接化保護、VM風メソッド仮想化、オフライン整合性封印。リリースは`https://maven.peco2282.com/maven-releases/`で公開しています。
 
 ## クイックスタート
@@ -21,7 +23,7 @@ pluginManagement {
 ```kotlin
 plugins {
   java
-  id("com.peco2282.obfaryn") version "0.1.14" // 実際に公開されている最新バージョンに置き換えてください
+  id("com.peco2282.obfaryn") version "0.2.0" // 実際に公開されている最新バージョンに置き換えてください
 }
 ```
 
@@ -68,13 +70,13 @@ obfaryn input.jar -o output.jar --seed 123 --protection strong \
 
 ```kotlin
 dependencies {
-  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:0.1.14")
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:0.2.0")
 }
 obfaryn {
   platform = "paper"
 }
 ```
-`obfarynPlatform`はplugin自身と同じリリースリポジトリから解決され、アプリケーション自身のクラスパスや出力JARには追加されません。CLIで同じことをするには、`obfaryn-platform-paper`のJARを自分でダウンロードし`--extension`で渡します: `obfaryn input.jar --extension obfaryn-platform-paper-0.1.14.jar --platform paper`。[拡張JARの読み込み](docs/assembly.ja.md#拡張jarとして配る)を参照してください。
+`obfarynPlatform`はplugin自身と同じリリースリポジトリから解決され、アプリケーション自身のクラスパスや出力JARには追加されません。CLIで同じことをするには、`obfaryn-platform-paper`のJARを自分でダウンロードし`--extension`で渡します: `obfaryn input.jar --extension obfaryn-platform-paper-0.2.0.jar --platform paper`。[拡張JARの読み込み](docs/assembly.ja.md#拡張jarとして配る)を参照してください。
 
 ---
 
@@ -84,8 +86,6 @@ APIだけに依存して独自パーツ・構成パッケージを定義でき�
 
 機能別アノテーション、累積の構造予算、整数演算変換、範囲指定の事前解決、公開プロジェクト・性能の継続検証は [保護設定の詳細](docs/protection.ja.md) を参照してください。
 
-完了した実装範囲、検証記録、残るリリース・実行環境の確認は[実装状況](docs/implementation-status.ja.md)にまとめています。
-
 予算対象パスの生成ヘルパークラスにもコード長の予算とメソッド別報告を適用します。出力先の衝突検査は、入力や他の成果物のハードリンク・シンボリックリンクによる別名も拒否します。
 
 Gradle では `controlFlow { mode = "light" }`・`calls { enabled = true; prelink = true }`・
@@ -93,88 +93,6 @@ Gradle では `controlFlow { mode = "light" }`・`calls { enabled = true; prelin
 `rules { method("com/example/.*") { calls = false } }` で設定を整理できます。CLI では
 `--control-flow-mode light`・`--disable-feature 'calls=com/example/.*'` を使えます。
 [設定例と優先順位](docs/protection.ja.md#gradlecli-からの設定)も参照してください。
-
-## 配布とリリース
-
-全モジュールのバージョンは既定で `0.0.0-SNAPSHOT` に統一され、
-`-PreleaseVersion=0.1.0` で変更できます（例示でありリリース告知ではありません）。
-JDK 21 で、ローカル Maven リポジトリと単体実行用 CLI 配布物を生成します。
-
-```shell
-./gradlew publish :obfaryn-cli:distZip :obfaryn-cli:distTar -PpublishRepositoryUrl="file:$PWD/build/repository"
-```
-
-このコマンドは `secrets.properties` があっても `build/repository` を明示的に選び、外部送信しません。
-ライブラリにはソース、Dokka Javadoc、MPL-2.0 ライセンス本文、POM メタデータが付属します。
-CLI 配布物は `obfaryn-cli/build/distributions` に生成されます。全体を展開して
-`bin/obfaryn`（Windows は `bin/obfaryn.bat`）を実行してください。
-CLI の JAR 単体では依存関係が不足します。任意の Paper プロバイダーは同梱しません。
-
-別のビルドで利用する設定例です。絶対パスを置き換えてください。
-
-```kotlin
-repositories {
-  maven { url = uri("/absolute/path/to/Obfaryn/build/repository") }
-  mavenCentral()
-}
-dependencies {
-  implementation("com.peco2282.obfaryn:obfaryn-standard:0.0.0-SNAPSHOT")
-  // 拡張の実装のみなら obfaryn-api を使用します。
-  // 任意: implementation("com.peco2282.obfaryn:obfaryn-platform-paper:0.0.0-SNAPSHOT")
-}
-```
-
-Gradle プラグインでは、利用側の `settings.gradle.kts` の
-`pluginManagement.repositories` に同じリポジトリ、`mavenCentral()`、
-`gradlePluginPortal()` を追加し、ビルドの plugins ブロックで
-`id("com.peco2282.obfaryn") version "0.0.0-SNAPSHOT"` を指定します。
-プラグインマーカーも実装と一緒に公開されます。
-
-`obfaryn { ... }` は設定を保持する DSL で、core のインスタンスや実行操作は公開しません。
-独自 Transformer、文字列・数値方式、および `pipeline { ... }` を設定でき、
-難読化は `obfuscateJar` のタスク実行時にプラグインが core を直接呼び出して行います。
-専用の実行構成やクラスローダーは不要です。ただし、core はプラグインの通常依存なので、
-ビルドスクリプトで明示的にインポートして呼び出すことは禁止しません。
-この DSL は任意コードの実行を制限するセキュリティ境界ではありません。
-
-外部公開前に `./gradlew test`、ローカル配布物の確認、および別プロジェクトからの
-利用確認を行ってください。`./gradlew :obfaryn-cli:installDist` の後に
-`python3 scripts/verify-cli-distribution.py` を実行すると、配布 CLI、埋め込みの呼び出し解決ランタイム、
-変換した Java 8 サンプルの実行を確認できます。Maven 公開物や別の Gradle 利用プロジェクトは、この確認の対象外です。
-公開時はルートに `secrets.properties` を作成します（Git 管理対象外）。
-
-```properties
-releaseUrl=https://maven.peco2282.com/maven-releases/
-snapshotUrl=https://maven.peco2282.com/maven-snapshots/
-user=user
-password=password
-```
-
-プラグインマーカーを含む全 Maven 公開物は、バージョンに `snapshot` が含まれる場合
-（大文字・小文字を区別しない）は `snapshotUrl`、それ以外は `releaseUrl` へ送ります。
-
-```shell
-./gradlew publish -PreleaseVersion=0.1.0
-./gradlew publish -PreleaseVersion=0.2.0-SNAPSHOT
-```
-
-`-PpublishRepositoryUrl=...` で公開先を上書きできます（ローカル検証用の `file:` URL も可）。
-`secrets.properties` も上書き指定もなければ `build/repository` へ公開します。
-ファイルがある場合、選択された URL は必須で、空欄にはできません。
-`user`・`password` がファイルにない場合は環境変数 `MAVEN_USERNAME`・`MAVEN_PASSWORD` を使用します。
-署名が必要なら `SIGNING_KEY`（ASCII armor 形式の PGP 秘密鍵）と
-`SIGNING_PASSWORD` も設定してください。プラグインマーカーを含む全 Maven 公開物を署名します。
-秘密情報をコミットしないでください。`SIGNING_KEY` がなければ署名は行いません。
-`-SNAPSHOT` はスナップショット用、正式版は変更不可のリリース用リポジトリへ公開し、
-公開済みバージョンを上書きしない運用としてください。
-
-これは **Maven Central や Gradle Plugin Portal への公開済みという意味ではありません**。
-Central には名前空間の確認、専用のステージング／バンドル送信と検証が必要です。
-Portal も別途登録と公開が必要です。公開依存座標を案内する前に、実際の公開サービスと認証情報を準備してください。
-
-[English](README.md)
-
-Obfaryn は Kotlin/JVM および Java の JAR を対象とした ASM ベースの難読化ツールです。デバッグ情報の削除、文字列リテラルの暗号化、数値定数の変形、保守的なシンボル名の変更を行い、オプションとして制御フローの変換、メソッドの仮想化（VM化）、およびオフラインでの JAR 整合性検証を適用できます。
 
 ## 要件
 
@@ -329,7 +247,7 @@ pluginManagement { includeBuild("../Obfaryn") }
 ```kotlin
 plugins {
   java
-  id("com.peco2282.obfaryn") version "0.1.14" // 実際に公開されている最新バージョンに置き換えてください
+  id("com.peco2282.obfaryn") version "0.2.0" // 実際に公開されている最新バージョンに置き換えてください
 }
 
 repositories {
@@ -338,8 +256,8 @@ repositories {
 }
 
 dependencies {
-  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:0.1.14")
-  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:0.1.14")
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:0.2.0")
+  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:0.2.0")
 }
 
 obfaryn {

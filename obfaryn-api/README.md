@@ -106,7 +106,7 @@ Do not mutate dependency nodes returned by lookup, mutate resources or remove cl
 
 Use `context.transformationInputs.methodIdentity(owner, method)` for original-name diagnostics. `skipReason` must not mutate nodes or consume randomness. Reset pass counters on every `transform` call: the host can invoke a budgeted pass once per candidate class. Class-node lookup remains cooperative mutable access, not a security sandbox.
 
-See [protection controls](../docs/protection.md) for rule precedence, budgets, helper reports and prelink lifecycle effects, and [implementation status](../docs/implementation-status.md) for the validated scope and extension limits.
+See [protection controls](../docs/protection.md) for rule precedence, budgets, helper reports and prelink lifecycle effects, and [assembly contracts](../docs/assembly.md) for extension limits.
 
 ## 4. Contexts, names, and resources
 
