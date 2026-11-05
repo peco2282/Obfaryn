@@ -265,6 +265,37 @@ class ObfarynPlugin : Plugin<Project> {
       )
     }
     val extension = project.extensions.create("obfaryn", ObfarynExtension::class.java)
+    project.tasks.register("listObfarynExtensions") { task ->
+      task.group = "help"
+      task.description = "Lists platform, transformation-package and pipeline-configurer providers visible on obfarynPlatform, without obfuscating."
+      task.inputs.files(platformClasspath).withPropertyName("obfarynPlatform").withNormalizer(org.gradle.api.tasks.ClasspathNormalizer::class.java)
+      task.doLast {
+        java.net.URLClassLoader(
+          platformClasspath.files.map { it.toURI().toURL() }.toTypedArray(),
+          ObfarynPlugin::class.java.classLoader,
+        ).use { loader ->
+          val thread = Thread.currentThread()
+          val previousLoader = thread.contextClassLoader
+          try {
+            thread.contextClassLoader = loader
+            project.logger.lifecycle("Platforms (platform / additionalPlatforms):")
+            for (platform in com.peco2282.obfaryn.core.platform.Platforms.all().sortedBy { it.id }) {
+              project.logger.lifecycle("  ${platform.id} - ${platform.metadata.displayName} (API ${platform.metadata.apiVersion}, impl ${platform.metadata.implementationVersion})")
+            }
+            project.logger.lifecycle("Transformation packages (packageIds):")
+            val packages = com.peco2282.obfaryn.core.TransformationPackages.providers().sortedBy { it.id }
+            if (packages.isEmpty()) project.logger.lifecycle("  (none found; add a provider JAR to obfarynPlatform)")
+            packages.forEach { project.logger.lifecycle("  ${it.id}") }
+            project.logger.lifecycle("Pipeline configurers (configurerIds):")
+            val configurers = com.peco2282.obfaryn.core.PipelineConfigurers.providers().sortedBy { it.id }
+            if (configurers.isEmpty()) project.logger.lifecycle("  (none found; add a provider JAR to obfarynPlatform)")
+            configurers.forEach { project.logger.lifecycle("  ${it.id}") }
+          } finally {
+            thread.contextClassLoader = previousLoader
+          }
+        }
+      }
+    }
     project.plugins.withId("java") {
       project.afterEvaluate {
         val source = (project.tasks.findByName("shadowJar") ?: project.tasks.findByName("jar")) as? AbstractArchiveTask

@@ -81,6 +81,10 @@ obfaryn input.jar -o output.jar --extension my-extension.jar \
 
 Use `--platform paper --also-platform my-framework` to compose platform behavior in explicit order. A tied primary automatic detection still fails; secondary platforms must be named explicitly. Contributions reject duplicate classes/resources, conflicting annotation policies fail, and duplicate transformer IDs fail before passes execute.
 
+### Checking what an extension JAR exposes
+
+`obfaryn list-extensions [--extension JAR]...` prints every discovered `PlatformProvider`, `TransformationPackageProvider` and `PipelineConfigurerProvider` ID visible to the host (built-in plus any scanned `--extension` JARs), without reading an input JAR or running a transformation. Use it to confirm a module jar is actually on the classpath and its service file is correct before selecting its ID with `--platform`/`--also-platform`, `--package` or `--configurer`.
+
 ## Gradle
 
 ```kotlin
@@ -99,6 +103,8 @@ obfaryn {
 ```
 
 Groovy uses `packageIds = ['my-package']`, `configurerIds = ['my-configurer']` and `useDefaultPackage = false`. `obfarynPlatform` loads platform, package and pipeline-configurer providers without adding them to application compile/runtime dependencies. A build/convention plugin can supply a recipe directly with `transformationPackage(myPackage)` instead of service discovery. Create stateful transformers inside each recipe or `pipeline` callback.
+
+Run `./gradlew listObfarynExtensions` to print every provider ID visible on `obfarynPlatform` (platforms, transformation packages and pipeline configurers) without running `obfuscateJar`, the Gradle counterpart of the CLI's `list-extensions`.
 
 ## Dedicated tools and advanced contracts
 

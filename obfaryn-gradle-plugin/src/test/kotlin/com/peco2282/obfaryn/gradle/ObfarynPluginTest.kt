@@ -59,6 +59,23 @@ class ObfarynPluginTest {
     }
   }
 
+  @Test fun listObfarynExtensionsReportsProvidersWithoutObfuscating() {
+    Files.writeString(dir.resolve("settings.gradle.kts"), "rootProject.name = \"sample\"")
+    val jars = System.getProperty("obfaryn.test.extensionClasspath").split(java.io.File.pathSeparator)
+    jars.forEachIndexed { index, path -> Files.copy(Path.of(path), dir.resolve("extension-$index.jar")) }
+    val files = jars.indices.joinToString(", ") { "\"extension-$it.jar\"" }
+    Files.writeString(dir.resolve("build.gradle.kts"), """
+      plugins { id("com.peco2282.obfaryn") }
+      dependencies { obfarynPlatform(files($files)) }
+    """.trimIndent())
+    val build = GradleRunner.create().withProjectDir(dir.toFile()).withPluginClasspath()
+      .withArguments("listObfarynExtensions", "--stacktrace").build()
+    assertTrue(build.output.contains("example - Example framework"), build.output)
+    assertTrue(build.output.contains("example-padding"), build.output)
+    assertTrue(build.output.contains("example-configurer"), build.output)
+    assertFalse(Files.exists(dir.resolve("build/libs")))
+  }
+
   @Test fun loadsPaperFromDedicatedClasspath() {
     Files.writeString(dir.resolve("settings.gradle.kts"), "rootProject.name = \"sample\"")
     val jars = System.getProperty("obfaryn.test.paperClasspath").split(java.io.File.pathSeparator)

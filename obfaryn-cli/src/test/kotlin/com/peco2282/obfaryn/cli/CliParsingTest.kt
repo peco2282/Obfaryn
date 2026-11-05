@@ -36,6 +36,24 @@ class CliParsingTest {
     }
   }
 
+  @Test fun listExtensionsReportsProvidersVisibleOnTheClasspathWithoutTransforming() {
+    val result = run("list-extensions")
+    assertEquals(0, result.status, result.err)
+    assertTrue(result.out.contains("Platforms"))
+    assertTrue(result.out.contains("generic"))
+    assertTrue(result.out.contains("example - Example framework"))
+    assertTrue(result.out.contains("Transformation packages"))
+    assertTrue(result.out.contains("example-padding"))
+    assertTrue(result.out.contains("Pipeline configurers"))
+    assertTrue(result.out.contains("example-configurer"))
+  }
+
+  @Test fun listExtensionsRejectsAMissingExtensionJar() {
+    val result = run("list-extensions", "--extension", dir.resolve("missing.jar").toString())
+    assertNotEquals(0, result.status)
+    assertTrue(result.err.contains("Extension JAR does not exist"), result.err)
+  }
+
   @Test fun helpSucceedsWithoutRequiredInputs() {
     for (args in listOf(arrayOf("--help"), arrayOf("-h"), arrayOf("obfuscate", "--help"),
       arrayOf("deobfuscate-stacktrace", "--help"), arrayOf("completion", "--help"))) {

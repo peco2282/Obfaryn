@@ -83,6 +83,10 @@ obfaryn input.jar -o output.jar --extension my-extension.jar \
 
 `--platform paper --also-platform my-framework`でplatformを明示順に合成できます。主platformの自動検出が同点なら失敗し、追加platformは名前指定が必要です。クラス・リソースの重複追加、アノテーション方針の矛盾、パスIDの衝突はエラーになります。
 
+### 拡張JARの内容を確認する
+
+`obfaryn list-extensions [--extension JAR]...`は、ホストから見える`PlatformProvider`・`TransformationPackageProvider`・`PipelineConfigurerProvider`のIDを(組み込み分と、スキャンした`--extension` JAR分すべて)入力JARを読まず・変換も実行せずに一覧表示します。`--platform`/`--also-platform`・`--package`・`--configurer`でIDを選択する前に、モジュールのJARが実際にクラスパス上にあり、サービスファイルが正しいかを確認するのに使えます。
+
 ## Gradle
 
 ```kotlin
@@ -101,6 +105,8 @@ obfaryn {
 ```
 
 Groovyでは`packageIds = ['my-package']`、`configurerIds = ['my-configurer']`、`useDefaultPackage = false`と指定します。`obfarynPlatform`はplatform・パッケージ・pipeline-configurerのproviderを読み込み、アプリケーションのcompile/runtime依存には追加しません。ビルドやconvention pluginから`transformationPackage(myPackage)`で直接渡すこともできます。状態を持つパーツはパッケージまたは`pipeline`のコールバック内で生成してください。
+
+`./gradlew listObfarynExtensions`を実行すると、`obfuscateJar`を実行せずに`obfarynPlatform`上の全provider ID(platform・transformation package・pipeline configurer)を表示します。CLIの`list-extensions`のGradle版です。
 
 ## 専用ツールと高度な拡張
 

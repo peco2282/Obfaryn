@@ -55,7 +55,7 @@ internal fun cliCommandLine(): CommandLine = CommandLine(RootCommand()).apply {
   name = "obfaryn", mixinStandardHelpOptions = true,
   description = ["Obfuscate a JAR. The default output is INPUT-obfuscated.jar beside the input."],
   footer = ["Options may precede or follow INPUT. Use @args.txt to read arguments from a file."],
-  subcommands = [ObfuscateCommand::class, DeobfuscateCommand::class, CompletionCommand::class],
+  subcommands = [ObfuscateCommand::class, DeobfuscateCommand::class, ListExtensionsCommand::class, CompletionCommand::class],
 )
 internal class RootCommand : Callable<Int> {
   @Mixin var obfuscation = ObfuscateCommand()
@@ -355,6 +355,45 @@ internal class DeobfuscateCommand : Callable<Int> {
   override fun call(): Int {
     spec.commandLine().out.print(Mapping.read(mapping).deobfuscateStacktrace(stacktrace.readText()))
     spec.commandLine().out.flush()
+    return 0
+  }
+}
+
+@Command(
+  name = "list-extensions", mixinStandardHelpOptions = true,
+  description = ["List platform, transformation-package and pipeline-configurer providers visible to the host, without transforming a JAR."],
+)
+internal class ListExtensionsCommand : Callable<Int> {
+  @Spec lateinit var spec: CommandSpec
+  @Option(names = ["--extension"], paramLabel = "JAR", description = ["Host extension JAR to scan in addition to the CLI's own classpath; repeatable."])
+  var extensionJars = mutableListOf<Path>()
+
+  override fun call(): Int {
+    extensionJars.forEach { require(Files.isRegularFile(it)) { "Extension JAR does not exist: $it" } }
+    val writer = spec.commandLine().out
+    java.net.URLClassLoader(extensionJars.map { it.toUri().toURL() }.toTypedArray(),
+      Thread.currentThread().contextClassLoader).use { loader ->
+      val thread = Thread.currentThread()
+      val previous = thread.contextClassLoader
+      try {
+        thread.contextClassLoader = loader
+        writer.println("Platforms (--platform / --also-platform):")
+        for (platform in Platforms.all().sortedBy { it.id }) {
+          writer.println("  ${platform.id} - ${platform.metadata.displayName} (API ${platform.metadata.apiVersion}, impl ${platform.metadata.implementationVersion})")
+        }
+        writer.println("Transformation packages (--package):")
+        val packages = com.peco2282.obfaryn.core.TransformationPackages.providers().sortedBy { it.id }
+        if (packages.isEmpty()) writer.println("  (none found; pass --extension JAR to scan a provider JAR)")
+        packages.forEach { writer.println("  ${it.id}") }
+        writer.println("Pipeline configurers (--configurer):")
+        val configurers = com.peco2282.obfaryn.core.PipelineConfigurers.providers().sortedBy { it.id }
+        if (configurers.isEmpty()) writer.println("  (none found; pass --extension JAR to scan a provider JAR)")
+        configurers.forEach { writer.println("  ${it.id}") }
+      } finally {
+        thread.contextClassLoader = previous
+      }
+    }
+    writer.flush()
     return 0
   }
 }
