@@ -32,6 +32,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
   override val classMapping = linkedMapOf<String, String>()
   override val methodMapping = linkedMapOf<MemberKey, String>()
   override val fieldMapping = linkedMapOf<MemberKey, String>()
+  override val packageMapping = linkedMapOf<String, String>()
   val warnings = mutableListOf<String>()
   private var names = com.peco2282.obfaryn.api.transformer.NamePreservation.NONE
 
@@ -134,6 +135,22 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
       occupied += candidate
     }
 
+    // module-info exports/opens name whole packages; only publish a package move when every
+    // original member actually relocated to the same target, never a partial/best-effort guess.
+    if (target != null) {
+      for ((originalPackage, members) in nodes.groupBy { it.name.substringBeforeLast('/', "") }) {
+        if (originalPackage.isEmpty() || originalPackage == target || originalPackage in pinnedPackages) continue
+        val relocated = members.filter { it.name in classMapping }
+        if (relocated.isEmpty()) continue
+        if (relocated.size == members.size && relocated.all { classMapping.getValue(it.name).substringBeforeLast('/', "") == target }) {
+          packageMapping[originalPackage] = target
+        } else {
+          warnings += "Package relocation left $originalPackage split across the original and $target packages: " +
+            "module-info exports/opens for $originalPackage were not rewritten"
+        }
+      }
+    }
+
     val families = ClassHierarchyResolver(context, config.classpath).use { hierarchy ->
       VirtualMethodFamilies(nodes, hierarchy, keep, classMapping).apply { if (config.renameMethods) plan() }
     }
@@ -181,6 +198,9 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
 
     val remapper = object : Remapper() {
       override fun map(internalName: String): String = classMapping[internalName] ?: internalName
+      // Drives module-info's exports/opens directives via ASM's ModuleRemapper; requires/uses/
+      // provides/main-class already follow map() above without any override needed here.
+      override fun mapPackageName(name: String): String = packageMapping[name] ?: name
       override fun mapMethodName(owner: String, name: String, descriptor: String): String =
         methodMapping[MemberKey(owner, name, descriptor)] ?: families.inheritedReferences[MemberKey(owner, name, descriptor)] ?: name
 

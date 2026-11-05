@@ -105,6 +105,8 @@ platformの`extensions()`から`PlatformPackages { context, options -> listOf(my
 
 独自の改名パスは`RenamingTransformer`を実装し、改名前のクラス・メンバー識別子に対応するマッピングを公開します。`context.namePreservation`でplatformや後続パッケージが追加したクラス・メンバー・リソースの保持要件を参照します。階層やリフレクションの安全性確認と参照の書き換え自体はパスの責任です。エンジンはこの結果を使い、メソッド順や記述子が変わっても元識別子とアプリケーション範囲を追跡し、マッピング文字列を返します。1実行につき改名パスは1個までで、標準の実装クラスである必要はありません。
 
+`RenamingTransformer.packageMapping`(既定は空)は、元パッケージから新パッケージへの移動を公開します。標準の改名パスは`module-info.class`も通常のクラスと同じ`ClassRemapper`パスで処理し、`Remapper.mapPackageName`をこのマップから上書きするため、`exports`/`opens`/隠しパッケージ(concealed package)がパッケージ移動に追従します(ASMの`ModuleRemapper`はこれらのディレクティブをもともと`mapPackageName`経由で処理します)。`uses`/`provides`/モジュールのmainクラスは、通常のクラス名マッピングだけで既に改名後のクラスに追従しており、`packageMapping`のエントリは不要です。独自の改名パスがパッケージ移動も行う場合は同様にしてください——あるパッケージのエントリは、元々そのパッケージにあった全クラスを移動させた場合にのみ公開し、部分的な推測は行わないこと、そして`module-info.class`も(他と同じ通常のクラスノードとして)`mapPackageName`がこのマップを参照するremapperで処理してください。`requires`ディレクティブとモジュール自身の宣言名は書き換えません。
+
 独自の本体変換は`BodyFeature("my-tool:feature")`を`isolatedBodyFeature`に指定できます。変更前に`canTransformBody(owner, method, feature)`を確認し、直近の呼び出し件数を`transformedCount`で返してください。本体への機能登録は不要で、標準機能と同じ元名ルール・予算巻き戻し・メソッド報告が使えます。APIは`ProtectionRule(pattern, mapOf(feature to false))`、Gradleは`rules { method("com/example/.*") { feature("my-tool:feature", false) } }`、CLIは`--disable-feature 'my-tool:feature=com/example/.*'`です。CLIの独自IDにはコロンが必要です。既存アノテーションの個別プロパティは標準機能用のままですが、一般的な本体制限と構造予算は独自機能にも適用します。
 
 構成時の`AssemblyContext`には`excludeClass`・`excludeResource`・`protectInput`があります。除外は通常パスの列挙から隠し、名前も保持しますが、依存調査の直接検索は可能です。`protectInput`は他の入力と同じパス同一性チェックでホストの成果物による上書きを拒否します。拡張自身が追加ファイルを出力する場合、その出力先の検証は拡張の責任です。

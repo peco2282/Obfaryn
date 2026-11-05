@@ -593,6 +593,7 @@ Environments that transform JARs after Obfaryn writes them must sign the final d
 - Multi-release JAR versioned classes are retained only when Obfaryn can rule out references to renamed application packages; otherwise processing fails.
 - VM support covers selected bytecode patterns, not every JVM instruction. VM hardening, performance budgets, and resistance evaluation remain future work.
 - Integrity protection detects changes according to its signed manifest; a self-contained JAR cannot guarantee that modification or reverse engineering is impossible.
+- A `module-info.class` present in the input has its `exports`/`opens`/concealed-package entries rewritten under `--flatten-packages`, matching where application classes actually relocate; `uses`, `provides` and the module's main class already follow renamed classes independently of flattening. `requires` directives and the module's own declared name are never rewritten, by design. Running the obfuscated JAR on the module path (as a named module), beyond this rewriting correctness, is not separately validated.
 
 ### Customizing the built-in pipeline
 

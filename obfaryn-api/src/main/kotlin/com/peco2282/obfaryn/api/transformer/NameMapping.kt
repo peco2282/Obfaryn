@@ -9,6 +9,15 @@ interface RenamingTransformer : Transformer {
   val methodMapping: Map<MemberKey, String>
   val fieldMapping: Map<MemberKey, String>
 
+  /**
+   * Original-to-new internal package name (`/`-separated, no trailing `/`), for a renamer that
+   * relocates whole packages (e.g. package flattening). Empty by default. A `module-info` descriptor's
+   * `exports`/`opens` directives are rewritten from this map by host renaming infrastructure; a
+   * package absent from this map is reported unchanged, so a renamer should only publish an entry
+   * when it moved every class originally in that package — never a partial/best-effort guess.
+   */
+  val packageMapping: Map<String, String> get() = emptyMap()
+
   fun mappingText(): String = buildString {
     for ((old, new) in classMapping) append("$old -> $new\n")
     for ((key, new) in methodMapping) append("  ${key.owner}.${key.name}${key.desc} -> $new\n")
