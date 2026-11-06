@@ -22,6 +22,10 @@ time of the "Bump to" commit, not with a Git tag.
 - `scripts/banner.sh`: an animated ASCII logo banner (static fallback when not an interactive
   color terminal); `install.sh` sources it from the local checkout or fetches it from the repo
   when piped (`curl | bash`), and shows it before installing.
+- `.github/workflows/release.yml` also accepts `workflow_dispatch` with a `tag` input, to
+  (re)build and attach assets to an existing tag's release without moving the tag. A tag checked
+  out from before the `distTar` gzip-compression change (above) would otherwise only produce a
+  plain `.tar`; the workflow now gzips it itself so `obfaryn-*.tar.gz` is always attached.
 
 ## [1.0.0]
 
