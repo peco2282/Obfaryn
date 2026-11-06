@@ -12,6 +12,24 @@ function Info($Message) { Write-Host "==> " -ForegroundColor Cyan -NoNewline; Wr
 function Ok($Message)   { Write-Host "OK  " -ForegroundColor Green -NoNewline; Write-Host $Message }
 function Warn($Message) { Write-Host "!   " -ForegroundColor Yellow -NoNewline; Write-Host $Message }
 
+function Show-Banner {
+    $art = @(
+        '   ____  __    ____',
+        '  / __ \/ /_  / __/___ ________  ______',
+        ' / / / / __ \/ /_/ __ `/ ___/ / / / __ \',
+        '/ /_/ / /_/ / __/ /_/ / /  / /_/ / / / /',
+        '\____/_.___/_/  \__,_/_/   \__, /_/ /_/',
+        '                           /____/'
+    )
+    $color = if ($env:NO_COLOR) { $Host.UI.RawUI.ForegroundColor } else { "Magenta" }
+    foreach ($line in $art) { Write-Host $line -ForegroundColor $color }
+    Write-Host ""
+    Write-Host "Obfaryn" -ForegroundColor $color -NoNewline
+    Write-Host " — JVM Bytecode Obfuscator"
+    Write-Host ""
+}
+Show-Banner
+
 $Repo = "peco2282/Obfaryn"
 $InstallDir = if ($env:OBFARYN_HOME) { $env:OBFARYN_HOME } else { "$env:LOCALAPPDATA\obfaryn" }
 
