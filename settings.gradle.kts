@@ -47,6 +47,7 @@ include("obfaryn-gradle-plugin")
 include("obfaryn-annotations")
 include("obfaryn-runtime")
 include("obfaryn-transformer")
+include("obfaryn-platform-kit")
 
 // external platform
 include("platforms:paper")

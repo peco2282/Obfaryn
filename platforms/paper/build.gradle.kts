@@ -29,6 +29,7 @@ repositories {
 
 dependencies {
   compileOnly(project(":obfaryn-api"))
+  implementation(project(":obfaryn-platform-kit"))
 
   testImplementation(project(":obfaryn-standard"))
   testImplementation(platform(libs.junit5.bom))

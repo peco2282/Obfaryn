@@ -140,6 +140,7 @@ dependencies {
   dokka(project(":obfaryn-core"))
   dokka(project(":obfaryn-standard"))
   dokka(project(":obfaryn-transformer"))
+  dokka(project(":obfaryn-platform-kit"))
   dokka(project(":obfaryn-gradle-plugin"))
   dokka(project(":platforms:paper"))
 }
