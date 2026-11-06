@@ -27,6 +27,16 @@ jobs:
       - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
       - run: ./gradlew :obfaryn-cli:installDist :obfaryn-cli:distTar :obfaryn-cli:distZip
       - run: python3 scripts/verify-cli-distribution.py
+      # Fallback for a tag older than distTar's gzip compression (build.gradle.kts commit
+      # 807ef98+): compress any plain .tar distTar produced so the asset glob below still finds
+      # an obfaryn-*.tar.gz, regardless of what the checked-out tag's own build config does.
+      - name: Ensure a gzip-compressed tarball exists
+        run: |
+          cd obfaryn-cli/build/distributions
+          shopt -s nullglob
+          for f in obfaryn-*.tar; do
+            [ -f "${f}.gz" ] || gzip -k "$f"
+          done
       - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           tag_name: ${{ inputs.tag || github.ref_name }}
