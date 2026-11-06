@@ -47,7 +47,9 @@
 | `obfaryn-standard` | 部分的に安定 | `Obfuscator`/`ObfuscationConfig`/`ObfuscationResult`は安定、それ以外は対象外 |
 | `obfaryn-core` | 内部 | `obfaryn-api`経由で公開されている範囲を超えて外部利用者が依存することは想定しない |
 | `obfaryn-transformer` | 内部 | 同上 |
-| `obfaryn-platform-paper` | 安定サーフェス(provider契約のみ) | 外部platform providerは`obfaryn-api`の`PlatformProvider`を実装する。このモジュールはその参照実装 |
+| `obfaryn-platform-kit` | 安定サーフェス | 拡張/platform実装者が直接依存する。`obfaryn-api`に対する純粋な追加ヘルパー |
+| `obfaryn-platform-paper` | 安定サーフェス(provider契約のみ) | 外部platform providerは`obfaryn-api`の`PlatformProvider`を実装する。このモジュールはその参照実装の一つ |
+| `obfaryn-platform-springboot` | 安定サーフェス(provider契約のみ) | 同上、Spring Bootアプリケーション向け |
 
 ## 今後の運用
 

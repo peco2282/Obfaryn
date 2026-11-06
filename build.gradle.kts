@@ -143,6 +143,7 @@ dependencies {
   dokka(project(":obfaryn-platform-kit"))
   dokka(project(":obfaryn-gradle-plugin"))
   dokka(project(":platforms:paper"))
+  dokka(project(":platforms:springboot"))
 }
 
 tasks.test {

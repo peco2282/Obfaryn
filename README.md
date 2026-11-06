@@ -76,17 +76,20 @@ obfaryn input.jar -o output.jar --seed 123 --protection strong \
 
 Save a flag combination you reuse across projects as a named preset — see [Named presets](#named-presets).
 
-### Pattern 5 — targeting a platform (e.g. Paper)
+### Pattern 5 — targeting a platform (e.g. Paper or Spring Boot)
 
 ```kotlin
 dependencies {
   obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0.0")
+  // or: obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-springboot:1.0.0")
 }
 obfaryn {
-  platform = "paper"
+  platform = "paper" // or "springboot"
 }
 ```
-`obfarynPlatform` resolves from the same release repository as the plugin itself; it is not added to the application's own classpath or the output JAR. CLI equivalent: download `obfaryn-platform-paper`'s JAR yourself and pass it with `--extension`, e.g. `obfaryn input.jar --extension obfaryn-platform-paper-1.0.0.jar --platform paper`. See [Discover an extension JAR](docs/assembly.md#discover-an-extension-jar).
+`obfarynPlatform` resolves from the same release repository as the plugin itself; it is not added to the application's own classpath or the output JAR. CLI equivalent: download the platform's JAR yourself and pass it with `--extension`, e.g. `obfaryn input.jar --extension obfaryn-platform-paper-1.0.0.jar --platform paper`. See [Discover an extension JAR](docs/assembly.md#discover-an-extension-jar).
+
+`obfaryn-platform-springboot` detects a Spring Boot application from an `@SpringBootApplication` class or a `META-INF/MANIFEST.MF` `Start-Class` attribute alone — it does not require the Spring Boot/Framework jars on the classpath, and does not unpack a Spring Boot executable jar's nested `BOOT-INF/classes`/`BOOT-INF/lib` layout; point it at an already-exploded set of classes or a plain (non-fat) jar. It protects `@Scheduled`/`@EventListener`/`@Async` methods and the application's `main` method, plus whatever they call, from virtualization the same way `obfaryn-platform-paper` protects event handlers and tick callbacks.
 
 ---
 
@@ -118,7 +121,9 @@ The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The `obfaryn-api`, `obfar
 | `obfaryn-transformer` | Standard transformers (strings, numbers, control flow, metadata) |
 | `obfaryn-cli` | Command-line application |
 | `obfaryn-gradle-plugin` | Gradle integration |
+| `obfaryn-platform-kit` | Kotlin helpers (annotation/subtype/call-graph checks) for writing a `Platform`, hiding raw ASM |
 | `platforms/paper` | External Paper platform provider (`obfaryn-platform-paper`) |
+| `platforms/springboot` | External Spring Boot platform provider (`obfaryn-platform-springboot`) |
 
 ## License
 
@@ -133,7 +138,7 @@ On Windows, build and run the application distribution:
 .\obfaryn-cli\build\install\obfaryn\bin\obfaryn.bat input.jar -o output.jar --platform paper --seed 123 --keep com.example.PublicApi
 ```
 
-On other platforms, use `./gradlew` and the generated `bin/obfaryn` script. `--platform` accepts `auto` (default), `generic`, and IDs supplied by installed platform providers such as `paper`. The Paper example requires `obfaryn-platform-paper` on the runtime classpath.
+On other platforms, use `./gradlew` and the generated `bin/obfaryn` script. `--platform` accepts `auto` (default), `generic`, and IDs supplied by installed platform providers such as `paper` or `springboot`. The Paper example requires `obfaryn-platform-paper` on the runtime classpath.
 
 With the installed distribution's `bin` directory on `PATH`:
 

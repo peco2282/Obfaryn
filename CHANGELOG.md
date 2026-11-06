@@ -29,6 +29,20 @@ time of the "Bump to" commit, not with a Git tag.
 - Root `build.gradle.kts` aggregates every published module's Dokka output into one HTML API
   reference (`./gradlew dokkaGeneratePublicationHtml`); `.github/workflows/docs.yml` publishes it
   to GitHub Pages on every push to `main` and on tags, linked from README/README.ja.md.
+- `obfaryn-platform-kit`: Kotlin extension functions for writing a `Platform` without working
+  directly against raw ASM types or hand-written `(owner, name, descriptor)` triples —
+  `isSubtypeOf`/`isAnnotatedWith` (string- and `Class<*>`/reified-based), `methodCallClosure` for
+  propagating a hot-path classification to whatever a seed method calls, `Class<*>`/`Method`/
+  `Constructor`/`Field` → descriptor/`MemberKey` conversions, and matching `PlatformConfiguration`
+  overloads (`keepMethod`/`keepField`/`keepConstructor`/`excludeMethodFromVirtualization`) that take
+  a real reflected member. `platforms/paper` is rewritten against it with no behavior change.
+- `platforms/springboot` (`obfaryn-platform-springboot`): obfuscation support for Spring Boot
+  applications, detected from an `@SpringBootApplication` class or a `META-INF/MANIFEST.MF`
+  `Start-Class` attribute (no Spring Boot/Framework jars required on the classpath; a Spring Boot
+  executable jar's nested `BOOT-INF/classes`/`BOOT-INF/lib` layout is not unpacked — point it at an
+  already-exploded set of classes or a plain, non-fat jar). Protects `@Scheduled`/`@EventListener`/
+  `@Async` methods and the application's `main` method, plus whatever they call, from
+  virtualization.
 
 ## [1.0.0]
 

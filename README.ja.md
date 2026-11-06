@@ -76,17 +76,20 @@ obfaryn input.jar -o output.jar --seed 123 --protection strong \
 
 複数プロジェクトで使い回すフラグ組み合わせは名前付きプリセットとして保存できます——[名前付きプリセット](#名前付きプリセット)を参照。
 
-### パターン5 — platform指定(例: Paper)
+### パターン5 — platform指定(例: PaperまたはSpring Boot)
 
 ```kotlin
 dependencies {
   obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0.0")
+  // または: obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-springboot:1.0.0")
 }
 obfaryn {
-  platform = "paper"
+  platform = "paper" // または "springboot"
 }
 ```
-`obfarynPlatform`はplugin自身と同じリリースリポジトリから解決され、アプリケーション自身のクラスパスや出力JARには追加されません。CLIで同じことをするには、`obfaryn-platform-paper`のJARを自分でダウンロードし`--extension`で渡します: `obfaryn input.jar --extension obfaryn-platform-paper-1.0.0.jar --platform paper`。[拡張JARの読み込み](docs/assembly.ja.md#拡張jarとして配る)を参照してください。
+`obfarynPlatform`はplugin自身と同じリリースリポジトリから解決され、アプリケーション自身のクラスパスや出力JARには追加されません。CLIで同じことをするには、プラットフォームのJARを自分でダウンロードし`--extension`で渡します: `obfaryn input.jar --extension obfaryn-platform-paper-1.0.0.jar --platform paper`。[拡張JARの読み込み](docs/assembly.ja.md#拡張jarとして配る)を参照してください。
+
+`obfaryn-platform-springboot`は`@SpringBootApplication`クラスか`META-INF/MANIFEST.MF`の`Start-Class`属性だけからSpring Bootアプリケーションを検出します。Spring Boot/Frameworkのjarをクラスパスに置く必要はなく、Spring Boot実行可能jarの`BOOT-INF/classes`/`BOOT-INF/lib`というネストされたレイアウトも展開しません——展開済みのクラス群か、素の(fatでない)jarを対象にしてください。`@Scheduled`/`@EventListener`/`@Async`メソッドとアプリケーションの`main`メソッド、およびそれらが呼び出す先をVM化から保護する点は、`obfaryn-platform-paper`がイベントハンドラやtickコールバックを保護するのと同じ仕組みです。
 
 ---
 
@@ -118,7 +121,9 @@ Gradle では `controlFlow { mode = "light" }`・`calls { enabled = true; prelin
 | `obfaryn-transformer` | 標準トランスフォーマー（文字列、数値、制御フロー、メタデータ） |
 | `obfaryn-cli` | コマンドラインアプリケーション |
 | `obfaryn-gradle-plugin` | Gradle 統合プラグイン |
+| `obfaryn-platform-kit` | `Platform`実装を書くためのKotlinヘルパー(アノテーション/継承/呼び出しグラフ判定)、生ASMを隠す |
 | `platforms/paper` | 外部 Paper プラットフォームプロバイダー (`obfaryn-platform-paper`) |
+| `platforms/springboot` | 外部 Spring Boot プラットフォームプロバイダー (`obfaryn-platform-springboot`) |
 
 ## ライセンス
 
@@ -133,7 +138,7 @@ Windows の場合、アプリケーション配布物をビルドして実行し
 .\obfaryn-cli\build\install\obfaryn\bin\obfaryn.bat input.jar -o output.jar --platform paper --seed 123 --keep com.example.PublicApi
 ```
 
-その他のプラットフォームでは `./gradlew` と生成された `bin/obfaryn` スクリプトを使用します。`--platform` は `auto`（既定値）、`generic`、および導入されたプラットフォームプロバイダーが提供する ID（`paper` など）を受け付けます。Paper の例では実行時クラスパスに `obfaryn-platform-paper` が必要です。
+その他のプラットフォームでは `./gradlew` と生成された `bin/obfaryn` スクリプトを使用します。`--platform` は `auto`（既定値）、`generic`、および導入されたプラットフォームプロバイダーが提供する ID（`paper`や`springboot`など）を受け付けます。Paper の例では実行時クラスパスに `obfaryn-platform-paper` が必要です。
 
 インストールされた配布物の `bin` ディレクトリを `PATH` に追加している場合:
 

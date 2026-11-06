@@ -49,8 +49,9 @@ include("obfaryn-runtime")
 include("obfaryn-transformer")
 include("obfaryn-platform-kit")
 
-// external platform
+// external platforms
 include("platforms:paper")
+include("platforms:springboot")
 
 include("obfaryn-standard")
 include("examples:custom-extension")

@@ -52,7 +52,9 @@ can check against, instead of being re-litigated per pull request.
 | `obfaryn-standard` | Partially stable | `Obfuscator`/`ObfuscationConfig`/`ObfuscationResult` are stable; everything else inside is not |
 | `obfaryn-core` | Internal | No external consumer is expected to depend on it beyond what `obfaryn-api` re-exposes |
 | `obfaryn-transformer` | Internal | Same |
-| `obfaryn-platform-paper` | Stable surface (provider contract only) | External platform providers implement `obfaryn-api`'s `PlatformProvider`; this module is the reference implementation |
+| `obfaryn-platform-kit` | Stable surface | Extension/platform authors compile against this directly; purely additive helpers over `obfaryn-api` |
+| `obfaryn-platform-paper` | Stable surface (provider contract only) | External platform providers implement `obfaryn-api`'s `PlatformProvider`; this module is a reference implementation |
+| `obfaryn-platform-springboot` | Stable surface (provider contract only) | Same, for Spring Boot applications |
 
 ## Process going forward
 
