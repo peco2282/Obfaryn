@@ -4,15 +4,20 @@ import com.peco2282.obfaryn.api.*
 import com.peco2282.obfaryn.api.assembly.*
 import com.peco2282.obfaryn.api.protection.*
 import com.peco2282.obfaryn.api.transformer.*
+import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import com.peco2282.obfaryn.core.io.ArtifactPaths
 import com.peco2282.obfaryn.core.jar.*
+import com.peco2282.obfaryn.core.keep.KeepNamePreservation
 import com.peco2282.obfaryn.core.keep.KeepRules
 import com.peco2282.obfaryn.core.platform.*
 import com.peco2282.obfaryn.core.protection.*
+import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.MethodNode
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.SecureRandom
 import java.util.Random
+import java.util.jar.Manifest
 
 /** Execution settings contain no standard algorithm switches. An empty package list runs no passes. */
 data class EngineOptions(
@@ -52,14 +57,14 @@ class TransformationEngine(private val options: EngineOptions = EngineOptions())
     val platformOptions = MapPlatformOptions(options.platformOptions)
     val composite = CompositePlatform(selected)
     val applied = PlatformExtensionApplier.apply(composite, context, platformOptions)
-    com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy.validate(context.classes.values)
+    ObfuscationAnnotationPolicy.validate(context.classes.values)
     val keep = KeepRules()
-    context.namePreservation = com.peco2282.obfaryn.core.keep.KeepNamePreservation(keep)
+    context.namePreservation = KeepNamePreservation(keep)
     selected.forEach { it.configure(context, platformOptions, keep) }
     options.configuration?.invoke(keep)
     val entrypoints = selected.flatMap { it.entrypoints(context, platformOptions) }.toMutableList()
     context.resources["META-INF/MANIFEST.MF"]?.let { entry ->
-      val manifest = java.util.jar.Manifest(entry.data.inputStream())
+      val manifest = Manifest(entry.data.inputStream())
       for (key in listOf("Main-Class", "Premain-Class", "Agent-Class", "Launcher-Agent-Class")) {
         manifest.mainAttributes.getValue(key)?.let { name ->
           keep.keepClassNameAndPublicMembers(name)
@@ -79,7 +84,7 @@ class TransformationEngine(private val options: EngineOptions = EngineOptions())
         (context.originalClassNames[internalName] ?: internalName).startsWith("$it/")
       }
       override fun keepConstant(owner: String, field: String) = keep.field(owner, field)
-      override fun methodIdentity(owner: org.objectweb.asm.tree.ClassNode, method: org.objectweb.asm.tree.MethodNode) =
+      override fun methodIdentity(owner: ClassNode, method: MethodNode) =
         context.originalMethodIdentities[owner.name + "." + method.name + method.desc] ?: (owner.name + "." + method.name + method.desc)
     }
     context.transformationPolicy = FeaturePolicy(context.transformationPolicy, options.budget,

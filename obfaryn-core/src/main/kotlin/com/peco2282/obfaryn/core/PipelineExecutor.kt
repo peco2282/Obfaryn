@@ -2,6 +2,7 @@ package com.peco2282.obfaryn.core
 
 import com.peco2282.obfaryn.api.transformer.*
 import com.peco2282.obfaryn.api.protection.MethodTransformationReport
+import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import com.peco2282.obfaryn.core.context.ObfuscationContext
 import com.peco2282.obfaryn.core.protection.*
 import com.peco2282.obfaryn.core.transformer.FilteredContext
@@ -56,7 +57,7 @@ class PipelineExecutor {
             owner.methods.map { method ->
               val size = MethodSize.of(method)
               MethodTransformationReport(context.transformationInputs.methodIdentity(owner, method), "skipped",
-                if (com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy.noObfuscation(owner)) "annotation:NoObfuscation"
+                if (ObfuscationAnnotationPolicy.noObfuscation(owner)) "annotation:NoObfuscation"
                 else "class-exclusion-or-application-scope", size.instructions, size.instructions,
                 size.branches, size.branches, size.bytes, size.bytes)
             }

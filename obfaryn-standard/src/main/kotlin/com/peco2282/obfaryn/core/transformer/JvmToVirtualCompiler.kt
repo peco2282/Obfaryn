@@ -3,6 +3,7 @@ package com.peco2282.obfaryn.core.transformer
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.*
+import java.util.Random
 
 /**
  * Converts one supported JVM method into the semantic [VirtualProgram] IR.
@@ -56,7 +57,7 @@ internal object JvmToVirtualCompiler {
   }
 
   /** Compiles [method] without mutating its instruction list. */
-  fun compile(owner: ClassNode, method: MethodNode, bridges: BridgeRegistry = BridgeRegistry(java.util.Random(0))): VirtualProgram {
+  fun compile(owner: ClassNode, method: MethodNode, bridges: BridgeRegistry = BridgeRegistry(Random(0))): VirtualProgram {
     if (method.instructions.any { it is TableSwitchInsnNode || it is LookupSwitchInsnNode }) {
       return compile(owner, lowerSwitches(method), bridges)
     }

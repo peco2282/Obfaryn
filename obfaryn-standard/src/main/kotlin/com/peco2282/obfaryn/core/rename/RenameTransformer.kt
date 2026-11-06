@@ -2,7 +2,11 @@ package com.peco2282.obfaryn.core.rename
 
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.context.ResourceEntry
+import com.peco2282.obfaryn.api.transformer.NamePreservation
+import com.peco2282.obfaryn.api.transformer.RenamingTransformer
 import com.peco2282.obfaryn.api.transformer.Transformer
+import com.peco2282.obfaryn.api.transformer.TransformerReport
+import com.peco2282.obfaryn.api.transformer.MemberKey as ApiMemberKey
 import com.peco2282.obfaryn.core.ObfuscationConfig
 import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import com.peco2282.obfaryn.core.keep.KeepRules
@@ -17,7 +21,7 @@ import org.objectweb.asm.tree.FieldInsnNode
 import org.objectweb.asm.tree.MethodInsnNode
 
 /** Original member identity used for mapping and reference rewriting. */
-typealias MemberKey = com.peco2282.obfaryn.api.transformer.MemberKey
+typealias MemberKey = ApiMemberKey
 
 /**
  * Plans and applies class, method, and field renames while honoring keep and hierarchy rules.
@@ -26,7 +30,7 @@ typealias MemberKey = com.peco2282.obfaryn.api.transformer.MemberKey
  * families are retained. Package flattening pins packages whose access or relative resource
  * behavior cannot safely survive relocation. Mapping tables retain original identities.
  */
-class RenameTransformer(private val config: ObfuscationConfig, private val keep: KeepRules) : com.peco2282.obfaryn.api.transformer.RenamingTransformer {
+class RenameTransformer(private val config: ObfuscationConfig, private val keep: KeepRules) : RenamingTransformer {
   override val id = "rename"
   override val order = 40
   override val classMapping = linkedMapOf<String, String>()
@@ -34,10 +38,10 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
   override val fieldMapping = linkedMapOf<MemberKey, String>()
   override val packageMapping = linkedMapOf<String, String>()
   val warnings = mutableListOf<String>()
-  private var names = com.peco2282.obfaryn.api.transformer.NamePreservation.NONE
+  private var names = NamePreservation.NONE
 
   override val transformedCount: Int get() = classMapping.size + methodMapping.size + fieldMapping.size
-  override fun report() = com.peco2282.obfaryn.api.transformer.TransformerReport(id, warnings = warnings.toList())
+  override fun report() = TransformerReport(id, warnings = warnings.toList())
 
   override fun transform(context: ObfuscationContext) {
     names = context.namePreservation

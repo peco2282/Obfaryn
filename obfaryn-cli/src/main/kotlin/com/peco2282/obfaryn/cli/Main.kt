@@ -1,5 +1,6 @@
 package com.peco2282.obfaryn.cli
 
+import com.peco2282.obfaryn.api.MapPlatformOptions
 import com.peco2282.obfaryn.core.ObfuscationConfig
 import com.peco2282.obfaryn.core.KotlinMetadataMode
 import com.peco2282.obfaryn.core.ProtectionLevel
@@ -8,9 +9,14 @@ import com.peco2282.obfaryn.core.io.ArtifactPaths
 import com.peco2282.obfaryn.api.protection.BodyFeature
 import com.peco2282.obfaryn.api.protection.ControlFlowMode
 import com.peco2282.obfaryn.api.protection.ProtectionRule
+import com.peco2282.obfaryn.api.protection.TransformationBudget
+import com.peco2282.obfaryn.core.ExtensionListing
+import com.peco2282.obfaryn.core.TransformationPackages
 import com.peco2282.obfaryn.core.mapping.Mapping
 import com.peco2282.obfaryn.core.platform.Platforms
 import com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode
+import com.peco2282.obfaryn.core.withExtensionClassLoader
+import com.peco2282.obfaryn.standard.StandardPackage
 import picocli.AutoComplete
 import picocli.CommandLine
 import picocli.CommandLine.Command
@@ -298,7 +304,7 @@ internal open class ObfuscateCommand : Callable<Int> {
       controlFlowMode = controlFlowMode, protectionRules = featureExclusions.toList(),
       integerArithmetic = integerArithmetic, maxArithmeticOperationsPerMethod = arithmeticOperations,
       prelinkCalls = prelinkCalls, transformationReport = transformationReport,
-      transformationBudget = com.peco2282.obfaryn.api.protection.TransformationBudget(
+      transformationBudget = TransformationBudget(
         maxInputInstructions, maxInputBranches, maxAddedInstructions, maxGrowthPercent, maxOutputCodeBytes, growthAllowanceInstructions),
       virtualizeMethods = virtualizeMethods,
       excludeVirtualization = excludeVirtualization,
@@ -323,11 +329,12 @@ internal open class ObfuscateCommand : Callable<Int> {
       }
     }
     extensionJars.forEach { require(Files.isRegularFile(it)) { "Extension JAR does not exist: $it" } }
-    val result = com.peco2282.obfaryn.core.withExtensionClassLoader(
+    val result = withExtensionClassLoader(
       extensionJars.map { it.toUri().toURL() }, Thread.currentThread().contextClassLoader) {
-      val packages = (if (noDefaultPackage) emptyList() else listOf(com.peco2282.obfaryn.standard.StandardPackage(config))) +
-        com.peco2282.obfaryn.core.TransformationPackages.select(packageIds,
-          com.peco2282.obfaryn.api.MapPlatformOptions(config.platformOptions))
+      val packages = (if (noDefaultPackage) emptyList() else listOf(StandardPackage(config))) +
+        TransformationPackages.select(packageIds,
+          MapPlatformOptions(config.platformOptions)
+        )
       Obfuscator(config, packages = packages, protectedInputs = extensionJars).obfuscate(input, out, mapping)
     }
     val writer = spec.commandLine().out
@@ -441,9 +448,9 @@ internal class ListExtensionsCommand : Callable<Int> {
   override fun call(): Int {
     extensionJars.forEach { require(Files.isRegularFile(it)) { "Extension JAR does not exist: $it" } }
     val writer = spec.commandLine().out
-    com.peco2282.obfaryn.core.withExtensionClassLoader(
+    withExtensionClassLoader(
       extensionJars.map { it.toUri().toURL() }, Thread.currentThread().contextClassLoader) {
-      com.peco2282.obfaryn.core.ExtensionListing.lines().forEach(writer::println)
+      ExtensionListing.lines().forEach(writer::println)
     }
     writer.flush()
     return 0

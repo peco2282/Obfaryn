@@ -13,7 +13,9 @@ import com.peco2282.obfaryn.core.integrity.IntegrityProtection
 import com.peco2282.obfaryn.core.jar.JarReader
 import com.peco2282.obfaryn.core.jar.JarWriter
 import com.peco2282.obfaryn.core.io.ArtifactPaths.sameFile
+import com.peco2282.obfaryn.core.keep.KeepNamePreservation
 import com.peco2282.obfaryn.core.keep.KeepRules
+import com.peco2282.obfaryn.core.platform.CompositePlatform
 import com.peco2282.obfaryn.core.platform.Platforms
 import com.peco2282.obfaryn.core.platform.PlatformExtensionApplier
 import com.peco2282.obfaryn.core.rename.RenameTransformer
@@ -23,6 +25,10 @@ import com.peco2282.obfaryn.transformer.linkage.PrelinkRuntimeTransformer
 import com.peco2282.obfaryn.api.protection.*
 import com.peco2282.obfaryn.transformer.arithmetic.IntegerArithmeticTransformer
 import com.peco2282.obfaryn.transformer.ConstantFieldTransformer
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.MethodNode
+import java.util.jar.Manifest
 import com.peco2282.obfaryn.transformer.CallIndirectionTransformer
 import com.peco2282.obfaryn.transformer.ControlFlowTransformer
 import com.peco2282.obfaryn.transformer.MetadataStripTransformer
@@ -132,7 +138,7 @@ class Obfuscator(
     val classesLoaded = context.classes.size
     val resourcesLoaded = context.resources.size
     val primary = Platforms.select(config.platform, context)
-    val platform = com.peco2282.obfaryn.core.platform.CompositePlatform(
+    val platform = CompositePlatform(
       listOf(primary) + config.additionalPlatforms.map { id ->
         require(id != "auto") { "Additional platforms must be selected explicitly" }
         Platforms.select(id, context)
@@ -141,13 +147,13 @@ class Obfuscator(
     val appliedPlatformExtensions = PlatformExtensionApplier.apply(platform, context, platformOptions)
     ObfuscationAnnotationPolicy.validate(context.classes.values)
     val keep = KeepRules()
-    context.namePreservation = com.peco2282.obfaryn.core.keep.KeepNamePreservation(keep)
+    context.namePreservation = KeepNamePreservation(keep)
     config.keep.forEach(keep::add)
     platform.configure(context, platformOptions, keep)
     config.platformConfiguration?.invoke(keep)
     val entrypoints = platform.entrypoints(context, platformOptions).toMutableSet()
     context.resources["META-INF/MANIFEST.MF"]?.let { entry ->
-      val manifest = java.util.jar.Manifest(entry.data.inputStream())
+      val manifest = Manifest(entry.data.inputStream())
       for (name in listOf("Main-Class", "Premain-Class", "Agent-Class", "Launcher-Agent-Class")) {
         manifest.mainAttributes.getValue(name)?.let {
           keep.keepClassNameAndPublicMembers(it)
@@ -215,7 +221,7 @@ class Obfuscator(
         "Multi-Release JAR requires an application package root and AUTO/PRESERVE Kotlin Metadata mode"
       }
       for ((path, resource) in versionedClasses) {
-        val name = org.objectweb.asm.ClassReader(resource.data).className
+        val name = ClassReader(resource.data).className
         val raw = resource.data.toString(Charsets.ISO_8859_1)
         require(applicationRoots.none { name.startsWith("$it/") || raw.contains("$it/") }) {
           "Versioned class $path may refer to renamed application classes; refusing unsafe transformation"
@@ -239,7 +245,7 @@ class Obfuscator(
       override fun isApplicationClass(internalName: String) =
         applicationRoots.any { (context.originalClassNames[internalName] ?: internalName).startsWith("$it/") }
       override fun keepConstant(owner: String, field: String) = keep.field(owner, field)
-      override fun methodIdentity(owner: org.objectweb.asm.tree.ClassNode, method: org.objectweb.asm.tree.MethodNode) =
+      override fun methodIdentity(owner: ClassNode, method: MethodNode) =
         context.originalMethodIdentities[owner.name + "." + method.name + method.desc]
           ?: (owner.name + "." + method.name + method.desc)
     }

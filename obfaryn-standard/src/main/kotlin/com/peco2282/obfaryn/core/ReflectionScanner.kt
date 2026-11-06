@@ -26,7 +26,7 @@ internal object ReflectionScanner {
         // getDeclaredMethod(name, parameterTypes) puts an array construction between
         // the name literal and the call. Scan a bounded straight-line window.
         val previous = generateSequence(insn.previous) { it.previous }.take(24)
-          .takeWhile { it !is MethodInsnNode && it.opcode != org.objectweb.asm.Opcodes.GOTO }
+          .takeWhile { it !is MethodInsnNode && it.opcode != Opcodes.GOTO }
           .filterIsInstance<LdcInsnNode>().firstOrNull { it.cst is String }
         val value = previous?.cst as? String
         val location = "${node.name}.${method.name}${method.desc}"

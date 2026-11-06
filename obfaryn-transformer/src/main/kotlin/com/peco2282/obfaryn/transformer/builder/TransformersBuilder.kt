@@ -4,6 +4,7 @@ import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector
 import com.peco2282.obfaryn.api.transformer.Transformer
+import com.peco2282.obfaryn.transformer.CallIndirectionTransformer
 import com.peco2282.obfaryn.transformer.ConstantFieldTransformer
 import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationStrategy
 import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationSelector
@@ -11,6 +12,7 @@ import com.peco2282.obfaryn.transformer.MetadataStripTransformer
 import com.peco2282.obfaryn.transformer.NumberObfuscationTransformer
 import com.peco2282.obfaryn.transformer.StringEncryptionTransformer
 import com.peco2282.obfaryn.transformer.RollingStringEncryptionCodec
+import com.peco2282.obfaryn.transformer.arithmetic.IntegerArithmeticTransformer
 import java.util.Random
 import kotlin.random.asJavaRandom
 import kotlin.random.Random as KotlinRandom
@@ -36,14 +38,14 @@ class TransformersBuilder {
   /** Bounded modular integer expressions; application scope comes from the execution context. */
   fun integerArithmetic(random: Random = KotlinRandom.asJavaRandom(), maxOperationsPerMethod: Int = 16) = apply {
     require(transformers.none { it.id == "integer-arithmetic" }) { "integerArithmetic is already configured" }
-    transformers.add(com.peco2282.obfaryn.transformer.arithmetic.IntegerArithmeticTransformer(random, maxOperationsPerMethod))
+    transformers.add(IntegerArithmeticTransformer(random, maxOperationsPerMethod))
   }
 
   /** Final-name linkage conversion; default scope is the host's application classes. */
   fun callIndirection(random: Random = KotlinRandom.asJavaRandom(), prelink: Boolean = false,
     includeClass: ((String) -> Boolean)? = null) = apply {
     require(transformers.none { it.id == "call-indirection" }) { "callIndirection is already configured" }
-    transformers.add(com.peco2282.obfaryn.transformer.CallIndirectionTransformer(random, prelink, includeClass))
+    transformers.add(CallIndirectionTransformer(random, prelink, includeClass))
   }
 
   private val transformers: MutableList<Transformer> = mutableListOf()

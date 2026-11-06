@@ -1,5 +1,8 @@
 package com.peco2282.obfaryn.api.transformer
 
+import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.MethodNode
+
 /**
  * Run-specific scope, preservation rules and analysis supplied by the execution host.
  *
@@ -9,7 +12,7 @@ package com.peco2282.obfaryn.api.transformer
  */
 interface TransformationInputs {
   /** Stable original identity, including after the built-in renamer. */
-  fun methodIdentity(owner: org.objectweb.asm.tree.ClassNode, method: org.objectweb.asm.tree.MethodNode): String =
+  fun methodIdentity(owner: ClassNode, method: MethodNode): String =
     owner.name + "." + method.name + method.desc
   /**
    * Whether [internalName] belongs to the application's configured or inferred package scope.

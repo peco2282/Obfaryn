@@ -1,6 +1,7 @@
 package com.peco2282.obfaryn.transformer
 
 import com.peco2282.obfaryn.api.protection.BodyFeature
+import com.peco2282.obfaryn.api.protection.ControlFlowMode
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.transformer.Transformer
 import com.peco2282.obfaryn.api.transformer.TransformerReport
@@ -30,7 +31,7 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
     "dispatchedMethods" to dispatchedMethods, "rearrangedMethods" to rearrangedMethods,
   ))
 
-  override fun skipReason(context: ObfuscationContext, owner: org.objectweb.asm.tree.ClassNode,
+  override fun skipReason(context: ObfuscationContext, owner: ClassNode,
     method: MethodNode): String = when {
     method.name.startsWith('<') -> "constructor-or-class-initializer"
     method.instructions.size() > 10000 -> "control-flow-instruction-limit"
@@ -46,9 +47,9 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
     for (owner in context.classes.values) for (method in owner.methods) {
       if (context.transformationPolicy.canTransformBody(owner, method, BodyFeature.CONTROL_FLOW)) {
         val mode = context.transformationPolicy.controlFlowMode(owner, method)
-        if (mode == com.peco2282.obfaryn.api.protection.ControlFlowMode.NONE) continue
-        val light = mode == com.peco2282.obfaryn.api.protection.ControlFlowMode.LIGHT ||
-          mode == com.peco2282.obfaryn.api.protection.ControlFlowMode.INHERIT && lightweight
+        if (mode == ControlFlowMode.NONE) continue
+        val light = mode == ControlFlowMode.LIGHT ||
+          mode == ControlFlowMode.INHERIT && lightweight
         if (!light) flatten(owner.name, method)
         if (method !in flattened) rearrange(method)
       }

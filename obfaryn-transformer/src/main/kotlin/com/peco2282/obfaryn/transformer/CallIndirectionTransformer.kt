@@ -6,6 +6,7 @@ import com.peco2282.obfaryn.api.transformer.Transformer
 import com.peco2282.obfaryn.api.transformer.TransformerReport
 import com.peco2282.obfaryn.runtime.internal.CallLinker
 import com.peco2282.obfaryn.transformer.linkage.PrelinkGenerator
+import com.peco2282.obfaryn.transformer.linkage.PrelinkRuntimeTransformer
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Handle
@@ -37,7 +38,7 @@ class CallIndirectionTransformer @JvmOverloads constructor(
   private var skipped = 0L
   override fun report() = TransformerReport(id, mapOf("indirectedCalls" to calls, "skippedCalls" to skipped))
 
-  override fun skipReason(context: ObfuscationContext, owner: org.objectweb.asm.tree.ClassNode,
+  override fun skipReason(context: ObfuscationContext, owner: ClassNode,
     method: MethodNode): String = when {
     !(includeClass?.invoke(owner.name) ?: context.transformationInputs.isApplicationClass(owner.name)) -> "outside-application-scope"
     owner.version and 0xffff < Opcodes.V1_8 -> "requires-java8-classfile"
@@ -125,7 +126,7 @@ class CallIndirectionTransformer @JvmOverloads constructor(
         context.putClass(helper)
       }
     }
-    if (prelink) com.peco2282.obfaryn.transformer.linkage.PrelinkRuntimeTransformer.inject(context)
+    if (prelink) PrelinkRuntimeTransformer.inject(context)
   }
 
   private fun encode(text: String, initialKey: Int): String {

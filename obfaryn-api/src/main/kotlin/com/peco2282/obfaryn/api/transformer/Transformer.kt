@@ -1,6 +1,12 @@
 package com.peco2282.obfaryn.api.transformer
 
 import com.peco2282.obfaryn.api.ObfuscationContext
+import com.peco2282.obfaryn.api.assembly.TransformationPackage
+import com.peco2282.obfaryn.api.assembly.TransformationPackageProvider
+import com.peco2282.obfaryn.api.protection.BodyFeature
+import com.peco2282.obfaryn.api.protection.MethodTransformationReport
+import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.MethodNode
 
 /**
  * Represents a bytecode transformation step in the obfuscation pipeline.
@@ -28,8 +34,8 @@ import com.peco2282.obfaryn.api.ObfuscationContext
  * ```
  * Pass the resulting configurer to the execution host; creating it alone does not execute a pass.
  * A bare [Transformer] implementation is not automatically discovered through ServiceLoader. Wrap it
- * in a [PipelineConfigurer] inside a [com.peco2282.obfaryn.api.assembly.TransformationPackage] and
- * expose that through [com.peco2282.obfaryn.api.assembly.TransformationPackageProvider] to make it
+ * in a [PipelineConfigurer] inside a [TransformationPackage] and
+ * expose that through [TransformationPackageProvider] to make it
  * ServiceLoader-discoverable and explicitly selectable by ID from a host-loaded extension JAR; the
  * package's `context` parameter can simply be ignored when a pass only needs the registry.
  */
@@ -50,11 +56,11 @@ interface Transformer {
    * in classes, full read-only dependency lookup, and buffered class injection. Resource mutation
    * and class removal are forbidden. Leave null for global/custom passes that need other semantics.
    */
-  val isolatedBodyFeature: com.peco2282.obfaryn.api.protection.BodyFeature? get() = null
+  val isolatedBodyFeature: BodyFeature? get() = null
 
   /** Best-effort explanation for an unchanged method, without consuming randomness or mutating it. */
-  fun skipReason(context: ObfuscationContext, owner: org.objectweb.asm.tree.ClassNode,
-    method: org.objectweb.asm.tree.MethodNode): String? = null
+  fun skipReason(context: ObfuscationContext, owner: ClassNode,
+    method: MethodNode): String? = null
 
   /**
    * The execution order/priority of this transformer in the pipeline.
@@ -119,5 +125,5 @@ data class TransformerReport(
   val id: String,
   val metrics: Map<String, Long> = emptyMap(),
   val warnings: List<String> = emptyList(),
-  val methods: List<com.peco2282.obfaryn.api.protection.MethodTransformationReport> = emptyList(),
+  val methods: List<MethodTransformationReport> = emptyList(),
 )

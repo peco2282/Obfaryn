@@ -3,10 +3,13 @@ package com.peco2282.obfaryn.core.context
 
 import com.peco2282.obfaryn.api.PlatformContext
 import com.peco2282.obfaryn.api.context.ResourceEntry
+import com.peco2282.obfaryn.api.transformer.NamePreservation
 import com.peco2282.obfaryn.api.transformer.TransformationPolicy
 import com.peco2282.obfaryn.api.transformer.TransformationInputs
 import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.FieldNode
+import org.objectweb.asm.tree.MethodNode
 import java.util.*
 import com.peco2282.obfaryn.api.ObfuscationContext as ObfuscationContextApi
 
@@ -26,8 +29,7 @@ class ObfuscationContext(
   classes: MutableMap<String, ClassNode>,
   resources: MutableMap<String, ResourceEntry>,
 ) : ObfuscationContextApi, PlatformContext {
-  override var namePreservation: com.peco2282.obfaryn.api.transformer.NamePreservation =
-    com.peco2282.obfaryn.api.transformer.NamePreservation.NONE
+  override var namePreservation: NamePreservation = NamePreservation.NONE
   val originalClassNames = mutableMapOf<String, String>()
   val originalMethodIdentities = mutableMapOf<String, String>()
   override var transformationInputs: TransformationInputs = TransformationInputs.EMPTY
@@ -38,13 +40,13 @@ class ObfuscationContext(
   override val resources: Map<String, ResourceEntry> = Collections.unmodifiableMap(resourceMap)
   /** Evaluates the current annotations on each query; it is not a cached eligibility result. */
   override var transformationPolicy: TransformationPolicy = object : TransformationPolicy {
-    override fun canTransformBody(owner: ClassNode, method: org.objectweb.asm.tree.MethodNode) =
+    override fun canTransformBody(owner: ClassNode, method: MethodNode) =
       !ObfuscationAnnotationPolicy.skipBody(owner, method)
 
     override fun canTransformMetadata(owner: ClassNode) =
       !ObfuscationAnnotationPolicy.noObfuscation(owner) && !ObfuscationAnnotationPolicy.renameOnly(owner)
 
-    override fun canTransformConstant(owner: ClassNode, field: org.objectweb.asm.tree.FieldNode) =
+    override fun canTransformConstant(owner: ClassNode, field: FieldNode) =
       canTransformMetadata(owner) && !ObfuscationAnnotationPolicy.has(owner, ObfuscationAnnotationPolicy.HOT_PATH) &&
         !ObfuscationAnnotationPolicy.noObfuscation(field)
   }

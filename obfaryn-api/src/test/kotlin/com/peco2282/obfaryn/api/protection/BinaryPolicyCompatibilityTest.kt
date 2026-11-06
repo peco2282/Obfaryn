@@ -1,5 +1,6 @@
 package com.peco2282.obfaryn.api.protection
 
+import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.transformer.TransformationPolicy
 import com.peco2282.obfaryn.api.transformer.Transformer
 import org.junit.jupiter.api.Assertions.*
@@ -52,7 +53,7 @@ class BinaryPolicyCompatibilityTest {
       assertEquals(TransformationBudget(), policy.budget(owner, method))
     }
     assertTrue(Transformer::class.java.getMethod("getIsolatedBodyFeature").isDefault)
-    assertTrue(Transformer::class.java.getMethod("skipReason", com.peco2282.obfaryn.api.ObfuscationContext::class.java,
+    assertTrue(Transformer::class.java.getMethod("skipReason", ObfuscationContext::class.java,
       ClassNode::class.java, MethodNode::class.java).isDefault)
     assertNotNull(Class.forName("com.peco2282.obfaryn.api.transformer.TransformationPolicy\$DefaultImpls"))
   }

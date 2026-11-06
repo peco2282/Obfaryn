@@ -1,15 +1,20 @@
 package com.peco2282.obfaryn.standard
 
+import com.peco2282.obfaryn.api.ObfuscationContext
+import com.peco2282.obfaryn.api.PlatformOptions
 import com.peco2282.obfaryn.api.assembly.*
 import com.peco2282.obfaryn.api.transformer.*
 import com.peco2282.obfaryn.api.protection.ControlFlowMode
 import com.peco2282.obfaryn.core.*
+import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
+import com.peco2282.obfaryn.core.integrity.IntegrityProtection
 import com.peco2282.obfaryn.core.keep.KeepRules
 import com.peco2282.obfaryn.core.rename.RenameTransformer
 import com.peco2282.obfaryn.core.transformer.*
 import com.peco2282.obfaryn.transformer.*
 import com.peco2282.obfaryn.transformer.arithmetic.IntegerArithmeticTransformer
 import com.peco2282.obfaryn.transformer.linkage.PrelinkRuntimeTransformer
+import java.nio.file.Path
 
 /** Optional standard recipe; users may replace it entirely with their own API-only recipe. */
 class StandardPackage internal constructor(
@@ -41,7 +46,7 @@ class StandardPackage internal constructor(
     }
     val excluded = input.classes.keys.filterTo(linkedSetOf()) { name ->
       config.excludeClasses.any { Regex(it).matches(name) } ||
-        com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy.noObfuscation(input.classes.getValue(name)) ||
+        ObfuscationAnnotationPolicy.noObfuscation(input.classes.getValue(name)) ||
         (config.protectionLevel == ProtectionLevel.STRONG && !input.transformationInputs.isApplicationClass(name)) ||
         (config.prelinkCalls && name == PrelinkRuntimeTransformer.RUNTIME_NAME)
     }
@@ -58,10 +63,10 @@ class StandardPackage internal constructor(
     config.integrityPrivateKey?.let { privateKey ->
       context.protectInput(privateKey)
       context.protectInput(config.integrityPublicKey!!)
-      val integrity = com.peco2282.obfaryn.core.integrity.IntegrityProtection(privateKey, config.integrityPublicKey)
+      val integrity = IntegrityProtection(privateKey, config.integrityPublicKey)
       context.outputProcessor(object : OutputProcessor {
-        override fun beforeWrite(context: com.peco2282.obfaryn.api.ObfuscationContext) { integrity.inject(context, excluded, random) }
-        override fun afterWrite(output: java.nio.file.Path) { integrity.seal(output, context.reproducible) }
+        override fun beforeWrite(context: ObfuscationContext) { integrity.inject(context, excluded, random) }
+        override fun afterWrite(output: Path) { integrity.seal(output, context.reproducible) }
       })
     }
     if (preparedKeep == null) keep.applyTo(context.configuration)
@@ -96,5 +101,5 @@ class StandardPackage internal constructor(
 /** Discovered only when explicitly selected by name. Default frontend configuration is supplied separately. */
 class StandardPackageProvider : TransformationPackageProvider {
   override val id = "standard"
-  override fun create(options: com.peco2282.obfaryn.api.PlatformOptions) = StandardPackage()
+  override fun create(options: PlatformOptions) = StandardPackage()
 }

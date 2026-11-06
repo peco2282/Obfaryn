@@ -5,6 +5,7 @@ import com.peco2282.obfaryn.api.transformer.MemberKey
 import com.peco2282.obfaryn.platformkit.isAnnotatedWith
 import com.peco2282.obfaryn.platformkit.isSubtypeOf
 import com.peco2282.obfaryn.platformkit.methodCallClosure
+import org.objectweb.asm.tree.ClassNode
 
 class PaperPlatform(override val metadata: PlatformMetadata) : Platform {
   override fun extensions(): Collection<PlatformExtension> = listOf(PaperCacheContributor())
@@ -46,7 +47,7 @@ class PaperPlatform(override val metadata: PlatformMetadata) : Platform {
     val entrypoints = entrypoints(context, options)
     val applicationRoots =
       entrypoints.mapNotNull { it.substringBeforeLast('/', "").takeIf(String::isNotEmpty) }.distinct()
-    val inScope: (org.objectweb.asm.tree.ClassNode) -> Boolean = { owner ->
+    val inScope: (ClassNode) -> Boolean = { owner ->
       applicationRoots.isEmpty() || applicationRoots.any { owner.name == it || owner.name.startsWith("$it/") }
     }
 

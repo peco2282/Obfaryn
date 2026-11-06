@@ -3,6 +3,7 @@ package com.peco2282.obfaryn.core
 import com.peco2282.obfaryn.core.context.ObfuscationContext
 import com.peco2282.obfaryn.core.keep.KeepRules
 import com.peco2282.obfaryn.core.rename.RenameTransformer
+import com.peco2282.obfaryn.api.transformer.RenamingTransformer
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.objectweb.asm.ClassReader
@@ -16,7 +17,7 @@ import org.objectweb.asm.tree.ClassNode
  * ordinary classes (ASM's [org.objectweb.asm.commons.ModuleRemapper] already remaps `uses`/
  * `provides`/main-class via [org.objectweb.asm.commons.Remapper.map]); the only piece
  * [RenameTransformer] must supply itself is `exports`/`opens` package rewriting under
- * `--flatten-packages`, via [com.peco2282.obfaryn.api.transformer.RenamingTransformer.packageMapping].
+ * `--flatten-packages`, via [RenamingTransformer.packageMapping].
  */
 class ModuleDescriptorRenamingTest {
   private fun simpleClass(name: String, interfaces: Array<String> = emptyArray()): ClassNode {

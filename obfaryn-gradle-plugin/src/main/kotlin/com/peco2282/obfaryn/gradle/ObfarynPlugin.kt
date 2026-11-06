@@ -1,5 +1,8 @@
 package com.peco2282.obfaryn.gradle
 
+import com.peco2282.obfaryn.api.MapPlatformOptions
+import com.peco2282.obfaryn.api.assembly.TransformationPackage
+import com.peco2282.obfaryn.api.protection.ProtectionRule
 import com.peco2282.obfaryn.core.ProtectionLevel
 import com.peco2282.obfaryn.core.ObfuscationConfig
 import com.peco2282.obfaryn.core.KotlinMetadataMode
@@ -10,13 +13,19 @@ import com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector
 import com.peco2282.obfaryn.api.transformer.PipelineConfigurer
 import com.peco2282.obfaryn.api.transformer.TransformerRegistry
+import com.peco2282.obfaryn.core.ExtensionListing
+import com.peco2282.obfaryn.core.TransformationPackages
+import com.peco2282.obfaryn.core.withExtensionClassLoader
+import com.peco2282.obfaryn.standard.StandardPackage
 import com.peco2282.obfaryn.transformer.RollingStringEncryptionCodec
 import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationStrategy
 import com.peco2282.obfaryn.transformer.DefaultNumberObfuscationSelector
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.attributes.Usage
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.tasks.ClasspathNormalizer
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import javax.inject.Inject
 import java.util.Random
@@ -179,9 +188,9 @@ open class ObfarynExtension @Inject constructor(objects: ObjectFactory) {
   /** Named providers are loaded from obfarynPlatform; no installed provider runs implicitly. */
   var packageIds = listOf<String>()
   var useDefaultPackage = true
-  internal val customPackages = mutableListOf<com.peco2282.obfaryn.api.assembly.TransformationPackage>()
+  internal val customPackages = mutableListOf<TransformationPackage>()
   /** Supply an API-only recipe directly from a build or convention plugin. */
-  fun transformationPackage(value: com.peco2282.obfaryn.api.assembly.TransformationPackage) { customPackages += value }
+  fun transformationPackage(value: TransformationPackage) { customPackages += value }
 
   var platform = "auto"
   var additionalPlatforms = listOf<String>()
@@ -217,7 +226,7 @@ open class ObfarynExtension @Inject constructor(objects: ObjectFactory) {
   var maxArithmeticOperationsPerMethod = 16
   var prelinkCalls = false
   var transformationReport: String? = null
-  var protectionRules = listOf<com.peco2282.obfaryn.api.protection.ProtectionRule>()
+  var protectionRules = listOf<ProtectionRule>()
   val performance = PerformanceOptions()
   fun performance(action: Action<PerformanceOptions>) = action.execute(performance)
   val controlFlowOptions = ControlFlowOptions(this)
@@ -257,19 +266,19 @@ class ObfarynPlugin : Plugin<Project> {
       it.isCanBeConsumed = false
       it.isCanBeResolved = true
       it.attributes.attribute(
-        org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE,
-        project.objects.named(org.gradle.api.attributes.Usage::class.java, org.gradle.api.attributes.Usage.JAVA_RUNTIME),
+        Usage.USAGE_ATTRIBUTE,
+        project.objects.named(Usage::class.java, Usage.JAVA_RUNTIME),
       )
     }
     val extension = project.extensions.create("obfaryn", ObfarynExtension::class.java)
     project.tasks.register("listObfarynExtensions") { task ->
       task.group = "help"
       task.description = "Lists platform and transformation-package providers visible on obfarynPlatform, without obfuscating."
-      task.inputs.files(platformClasspath).withPropertyName("obfarynPlatform").withNormalizer(org.gradle.api.tasks.ClasspathNormalizer::class.java)
+      task.inputs.files(platformClasspath).withPropertyName("obfarynPlatform").withNormalizer(ClasspathNormalizer::class.java)
       task.doLast {
-        com.peco2282.obfaryn.core.withExtensionClassLoader(
+        withExtensionClassLoader(
           platformClasspath.files.map { it.toURI().toURL() }, ObfarynPlugin::class.java.classLoader) {
-          com.peco2282.obfaryn.core.ExtensionListing.lines().forEach { project.logger.lifecycle(it) }
+          ExtensionListing.lines().forEach { project.logger.lifecycle(it) }
         }
       }
     }
@@ -300,7 +309,7 @@ class ObfarynPlugin : Plugin<Project> {
             extension.output.mapping?.let(project::file)
               ?: outputFile.get().parentFile.resolve(outputFile.get().name.removeSuffix(".jar") + ".mapping.txt")
           }
-          task.inputs.files(platformClasspath).withPropertyName("obfarynPlatform").withNormalizer(org.gradle.api.tasks.ClasspathNormalizer::class.java)
+          task.inputs.files(platformClasspath).withPropertyName("obfarynPlatform").withNormalizer(ClasspathNormalizer::class.java)
           task.inputs.file(source.archiveFile)
           task.outputs.files(outputFile, mappingFile)
           // Custom strategies and mutable Random instances cannot be fingerprinted reliably.
@@ -373,11 +382,12 @@ class ObfarynPlugin : Plugin<Project> {
               integrityPrivateKey = extension.integrityPrivateKey?.let { project.file(it).toPath() },
               integrityPublicKey = extension.integrityPublicKey?.let { project.file(it).toPath() },
             )
-            val result = com.peco2282.obfaryn.core.withExtensionClassLoader(
+            val result = withExtensionClassLoader(
               platformClasspath.files.map { it.toURI().toURL() }, ObfarynPlugin::class.java.classLoader) {
-              val packages = (if (extension.useDefaultPackage) listOf(com.peco2282.obfaryn.standard.StandardPackage(config)) else emptyList()) +
-                com.peco2282.obfaryn.core.TransformationPackages.select(extension.packageIds,
-                  com.peco2282.obfaryn.api.MapPlatformOptions(extension.platformOptions)) + extension.customPackages
+              val packages = (if (extension.useDefaultPackage) listOf(StandardPackage(config)) else emptyList()) +
+                TransformationPackages.select(extension.packageIds,
+                  MapPlatformOptions(extension.platformOptions)
+                ) + extension.customPackages
               Obfuscator(config, pipelineConfigurers = extension.pipelineConfigurers.toList(),
                 packages = packages, protectedInputs = platformClasspath.files.map { it.toPath() })
                 .obfuscate(input, output, mapping)

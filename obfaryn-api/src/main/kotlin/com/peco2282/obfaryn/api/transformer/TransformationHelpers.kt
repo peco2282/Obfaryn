@@ -1,6 +1,7 @@
 package com.peco2282.obfaryn.api.transformer
 
 import com.peco2282.obfaryn.api.ObfuscationContext
+import com.peco2282.obfaryn.api.protection.BodyFeature
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
 
@@ -28,7 +29,7 @@ fun ClassNode.uniqueMethodName(prefix: String): String {
 
 /** Feature-aware variant; legacy policy restrictions always remain in force. */
 fun ObfuscationContext.forEachTransformableMethod(
-  feature: com.peco2282.obfaryn.api.protection.BodyFeature,
+  feature: BodyFeature,
   action: (ClassNode, MethodNode) -> Unit,
 ) {
   for (owner in classes.values.toList()) for (method in owner.methods.toList()) {

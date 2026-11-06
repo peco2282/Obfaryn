@@ -18,6 +18,7 @@ import java.security.Signature
 import java.security.interfaces.RSAKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
+import java.util.Random
 import java.util.Base64
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
@@ -46,7 +47,7 @@ class IntegrityProtection(privateKey: Path, publicKey: Path) {
   }
 
   /** Adds verification calls and a public-key-only runtime helper before archive writing. */
-  fun inject(context: ObfuscationContext, excluded: Set<String>, random: java.util.Random) {
+  fun inject(context: ObfuscationContext, excluded: Set<String>, random: Random) {
     require(context.resources.keys.none { it == MANIFEST || it == SIGNATURE }) { "Input already contains integrity metadata" }
     val targets = context.classes.values.filter { it.name !in excluded && it.name != "module-info" }
     require(targets.isNotEmpty()) { "Integrity verification requires at least one non-excluded class" }

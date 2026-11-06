@@ -23,7 +23,7 @@ class NumberObfuscationTransformer @JvmOverloads constructor(
   var count = 0
     private set
 
-  override fun skipReason(context: ObfuscationContext, owner: org.objectweb.asm.tree.ClassNode,
+  override fun skipReason(context: ObfuscationContext, owner: ClassNode,
     method: MethodNode): String = "no-numeric-literals-or-selector-strategy-exclusion"
 
   override fun transform(context: ObfuscationContext) {

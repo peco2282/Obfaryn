@@ -5,6 +5,7 @@ import com.peco2282.obfaryn.api.transformer.Transformer
 import com.peco2282.obfaryn.api.transformer.TransformerReport
 import com.peco2282.obfaryn.api.protection.BodyFeature
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldInsnNode
 import org.objectweb.asm.tree.InsnList
 import org.objectweb.asm.tree.InsnNode
@@ -29,7 +30,7 @@ class ConstantFieldTransformer(
   override fun report() = TransformerReport(id,
     mapOf("initializationSkippedClasses" to initializationSkippedClasses))
 
-  override fun skipReason(context: ObfuscationContext, owner: org.objectweb.asm.tree.ClassNode,
+  override fun skipReason(context: ObfuscationContext, owner: ClassNode,
     method: MethodNode): String = when {
     method.name != "<clinit>" -> "not-class-initializer"
     hasInitializationPredecessors(owner) -> "constant-preparation-before-supertype-initialization"
@@ -39,7 +40,7 @@ class ConstantFieldTransformer(
   // ConstantValue is installed before superclass/default-interface initialization (JVMS 5.5).
   // Moving it into <clinit> would expose a default value to a reentrant supertype initializer.
   // External supertypes cannot be proven non-reentrant; retain constants conservatively.
-  private fun hasInitializationPredecessors(owner: org.objectweb.asm.tree.ClassNode): Boolean =
+  private fun hasInitializationPredecessors(owner: ClassNode): Boolean =
     owner.superName != null && owner.superName != "java/lang/Object" || owner.interfaces.isNotEmpty()
 
   override fun transform(context: ObfuscationContext) {

@@ -22,7 +22,7 @@ class IntegerArithmeticTransformer @JvmOverloads constructor(
     private set
   override fun report() = TransformerReport(id, mapOf("transformed" to count.toLong()))
 
-  override fun skipReason(context: ObfuscationContext, owner: org.objectweb.asm.tree.ClassNode,
+  override fun skipReason(context: ObfuscationContext, owner: ClassNode,
     method: MethodNode): String = when {
     !context.transformationInputs.isApplicationClass(owner.name) -> "outside-application-scope"
     maxOperationsPerMethod == 0 -> "arithmetic-operation-budget-zero"

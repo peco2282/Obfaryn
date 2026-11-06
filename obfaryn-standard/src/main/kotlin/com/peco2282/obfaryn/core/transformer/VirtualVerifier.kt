@@ -1,5 +1,7 @@
 package com.peco2282.obfaryn.core.transformer
 
+import java.util.ArrayDeque
+
 /**
  * Checks virtual IR before encoding or execution.
  *
@@ -45,7 +47,7 @@ internal object VirtualVerifier {
     }
     data class State(val stack: List<VirtualValueKind>, val locals: List<VirtualValueKind?>)
     val states = arrayOfNulls<State>(code.size)
-    val pending = java.util.ArrayDeque<Int>()
+    val pending = ArrayDeque<Int>()
     states[0] = State(emptyList(), List(program.locals) { initialLocals.getOrNull(it) })
     pending.add(0)
     fun edge(target: Int, state: State) {

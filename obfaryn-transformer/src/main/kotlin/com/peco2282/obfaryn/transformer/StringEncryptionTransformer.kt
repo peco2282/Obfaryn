@@ -20,7 +20,7 @@ class StringEncryptionTransformer(
   var count = 0
     private set
 
-  override fun skipReason(context: ObfuscationContext, owner: org.objectweb.asm.tree.ClassNode,
+  override fun skipReason(context: ObfuscationContext, owner: ClassNode,
     method: MethodNode): String = when {
     owner.version and 0xffff < Opcodes.V1_8 -> "requires-java8-classfile"
     owner.access and (Opcodes.ACC_ANNOTATION or Opcodes.ACC_MODULE) != 0 -> "unsupported-class-kind"

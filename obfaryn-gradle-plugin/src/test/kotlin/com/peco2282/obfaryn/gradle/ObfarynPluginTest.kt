@@ -1,5 +1,7 @@
 package com.peco2282.obfaryn.gradle
 
+import com.peco2282.obfaryn.api.protection.BodyFeature
+import com.peco2282.obfaryn.api.protection.ControlFlowMode
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Assertions.*
@@ -159,8 +161,8 @@ class ObfarynPluginTest {
       }
     }
     val rule = extension.protectionRules.single()
-    assertEquals(mapOf(com.peco2282.obfaryn.api.protection.BodyFeature.CALLS to false), rule.features)
-    assertEquals(com.peco2282.obfaryn.api.protection.ControlFlowMode.LIGHT, rule.controlFlow)
+    assertEquals(mapOf(BodyFeature.CALLS to false), rule.features)
+    assertEquals(ControlFlowMode.LIGHT, rule.controlFlow)
     assertEquals(64, rule.budget!!.maxAddedInstructions)
     assertEquals(48, rule.budget!!.growthAllowanceInstructions)
     assertNull(rule.budget!!.maxInputInstructions)

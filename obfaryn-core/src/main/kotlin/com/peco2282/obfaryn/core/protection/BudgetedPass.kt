@@ -1,9 +1,13 @@
 package com.peco2282.obfaryn.core.protection
 
 import com.peco2282.obfaryn.api.ObfuscationContext
+import com.peco2282.obfaryn.api.context.ResourceEntry
 import com.peco2282.obfaryn.api.protection.*
 import com.peco2282.obfaryn.api.transformer.*
+import org.objectweb.asm.ClassTooLargeException
 import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.MethodTooLargeException
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.CodeSizeEvaluator
 import org.objectweb.asm.tree.*
 
@@ -50,12 +54,12 @@ internal class BudgetedPass(
         override fun hasClass(internalName: String) = findClass(internalName) != null
         override fun putClass(node: ClassNode) { pending[node.name] = node }
         override operator fun plusAssign(node: ClassNode) { putClass(node) }
-        override operator fun plusAssign(entry: com.peco2282.obfaryn.api.context.ResourceEntry) { putResource(entry) }
-        override fun removeClass(internalName: String): ClassNode? =
+        override operator fun plusAssign(entry: ResourceEntry) { putResource(entry) }
+        override fun removeClass(internalName: String): ClassNode =
           throw UnsupportedOperationException("Budgeted body passes cannot remove classes")
-        override fun putResource(entry: com.peco2282.obfaryn.api.context.ResourceEntry) =
+        override fun putResource(entry: ResourceEntry) =
           throw UnsupportedOperationException("Budgeted body passes cannot change resources")
-        override fun removeResource(name: String): com.peco2282.obfaryn.api.context.ResourceEntry? =
+        override fun removeResource(name: String): ResourceEntry =
           throw UnsupportedOperationException("Budgeted body passes cannot change resources")
       }
       val before = original.methods.associateBy { it.name + it.desc }
@@ -72,7 +76,7 @@ internal class BudgetedPass(
         val budget = context.transformationPolicy.budget(candidate, method)
         val reason = when {
           after.bytes > budget.maxOutputCodeBytes -> "budget:output-code-bytes:$identity"
-          (old != null || method.access and org.objectweb.asm.Opcodes.ACC_SYNTHETIC == 0) && budget.maxAddedInstructions != null && after.instructions.toLong() - base.instructions > budget.maxAddedInstructions!! ->
+          (old != null || method.access and Opcodes.ACC_SYNTHETIC == 0) && budget.maxAddedInstructions != null && after.instructions.toLong() - base.instructions > budget.maxAddedInstructions!! ->
             "budget:added-instructions:$identity"
           old != null && budget.maxGrowthPercent != null && after.instructions.toLong() * 100 > maxOf(
             maxOf(1, base.instructions).toLong() * budget.maxGrowthPercent!!,
@@ -98,9 +102,9 @@ internal class BudgetedPass(
       }
       if (rejection == null) try {
         for (node in listOf(candidate) + pending.values) ClassWriter(0).also { node.accept(it) }.toByteArray()
-      } catch (_: org.objectweb.asm.ClassTooLargeException) {
+      } catch (_: ClassTooLargeException) {
         rejection = "classfile:constant-pool-limit"
-      } catch (_: org.objectweb.asm.MethodTooLargeException) {
+      } catch (_: MethodTooLargeException) {
         rejection = "classfile:method-code-limit"
       }
       val accepted = rejection == null
@@ -148,9 +152,9 @@ internal class BudgetedPass(
     }.toByteArray()
     return try {
       bytes(a).contentEquals(bytes(b))
-    } catch (_: org.objectweb.asm.MethodTooLargeException) {
+    } catch (_: MethodTooLargeException) {
       false
-    } catch (_: org.objectweb.asm.ClassTooLargeException) {
+    } catch (_: ClassTooLargeException) {
       false
     }
   }
