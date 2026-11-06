@@ -4,7 +4,7 @@
 
 [English](README.md)
 
-ASMベースのKotlin/JVM・Java JAR難読化ツールです: 文字列/数値リテラル暗号化、クラス・メソッド・フィールドのリネーム、任意の制御フロー・呼び出し間接化保護、VM風メソッド仮想化、オフライン整合性封印。リリースは`https://maven.peco2282.com/maven-releases/`で公開しています。
+ASMベースのKotlin/JVM・Java JAR難読化ツールです: 文字列/数値リテラル暗号化、クラス・メソッド・フィールドのリネーム、任意の制御フロー・呼び出し間接化保護、VM風メソッド仮想化、オフライン整合性封印。リリースは[Maven Central](https://central.sonatype.com/namespace/com.peco2282.obfaryn)で公開しています。
 
 ## クイックスタート
 
@@ -14,7 +14,6 @@ ASMベースのKotlin/JVM・Java JAR難読化ツールです: 文字列/数値�
 ```kotlin
 pluginManagement {
   repositories {
-    maven { url = uri("https://maven.peco2282.com/maven-releases/") }
     gradlePluginPortal()
     mavenCentral()
   }
@@ -236,12 +235,11 @@ enum クラス名は通常の keep ルールに従いますが、列挙定数名
 
 ## Gradle プラグイン
 
-プラグイン ID は `com.peco2282.obfaryn` で、`https://maven.peco2282.com/maven-releases/` に公開しています。利用側プロジェクトの `settings.gradle.kts`の`pluginManagement.repositories`に、このリポジトリと`gradlePluginPortal()`・`mavenCentral()`を追加してください:
+プラグイン ID は `com.peco2282.obfaryn` で、[Maven Central](https://central.sonatype.com/namespace/com.peco2282.obfaryn) に公開しています。利用側プロジェクトの `settings.gradle.kts`の`pluginManagement.repositories`に`gradlePluginPortal()`・`mavenCentral()`を追加してください:
 
 ```kotlin
 pluginManagement {
   repositories {
-    maven { url = uri("https://maven.peco2282.com/maven-releases/") }
     gradlePluginPortal()
     mavenCentral()
   }
@@ -265,7 +263,6 @@ plugins {
 }
 
 repositories {
-  maven { url = uri("https://maven.peco2282.com/maven-releases/") }
   mavenCentral()
 }
 

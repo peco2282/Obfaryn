@@ -4,7 +4,7 @@
 
 [日本語](README.ja.md)
 
-An ASM-based obfuscator for Kotlin/JVM and Java JARs: string/number literal encryption, class/method/field renaming, optional control-flow and call-indirection protection, VM-style method virtualization, and offline integrity sealing. Releases are published to `https://maven.peco2282.com/maven-releases/`.
+An ASM-based obfuscator for Kotlin/JVM and Java JARs: string/number literal encryption, class/method/field renaming, optional control-flow and call-indirection protection, VM-style method virtualization, and offline integrity sealing. Releases are published to [Maven Central](https://central.sonatype.com/namespace/com.peco2282.obfaryn).
 
 ## Quickstart
 
@@ -14,7 +14,6 @@ An ASM-based obfuscator for Kotlin/JVM and Java JARs: string/number literal encr
 ```kotlin
 pluginManagement {
   repositories {
-    maven { url = uri("https://maven.peco2282.com/maven-releases/") }
     gradlePluginPortal()
     mavenCentral()
   }
@@ -236,12 +235,11 @@ Eligible `static final` and Kotlin `const val` string and numeric fields inside 
 
 ## Gradle plugin
 
-The plugin ID is `com.peco2282.obfaryn`, published to `https://maven.peco2282.com/maven-releases/`. Add that repository, plus `gradlePluginPortal()` and `mavenCentral()`, to `pluginManagement.repositories` in the consuming project's `settings.gradle.kts`:
+The plugin ID is `com.peco2282.obfaryn`, published to [Maven Central](https://central.sonatype.com/namespace/com.peco2282.obfaryn). Add `gradlePluginPortal()` and `mavenCentral()` to `pluginManagement.repositories` in the consuming project's `settings.gradle.kts`:
 
 ```kotlin
 pluginManagement {
   repositories {
-    maven { url = uri("https://maven.peco2282.com/maven-releases/") }
     gradlePluginPortal()
     mavenCentral()
   }
@@ -265,7 +263,6 @@ plugins {
 }
 
 repositories {
-  maven { url = uri("https://maven.peco2282.com/maven-releases/") }
   mavenCentral()
 }
 
