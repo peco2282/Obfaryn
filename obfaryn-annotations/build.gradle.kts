@@ -3,8 +3,8 @@ import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
 plugins {
   java
   kotlin("jvm")
-  id("org.jetbrains.dokka") version "2.2.0"
-  id("org.jetbrains.dokka-javadoc") version "2.2.0"
+  id("org.jetbrains.dokka")
+  id("org.jetbrains.dokka-javadoc")
   `maven-publish`
 }
 

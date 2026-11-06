@@ -6,6 +6,7 @@ import java.util.Properties
 plugins {
   id("java")
   kotlin("jvm") version "2.4.21" apply false
+  id("org.jetbrains.dokka")
 }
 
 group = "com.peco2282.obfaryn"
@@ -131,6 +132,16 @@ dependencies {
   testImplementation(platform(libs.junit.bom))
   testImplementation(libs.junit.jupiter)
   testRuntimeOnly(libs.junit.platform.launcher)
+
+  // Aggregated API docs site (published to GitHub Pages); obfaryn-cli, obfaryn-runtime and the
+  // examples module are excluded as they have no public library API of their own.
+  dokka(project(":obfaryn-api"))
+  dokka(project(":obfaryn-annotations"))
+  dokka(project(":obfaryn-core"))
+  dokka(project(":obfaryn-standard"))
+  dokka(project(":obfaryn-transformer"))
+  dokka(project(":obfaryn-gradle-plugin"))
+  dokka(project(":platforms:paper"))
 }
 
 tasks.test {

@@ -2,7 +2,7 @@
 
 # Obfaryn
 
-[日本語](README.ja.md)
+[日本語](README.ja.md) · [API docs](https://peco2282.github.io/Obfaryn/)
 
 An ASM-based obfuscator for Kotlin/JVM and Java JARs: string/number literal encryption, class/method/field renaming, optional control-flow and call-indirection protection, VM-style method virtualization, and offline integrity sealing. Releases are published to [Maven Central](https://central.sonatype.com/namespace/com.peco2282.obfaryn).
 

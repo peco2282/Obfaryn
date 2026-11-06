@@ -7,6 +7,13 @@ pluginManagement {
     mavenLocal()
     gradlePluginPortal()
   }
+  // Pinned once here so every module (root included) applying these plugins without an explicit
+  // version resolves to the same one; applying the same plugin id at two different versions across
+  // the project hierarchy is what breaks Dokka's aggregation.
+  plugins {
+    id("org.jetbrains.dokka") version "2.2.0"
+    id("org.jetbrains.dokka-javadoc") version "2.2.0"
+  }
 }
 
 // Uploads existing maven-publish publications (from build.gradle.kts) to Sonatype's Central

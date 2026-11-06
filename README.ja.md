@@ -2,7 +2,7 @@
 
 # Obfaryn
 
-[English](README.md)
+[English](README.md) · [APIドキュメント](https://peco2282.github.io/Obfaryn/)
 
 ASMベースのKotlin/JVM・Java JAR難読化ツールです: 文字列/数値リテラル暗号化、クラス・メソッド・フィールドのリネーム、任意の制御フロー・呼び出し間接化保護、VM風メソッド仮想化、オフライン整合性封印。リリースは[Maven Central](https://central.sonatype.com/namespace/com.peco2282.obfaryn)で公開しています。
 

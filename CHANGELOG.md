@@ -26,6 +26,9 @@ time of the "Bump to" commit, not with a Git tag.
   (re)build and attach assets to an existing tag's release without moving the tag. A tag checked
   out from before the `distTar` gzip-compression change (above) would otherwise only produce a
   plain `.tar`; the workflow now gzips it itself so `obfaryn-*.tar.gz` is always attached.
+- Root `build.gradle.kts` aggregates every published module's Dokka output into one HTML API
+  reference (`./gradlew dokkaGeneratePublicationHtml`); `.github/workflows/docs.yml` publishes it
+  to GitHub Pages on every push to `main` and on tags, linked from README/README.ja.md.
 
 ## [1.0.0]
 
