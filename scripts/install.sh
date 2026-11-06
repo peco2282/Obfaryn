@@ -27,6 +27,26 @@ REPO="peco2282/Obfaryn"
 INSTALL_DIR="${OBFARYN_HOME:-$HOME/.obfaryn}"
 BIN_DIR="${OBFARYN_BIN_DIR:-$HOME/.local/bin}"
 
+show_banner() {
+  local script_dir banner_path banner_src
+  # banner.sh assumes neither `set -u` (BASH_SOURCE is empty when piped via
+  # `curl | bash`) nor `set -e` (it uses bare `((...)) && ...` arithmetic,
+  # which set -e treats as a failure when false); relax both for this call.
+  set +eu
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-}")" 2>/dev/null && pwd)"
+  banner_path="${script_dir:+$script_dir/banner.sh}"
+  if [ -n "$banner_path" ] && [ -f "$banner_path" ]; then
+    # shellcheck source=banner.sh
+    source "$banner_path"
+  else
+    banner_src="$(curl -fsSL "https://raw.githubusercontent.com/${REPO}/main/scripts/banner.sh" 2>/dev/null)"
+    [ -n "$banner_src" ] && eval "$banner_src"
+  fi
+  command -v obfaryn_banner >/dev/null 2>&1 && obfaryn_banner
+  set -eu
+}
+show_banner
+
 if [ -z "${OBFARYN_VERSION:-}" ]; then
   info "Resolving latest release..."
   VERSION="$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" \

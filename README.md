@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/assets/obfaryn-logo.png" alt="Obfaryn" width="600"></p>
+
 # Obfaryn
 
 [日本語](README.ja.md)

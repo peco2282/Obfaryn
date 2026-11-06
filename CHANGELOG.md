@@ -16,6 +16,12 @@ time of the "Bump to" commit, not with a Git tag.
   GitHub Release.
 - `obfaryn-cli`'s `distTar` is now gzip-compressed (`obfaryn-<version>.tar.gz`), matching what the
   install scripts expect; `distZip` was already available from the `application` plugin.
+- `install.sh`/`install.ps1` show colored status output; `install.sh` also shows curl's real-time
+  `--progress-bar` download progress on a TTY, falling back to silent when piped.
+- `docs/assets/obfaryn-logo.png`: the project logo, now at the top of README/README.ja.md.
+- `scripts/banner.sh`: an animated ASCII logo banner (static fallback when not an interactive
+  color terminal); `install.sh` sources it from the local checkout or fetches it from the repo
+  when piped (`curl | bash`), and shows it before installing.
 
 ## [1.0.0]
 
