@@ -46,14 +46,23 @@ obfaryn {
 
 ### Pattern 3 — CLI, defaults only
 
-No pre-built CLI distribution is published yet; build it from a checkout once:
+Install from a GitHub Release (Linux/macOS):
+```bash
+curl -fsSL https://raw.githubusercontent.com/peco2282/Obfaryn/main/scripts/install.sh | bash
+```
+Windows (PowerShell):
+```powershell
+iwr https://raw.githubusercontent.com/peco2282/Obfaryn/main/scripts/install.ps1 -UseBasicParsing | iex
+```
+Or build from a checkout:
 ```bash
 git clone https://github.com/peco2282/Obfaryn.git && cd Obfaryn
 ./gradlew :obfaryn-cli:installDist
+./obfaryn-cli/build/install/obfaryn/bin/obfaryn input.jar
 ```
 Then, from anywhere:
 ```bash
-./obfaryn-cli/build/install/obfaryn/bin/obfaryn input.jar
+obfaryn input.jar
 ```
 Same `standard` defaults as the Gradle plugin. Output: `input-obfuscated.jar` beside the input. See [CLI](#cli) for every flag.
 
@@ -165,6 +174,8 @@ obfaryn list-presets   # Discover what's available, without applying anything
 A preset name may contain letters, digits, `-`, `_` and `.`, not path separators; an unresolved name fails before any other argument is parsed. `list-presets` accepts the same `--preset-dir`, but — unlike `--preset` on every other command — parses it as an ordinary option to control what it scans, rather than consuming it to resolve a preset.
 
 ### Shell completion
+
+`scripts/install.sh` installs a bash completion script automatically (to `${XDG_DATA_HOME:-~/.local/share}/bash-completion/completions/obfaryn`; needs the `bash-completion` package to be auto-sourced). PowerShell has no completion script — picocli's `AutoComplete` only emits bash/zsh. To generate one yourself, or for Zsh:
 
 Generate and source the completion script in your shell to complete commands, options, choices, and file paths:
 

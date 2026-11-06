@@ -46,14 +46,23 @@ obfaryn {
 
 ### パターン3 — CLI、デフォルトのみ
 
-ビルド済みのCLI配布物はまだ公開していないため、一度チェックアウトしてビルドします:
+GitHub Releaseからインストール(Linux/macOS):
+```bash
+curl -fsSL https://raw.githubusercontent.com/peco2282/Obfaryn/main/scripts/install.sh | bash
+```
+Windows(PowerShell):
+```powershell
+iwr https://raw.githubusercontent.com/peco2282/Obfaryn/main/scripts/install.ps1 -UseBasicParsing | iex
+```
+またはチェックアウトしてビルド:
 ```bash
 git clone https://github.com/peco2282/Obfaryn.git && cd Obfaryn
 ./gradlew :obfaryn-cli:installDist
+./obfaryn-cli/build/install/obfaryn/bin/obfaryn input.jar
 ```
 以降はどこからでも:
 ```bash
-./obfaryn-cli/build/install/obfaryn/bin/obfaryn input.jar
+obfaryn input.jar
 ```
 Gradle pluginと同じ`standard`デフォルトです。出力は入力と同じ場所の`input-obfuscated.jar`。全フラグは[CLI](#cli)を参照してください。
 
@@ -165,6 +174,8 @@ obfaryn list-presets   # 何も適用せずに利用可能なプリセットを�
 プリセット名に使えるのは英数字・`-`・`_`・`.`のみで、パス区切り文字は使えません。解決できない名前は他の引数解析より前にエラーになります。`list-presets`も同じ`--preset-dir`を受け付けますが——他のすべてのコマンドにおける`--preset`とは異なり——プリセットを解決するために消費するのではなく、スキャン対象を指定する通常のオプションとして解析します。
 
 ### シェルの補完
+
+`scripts/install.sh`はbash補完スクリプトを自動でインストールします(`${XDG_DATA_HOME:-~/.local/share}/bash-completion/completions/obfaryn`。自動読み込みには`bash-completion`パッケージが必要です)。PowerShellには補完スクリプトがありません(picocliの`AutoComplete`はbash/zsh用のみ生成します)。自分で生成したい場合やZshの場合:
 
 シェルで補完スクリプトを生成して読み込むことで、コマンド、オプション、選択肢、ファイルパスの補完が可能になります:
 

@@ -4,6 +4,19 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). No tags 
 repository yet; versions below are correlated with `gradle.properties`' `releaseVersion` at the
 time of the "Bump to" commit, not with a Git tag.
 
+## [Unreleased]
+
+### Added
+
+- `scripts/install.sh` (Linux/macOS) and `scripts/install.ps1` (Windows): install the CLI from a
+  GitHub Release archive, symlink/PATH-wire the launcher, and (bash) install the `obfaryn
+  completion bash` script automatically.
+- `.github/workflows/release.yml`: on a `v*` tag, builds `:obfaryn-cli:distTar`/`distZip`, runs
+  `scripts/verify-cli-distribution.py` against `installDist`, and attaches both archives to a
+  GitHub Release.
+- `obfaryn-cli`'s `distTar` is now gzip-compressed (`obfaryn-<version>.tar.gz`), matching what the
+  install scripts expect; `distZip` was already available from the `application` plugin.
+
 ## [1.0.0]
 
 First release with a defined API stability contract — see

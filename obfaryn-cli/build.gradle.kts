@@ -22,6 +22,11 @@ application {
   applicationName = "obfaryn"
 }
 
+tasks.named<Tar>("distTar") {
+  compression = Compression.GZIP
+  archiveExtension.set("tar.gz")
+}
+
 tasks.jar {
   manifest.attributes["Main-Class"] = "com.peco2282.obfaryn.cli.MainKt"
 }
