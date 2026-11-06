@@ -42,7 +42,11 @@ TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 info "Downloading ${BOLD}obfaryn ${VERSION}${RESET}..."
-curl -fsSL "$URL" -o "${TMP_DIR}/${ARCHIVE}" || die "download failed: $URL"
+if [ -t 1 ]; then
+  curl -fL --progress-bar "$URL" -o "${TMP_DIR}/${ARCHIVE}" || die "download failed: $URL"
+else
+  curl -fsSL "$URL" -o "${TMP_DIR}/${ARCHIVE}" || die "download failed: $URL"
+fi
 
 info "Installing to ${INSTALL_DIR}..."
 rm -rf "$INSTALL_DIR"
