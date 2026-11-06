@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to (re)build and release, e.g. v1.0.0'
+        required: true
 
 permissions:
   contents: write
@@ -13,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: temurin
@@ -22,6 +29,7 @@ jobs:
       - run: python3 scripts/verify-cli-distribution.py
       - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
           files: |
             obfaryn-cli/build/distributions/obfaryn-*.tar.gz
             obfaryn-cli/build/distributions/obfaryn-*.zip
