@@ -72,6 +72,14 @@ time of the "Bump to" commit, not with a Git tag.
   were measured and then not adopted (no change distinguishable from host noise). The VM template is
   unchanged.
 
+- `scripts/report-summary.py`: aggregates a schema version 2 transformation report into a
+  protection-application summary (per-pass applied/skipped/rejected counts, rejection-reason
+  histograms, aggregate instruction growth, and committed methods near a structural limit),
+  optionally folding in the `--report` summary JSON and input/output JAR sizes. Emits human-readable
+  text, a machine-readable `--json` summary and a self-contained, theme-aware `--html` report, and
+  states plainly that application rate is not analysis difficulty. `--self-test` runs built-in checks
+  (wired into the `tests` CI job). Documented in `docs/protection.md` (and `.ja.md`).
+
 ### Changed
 
 - Transformation report JSON is now schema version 2: each method row adds `growthPercent`

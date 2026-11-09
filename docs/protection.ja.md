@@ -216,6 +216,8 @@ VM解析レポートの出力先が、互いに重複しないことと、入力
 
 CLI の予算指定は `--max-input-instructions`、`--max-input-branches`、`--max-added-instructions`、`--max-growth-percent`、`--growth-allowance-instructions`、`--max-output-code-bytes`、`--arithmetic-operations` です。
 
+`scripts/report-summary.py` は schema version 2 の変換レポートを保護適用サマリに集計します。パスごとの applied/skipped/rejected 数、拒否理由のヒストグラム、総命令増加率、構造上限の閾値近くまで到達した確定メソッド数を出力します。`--report` サマリ JSON（上位の保護カウント）や入出力 JAR サイズも任意で取り込み、機械可読の `--json` と自己完結の `--html` レポートを生成できます。これは保護の「適用状況」を測るもので、解析困難性と同一ではありません。確定メソッドが逆解析に強いことは証明されず、スキップされたメソッドは意図的な keep/除外のこともあります。元の文字列/名前の残存スキャンや逆コンパイル後の構造比較は対象外です。入力レポートは元の名前を含むため、レポートおよび派生サマリは配布物に含めないでください。`--self-test` はレポート無しで内蔵チェックを実行します。
+
 ## 継続検証と測定
 
 - `./gradlew test`：整数オーバーフロー・浮動小数点への非干渉・副作用順・設定継承・元名ルール・累積予算・クラス単位の取り消し・事前解決の範囲分割と並行実行・Kotlin 形式の enum 配列 clone などを回帰検証します。

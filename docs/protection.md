@@ -197,6 +197,8 @@ Before reading or transforming the input, core checks JAR, mapping (including it
 
 CLI counterparts: `--max-input-instructions`, `--max-input-branches`, `--max-added-instructions`, `--max-growth-percent`, `--growth-allowance-instructions`, `--max-output-code-bytes`, `--arithmetic-operations`.
 
+`scripts/report-summary.py` aggregates a schema version 2 transformation report into a protection-application summary: per-pass applied/skipped/rejected counts, rejection-reason histograms, aggregate instruction growth, and committed methods that ran within a threshold of a structural limit. It optionally folds in the `--report` summary JSON (top-line protection counts) and input/output JAR sizes, and can emit a machine-readable `--json` summary and a self-contained `--html` report. It measures protection *application*, which is not the same as analysis difficulty: a committed method is not proven hard to reverse, and a skipped method may be an intentional keep/exclusion. Residual original-name/string scanning and decompiled-structure comparison are out of its scope. Because the input report carries original names, keep it and any derived summary out of distributed artifacts. `--self-test` runs built-in checks without a report.
+
 ## Repeatable verification
 
 - `./gradlew test`: feature regression suites, including modular overflow, floating-point non-interference, operand side effects, policy inheritance, original-name rules, cumulative budgets, class-atomic rollback, bounded/concurrent preparation and Kotlin-style enum array cloning.
