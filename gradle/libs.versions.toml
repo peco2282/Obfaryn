@@ -1,5 +1,6 @@
 [versions]
 asm = "9.11"
+jmh = "1.37"
 junit5 = "5.6.0"
 junit6 = "6.0.0"
 kotlin = "2.1.21"

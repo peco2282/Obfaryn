@@ -13,6 +13,15 @@ import org.objectweb.asm.tree.MethodInsnNode
 
 /** Protects names used by straightforward constant-string reflection calls. */
 internal object ReflectionScanner {
+  /** `MethodHandles.Lookup` finders whose first two arguments are `(Class refc, String name, ...)`. */
+  private val LOOKUP_METHOD_FINDERS = setOf("findStatic", "findVirtual", "findSpecial")
+  /** `findConstructor(Class refc, MethodType type)` carries no name literal; the member is always `<init>`. */
+  private const val LOOKUP_CONSTRUCTOR_FINDER = "findConstructor"
+  private val LOOKUP_FIELD_FINDERS = setOf(
+    "findGetter", "findSetter", "findStaticGetter", "findStaticSetter", "findVarHandle", "findStaticVarHandle")
+  /** Finders whose target is resolved virtually, so overriding declarations up the hierarchy must stay too. */
+  private val LOOKUP_VIRTUAL_FINDERS = setOf("findVirtual", "findGetter", "findSetter")
+
   fun scan(context: ObfuscationContext, keep: KeepRules): List<String> {
     val warnings = linkedSetOf<String>()
     for (node in context.classes.values) for (method in node.methods) {
@@ -79,6 +88,40 @@ internal object ReflectionScanner {
             }
             owners.forEach(::protect)
             warnings += "Reflective member target: ${owners.sorted()}:$memberName at $location (owner-scoped keep)"
+          }
+          insn.owner == "java/lang/invoke/MethodHandles\$Lookup" &&
+            (insn.name in LOOKUP_METHOD_FINDERS || insn.name in LOOKUP_FIELD_FINDERS || insn.name == LOOKUP_CONSTRUCTOR_FINDER) -> {
+            val frame = frames?.get(index)
+            val argumentCount = Type.getArgumentTypes(insn.desc).size
+            // Instance call on Lookup: args start at stackSize-argumentCount; refc is always arg0.
+            val refc = frame?.takeIf { it.stackSize >= argumentCount }
+              ?.getStack(frame.stackSize - argumentCount)?.insns?.singleOrNull() as? LdcInsnNode
+            val owner = (refc?.cst as? Type)?.takeIf { it.sort == Type.OBJECT }?.internalName
+            val memberName = if (insn.name == LOOKUP_CONSTRUCTOR_FINDER) "<init>" else {
+              val nameLiteral = frame?.takeIf { it.stackSize >= argumentCount - 1 }
+                ?.getStack(frame.stackSize - argumentCount + 1)?.insns?.singleOrNull() as? LdcInsnNode
+              nameLiteral?.cst as? String
+            }
+            if (owner == null || memberName == null) {
+              warnings += "Unresolved MethodHandles.Lookup target at $location; use an explicit owner/member keep rule"
+              continue
+            }
+            val visited = mutableSetOf<String>()
+            fun protect(candidate: String) {
+              if (!visited.add(candidate)) return
+              val target = context.classes[candidate] ?: return
+              if (insn.name in LOOKUP_FIELD_FINDERS) {
+                target.fields.filter { it.name == memberName }.forEach { keep.keepField(candidate, it.name) }
+              } else {
+                target.methods.filter { it.name == memberName }.forEach { keep.keepMethod(candidate, it.name, it.desc) }
+              }
+              if (insn.name in LOOKUP_VIRTUAL_FINDERS) {
+                target.superName?.let(::protect)
+                target.interfaces.forEach(::protect)
+              }
+            }
+            protect(owner)
+            warnings += "MethodHandles.Lookup target: $owner:$memberName at $location (owner-scoped keep)"
           }
         }
       }

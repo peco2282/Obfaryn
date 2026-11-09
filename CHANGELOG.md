@@ -6,8 +6,56 @@ time of the "Bump to" commit, not with a Git tag.
 
 ## [Unreleased]
 
+### Fixed
+
+- `StandardPackage`: virtualizing (`--virtualize-method`/`virtualizeMethods`) a method whose body
+  references any class outside the input JAR's own classes — practically any JDK API call —
+  failed obfuscation outright with an opaque `NoSuchMethodError`/`NoSuchFileException` from
+  `BridgeRegistry`. Caused by `context.classpath + context.input`: since `java.nio.file.Path`
+  implements `Iterable<Path>`, Kotlin resolved that `+` to the `Iterable` overload and silently
+  exploded the single input-JAR path into its filesystem segments instead of appending it whole.
+  Fixed by forcing the single-element-list overload. Added
+  [`VirtualizationExternalClasspathTest`](obfaryn-standard/src/test/kotlin/com/peco2282/obfaryn/core/VirtualizationExternalClasspathTest.kt),
+  which exercises the full `Obfuscator` facade (the existing `Virtual*Test` unit tests construct
+  `VirtualizationTransformer` directly or use analyze-only mode, neither of which hits this path).
+  See [docs/protection.md](docs/protection.md).
+
 ### Added
 
+- `obfaryn-benchmarks`: a new JMH module measuring one transformation pass's isolated per-call
+  overhead (string encryption, number obfuscation, lightweight control flow, call indirection,
+  prelink) against the same unobfuscated method, plus a direct-call/`MethodHandle`/reflection
+  comparison, and VM-virtualization overhead on 4 instruction shapes (an ordinary method call,
+  array access, allocation, exception handling) beyond the dispatch-heavy/tiny-plumbing pair
+  `scripts/performance/virtualization.py` already isolates with multi-fork percentiles.
+  Deliberately independent of `scripts/performance/run.py` and `virtualization.py` (whole tick
+  workload and VM-dispatch percentiles/variance respectively; neither measures a single pass's
+  steady-state per-call cost). See [docs/performance.md](docs/performance.md), including a known
+  Gradle/JMH-plugin classpath issue worked around by running the built `jmhJar` directly.
+- `PipelineExecutor` now records each pass's wall-clock duration as an `elapsedNanos` metric on
+  its `TransformerReport`; `scripts/report-summary.py` surfaces it as `elapsedMillis` per pass and
+  `total.elapsedMillis` in its JSON/text/HTML output, so an existing transformation report shows
+  where obfuscation time went without re-running anything.
+- `scripts/performance/environment.py`: shared OS/CPU/git-commit metadata, now included in
+  `run.py` and `virtualization.py`'s `results.json` (`os`, `cpu`, `cpuCount`, `gitCommit`,
+  `measurements`), so a benchmark result can be traced back to the machine and commit that
+  produced it.
+- `ReflectionScanner` now also recognizes `MethodHandles.Lookup.findStatic`/`findVirtual`/
+  `findSpecial`/`findConstructor`/`findGetter`/`findSetter`/`findStaticGetter`/`findStaticSetter`/
+  `findVarHandle`/`findStaticVarHandle` calls with a literal `(Class refc, String name, ...)` pair
+  and protects the resolved member, the same way it already protected `Class.getMethod`/
+  `getDeclaredMethod`/`getField`/`getDeclaredField`. Previously, a method or field reached only
+  through `MethodHandles.Lookup` by name could be renamed out from under a correct, unprotected
+  call, breaking at runtime with no warning. An unresolved lookup now reports a warning instead of
+  silently widening or narrowing the keep set. See [docs/protection.md](docs/protection.md).
+- `JavaAdvancedConstructsDifferentialTest` and `KotlinAdvancedConstructsDifferentialTest`
+  (`obfaryn-standard`): differential coverage, run through the full transformation pipeline, for
+  constructs the existing stateful fixtures did not exercise — sealed interfaces/classes with
+  pattern-matching/exhaustive `switch`/`when`, `invokedynamic` lambdas and method references,
+  `MethodHandle`/`VarHandle`, `ServiceLoader` with a packaged `META-INF/services` provider file,
+  try-with-resources suppressed-exception ordering, `volatile`/`Atomic*` state, `object`
+  singletons, companion-object factories, inline functions, extension functions with out-of-order
+  named arguments, and `enum.entries`.
 - `scripts/install.sh` (Linux/macOS) and `scripts/install.ps1` (Windows): install the CLI from a
   GitHub Release archive, symlink/PATH-wire the launcher, and (bash) install the `obfaryn
   completion bash` script automatically.

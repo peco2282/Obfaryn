@@ -31,7 +31,9 @@ class PipelineExecutor {
         val feature = transformer.isolatedBodyFeature
         val effective = if (feature != null) BudgetedPass(transformer, feature, baseline, detailed,
           { transformer.transformedCount }) else transformer
+        val startNanos = System.nanoTime()
         effective.transform(if (renamer != null) context else FilteredContext(context, excludedClasses, excludedResources))
+        val elapsedNanos = System.nanoTime() - startNanos
         if (renamer != null) {
           val descriptorMapper = object : Remapper() {
             override fun map(name: String) = renamer.classMapping[name] ?: name
@@ -51,6 +53,9 @@ class PipelineExecutor {
         if (effective === transformer) transformer.transformedCount?.let {
           report = report.copy(metrics = report.metrics + ("transformed" to it.toLong()))
         }
+        // Wall-clock cost of this one pass, for `scripts/report-summary.py` and ad hoc profiling;
+        // not a substitute for the JMH micro-benchmarks, which isolate steady-state JIT'd cost.
+        report = report.copy(metrics = report.metrics + ("elapsedNanos" to elapsedNanos))
         if (detailed && feature != null) {
           val excludedRows = excludedClasses.flatMap { name ->
             val owner = context.findClass(name) ?: return@flatMap emptyList()

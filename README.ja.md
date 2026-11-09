@@ -124,6 +124,7 @@ Gradle では `controlFlow { mode = "light" }`・`calls { enabled = true; prelin
 | `obfaryn-platform-kit` | `Platform`実装を書くためのKotlinヘルパー(アノテーション/継承/呼び出しグラフ判定)、生ASMを隠す |
 | `platforms/paper` | 外部 Paper プラットフォームプロバイダー (`obfaryn-platform-paper`) |
 | `platforms/springboot` | 外部 Spring Boot プラットフォームプロバイダー (`obfaryn-platform-springboot`) |
+| `obfaryn-benchmarks` | 変換パスごとの呼び出しオーバーヘッドを計測する JMH マイクロベンチマーク。[docs/performance.ja.md](docs/performance.ja.md) 参照 |
 
 ## ライセンス
 

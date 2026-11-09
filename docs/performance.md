@@ -5,6 +5,93 @@ regression tracking on a fixed machine; they are not Paper/Spring Boot server gu
 establish absolute throughput for any real application. Run them apart from builds and tests, and
 treat small deltas on shared CI runners as noise.
 
+Three kinds of measurement exist here, each for a different purpose; none duplicates another:
+
+- `obfaryn-benchmarks` (JMH): steady-state, JIT-warmed per-call overhead of one transformation pass
+  at a time, against the same unobfuscated method.
+- `scripts/performance/run.py`: a whole synthetic tick workload across `original`/`protected`/
+  `prepared`/`hotpath` variants, multi-fork, with percentiles.
+- `scripts/performance/virtualization.py`: isolated VM-dispatch cost (virtualized vs plain
+  bytecode), multi-fork, with percentiles and an allocation-per-call figure.
+
+Every `results.json` these three write now also carries `os`, `cpu`, `cpuCount` and `gitCommit`
+(from `scripts/performance/environment.py`, or JMH's own `# VM version` line) so a result can be
+traced back to the machine and commit that produced it.
+
+## Per-call overhead — `obfaryn-benchmarks` (JMH)
+
+A JMH module measuring one transformation pass's isolated per-call cost: `@Setup(Level.Trial)`
+obfuscates a small fixture (`bench.Workload`) once per trial with exactly one pass enabled
+(string encryption, number obfuscation, lightweight control flow, call indirection, or call
+indirection + prelink), binds the original and transformed method as a [`MethodHandle`] via
+`unreflect`, and each `@Benchmark` calls it through `invokeExact` with a JMH `Blackhole` sink so
+the JIT cannot eliminate the call (`PassOverheadBenchmark`). `ReflectionBenchmark` separately
+measures a direct call vs. `MethodHandle#invokeExact` vs. `Method#invoke`, which is the floor the
+other benchmarks' choice of `invokeExact` is read against. `VmShapeBenchmark` measures
+VM-virtualization overhead on 4 instruction shapes — an ordinary method call, array access,
+allocation (boxing plus array/`Object[]` construction), and exception handling (both the
+non-throwing and throwing path) — built the same way `virtualization.py` builds its `hot`/`tiny`
+pair (every other pass off in both jars, so the only difference per pair is whether that one
+method is virtualized). Renaming is explicitly disabled in the fixture config so every variant
+resolves the same class/method name without needing a mapping file.
+
+This does not replace VM-dispatch percentile/variance reporting across JVM forks
+(`virtualization.py` already does that, for 2 instruction shapes) or a whole tick workload
+(`run.py` already does that); it exists to isolate one pass's — or, for `VmShapeBenchmark`, one
+instruction shape's — per-call cost under JIT-warmed, steady-state conditions, which neither of
+those two scripts is designed to report, and across more shapes than `virtualization.py`'s `hot`/
+`tiny` pair.
+
+```bash
+./gradlew :obfaryn-benchmarks:jmhJar
+# Prefer running the self-contained fat jar directly; see the note below.
+java -jar obfaryn-benchmarks/build/libs/obfaryn-benchmarks-*-jmh.jar -f 2 -wi 3 -i 5
+```
+
+**Known issue — run the jar directly, not `./gradlew :obfaryn-benchmarks:jmh`.** In this
+repository's environment, invoking the `jmh` Gradle task directly fails every benchmark with
+`NoSuchMethodError: ClassWriter.hasFlags` from `org.objectweb.asm.util.CheckMethodAdapter`
+(`--verify-output`'s bytecode verification step), even though `:obfaryn-benchmarks:dependencies
+--configuration jmhRuntimeClasspath` resolves `org.ow2.asm:*` to a consistent `9.11` throughout.
+Building `jmhJar` and running the resulting fat jar directly with `java -jar` (JMH's own documented
+primary invocation, not a workaround specific to this project) runs cleanly. This points at
+Gradle's own worker-process classloading rather than anything in `obfaryn-benchmarks`'s declared
+dependencies, but has not been root-caused further; re-check it if the Gradle/JMH-plugin version
+changes.
+
+A short (`-wi 2 -i 3 -w 300ms -r 300ms`, one fork) run on this JDK 21 Temurin host gave (ns/op,
+noisy at this iteration length — treat only the order of magnitude and direction as indicative,
+not the precise values):
+
+| Benchmark | Original | Transformed |
+| --- | --- | --- |
+| String encryption | ~15.5 | ~24.6 |
+| Number obfuscation | ~4.0 | ~5.5 |
+| Control flow (light) | ~6.2 | ~7.7 |
+| Call indirection | ~4.1 | ~3.6 |
+| Prelink | ~4.1 | ~3.8 |
+| Reflection: direct / `MethodHandle#invokeExact` / `Method#invoke` | 0.4 / 3.7 / 7.1 | — |
+
+`VmShapeBenchmark` (same short run) — virtualization's interpreter overhead is large and shape-dependent, as expected; `exceptionHandlingVirtualized` only covers the non-throwing path, `*Throwing` the throwing one (JVM exception fill-in-stack-trace cost dominates there regardless of virtualization):
+
+| Shape | Original (ns) | Virtualized (ns) |
+| --- | --- | --- |
+| Method call | ~5 | ~100–130 |
+| Array access | ~5 | ~1300–1850 |
+| Allocation | ~5 | ~600–3500 |
+| Exception handling (no throw) | ~5 | ~80–110 |
+| Exception handling (throwing) | ~1400–2300 | ~2200–2900 |
+
+These figures came from 1 fork, 1–2 iterations of 200–300ms each — enough to confirm the benchmarks run correctly and that virtualized array/allocation shapes cost far more than the `hot`/`tiny` pair's ~14×/~2.3× (consistent with array/allocation bridging more JDK calls per op than a tight integer loop), not enough to treat the specific multiples as stable. A longer run is needed before drawing conclusions about which shape to prioritize for Phase 3's allocation work.
+
+Call indirection and prelink show no measurable overhead at this scale — expected, since once the
+`invokedynamic` call site is linked (prelink forces this up front; call indirection links lazily on
+first call) a steady-state call is an ordinary `MethodHandle` invocation, not meaningfully different
+from the direct call it replaced. String encryption's decode cost (Base64 decode + a per-byte XOR
+loop) does not amortize away, since it is not cached: each call to the obfuscated method re-runs
+it. A longer, multi-fork run (`-f 3 -wi 5 -i 10`, no explicit `-w`/`-r`, ~15–20 minutes) is needed
+before treating any of these as more than a smoke-test-scale sanity check; this was not run here.
+
 ## Synthetic tick workload — `scripts/performance/run.py`
 
 Compiles a Java 8 tick workload, transforms it (strong protection, control flow, call indirection,
@@ -56,3 +143,28 @@ target, where the thread-local change should matter most, showed 0%). HotSpot al
 paths well on JDK 21, so neither change was kept. Use the benchmark on a fixed, low-noise host to
 re-evaluate before adopting any interpreter micro-optimization, and keep `@HotPath`/explicit
 exclusion as the supported way to keep latency-critical methods out of virtualization entirely.
+
+## Obfuscation-process cost: per-pass elapsed time
+
+`PipelineExecutor` records each pass's wall-clock duration (`System.nanoTime()` around that one
+pass's `transform()` call) as an `elapsedNanos` metric on its `TransformerReport`, alongside the
+existing pass-specific metrics (`transformed`, `indirectedCalls`, …). It is written through
+unchanged by `TransformationReportWriter` (schemaVersion 2's `metrics` map is already open-ended —
+see [docs/protection.md](protection.md)), so it needs no transformation-report schema bump.
+
+`scripts/report-summary.py` surfaces it as `elapsedMillis` per pass and as a summed
+`total.elapsedMillis`, in its JSON, text and HTML output — a `--transformation-report
+methods.json` run shows where obfuscation time went, pass by pass, for any already-generated
+report (no obfuscation re-run needed):
+
+```
+[call-indirection] methods=9 applied=8 skipped=1 rejected=0 growth=238.6% near-limit=0 time=23.533ms
+```
+
+This is a one-run, one-process wall-clock figure (profiling-grade, same spirit as the CLI's own
+`--report`/`--transformation-report` flags), not a JMH-grade steady-state measurement with forks
+and warmup; use `obfaryn-benchmarks` (above) for that. It does, however, directly answer which
+pass costs the most of the engine's own processing time on a given input — class-hierarchy
+analysis, renaming, frame recomputation and JAR read/write costs are not yet broken out
+individually beyond the existing per-pass granularity; doing so would mean instrumenting
+`TransformationEngine`/`JarWriter` themselves, which remains for a later pass at this.

@@ -124,6 +124,7 @@ The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The `obfaryn-api`, `obfar
 | `obfaryn-platform-kit` | Kotlin helpers (annotation/subtype/call-graph checks) for writing a `Platform`, hiding raw ASM |
 | `platforms/paper` | External Paper platform provider (`obfaryn-platform-paper`) |
 | `platforms/springboot` | External Spring Boot platform provider (`obfaryn-platform-springboot`) |
+| `obfaryn-benchmarks` | JMH micro-benchmarks for per-call transformation-pass overhead; see [docs/performance.md](docs/performance.md) |
 
 ## License
 

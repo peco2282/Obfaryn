@@ -8,10 +8,13 @@ import os
 from pathlib import Path
 import statistics
 import subprocess
+import sys
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import environment  # noqa: E402
 
 
 def execute(args, log=None):
@@ -78,9 +81,11 @@ def main():
     medians = {key: {field: (values[0][field] if field in ('checksum', 'checksumBits', 'prelinkedSites') else statistics.median(v[field] for v in values)) for field in values[0]} for key, values in results.items()}
     if len({v['checksumBits'] for values in results.values() for v in values}) != 1: raise RuntimeError('Workload behavior changed')
     ratios = {key: {field: value[field]/medians['original'][field] for field in ['p50Ns', 'p95Ns', 'p99Ns']} for key, value in medians.items()}
-    report = {'schemaVersion': 1, 'java': execute(['java', '-version']).strip(), 'host': platform.platform(),
+    report = {'schemaVersion': 2, 'java': execute(['java', '-version']).strip(), 'host': platform.platform(),
+              **environment.collect(ROOT),
               'workloadSha256': hashlib.sha256((HERE/'TickWorkload.java').read_bytes()).hexdigest(), 'synthetic': True, 'entities': args.entities, 'warmupTicks': args.warmup,
-              'measuredTicks': args.ticks, 'minimumWarmupMs': args.warmup_ms, 'forks': results, 'medians': medians, 'ratios': ratios}
+              'measuredTicks': args.ticks, 'minimumWarmupMs': args.warmup_ms, 'measurements': args.forks,
+              'forks': results, 'medians': medians, 'ratios': ratios}
     (out/'results.json').write_text(json.dumps(report, indent=2)+'\n')
     print(json.dumps({'medians': medians, 'ratios': ratios}, indent=2))
     if args.max_p99_ratio is not None and ratios['protected']['p99Ns'] > args.max_p99_ratio: raise SystemExit('p99 regression gate failed')

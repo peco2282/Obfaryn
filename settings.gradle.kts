@@ -13,6 +13,7 @@ pluginManagement {
   plugins {
     id("org.jetbrains.dokka") version "2.2.0"
     id("org.jetbrains.dokka-javadoc") version "2.2.0"
+    id("me.champeau.jmh") version "0.7.3"
   }
 }
 
@@ -54,4 +55,5 @@ include("platforms:paper")
 include("platforms:springboot")
 
 include("obfaryn-standard")
+include("obfaryn-benchmarks")
 include("examples:custom-extension")

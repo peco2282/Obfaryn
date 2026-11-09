@@ -73,8 +73,15 @@ class StandardPackage internal constructor(
     val rename = RenameTransformer(config.copy(classpath = context.classpath), keep)
     if (preparedKeep == null) rename.warnings += ReflectionScanner.scan(input, keep)
     val passes = listOfNotNull(
+      // `java.nio.file.Path` implements `Iterable<Path>`, so `List<Path> + aPath` resolves to
+      // Kotlin's `plus(Iterable<T>)` overload and silently explodes the single path into its
+      // filesystem segments (e.g. "/tmp/x/input.jar" -> ["tmp", "x", "input.jar"]) instead of
+      // appending it whole. Wrapping in `listOf(...)` forces the single-element `plus(T)` overload.
+      // Without this, BridgeRegistry's classpath-based lookup for any external/JDK class a
+      // virtualized method references (anything not already in this run's own class map) throws
+      // a confusing NoSuchFileException instead of resolving it or falling back cleanly.
       VirtualizationTransformer(config.virtualizeMethods, random, config.virtualizationRuntimeGroupSize,
-        config.virtualizationSelectionMode, context.classpath + context.input, config.excludeVirtualization, exclusions)
+        config.virtualizationSelectionMode, context.classpath + listOf(context.input), config.excludeVirtualization, exclusions)
         .takeIf { virtualizationRequested },
       MetadataStripTransformer(stripDebugInfo = config.stripDebugInfo,
         stripKotlinMetadata = config.stripKotlinMetadata || config.kotlinMetadataMode == KotlinMetadataMode.STRIP,

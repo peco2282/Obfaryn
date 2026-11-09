@@ -69,6 +69,11 @@ def summarize(report, threshold=NEAR_DEFAULT):
       'appliedOutputInstructions': output_insns,
       'appliedGrowthPercent': round(output_insns * 100 / input_insns, 1) if input_insns else None,
       'methodsNearLimit': sum(1 for r in rows if near_limit(r, threshold)),
+      # Wall-clock cost of running this one pass over the whole input, in milliseconds; absent
+      # from reports written before this field existed. One run, one process: a profiling figure
+      # for where obfuscation time goes, not a JMH-grade steady-state measurement.
+      'elapsedMillis': round(pass_report.get('metrics', {})['elapsedNanos'] / 1e6, 3)
+        if 'elapsedNanos' in pass_report.get('metrics', {}) else None,
     })
   total = {
     'passes': len(passes),
@@ -76,6 +81,8 @@ def summarize(report, threshold=NEAR_DEFAULT):
     'skipped': sum(p['skipped'] for p in passes),
     'rejected': sum(p['rejected'] for p in passes),
     'methodsNearLimit': sum(p['methodsNearLimit'] for p in passes),
+    'elapsedMillis': round(sum(p['elapsedMillis'] for p in passes if p['elapsedMillis'] is not None), 3)
+      if any(p['elapsedMillis'] is not None for p in passes) else None,
   }
   decisions = total['applied'] + total['skipped'] + total['rejected']
   total['appliedFraction'] = round(total['applied'] / decisions, 4) if decisions else None
@@ -115,10 +122,13 @@ def render_text(result):
   lines.append('')
   for p in result['passes']:
     grow = f"{p['appliedGrowthPercent']}%" if p['appliedGrowthPercent'] is not None else 'n/a'
+    time = f" time={p['elapsedMillis']}ms" if p.get('elapsedMillis') is not None else ''
     lines.append(f"[{p['id']}] methods={p['methods']} applied={p['applied']} skipped={p['skipped']} "
-                 f"rejected={p['rejected']} growth={grow} near-limit={p['methodsNearLimit']}")
+                 f"rejected={p['rejected']} growth={grow} near-limit={p['methodsNearLimit']}{time}")
     for reason, count in p['rejectionReasons'].items():
       lines.append(f"    rejected x{count}: {reason}")
+  if t.get('elapsedMillis') is not None:
+    lines.append(f"\nTotal pass time: {t['elapsedMillis']}ms")
   return '\n'.join(lines) + '\n'
 
 
@@ -128,10 +138,11 @@ def render_html(result):
   rows = []
   for p in result['passes']:
     grow = f"{p['appliedGrowthPercent']}%" if p['appliedGrowthPercent'] is not None else 'n/a'
+    time = f"{p['elapsedMillis']}" if p.get('elapsedMillis') is not None else '&mdash;'
     reasons = '<br>'.join(f"{esc(r)} &times;{c}" for r, c in p['rejectionReasons'].items()) or '&mdash;'
     rows.append(f"<tr><td>{esc(p['id'])}</td><td>{p['methods']}</td><td>{p['applied']}</td>"
                 f"<td>{p['skipped']}</td><td>{p['rejected']}</td><td>{grow}</td>"
-                f"<td>{p['methodsNearLimit']}</td><td class='r'>{reasons}</td></tr>")
+                f"<td>{p['methodsNearLimit']}</td><td>{time}</td><td class='r'>{reasons}</td></tr>")
   t = result['total']
   counts = ''
   if 'protectionCounts' in result:
@@ -165,7 +176,7 @@ reverse, and a skipped method may be an intentional keep/exclusion.</p>
 <b>{t['methodsNearLimit']}</b>{'' if t['appliedFraction'] is None else f" &middot; applied fraction <b>{t['appliedFraction']:.1%}</b>"}</p>
 {counts}{size}
 <table><thead><tr><th>Pass</th><th>Methods</th><th>Applied</th><th>Skipped</th><th>Rejected</th>
-<th>Growth</th><th>Near limit</th><th>Rejection reasons</th></tr></thead>
+<th>Growth</th><th>Near limit</th><th>Time (ms)</th><th>Rejection reasons</th></tr></thead>
 <tbody>
 {chr(10).join(rows)}
 </tbody></table>

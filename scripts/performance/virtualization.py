@@ -14,11 +14,14 @@ import os
 import platform
 import statistics
 import subprocess
+import sys
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import environment  # noqa: E402
 
 FIXTURE = """
 package bench;
@@ -119,10 +122,11 @@ def main():
     ratios[method] = {field: medians[method]['virtual'][field] / medians[method]['original'][field]
                       for field in ['p50Ns', 'p95Ns', 'p99Ns']}
 
-  report = {'schemaVersion': 2, 'java': execute(['java', '-version']).strip(), 'host': platform.platform(),
+  report = {'schemaVersion': 3, 'java': execute(['java', '-version']).strip(), 'host': platform.platform(),
+            **environment.collect(ROOT),
             'fixtureSha256': hashlib.sha256(FIXTURE.encode()).hexdigest(), 'synthetic': True, 'methods': METHODS,
             'warmupCalls': args.warmup, 'measuredCalls': args.measured, 'minimumWarmupMs': args.warmup_ms,
-            'forks': results, 'medians': medians, 'virtualOverOriginal': ratios}
+            'measurements': args.forks, 'forks': results, 'medians': medians, 'virtualOverOriginal': ratios}
   (out / 'results.json').write_text(json.dumps(report, indent=2) + '\n')
   print(json.dumps({'medians': medians, 'virtualOverOriginal': ratios}, indent=2))
 
