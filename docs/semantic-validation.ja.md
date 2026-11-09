@@ -13,6 +13,8 @@ python3 scripts/verify-semantic-regressions.py --full
 
 初期化→開始→進捗なし→負数入力→終了境界の直前→境界一致→終了後の操作拒否を検証します。開始操作だけでは終了せず、整数オーバーフローも JVM のラップに従うことを期待状態で確認します。評価順序、int/long、負数、シフト距離のマスク、ゼロ除算、catch/rethrow、finally の副作用も比較します。併用時を含め、指定した変換が実際に適用されたことも確認します。
 
+`ConcurrencyAndLanguageDifferentialTest` は上記 2 つの fixture が扱わない構成を同じ strong 併用構成で検証します。変換された呼び出し箇所を跨ぐ深い再帰と相互再帰、多次元配列の同一性（浅い `clone`、`copyOf`、共有／分離された行、`deepHashCode`）、`switch`／`values`／`valueOf` を伴う enum 定数固有ボディ、interface default メソッドのダイヤモンド解決、`synchronized` 区間、そして `ConcurrentHashMap.merge`／`AtomicLong` に対する実スレッド競合です。名前で依存するのはリネームされない `contract` インターフェースのみで、`app` 実装はマッピング経由で解決します。決定的シナリオは値と独立オラクルを比較します。並行シナリオはインターリーブが非決定的なため、元／変換後の一致と、どのインクリメントも失われない（`mapped == threads * perThread`）というインターリーブ非依存の不変条件のみで検証し、順序やログ一致は要求しません。
+
 `KotlinStatefulDifferentialTest` は Kotlin の interface 呼び出しと default 引数、value class 引数を持つ private default、data class の copy／分解、enum 名、lazy 委譲、キャプチャ付きラムダ、callable reference を併用構成で検証します。明示的 keep は観測用の 2 メソッドだけで、他は通常のコンパイラ契約保護に従います。
 
 ## 初期化順序の回帰

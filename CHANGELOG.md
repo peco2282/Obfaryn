@@ -43,6 +43,21 @@ time of the "Bump to" commit, not with a Git tag.
   already-exploded set of classes or a plain, non-fat jar). Protects `@Scheduled`/`@EventListener`/
   `@Async` methods and the application's `main` method, plus whatever they call, from
   virtualization.
+- `ConcurrencyAndLanguageDifferentialTest` (`obfaryn-standard`): a differential regression that
+  applies the combined strong configuration to a Java fixture and compares original vs. transformed
+  behavior for constructs the existing stateful fixtures did not exercise — deep/mutual recursion,
+  multidimensional array identity (shallow `clone`, `copyOf`, shared/detached rows, `deepHashCode`),
+  `enum` constant-specific bodies with `switch`/`values`/`valueOf`, interface default-method diamond
+  dispatch, `synchronized` sections, and multithreaded contention over `ConcurrentHashMap.merge`/
+  `AtomicLong`. The concurrent scenario asserts equality plus the interleaving-independent invariant
+  that no increment is lost, never order/log equality. Documented in
+  `docs/semantic-validation.md` (and `.ja.md`).
+- `.github/workflows/verification.yml`: the synthetic `tick-benchmark` job now also runs on the
+  weekly `schedule` (not only manual dispatch), always uploads the machine-readable
+  `build/performance/` results (`if: always()`), and accepts `workflow_dispatch` inputs
+  (`strict_performance_gate`, `max_p99_ratio`, `max_extra_bytes_per_tick`) that opt into
+  `scripts/performance/run.py`'s regression gate. The gate stays off by default so shared-runner
+  timing noise does not fail the job; enable it only on a dedicated/quiet runner.
 
 ## [1.0.0]
 

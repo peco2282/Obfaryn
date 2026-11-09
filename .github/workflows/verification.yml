@@ -4,6 +4,21 @@ on:
   push:
     branches: [main, master]
   workflow_dispatch:
+    inputs:
+      strict_performance_gate:
+        description: >-
+          Fail the synthetic benchmark job on regression. Only meaningful on a dedicated/quiet
+          runner; leave off for shared GitHub-hosted runners, where timing noise is large.
+        type: boolean
+        default: false
+      max_p99_ratio:
+        description: 'protected/original p99 ceiling when the gate is on (e.g. 1.8).'
+        type: string
+        default: '1.8'
+      max_extra_bytes_per_tick:
+        description: 'Extra allocated bytes/tick ceiling when the gate is on (e.g. 64).'
+        type: string
+        default: '64'
   schedule:
     - cron: '19 3 * * 1'
 permissions:
@@ -49,7 +64,8 @@ jobs:
             build/compatibility/results.json
             build/compatibility/results-*/
   tick-benchmark:
-    if: github.event_name == 'workflow_dispatch'
+    # Manual runs and the weekly schedule only: never on PR/push, where timing noise is useless.
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -58,8 +74,20 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
-      - run: python3 scripts/performance/run.py
+      # Default: measure and publish machine-readable results only. The regression gate is opt-in
+      # (manual dispatch with strict_performance_gate=true) because a shared runner's variance would
+      # otherwise fail the job on noise rather than a real regression.
+      - name: Run synthetic benchmark
+        run: |
+          if [ "${{ github.event_name == 'workflow_dispatch' && inputs.strict_performance_gate }}" = "true" ]; then
+            python3 scripts/performance/run.py \
+              --max-p99-ratio "${{ inputs.max_p99_ratio }}" \
+              --max-extra-bytes-per-tick "${{ inputs.max_extra_bytes_per_tick }}"
+          else
+            python3 scripts/performance/run.py
+          fi
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
         with:
           name: synthetic-tick-performance
           path: build/performance/
