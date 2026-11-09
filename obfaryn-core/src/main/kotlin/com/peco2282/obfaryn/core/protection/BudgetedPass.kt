@@ -127,6 +127,8 @@ internal class BudgetedPass(
           if (changed && !accepted) "class-rollback:$rejection" else if (changed) if (old == null) "generated-helper-or-initializer" else "transformed"
           else denied ?: delegate.skipReason(context, candidate, method) ?: "no-eligible-instructions-or-unsupported",
           input.instructions, output.instructions, input.branches, output.branches, input.bytes, output.bytes,
+          growthPercent(input.instructions, output.instructions),
+          context.transformationPolicy.budget(candidate, method),
         )
       }
       if (detailed) for ((owner, methods) in helperSizes) for ((method, size) in methods) {
@@ -136,6 +138,8 @@ internal class BudgetedPass(
           if (accepted) "applied" else "rejected",
           if (accepted) "generated-helper-class" else "class-rollback:$rejection",
           0, output.instructions, 0, output.branches, 0, output.bytes,
+          growthPercent(0, output.instructions),
+          context.transformationPolicy.budget(owner, method),
         )
       }
     }
@@ -143,6 +147,10 @@ internal class BudgetedPass(
     metrics["budgetRejectedClasses"] = rejectedClasses
     result = TransformerReport(id, metrics, warnings.distinct(), rows)
   }
+
+  /** Output instructions as a percentage of input instructions; -1 when there is no input body. */
+  private fun growthPercent(input: Int, output: Int): Int =
+    if (input > 0) (output.toLong() * 100 / input).toInt() else -1
 
   private fun sameCode(a: MethodNode, b: MethodNode): Boolean {
     fun bytes(method: MethodNode): ByteArray = ClassWriter(0).also { writer ->

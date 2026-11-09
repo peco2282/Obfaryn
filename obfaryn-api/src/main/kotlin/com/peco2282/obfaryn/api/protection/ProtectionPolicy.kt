@@ -107,6 +107,13 @@ data class ProtectionRule @JvmOverloads constructor(
  * @property outputBranches Branch instruction count after the pass.
  * @property inputCodeBytes Estimated JVM code length of the original method body.
  * @property outputCodeBytes Estimated JVM code length after the pass; 0 for a rejected new method.
+ * @property growthPercent Output instructions as a percentage of input instructions
+ *   (`outputInstructions * 100 / inputInstructions`), or `-1` when there is no input body to grow
+ *   from (a generated helper or initializer).
+ * @property appliedBudget The structural budget actually in effect for this method when the pass
+ *   ran, or `null` for a pass that is not body-budgeted. The rejection [reason] names whichever of
+ *   these limits was exceeded; this exposes the limits themselves so a report consumer need not
+ *   reconstruct them.
  */
 data class MethodTransformationReport(
   val method: String,
@@ -118,4 +125,6 @@ data class MethodTransformationReport(
   val outputBranches: Int,
   val inputCodeBytes: Int,
   val outputCodeBytes: Int,
+  val growthPercent: Int = -1,
+  val appliedBudget: TransformationBudget? = null,
 )

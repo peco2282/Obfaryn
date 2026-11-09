@@ -195,9 +195,11 @@ while (true) {
 
 ## 適用・除外レポート
 
-`--transformation-report PATH` は schema version 1 の JSON を出力します。同じメソッド行を `ObfuscationResult.transformerReports[*].methods` から取得できます。実行されたパスだけが含まれ、詳細なメソッド行はクラス単位で分離できる通常の本体変換が対象です。
+`--transformation-report PATH` は schema version 2 の JSON を出力します。同じメソッド行を `ObfuscationResult.transformerReports[*].methods` から取得できます。実行されたパスだけが含まれ、詳細なメソッド行はクラス単位で分離できる通常の本体変換が対象です。
 
 各行には元の識別子、`applied` / `skipped` / `rejected`、理由、入出力の命令数・分岐命令数・最大コード byte 数を記録します。アノテーション、機能単位の制限、入力予算、クラス全体の取り消し、非対応形状、生成補助メソッドを区別します。除外クラスも skipped として記録し、取り消した新規補助メソッドの出力サイズは 0 です。元の名前を含むため、配布物には含めないでください。
+
+schema version 2 では各行に 2 つのフィールドを追加します。`growthPercent` は `outputInstructions * 100 / inputInstructions` で、成長元の入力本体が無い場合（生成補助メソッドや初期化子）は `-1` です。`appliedConstraints` はそのメソッドに実際に適用された構造予算（`maxInputInstructions`、`maxInputBranches`、`maxAddedInstructions`、`maxGrowthPercent`、`growthAllowanceInstructions`、`maxOutputCodeBytes`。未設定の任意上限は `null`）で、本体予算を持たないパスでは `null` です。version 2 は後方互換の追加で、version 1 の各フィールドは名称も意味も不変のため、それらだけを読む利用側は影響を受けません。`growthPercent` と `appliedConstraints` を拒否理由と併せて使うことで、予算解決を再構築せずに各メソッドが上限へどれだけ近づいたかを定量化できます。
 
 ### 生成ヘルパーと出力先の検査
 

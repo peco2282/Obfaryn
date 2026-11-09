@@ -72,6 +72,19 @@ time of the "Bump to" commit, not with a Git tag.
   were measured and then not adopted (no change distinguishable from host noise). The VM template is
   unchanged.
 
+### Changed
+
+- Transformation report JSON is now schema version 2: each method row adds `growthPercent`
+  (`outputInstructions * 100 / inputInstructions`, or `-1` for a generated helper/initializer with
+  no input body) and `appliedConstraints` (the structural budget actually in effect for that method:
+  `maxInputInstructions`, `maxInputBranches`, `maxAddedInstructions`, `maxGrowthPercent`,
+  `growthAllowanceInstructions`, `maxOutputCodeBytes`, or `null` for a non-body-budgeted pass). The
+  limits were previously only surfaced indirectly through a rejection reason. `MethodTransformationReport`
+  gains matching `growthPercent` and `appliedBudget` properties (additive, defaulted). Version 2 is
+  backward compatible — every version 1 field keeps its name and meaning. Documented in
+  `docs/protection.md` (and `.ja.md`); covered by `TransformationReportDetailTest`, which also guards
+  that the report (it carries original names) is a standalone file and never an entry in the output JAR.
+
 ## [1.0.0]
 
 First release with a defined API stability contract — see

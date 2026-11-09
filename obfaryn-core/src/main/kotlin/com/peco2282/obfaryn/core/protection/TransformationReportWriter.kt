@@ -1,10 +1,17 @@
 package com.peco2282.obfaryn.core.protection
 
+import com.peco2282.obfaryn.api.protection.TransformationBudget
 import com.peco2282.obfaryn.api.transformer.TransformerReport
 import java.nio.file.*
 
 /** Streaming, atomically replaced JSON; no serializer dependency in processed applications. */
 object TransformationReportWriter {
+  /** The structural limits in effect for a method, or JSON `null` for a non-body-budgeted pass. */
+  private fun constraints(budget: TransformationBudget?): String = if (budget == null) "null" else
+    "{\"maxInputInstructions\":${budget.maxInputInstructions},\"maxInputBranches\":${budget.maxInputBranches}," +
+      "\"maxAddedInstructions\":${budget.maxAddedInstructions},\"maxGrowthPercent\":${budget.maxGrowthPercent}," +
+      "\"growthAllowanceInstructions\":${budget.growthAllowanceInstructions},\"maxOutputCodeBytes\":${budget.maxOutputCodeBytes}}"
+
   private fun quote(text: String): String = buildString {
     append('"')
     for (c in text) when (c) {
@@ -21,7 +28,7 @@ object TransformationReportWriter {
     val temporary = Files.createTempFile(target.parent, ".obfaryn-report-", ".json")
     try {
       Files.newBufferedWriter(temporary, Charsets.UTF_8).use { writer ->
-        writer.write("{\"schemaVersion\":1,\"passes\":[\n")
+        writer.write("{\"schemaVersion\":2,\"passes\":[\n")
         reports.forEachIndexed { index, report ->
           if (index > 0) writer.write(",\n")
           writer.write("{\"id\":${quote(report.id)},\"metrics\":")
@@ -32,7 +39,8 @@ object TransformationReportWriter {
             writer.write("{\"method\":${quote(m.method)},\"status\":${quote(m.status)},\"reason\":${quote(m.reason)}," +
               "\"inputInstructions\":${m.inputInstructions},\"outputInstructions\":${m.outputInstructions}," +
               "\"inputBranches\":${m.inputBranches},\"outputBranches\":${m.outputBranches}," +
-              "\"inputCodeBytes\":${m.inputCodeBytes},\"outputCodeBytes\":${m.outputCodeBytes}}")
+              "\"inputCodeBytes\":${m.inputCodeBytes},\"outputCodeBytes\":${m.outputCodeBytes}," +
+              "\"growthPercent\":${m.growthPercent},\"appliedConstraints\":${constraints(m.appliedBudget)}}")
           }
           writer.write("]}")
         }
