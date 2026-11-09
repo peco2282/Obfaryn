@@ -144,6 +144,63 @@ paths well on JDK 21, so neither change was kept. Use the benchmark on a fixed, 
 re-evaluate before adopting any interpreter micro-optimization, and keep `@HotPath`/explicit
 exclusion as the supported way to keep latency-critical methods out of virtualization entirely.
 
+### Re-measurement and allocation breakdown (current code, JDK 21 Temurin, same host)
+
+Re-running `virtualization.py` on the current code (`--forks 2 --warmup 50000 --measured 50000`)
+reproduced the characterization above: `hot` 640 ns → 9120 ns (14.3×), `tiny` 60 ns → 95 ns (1.6×,
+within this host's run-to-run noise of the ~2.3× figure above), ~40 B/call for both — the prior
+numbers are still representative, not stale.
+
+`obfaryn-benchmarks`' `VmShapeBenchmark` (JMH, `-prof gc`) breaks the ~40 B/call figure down for
+instruction shapes beyond `hot`/`tiny`. Unlike the timing numbers, JMH's `gc.alloc.rate.norm` is
+essentially noise-free even over a short run (±0.03 B/op), so these byte counts are trustworthy
+even though the accompanying ns/op figures (small sample, reported in the JMH module section
+above) are not:
+
+| Shape | B/op (virtualized) |
+| --- | --- |
+| Method call (`plain`) | 24 |
+| Exception handling, no throw | 24 |
+| Array access | 112 |
+| Allocation (boxing + array/`Object[]` construction) | 200 |
+| Exception handling, throwing | 792 (728 of which is the JVM's own stack-trace capture, present unvirtualized too) |
+
+24 B/op matches the documented "boxed interpreter return plus the argument array" explanation —
+except the return here isn't actually boxing-allocated: the benchmark's arguments stay within
+`Integer`'s `-128..127` internal cache, so only the call site's `int[] arguments` array allocates.
+A method called with values outside that cache would allocate the box too; this benchmark's choice
+of argument happens to hide that half of the figure.
+
+`arrayWork`'s array construction and `allocWork`'s boxing/array/`Object[]` construction are not
+native VM instructions; they go through the generic bridge dispatch (opcode 48 in
+`VirtualizationRuntime.executeTyped`), which builds a fresh `Object[] bridgeArguments` per bridge
+call (`VirtualizationRuntime.java`'s `case 48`). That — not the already-pooled per-invocation frame
+(`acquireFrame`/`releaseFrame`, a `ThreadLocal<ArrayDeque<Object[]>>`) — is the dominant allocation
+source once a virtualized method does anything the VM doesn't have a native instruction for: array
+construction, object construction, boxing/unboxing method calls, and (per `case` around line 435)
+one `new Object[] { failure }` per exception-handler type check while searching for a matching
+`catch`.
+
+**Considered and not implemented:** pooling `bridgeArguments` (and the exception-handler-search's
+`Object[] { failure }`) the same way frames are already pooled. Not pursued, for two reasons:
+
+- The bytes involved (tens to a few hundred per op) are far smaller than the dispatch/call overhead
+  dominating these shapes' actual ns/op cost (hundreds to several thousand ns) — allocation/GC
+  pressure is not the bottleneck here at any realistic call rate, so removing it would not move the
+  wall-clock number by a measurable amount, which is exactly the "measured improvement within
+  noise" case Phase 3's adoption bar excludes.
+- Doing it *safely* is nontrivial: unlike the frame pool, a shared mutable buffer for bridge
+  arguments must stay correct if executing a bridge call re-enters virtualized execution on the
+  same thread (e.g. a bridged constructor or static initializer calling back into virtualized
+  code). That needs the same LIFO per-thread stacking the frame pool already uses, not a single
+  reusable slot — real complexity to add to a correctness-critical, heavily-tested component for an
+  effect this analysis does not expect to be measurable.
+
+No further dispatch-loop candidate was found beyond the two already tried above; `configuration(i)`
+calls are build-time-inlined to constant expressions (not real calls) before the output is written,
+so the loop's per-iteration `configuration(9) + pc++ * width` is already just inlined-constant
+arithmetic, not a method call.
+
 ## Obfuscation-process cost: per-pass elapsed time
 
 `PipelineExecutor` records each pass's wall-clock duration (`System.nanoTime()` around that one
