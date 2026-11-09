@@ -58,6 +58,19 @@ time of the "Bump to" commit, not with a Git tag.
   (`strict_performance_gate`, `max_p99_ratio`, `max_extra_bytes_per_tick`) that opt into
   `scripts/performance/run.py`'s regression gate. The gate stays off by default so shared-runner
   timing noise does not fail the job; enable it only on a dedicated/quiet runner.
+- `scripts/performance/virtualization.py` + `scripts/performance/VmBenchmark.java`: a reusable
+  microbenchmark isolating the interpreter cost of method virtualization. Both jars run through the
+  engine with every ordinary pass disabled, so the only difference is whether the measured method is
+  virtualized. Measures a dispatch-bound (`hot`) and an invocation-bound (`tiny`) target against the
+  original, reporting cold/warm percentiles, per-call allocation and a behavioral-equivalence
+  checksum, into machine-readable `build/performance-vm/results.json`. A new `vm-benchmark` job in
+  `verification.yml` runs it on manual dispatch and the weekly schedule and uploads the results
+  (published without a CI gate; fixed-host gating is available via `--max-p99-ratio`).
+- `docs/performance.md` (+ `.ja.md`): documents both performance benchmarks, the measured
+  virtualization overhead characterization (≈14× dispatch-bound, ≈2.3× invocation-bound on JDK 21,
+  host variance ≈ ±9%), and why two prototyped protection-neutral interpreter micro-optimizations
+  were measured and then not adopted (no change distinguishable from host noise). The VM template is
+  unchanged.
 
 ## [1.0.0]
 
