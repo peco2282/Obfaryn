@@ -17,16 +17,33 @@ field names, string literals and numeric literals are still present verbatim in 
 class files, and which bytecode-level indicators (branch instructions, invokedynamic call sites, the
 virtualization interpreter's own dispatch shape) remain visible.
 
-Run from the repository root; needs the JDK (`javac`, `javap`) and `./gradlew`.
+A second, separate section runs an actual decompiler (CFR, downloaded from Maven Central and
+checksum-verified; cached under the work directory) over both JARs and checks the same literals
+against its *reconstructed source text*, plus the decompiled size of the two methods call
+indirection and virtualization touch. This answers a different, narrower question than the javap
+section: not "is the bytecode well-formed" (always true for valid class files) but "what does a
+human reading one specific decompiler's output actually see" -- which is evidence about CFR 0.152
+specifically, not decompilers in general. It degrades gracefully (reports `null` for that section,
+does not fail the run) when offline or when the download's checksum does not match.
+
+Run from the repository root; needs the JDK (`javac`, `javap`) and `./gradlew`. The decompiler
+section additionally needs network access to Maven Central on first run (cached afterward).
 """
 import argparse
+import hashlib
 import json
 import re
 import subprocess
+import urllib.error
+import urllib.request
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+
+CFR_VERSION = '0.152'
+CFR_URL = f'https://repo1.maven.org/maven2/org/benf/cfr/{CFR_VERSION}/cfr-{CFR_VERSION}.jar'
+CFR_SHA256 = 'f686e8f3ded377d7bc87d216a90e9e9512df4156e75b06c655a16648ae8765b2'
 
 PACKAGE = "sample"
 # Every name, literal and branch below is deliberately known in advance, so "recoverable" below
@@ -193,6 +210,109 @@ def branch_instruction_count(disassembly: str) -> int:
     r'(if_[a-z_]+|ifeq|ifne|iflt|ifge|ifgt|ifle|if_icmp\w+|if_acmp\w+|goto|tableswitch|lookupswitch)')
 
 
+def download_cfr(work: Path) -> Path | None:
+  """The cached, checksum-verified CFR decompiler jar, or None if it cannot be obtained.
+
+  Never raises: a missing decompiler degrades the decompiler section of the report rather than
+  failing the whole run, since this script's primary (javap-level) section must stay usable
+  offline.
+  """
+  tools = work / 'tools'
+  tools.mkdir(exist_ok=True)
+  cached = tools / f'cfr-{CFR_VERSION}.jar'
+  if cached.is_file() and hashlib.sha256(cached.read_bytes()).hexdigest() == CFR_SHA256:
+    return cached
+  try:
+    with urllib.request.urlopen(CFR_URL, timeout=30) as response:
+      data = response.read()
+  except (urllib.error.URLError, OSError) as error:
+    print(f'CFR download skipped ({error}); decompiler section will be omitted.')
+    return None
+  if hashlib.sha256(data).hexdigest() != CFR_SHA256:
+    print('CFR download checksum mismatch; decompiler section will be omitted.')
+    return None
+  cached.write_bytes(data)
+  return cached
+
+
+def decompile(cfr_jar: Path, jar_path: Path, out_dir: Path) -> bool:
+  """Decompiles every class in `jar_path` into `out_dir`; True if CFR exits cleanly."""
+  out_dir.mkdir(parents=True, exist_ok=True)
+  result = subprocess.run(['java', '-jar', str(cfr_jar), str(jar_path),
+                            '--outputdir', str(out_dir), '--silent', 'true'],
+                           cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+  return result.returncode == 0
+
+
+def decompiled_sources(out_dir: Path) -> dict:
+  """`{relative/path/without/suffix: source text}` for every class CFR decompiled."""
+  return {p.relative_to(out_dir).with_suffix('').as_posix(): p.read_text(errors='replace')
+          for p in out_dir.rglob('*.java')}
+
+
+def decompiled_method_blocks(java_text: str):
+  return re.split(r'\n(?=    (?:public|private|protected|static|final)\b[^\n]*\()', java_text)
+
+
+def decompiled_method_source(java_text: str, method_name: str) -> str:
+  for block in decompiled_method_blocks(java_text):
+    header_lines = block.strip().splitlines()
+    if header_lines and re.search(rf'\b{re.escape(method_name)}\s*\(', header_lines[0]):
+      return block
+  return ''
+
+
+def decompiler_analysis(original_jar: Path, protected_jar: Path, mapping: dict, work: Path) -> dict | None:
+  cfr_jar = download_cfr(work)
+  if cfr_jar is None:
+    return None
+  original_out, protected_out = work / 'cfr-original', work / 'cfr-protected'
+  original_ok = decompile(cfr_jar, original_jar, original_out)
+  protected_ok = decompile(cfr_jar, protected_jar, protected_out)
+  original_sources = decompiled_sources(original_out)
+  protected_sources = decompiled_sources(protected_out)
+
+  all_protected_text = '\n'.join(protected_sources.values())
+  recoverable_strings = sorted(s for s in STRING_LITERALS if f'"{s}"' in all_protected_text)
+  recoverable_ints = sorted(i for i in INT_LITERALS if re.search(rf'(?<![\w.]){i}(?![\w.])', all_protected_text))
+
+  mapped_class_name = mapping.get(f'{PACKAGE}/LicenseValidator', f'{PACKAGE}/LicenseValidator')
+  original_class_text = original_sources.get(f'{PACKAGE}/LicenseValidator', '')
+  protected_class_text = protected_sources.get(mapped_class_name, '')
+  describe_name = mapped_method_name(mapping, 'sample/LicenseValidator', 'describe', '(I)Ljava/lang/String;')
+  hot_compute_name = mapped_method_name(mapping, 'sample/LicenseValidator', 'hotCompute', '(I)I')
+
+  original_describe = decompiled_method_source(original_class_text, 'describe')
+  protected_describe = decompiled_method_source(protected_class_text, describe_name)
+  original_hot = decompiled_method_source(original_class_text, 'hotCompute')
+  protected_hot = decompiled_method_source(protected_class_text, hot_compute_name)
+
+  return {
+    'cfrVersion': CFR_VERSION,
+    'note': ('Evidence about CFR ' + CFR_VERSION + ' specifically reading this JAR\'s output -- '
+             'not a claim about decompilers in general. A different decompiler, or a newer CFR '
+             'version, may reconstruct more or less of this. Method body sizes are decompiled '
+             'source character counts, not line counts: call indirection and virtualization '
+             'collapse their target methods to a single very long statement, so line count would '
+             'not reflect the size difference.'),
+    'decompileSucceeded': {'original': original_ok, 'protected': protected_ok},
+    'stringLiterals': {
+      'total': len(STRING_LITERALS),
+      'recoverableVerbatim': recoverable_strings,
+      'recoverableCount': len(recoverable_strings),
+    },
+    'numericLiterals': {
+      'total': len(INT_LITERALS),
+      'recoverableVerbatim': recoverable_ints,
+      'recoverableCount': len(recoverable_ints),
+    },
+    'methodOpacity': {
+      'describeSourceChars': {'original': len(original_describe), 'protected': len(protected_describe)},
+      'hotComputeSourceChars': {'original': len(original_hot), 'protected': len(protected_hot)},
+    },
+  }
+
+
 def analyze(original_jar: Path, protected_jar: Path, mapping_path: Path, work: Path) -> dict:
   mapping = read_mapping(mapping_path)
   original_dir, protected_dir = work / 'orig-extract', work / 'prot-extract'
@@ -282,6 +402,7 @@ def analyze(original_jar: Path, protected_jar: Path, mapping_path: Path, work: P
       'hotComputeDispatchesToInterpreter': virtualized_present,
       'hotComputeStillMultipliesInPlainBytecode': imul_still_present,
     },
+    'decompiler': decompiler_analysis(original_jar, protected_jar, mapping, work),
   }
 
 
@@ -302,6 +423,24 @@ def render_text(result: dict) -> str:
   v = result['virtualization']
   lines.append(f"hotCompute dispatches to the VM interpreter: {v['hotComputeDispatchesToInterpreter']}")
   lines.append(f"hotCompute's own imul still present in plain bytecode: {v['hotComputeStillMultipliesInPlainBytecode']}")
+  d = result['decompiler']
+  if d is None:
+    lines.append('')
+    lines.append('Decompiler section (CFR): skipped -- offline or checksum mismatch, see stderr above.')
+  else:
+    lines.append('')
+    lines.append(f"Decompiler section (CFR {d['cfrVersion']}): {d['note']}")
+    ok = d['decompileSucceeded']
+    lines.append(f"Decompiled cleanly: original={ok['original']} protected={ok['protected']}")
+    ds = d['stringLiterals']
+    lines.append(f"String literals recoverable in decompiled source: {ds['recoverableCount']}/{ds['total']}: {ds['recoverableVerbatim']}")
+    dn = d['numericLiterals']
+    lines.append(f"Numeric literals recoverable in decompiled source: {dn['recoverableCount']}/{dn['total']}: {dn['recoverableVerbatim']}")
+    mo = d['methodOpacity']
+    lines.append(f"describe() decompiled size: {mo['describeSourceChars']['original']} chars original -> "
+                 f"{mo['describeSourceChars']['protected']} chars protected")
+    lines.append(f"hotCompute() decompiled size: {mo['hotComputeSourceChars']['original']} chars original -> "
+                 f"{mo['hotComputeSourceChars']['protected']} chars protected")
   return '\n'.join(lines) + '\n'
 
 

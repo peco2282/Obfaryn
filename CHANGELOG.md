@@ -33,6 +33,12 @@ time of the "Bump to" commit, not with a Git tag.
 
 ### Added
 
+- `scripts/analyze-recoverable-structure.py`: added a second, decompiler-based section alongside
+  the existing javap-level one -- downloads and checksum-verifies CFR from Maven Central (cached;
+  the section is omitted, not a failure, when offline), decompiles both JARs, and checks the same
+  string/numeric literals against CFR's reconstructed source text plus the decompiled
+  character-length of the methods call indirection and virtualization touch. Evidence about CFR
+  0.152 specifically, not decompilers in general -- see [docs/protection.md](docs/protection.md).
 - `scripts/performance/process.py`: measures the obfuscation process's own resource footprint --
   wall-clock time, user/system CPU time, peak resident set size, and GC count/pause time via GNU
   `time -v` and `-Xlog:gc` -- as distinct from `PipelineExecutor`'s existing per-pass
