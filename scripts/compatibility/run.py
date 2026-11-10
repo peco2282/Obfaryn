@@ -49,7 +49,11 @@ def main():
         current = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=checkout, text=True).strip()
         if current != project['commit']:
             run(['git', 'fetch', '--depth', '1', 'origin', project['commit']], checkout, result/'fetch.log')
-            run(['git', 'checkout', '--detach', project['commit']], checkout, result/'checkout.log')
+        # `--no-checkout` above never populates the working tree, so this must run even when
+        # `current` already equals the pinned commit (true the first time that commit happens to
+        # be the clone's default-branch tip) -- otherwise the checkout directory stays empty and
+        # the upstream build fails with a missing `gradlew`.
+        run(['git', 'checkout', '--detach', project['commit']], checkout, result/'checkout.log')
         properties = [f'-Dobfaryn.testProject={project["testProject"]}', f'-Dobfaryn.testTask={project["testTask"]}',
                       f'-Dobfaryn.resultDir={result}', f'-Dobfaryn.mainOutputs={os.pathsep.join(str(checkout/p) for p in project["mainOutputs"] + [project["jar"]])}']
         if not args.skip_build:
@@ -79,7 +83,13 @@ def main():
         tests = sum(int(s.get('tests', 0)) for s in suites)
         failures = sum(int(s.get('failures', 0))+int(s.get('errors', 0)) for s in suites)
         skipped = sum(int(s.get('skipped', 0)) for s in suites)
-        if not tests or failures or skipped: raise RuntimeError(f'Incomplete corpus run: {tests} tests, {failures} failures, {skipped} skipped')
+        # A project's own suite may skip tests for reasons unrelated to obfuscation (e.g. a JDK- or
+        # tool-gated assumption); `expectedSkipped` records that known-good baseline per project
+        # instead of papering over skips in general -- any count other than that baseline still fails.
+        expected_skipped = project.get('expectedSkipped', 0)
+        if not tests or failures or skipped != expected_skipped:
+            raise RuntimeError(f'Incomplete corpus run: {tests} tests, {failures} failures, '
+                                f'{skipped} skipped (expected {expected_skipped})')
         outcomes.append({'id': project['id'], 'url': project['url'], 'commit': project['commit'],
                          'tests': tests, 'failures': failures, 'skipped': skipped,
                          'inputSha256': hashlib.sha256(input_jar.read_bytes()).hexdigest(),

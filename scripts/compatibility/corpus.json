@@ -38,6 +38,25 @@
       "mainOutputs": [
         "colormath/build/classes/kotlin/jvm/main"
       ]
+    },
+    {
+      "id": "kotlinpoet",
+      "url": "https://github.com/square/kotlinpoet.git",
+      "commit": "66105b28628a471d3ade229f9c30e676392384b6",
+      "checkout": "kotlinpoet",
+      "build": [
+        "--configure-on-demand",
+        ":kotlinpoet:jvmJar",
+        ":kotlinpoet:jvmTest"
+      ],
+      "testProject": ":kotlinpoet",
+      "testTask": "jvmTest",
+      "jar": "kotlinpoet/build/libs/kotlinpoet-jvm-2.5.0-SNAPSHOT.jar",
+      "package": "com.squareup.kotlinpoet",
+      "mainOutputs": [
+        "kotlinpoet/build/classes/kotlin/jvm/main"
+      ],
+      "expectedSkipped": 40
     }
   ]
 }

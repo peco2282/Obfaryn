@@ -32,7 +32,7 @@ Use JDK 21 and the checked-in Gradle wrapper (`gradlew.bat` on Windows).
 - `./gradlew :obfaryn-cli:installDist`: generate the runnable distribution under `obfaryn-cli/build/install/obfaryn`.
 - `python3 scripts/verify-cli-distribution.py`: after `installDist`, transform and execute a Java 8 fixture using only the installed CLI and output JAR.
 - `python3 scripts/verify-custom-extension.py`: after `installDist` and `:examples:custom-extension:jar`, load an API-only provider with the installed CLI and verify the output JAR independently.
-- `python3 scripts/compatibility/run.py`: build pinned JOML/colormath sources and run their tests against transformed JARs. Use `--project joml` or `--project colormath` to narrow the run; `--skip-build` requires an existing matching upstream build.
+- `python3 scripts/compatibility/run.py`: build pinned JOML/colormath/kotlinpoet sources and run their tests against transformed JARs. Use `--project joml`, `--project colormath` or `--project kotlinpoet` to narrow the run; `--skip-build` requires an existing matching upstream build.
 - `python3 scripts/performance/run.py`: synthetic workload, three JVM forks by default, timed warmup, latency percentiles, allocations and result checks. Run separately from builds/tests for useful timing.
 
 Preserve Java 8 bytecode compatibility for library and CLI modules; the Gradle plugin targets Java 17.

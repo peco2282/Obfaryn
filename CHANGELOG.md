@@ -31,8 +31,26 @@ time of the "Bump to" commit, not with a Git tag.
   `VirtualizationTransformer` directly or use analyze-only mode, neither of which hits this path).
   See [docs/protection.md](docs/protection.md).
 
+- `scripts/compatibility/run.py`: the pinned-commit checkout only ran inside the
+  `current != project['commit']` branch, but the preceding `git clone --no-checkout` never
+  populates the working tree regardless of which commit `HEAD` already points at. When a pinned
+  commit happens to equal the clone's default-branch tip (true for `kotlinpoet` at the time it was
+  added), the checkout step was skipped entirely, leaving the directory empty and the next step
+  failing with a missing `gradlew`. Fixed by always running `git checkout --detach` after ensuring
+  the commit is fetched; only the (cheap, idempotent) fetch stays conditional. Also added a
+  per-project `expectedSkipped` field so a project whose own suite has legitimate
+  environment-gated skips (like `kotlinpoet`'s `TypesEclipseTest`) does not need to fake a global
+  "zero skips" policy that was really only ever true for JOML and colormath by coincidence.
+
 ### Added
 
+- Third compatibility-matrix project: `kotlinpoet` (Square, Apache 2.0, JVM target of a Kotlin
+  Multiplatform project) in `scripts/compatibility/corpus.json`, alongside JOML and colormath.
+  Diversifies the corpus with a code-generation library (annotation/generics-heavy public API)
+  distinct from JOML's numeric math and colormath's color conversion. 1011 tests, 0 failures; 40
+  skips are the upstream suite's own environment-gated `TypesEclipseTest` cases, present
+  identically in the unobfuscated build (`expectedSkipped` in corpus.json) -- not a regression.
+  Added to the CI compatibility matrix (`.github/workflows/verification.yml`) and `AGENTS.md`.
 - `scripts/analyze-recoverable-structure.py`: added a second, decompiler-based section alongside
   the existing javap-level one -- downloads and checksum-verifies CFR from Maven Central (cached;
   the section is omitted, not a failure, when offline), decompiles both JARs, and checks the same
