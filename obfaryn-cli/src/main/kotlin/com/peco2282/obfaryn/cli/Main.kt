@@ -134,6 +134,10 @@ internal fun cliCommandLine(): CommandLine = CommandLine(RootCommand()).apply {
   isOverwrittenOptionsAllowed = true
 }
 
+internal class Version: CommandLine.IVersionProvider {
+  override fun getVersion(): Array<out String> = arrayOf("1.0.0")
+}
+
 @Command(
   name = "obfaryn", mixinStandardHelpOptions = true,
   description = ["Obfuscate a JAR. The default output is INPUT-obfuscated.jar beside the input."],
@@ -143,6 +147,7 @@ internal fun cliCommandLine(): CommandLine = CommandLine(RootCommand()).apply {
       "ordinary options: they are consumed before parsing, the same way as @file.",
     "Add --stacktrace to print the full cause chain and stack trace on failure, instead of just " +
       "the one-line error; like --preset, it is consumed before parsing, not an ordinary option."],
+  versionProvider = Version::class,
   subcommands = [ObfuscateCommand::class, DeobfuscateCommand::class, ListExtensionsCommand::class, ListPresetsCommand::class, CompletionCommand::class],
 )
 internal class RootCommand : Callable<Int> {
