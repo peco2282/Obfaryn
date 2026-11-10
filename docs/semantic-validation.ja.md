@@ -17,6 +17,10 @@ python3 scripts/verify-semantic-regressions.py --full
 
 `KotlinStatefulDifferentialTest` は Kotlin の interface 呼び出しと default 引数、value class 引数を持つ private default、data class の copy／分解、enum 名、lazy 委譲、キャプチャ付きラムダ、callable reference を併用構成で検証します。明示的 keep は観測用の 2 メソッドだけで、他は通常のコンパイラ契約保護に従います。
 
+`CoroutineCompatibilityTest` は同じ併用構成を`kotlinx.coroutines`ベースのfixtureに適用します: 停止点をまたいでスピルされるローカル変数を持つsuspend関数(コンパイラ自身のcontinuationステートマシン)、停止中の呼び出し連鎖からの例外伝播、構造化並行性のキャンセル(子`launch`を通じた`CancellationException`伝播)、`async`/`awaitAll`による合成です。各シナリオは内部で`runBlocking`を使う通常のブロッキング関数として公開されており、素のリフレクションから呼び出せます。キャンセルは実時間の`delay()`ではなく協調的な`yield()`を使うため、ホストの速度や難読化後の処理がどれだけ遅くなっても結果は決定的です。keepルールは不要です: continuation自身のフィールド/メソッドはコンパイラが生成したバイトコードで到達し、名前で参照されないためです。
+
+`SerializationCompatibilityTest` は同じ併用構成(縮小プロファイルではなく完全なクラス/メソッド/フィールドのリネームを含む)を`kotlinx.serialization`ベースのfixtureに適用します: `@Serializable`なdata classを`Json.encodeToString`/`decodeFromString`で往復させます。生成される`$serializer`/エンコード・デコードのバイトコードはdata classのコンストラクタとプロパティアクセサを直接呼び出し、名前によるランタイムリフレクションを経由しないため、serializableクラス自体へのkeepルールなしで完全なリネームを生き残ります——これは(本テストが代表しているとは主張していない)仮想的なリフレクションベースのシリアライズライブラリとは異なります。kotlinx.serializationコンパイラプラグインは、実際に公開されているKotlinコンパイラバージョンに固定された専用クラスローダー経由でロードされます(`obfaryn-standard/build.gradle.kts`の`serializationCompiler`コンフィグレーション参照)。これはモジュール自身の(より新しい)`kotlin("compiler-embeddable")`バージョンとは分離されています。
+
 ## 初期化順序の回帰
 
 `InitializationSemanticsTest` は、有効なバイトコードでも意味が変わる次の問題を再現します。
@@ -36,7 +40,7 @@ python3 scripts/verify-semantic-regressions.py --full
 | 制御フロー | light は直接分岐と例外ハンドラーの優先順を保持します。既存テストでは入れ子の例外・finally・monitor も検証します。全 CFG やスケジュールを網羅しません。 |
 | 間接呼び出し | コンストラクター・クラス初期化・synthetic・未対応呼び出し形式を除外します。既存 prelink テストで範囲制限と対象初期化も確認します。完全なスタックトレース・時間・リンク失敗の等価性は検証しません。 |
 | 文字列・定数 | intern による同一性と初期化再入を確認します。抽出対象の外部 API 定数は Java のコンパイル時定数でなくなるため keep が必要です。OOM・全並行実行順・初期化デッドロックは対象外です。 |
-| Kotlin/JVM 契約 | メタデータとコンパイラ ABI の保護に加え、既存 relocation テストでは利用側の再コンパイル・reflection を確認します。動的に構築する reflection 名、シリアライズ名、外部設定、未知の compiler/plugin metadata は keep または拒否が必要です。 |
+| Kotlin/JVM 契約 | メタデータとコンパイラ ABI の保護に加え、既存 relocation テストでは利用側の再コンパイル・reflection を確認します。`kotlinx.serialization`のコンパイラ生成`$serializer`と`kotlinx.coroutines`のコンパイラ生成continuationは、いずれも名前によるランタイムリフレクションで到達されないため、keepルールなしで完全なリネームを生き残ります(`SerializationCompatibilityTest`/`CoroutineCompatibilityTest`参照)。動的に構築する reflection 名、リネーム後のクラスを元の宣言名でreflectする Kotlin reflection(`kotlin-reflect`)、外部設定、未知の compiler/plugin metadata は依然として keep または拒否が必要です。 |
 
 ## 成果物の由来と実製品の検証
 
