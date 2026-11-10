@@ -5,7 +5,7 @@ regression tracking on a fixed machine; they are not Paper/Spring Boot server gu
 establish absolute throughput for any real application. Run them apart from builds and tests, and
 treat small deltas on shared CI runners as noise.
 
-Three kinds of measurement exist here, each for a different purpose; none duplicates another:
+Four kinds of measurement exist here, each for a different purpose; none duplicates another:
 
 - `obfaryn-benchmarks` (JMH): steady-state, JIT-warmed per-call overhead of one transformation pass
   at a time, against the same unobfuscated method.
@@ -13,8 +13,10 @@ Three kinds of measurement exist here, each for a different purpose; none duplic
   `prepared`/`hotpath` variants, multi-fork, with percentiles.
 - `scripts/performance/virtualization.py`: isolated VM-dispatch cost (virtualized vs plain
   bytecode), multi-fork, with percentiles and an allocation-per-call figure.
+- `scripts/performance/process.py`: the obfuscation engine's own process footprint -- wall/CPU
+  time, peak RSS, GC activity -- not the output jar's runtime behavior.
 
-Every `results.json` these three write now also carries `os`, `cpu`, `cpuCount` and `gitCommit`
+Every `results.json` these write now also carries `os`, `cpu`, `cpuCount` and `gitCommit`
 (from `scripts/performance/environment.py`, or JMH's own `# VM version` line) so a result can be
 traced back to the machine and commit that produced it.
 
@@ -225,3 +227,33 @@ pass costs the most of the engine's own processing time on a given input — cla
 analysis, renaming, frame recomputation and JAR read/write costs are not yet broken out
 individually beyond the existing per-pass granularity; doing so would mean instrumenting
 `TransformationEngine`/`JarWriter` themselves, which remains for a later pass at this.
+
+## Whole-process cost — `scripts/performance/process.py`
+
+The per-pass `elapsedNanos` figures above only cover time spent inside `transform()` calls. This
+script measures the obfuscation JVM process as a whole — wall-clock time, user/system CPU time,
+peak resident set size, and garbage-collection activity — which is the figure that actually governs
+a CI job's timeout or a build machine's sizing. It generates a synthetic 80-class/15-method-per-
+class application (closer to a real plugin jar's class/method count than the single-class fixtures
+the other scripts use, since class-hierarchy analysis, rename-mapping and call-graph cost scale
+with class/method count, not loop iterations), obfuscates it under `--protection strong` with
+control flow, call indirection and integer arithmetic enabled, and wraps each run in GNU `time -v`
+(CPU/RSS) plus `-Xlog:gc` (GC count and total pause time). Writes
+`build/performance-process/results.json`. Requires Linux's GNU `time` (not macOS's BSD `time`).
+Optional local gates: `--max-wall-seconds`, `--max-rss-mb`.
+
+Three forks on this JDK 21 Temurin host (80 classes × 15 methods, default `-Xmx512m`):
+
+| Metric | Median |
+| --- | --- |
+| Wall-clock time | ~3.2 s |
+| User CPU time | ~9.1 s (multi-threaded JIT/GC, hence > wall time) |
+| Peak RSS | ~368 MB |
+| GC pauses | 7, ~89 ms total |
+| Output size | ~617 KB (from a ~145 KB input) |
+
+Most of this is JVM startup and JIT warmup rather than engine work proper — the same synthetic
+input obfuscated through `report-summary.py`'s pass-level `elapsedMillis` totals well under a
+second of actual `transform()` time (see the section above). This script does not distinguish
+start-up/classpath-scan cost from per-pass cost; use it alongside, not instead of, the per-pass
+figures when investigating where process time goes.

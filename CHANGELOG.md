@@ -33,6 +33,11 @@ time of the "Bump to" commit, not with a Git tag.
 
 ### Added
 
+- `scripts/performance/process.py`: measures the obfuscation process's own resource footprint --
+  wall-clock time, user/system CPU time, peak resident set size, and GC count/pause time via GNU
+  `time -v` and `-Xlog:gc` -- as distinct from `PipelineExecutor`'s existing per-pass
+  `elapsedNanos`, which only covers time inside `transform()` calls. See
+  [docs/performance.md](docs/performance.md).
 - `CoroutineCompatibilityTest` (`obfaryn-standard`): `kotlinx.coroutines` compatibility through the
   full obfuscation pipeline -- suspend-function state spilled across suspension points, exception
   propagation out of a suspended call chain, structured-concurrency cancellation, and
