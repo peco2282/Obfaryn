@@ -8,6 +8,17 @@ time of the "Bump to" commit, not with a Git tag.
 
 ### Fixed
 
+- `scripts/report-summary.py`'s `near_limit` ignored `growthAllowanceInstructions` and compared
+  against each method's size entering the *current* pass instead of its cumulative pre-pipeline
+  size, so it could disagree with `BudgetedPass.kt`'s own rejection rule in both directions: for a
+  small method, the allowance usually dominates and raises the true growth limit far above the
+  configured percentage, so omitting it over-reported "near limit"; for a method already grown by
+  an earlier pass, comparing against that pass's own input instead of the run-wide baseline
+  under-reported cumulative growth toward `maxAddedInstructions`. Fixed to mirror the engine's
+  formula exactly, with boundary-case coverage added to `--self-test`. See
+  [docs/protection.md](docs/protection.md).
+
+
 - `StandardPackage`: virtualizing (`--virtualize-method`/`virtualizeMethods`) a method whose body
   references any class outside the input JAR's own classes — practically any JDK API call —
   failed obfuscation outright with an opaque `NoSuchMethodError`/`NoSuchFileException` from
@@ -22,6 +33,13 @@ time of the "Bump to" commit, not with a Git tag.
 
 ### Added
 
+- `scripts/analyze-recoverable-structure.py`: a decompilation-resistance inventory, measuring
+  (via the JDK's own `javap`, not a specific third-party decompiler) which original class/method/
+  field names, string literals and numeric literals survive verbatim in an obfuscated JAR's class
+  files, plus bytecode-level indicators for control flow, call indirection and VM virtualization.
+  See [docs/protection.md](docs/protection.md).
+- `scripts/report-summary.py`: `generatedHelpers`/`appliedReasons` distinguish a newly injected
+  method or helper class from an existing method changed in place.
 - `obfaryn-benchmarks`: a new JMH module measuring one transformation pass's isolated per-call
   overhead (string encryption, number obfuscation, lightweight control flow, call indirection,
   prelink) against the same unobfuscated method, plus a direct-call/`MethodHandle`/reflection
