@@ -19,6 +19,13 @@ on:
         description: 'Extra allocated bytes/tick ceiling when the gate is on (e.g. 64).'
         type: string
         default: '64'
+      fuzz_cases:
+        description: >-
+          Manual-only heavy fuzz run: number of FuzzDifferentialTest cases (the push/PR default,
+          8, and the weekly schedule's 200 are fixed; this input is for a deliberately long,
+          on-demand run).
+        type: string
+        default: '2000'
   schedule:
     - cron: '19 3 * * 1'
 permissions:
@@ -42,6 +49,59 @@ jobs:
         with:
           name: test-reports
           path: '**/build/reports/tests/'
+  # A larger, seeded FuzzDifferentialTest run than push/PR's default (8 cases, already covered by
+  # the `tests` job above). Weekly schedule only: this duplicates `tests`' build, so it is not
+  # worth running on every push/PR, and the manual `fuzz_cases` input below is for a deliberately
+  # much longer, on-demand run instead of raising this fixed weekly count.
+  fuzz-testing:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
+      - name: Run FuzzDifferentialTest
+        env:
+          OBFARYN_FUZZ_CASES: ${{ github.event_name == 'workflow_dispatch' && inputs.fuzz_cases || '200' }}
+        run: ./gradlew :obfaryn-standard:test --tests "*FuzzDifferentialTest*" --rerun
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: failure()
+        with:
+          name: fuzz-failures
+          path: |
+            build/fuzz-failures/
+            obfaryn-standard/build/reports/tests/
+  # Obfaryn itself always builds with JDK 21 (see AGENTS.md); this validates only that the JARs it
+  # produces still *run* correctly on other JDKs a consumer might target. Weekly and manual only --
+  # it duplicates the `tests` job's build and is not informative on every push/PR.
+  jdk-matrix:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: temurin
+          java-version: |
+            8
+            17
+            21
+            25
+      - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
+      - run: >
+          python3 scripts/verify-jdk-matrix.py --json build/jdk-matrix/results.json
+          --jdk 8=$JAVA_HOME_8_X64/bin/java
+          --jdk 17=$JAVA_HOME_17_X64/bin/java
+          --jdk 21=$JAVA_HOME_21_X64/bin/java
+          --jdk 25=$JAVA_HOME_25_X64/bin/java
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: jdk-matrix-results
+          path: build/jdk-matrix/
   public-projects:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     runs-on: ubuntu-latest

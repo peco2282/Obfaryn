@@ -33,6 +33,19 @@ time of the "Bump to" commit, not with a Git tag.
 
 ### Added
 
+- `FuzzDifferentialTest` (`obfaryn-standard`): seeded fuzz testing over JVM-spec-valid generated
+  Java source (never raw bytecode) covering arithmetic, branches, loops, arrays, exceptions,
+  method calls, a small class hierarchy and numeric conversions, run through a representative
+  combined pipeline (string/number obfuscation, control flow, call indirection + prelink, integer
+  arithmetic, one virtualized method). Reproducible (`OBFARYN_FUZZ_SEED`), scalable
+  (`OBFARYN_FUZZ_CASES`), and a divergence is minimized and saved under `build/fuzz-failures/` for
+  turning into a permanent regression test.
+- `scripts/verify-jdk-matrix.py`: runs one obfuscated artifact (Obfaryn itself still builds with
+  JDK 21 only) under every JDK installed on the host, validating only execution, not Obfaryn's own
+  build requirements.
+- `.github/workflows/verification.yml`: new weekly/manual `fuzz-testing` (200 cases weekly, a
+  `fuzz_cases` manual-dispatch input for a much longer on-demand run) and `jdk-matrix` (JDK
+  8/17/21/25) jobs, alongside push/PR's existing small fixed-size fuzz run.
 - `scripts/analyze-recoverable-structure.py`: a decompilation-resistance inventory, measuring
   (via the JDK's own `javap`, not a specific third-party decompiler) which original class/method/
   field names, string literals and numeric literals survive verbatim in an obfuscated JAR's class
