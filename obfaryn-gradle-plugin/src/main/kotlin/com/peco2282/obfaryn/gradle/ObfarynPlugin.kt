@@ -271,6 +271,26 @@ class ObfarynPlugin : Plugin<Project> {
       )
     }
     val extension = project.extensions.create("obfaryn", ObfarynExtension::class.java)
+    val assembly = project.extensions.create("obfarynAssembly", ObfarynAssemblyExtension::class.java)
+    val assembleTask = project.tasks.register("obfuscateAssembly") { task ->
+      task.group = "build"
+      task.description = "Obfuscates several subproject JARs in one cross-artifact naming universe (experimental)."
+      // The task exists on every project the plugin is applied to; only the project that actually
+      // declares artifacts does the work, so a name-based `obfuscateAssembly` invocation skips the rest.
+      task.onlyIf { assembly.artifacts.isNotEmpty() }
+      // Random strategies and the cross-artifact nature make fingerprinting unreliable.
+      task.outputs.upToDateWhen { false }
+      task.doLast { runAssembly(project, assembly) }
+    }
+    project.afterEvaluate {
+      for (artifact in assembly.artifacts) {
+        // Evaluate the subproject first so its jar/shadowJar task exists before we depend on it;
+        // the aggregating project is usually configured before its children.
+        if (artifact != project) project.evaluationDependsOn(artifact.path)
+        val jar = artifact.tasks.findByName("shadowJar") ?: artifact.tasks.findByName("jar") ?: continue
+        assembleTask.configure { it.dependsOn(jar) }
+      }
+    }
     project.tasks.register("listObfarynExtensions") { task ->
       task.group = "help"
       task.description = "Lists platform and transformation-package providers visible on obfarynPlatform, without obfuscating."
@@ -325,63 +345,7 @@ class ObfarynPlugin : Plugin<Project> {
             val dependencyClasspath = (listOf("runtimeClasspath", "compileClasspath")
               .mapNotNull(project.configurations::findByName).flatMap { it.files }.map { it.toPath() } +
               extension.classpath.map { project.file(it).toPath() }).distinct().sortedBy { it.toString() }
-            val config = ObfuscationConfig(
-              protectionLevel = ProtectionLevel.valueOf(extension.protection.uppercase()),
-              stripDebugInfo = extension.stripDebugInfo,
-              stripKotlinMetadata = extension.stripKotlinMetadata,
-              kotlinMetadataMode = KotlinMetadataMode.valueOf(extension.kotlinMetadataMode.uppercase()),
-              applicationPackages = extension.applicationPackages,
-              stripGenericSignatures = extension.stripGenericSignatures,
-              stripMethodParameters = extension.stripMethodParameters,
-              verifyOutput = extension.verifyOutput,
-              reproducible = extension.reproducible,
-              recomputeFrames = extension.recomputeFrames,
-              classpath = dependencyClasspath,
-              stringEncryption = extension.stringEncryption,
-              numberObfuscation = extension.numberObfuscation,
-              stringConstantFields = extension.string.includeConstantFields,
-              numberConstantFields = extension.number.includeConstantFields,
-              stringEncryptionStrategy = extension.string.strategy,
-              numberStrategy = extension.number.strategy,
-              numberSelector = extension.number.selector,
-              stringRandom = extension.string.random,
-              numberRandom = extension.number.random,
-              renameClasses = extension.rename.classes,
-              renameMethods = extension.rename.methods,
-              renameFields = extension.rename.fields,
-              seed = extension.seed,
-              platform = extension.platform,
-              additionalPlatforms = extension.additionalPlatforms,
-              platformOptions = extension.platformOptions,
-              keep = extension.keep,
-              excludeClasses = extension.excludeClasses,
-              excludeResources = extension.excludeResources,
-              excludeRenaming = extension.excludeRenaming,
-              targetPackage = extension.targetPackage,
-              flattenPackages = extension.flattenPackages,
-              controlFlow = extension.controlFlow,
-              lightweightControlFlow = extension.lightweightControlFlow,
-              controlFlowMode = flowMode(extension.controlFlowMode),
-              callIndirection = extension.callIndirection,
-              integerArithmetic = extension.integerArithmetic,
-              maxArithmeticOperationsPerMethod = extension.maxArithmeticOperationsPerMethod,
-              prelinkCalls = extension.prelinkCalls,
-              transformationBudget = extension.performance.budget(),
-              protectionRules = extension.protectionRules,
-              transformationReport = extension.transformationReport?.let(project::file)?.toPath(),
-              virtualizeMethods = extension.virtualization.methods,
-              excludeVirtualization = extension.virtualization.excludeMethods,
-              virtualizationRuntimeGroupSize = extension.virtualization.runtimeGroupSize,
-              virtualizationSelectionMode = when (extension.virtualization.mode) {
-                "strict" -> VirtualizationSelectionMode.STRICT
-                "eligible" -> VirtualizationSelectionMode.ELIGIBLE
-                else -> error("Virtualization mode must be strict or eligible")
-              },
-              virtualizationAnalyzeOnly = extension.virtualization.analyzeOnly,
-              virtualizationReport = extension.virtualization.report?.let { project.file(it).toPath() },
-              integrityPrivateKey = extension.integrityPrivateKey?.let { project.file(it).toPath() },
-              integrityPublicKey = extension.integrityPublicKey?.let { project.file(it).toPath() },
-            )
+            val config = extension.toObfuscationConfig(project, dependencyClasspath)
             val result = withExtensionClassLoader(
               platformClasspath.files.map { it.toURI().toURL() }, ObfarynPlugin::class.java.classLoader) {
               val packages = (if (extension.useDefaultPackage) listOf(StandardPackage(config)) else emptyList()) +

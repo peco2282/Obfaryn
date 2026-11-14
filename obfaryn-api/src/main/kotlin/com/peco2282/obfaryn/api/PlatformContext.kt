@@ -36,4 +36,17 @@ interface PlatformContext {
    * Values may contain mutable byte arrays; implementations need not provide snapshots.
    */
   val resources: Map<String, ResourceEntry>
+
+  /**
+   * A view of every artifact taking part in a cross-artifact assembly, or `null` when this context
+   * is the whole program on its own (every single-artifact run, where [classes]/[resources] already
+   * describe the entire input).
+   *
+   * Use [classes]/[resources] for the artifact currently being detected or configured, and this
+   * view only to resolve references that may live in a sibling artifact — for example an entrypoint
+   * or call closure that spans artifacts. The returned view's own [wholeProgramView] is `null`:
+   * it is a flat union, not a nesting, and its resources need not be complete across artifacts.
+   */
+  val wholeProgramView: PlatformContext?
+    get() = null
 }

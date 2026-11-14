@@ -30,6 +30,12 @@ class ObfuscationContext(
   resources: MutableMap<String, ResourceEntry>,
 ) : ObfuscationContextApi, PlatformContext {
   override var namePreservation: NamePreservation = NamePreservation.NONE
+  /**
+   * The cross-artifact union supplied during a multi-artifact assembly, or `null` for an ordinary
+   * single-artifact run. Platforms consult it through [PlatformContext.wholeProgramView] to resolve
+   * references that may live in a sibling artifact.
+   */
+  override var wholeProgramView: PlatformContext? = null
   val originalClassNames = mutableMapOf<String, String>()
   val originalMethodIdentities = mutableMapOf<String, String>()
   override var transformationInputs: TransformationInputs = TransformationInputs.EMPTY
