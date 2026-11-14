@@ -1,10 +1,10 @@
 # 複数成果物アセンブリ（横断難読化）仕様書
 
-ステータス: **experimental（エンジン＋ファサード＋Gradle集約実装済み / CLI 未対応）**
+ステータス: **experimental（エンジン＋ファサード＋Gradle集約＋CLI 実装済み）**
 対象読者: Obfaryn 開発者
 関連: [assembly.md](assembly.md), [protection.md](protection.md)
 
-> **実装状況（2026-11）**: 本仕様のエンジン機構（obfaryn-api 契約・obfaryn-core 機構）、obfaryn-standard のセッションファサード、obfaryn-gradle-plugin の集約タスク（`obfuscateAssembly`＋`obfarynAssembly` 拡張）を実装した。CLI 対応は未実装（後続）。実装で確定した命名と §12 の方針は §13 を参照。
+> **実装状況（2026-11）**: 本仕様のエンジン機構（obfaryn-api 契約・obfaryn-core 機構）、obfaryn-standard のセッションファサード、obfaryn-gradle-plugin の集約タスク（`obfuscateAssembly`＋`obfarynAssembly` 拡張）、および obfaryn-cli の `assemble` サブコマンドを実装した。実装で確定した命名と §12 の方針は §13 を参照。
 
 > **命名方針**: 本書は**新規に作成する型・メンバ・タスクの名前を規定しない**。すべて役割で記述する。
 > 文中で参照の便宜上つける**仮ラベルは `〈 〉` で囲む**（例: 〈セッション〉）。実際の名前は実装時に決める。
@@ -320,6 +320,7 @@ Phase C (子/ローカル): union の改名クラスを出自で分割 ＋ 各�
 | 分割書き出し（§6.4） | `ArtifactSplitter` | obfaryn-core `assembly` |
 | 〈セッション〉ファサード | `AssemblySession` ＋ `AssemblyModule` | obfaryn-standard |
 | 集約タスク（§10） | `obfuscateAssembly` タスク ＋ `obfarynAssembly` 拡張（`ObfarynAssemblyExtension`） | obfaryn-gradle-plugin |
+| CLI（§12-3） | `assemble` サブコマンド（`AssembleCommand`） | obfaryn-cli |
 
 `RenameTransformer`・`StandardPackage`・`Obfuscator`・`PipelineExecutor`・`JarWriter` は無改造。`ObfuscationContext`（core）は `wholeProgramView` を可変で上書きするのみ。既存の `obfuscateJar` タスクは温存し、`ObfuscationConfig` 構築を `ObfarynExtension.toObfuscationConfig` に共通化して両タスクで再利用する。
 
@@ -344,6 +345,7 @@ obfarynAssembly {
 
 1. **§12-1（rename 抜き seam）**: Phase A は各モジュールを `StandardPackage` でパイプライン構築し、`registry.ordered().filterNot { it is RenamingTransformer }` で rename だけ除外して実行。rename は Phase B の単一 `RenameTransformer` に一元化。`StandardPackage` の分割改造は不要。
 2. **§12-2（ヘルパー名衝突）**: `ProgramUnion.build` が union 構築時に同名内部クラス（body 系生成ヘルパー含む）を拒否（§8.1 と同方針）。モジュール namespace 化は未採用。
+3. **§12-3（CLI 方式）**: 集合入力方式を採用（apply-mapping 方式Bではない）。`assemble` が `--artifact ID=INPUT[=OUTPUT]`（繰り返し）で成果物を列挙し、session 全体の rename オプションを持つ。各成果物の body 設定は `--artifact-args ID=FILE` で `obfuscate` と同じオプションを @file 展開して与える（file 内の rename オプションは無視＝rename は session 全体）。マッピングは 1 本（既定 `assembly.mapping.txt`）。
 
 ### 13.3 既知の制約（本実装）
 
@@ -351,7 +353,7 @@ obfarynAssembly {
 - モジュール個別設定での **integrity 署名** は非対応（書き出しが分割・非原子のため、拒否）。
 - **`*.kotlin_module` リソース**の改名は未対応。クラス埋め込み `@Metadata` は Phase B でノードと共に書換わる（§5.3）。
 - 複数 jar 書き出しは**非原子**（§8.3）。
-- CLI 対応は未実装（§12-3 は後続）。
+- CLI（`assemble`）でも per-artifact の `callIndirection`/`prelinkCalls`/integrity は（セッションと同様に）拒否される。
 
 ---
 

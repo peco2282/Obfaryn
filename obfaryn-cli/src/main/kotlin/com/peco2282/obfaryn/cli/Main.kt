@@ -148,7 +148,7 @@ internal class Version: CommandLine.IVersionProvider {
     "Add --stacktrace to print the full cause chain and stack trace on failure, instead of just " +
       "the one-line error; like --preset, it is consumed before parsing, not an ordinary option."],
   versionProvider = Version::class,
-  subcommands = [ObfuscateCommand::class, DeobfuscateCommand::class, ListExtensionsCommand::class, ListPresetsCommand::class, CompletionCommand::class],
+  subcommands = [ObfuscateCommand::class, AssembleCommand::class, DeobfuscateCommand::class, ListExtensionsCommand::class, ListPresetsCommand::class, CompletionCommand::class],
 )
 internal class RootCommand : Callable<Int> {
   @Mixin var obfuscation = ObfuscateCommand()
