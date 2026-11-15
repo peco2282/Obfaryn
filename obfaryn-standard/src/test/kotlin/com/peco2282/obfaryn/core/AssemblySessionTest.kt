@@ -2,6 +2,7 @@ package com.peco2282.obfaryn.core
 
 import com.peco2282.obfaryn.standard.AssemblyModule
 import com.peco2282.obfaryn.standard.AssemblySession
+import com.peco2282.obfaryn.standard.RecordingPackageState
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -50,6 +51,21 @@ class AssemblySessionTest {
       visitMethodInsn(INVOKESPECIAL, "api/Greeter", "<init>", "()V", false)
       visitMethodInsn(INVOKEVIRTUAL, "api/Greeter", "greet", "()Ljava/lang/String;", false)
       visitInsn(ARETURN); visitMaxs(2, 0); visitEnd()
+    }
+    cw.visitMethod(ACC_PUBLIC or ACC_STATIC, "secret", "()Ljava/lang/String;", null, null).apply {
+      visitCode(); visitLdcInsn(appSecret); visitInsn(ARETURN); visitMaxs(1, 0); visitEnd()
+    }
+    cw.visitEnd()
+    return cw.toByteArray()
+  }
+
+  /** app/Holder: secret() -> a plaintext literal, with no external references (verifies standalone). */
+  private fun holderBytes(): ByteArray {
+    val cw = ClassWriter(0)
+    cw.visit(V1_8, ACC_PUBLIC, "app/Holder", null, "java/lang/Object", null)
+    cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null).apply {
+      visitCode(); visitVarInsn(ALOAD, 0); visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+      visitInsn(RETURN); visitMaxs(1, 1); visitEnd()
     }
     cw.visitMethod(ACC_PUBLIC or ACC_STATIC, "secret", "()Ljava/lang/String;", null, null).apply {
       visitCode(); visitLdcInsn(appSecret); visitInsn(ARETURN); visitMaxs(1, 0); visitEnd()
@@ -127,6 +143,48 @@ class AssemblySessionTest {
     assertFalse(decompressedClasses(appOut).contains(appSecret)) {
       "app encrypted its string literal (encryption on for that artifact)"
     }
+  }
+
+  @Test fun perArtifactPackageSelectionAndAfterWriteApply(@TempDir dir: Path) {
+    RecordingPackageState.reset()
+    val appIn = jar(dir.resolve("app-in.jar"), mapOf("app/Holder.class" to holderBytes()))
+
+    // Baseline: the standard recipe runs, encrypting the literal and recording body passes.
+    val appOut = dir.resolve("app-out.jar")
+    val baseline = AssemblySession(
+      listOf(AssemblyModule("app", appIn, appOut, ObfuscationConfig(applicationPackages = listOf("app"), seed = 3))),
+      ObfuscationConfig(renameClasses = true, renameMethods = true, renameFields = true, seed = 7),
+    ).run()
+    assertFalse(decompressedClasses(appOut).contains(appSecret)) { "the standard recipe encrypted the literal" }
+    assertTrue(baseline.reports.getValue("app").isNotEmpty()) { "the standard recipe ran body passes" }
+    assertTrue(RecordingPackageState.afterWrites.isEmpty()) { "the recorder was not selected for the baseline" }
+
+    // Opt out of the standard recipe and select only the provider-supplied recorder: no body passes
+    // run (literal stays plaintext), and the recorder's afterWrite sees the finished output JAR.
+    val appOut2 = dir.resolve("app-out2.jar")
+    val selected = AssemblySession(
+      listOf(AssemblyModule("app", appIn, appOut2, ObfuscationConfig(applicationPackages = listOf("app"), seed = 3),
+        packageIds = listOf("test-recorder"), noDefaultPackage = true)),
+      ObfuscationConfig(renameClasses = false, renameMethods = false, renameFields = false, seed = 7),
+    ).run()
+    assertTrue(decompressedClasses(appOut2).contains(appSecret)) { "no standard recipe -> the literal is left plaintext" }
+    assertTrue(selected.reports.getValue("app").isEmpty()) { "--no-default-package registered no body passes" }
+    assertEquals(listOf(appOut2), RecordingPackageState.afterWrites) { "afterWrite ran once on the finished output" }
+  }
+
+  @Test fun protectInputRejectsOverwritingAnArtifactOutput(@TempDir dir: Path) {
+    RecordingPackageState.reset()
+    val appIn = jar(dir.resolve("app-in.jar"), mapOf("app/Holder.class" to holderBytes()))
+    val appOut = dir.resolve("app-out.jar")
+    // The selected package declares a protected input that collides with an artifact's output.
+    RecordingPackageState.protectInputPath = appOut
+    val failure = assertThrows(IllegalArgumentException::class.java) {
+      AssemblySession(listOf(AssemblyModule("app", appIn, appOut,
+        ObfuscationConfig(applicationPackages = listOf("app")),
+        packageIds = listOf("test-recorder"), noDefaultPackage = true))).run()
+    }
+    assertTrue(failure.message!!.contains("must not be overwritten")) { "protectInput guarded the output destination" }
+    RecordingPackageState.reset()
   }
 
   @Test fun duplicateClassAcrossArtifactsIsRejected(@TempDir dir: Path) {

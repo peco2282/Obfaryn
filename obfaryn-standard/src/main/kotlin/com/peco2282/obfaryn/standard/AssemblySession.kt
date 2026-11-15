@@ -14,6 +14,7 @@ import com.peco2282.obfaryn.api.transformer.TransformerReport
 import com.peco2282.obfaryn.core.ObfuscationConfig
 import com.peco2282.obfaryn.core.PipelineExecutor
 import com.peco2282.obfaryn.core.ReflectionScanner
+import com.peco2282.obfaryn.core.TransformationPackages
 import com.peco2282.obfaryn.core.TransformerPipeline
 import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
 import com.peco2282.obfaryn.core.assembly.ArtifactSplitter
@@ -21,6 +22,7 @@ import com.peco2282.obfaryn.core.assembly.AssemblyPaths
 import com.peco2282.obfaryn.core.assembly.ProgramUnion
 import com.peco2282.obfaryn.core.assembly.WholeProgramView
 import com.peco2282.obfaryn.core.context.ObfuscationContext
+import com.peco2282.obfaryn.core.io.ArtifactPaths
 import com.peco2282.obfaryn.core.jar.JarReader
 import com.peco2282.obfaryn.core.keep.KeepNamePreservation
 import com.peco2282.obfaryn.core.keep.KeepRules
@@ -44,12 +46,19 @@ import java.util.jar.Manifest
  * The config's renaming switches are not used here — renaming is decided once for the whole program
  * by [AssemblySession.renameConfig], not per artifact. Per-artifact `callIndirection`/`prelinkCalls`
  * are rejected, because those passes must run after renaming and renaming is global (see §8.3).
+ *
+ * Body-pass package selection is per artifact, mirroring single-artifact `obfuscate`: [noDefaultPackage]
+ * starts this artifact from an empty pipeline instead of the standard recipe, and [packageIds] names
+ * additional provider-supplied packages (resolved on the host/extension classloader). The global
+ * rename runs regardless; any renamer a selected package registers is dropped, as for the standard one.
  */
 data class AssemblyModule(
   override val stableId: String,
   override val input: Path,
   override val output: Path,
   val config: ObfuscationConfig = ObfuscationConfig(),
+  val packageIds: List<String> = emptyList(),
+  val noDefaultPackage: Boolean = false,
 ) : AssemblyArtifact
 
 private class AssemblyRun(
@@ -150,6 +159,8 @@ class AssemblySession(
         frameRecompute.getValue(module.stableId),
         externalClasspath,
       )
+      // Match single-artifact write ordering: output processors see the finished JAR after it lands.
+      outputProcessors.getValue(module.stableId).forEach { it.afterWrite(module.output) }
     }
 
     return AssemblyRun(modules.associate { it.stableId to it.output }, renamer.mappingText(), reports)
@@ -209,7 +220,11 @@ class AssemblySession(
       override val input = module.input
       override val output = module.output
       override val reproducible = renameConfig.reproducible
-      override fun protectInput(path: Path) = Unit
+      override fun protectInput(path: Path) {
+        require(modules.none { ArtifactPaths.sameFile(path, it.output) }) {
+          "Artifact '${module.stableId}': a package input must not be overwritten by any artifact output: $path"
+        }
+      }
       override fun excludeClass(internalName: String) { excludedClasses += internalName; keep.keepClass(internalName) }
       override fun excludeResource(path: String) { excludedResources += path; keep.keepResource(path) }
       override val context = context
@@ -221,17 +236,24 @@ class AssemblySession(
       override fun outputProcessor(processor: OutputProcessor) { processors += processor }
     }
     val registry = TransformerPipeline()
-    StandardPackage(config, keep, null).configure(assembly, registry)
+    // Honor per-artifact package selection, as single-artifact `obfuscate` does: opt out of the
+    // standard recipe and/or add provider packages. Any renamer they register is dropped below, since
+    // renaming is global. The standard package keeps the shared keep set (preparedKeep = keep).
+    val packages = (if (module.noDefaultPackage) emptyList() else listOf(StandardPackage(config, keep, null))) +
+      TransformationPackages.select(module.packageIds, options)
+    packages.forEach { it.configure(assembly, registry) }
     platform.extensions().filterIsInstance<PlatformPackages>()
       .flatMap { it.packages(context, options) }.forEach { it.configure(assembly, registry) }
     ReflectionScanner.scan(context, keep)
     val bodyPasses: List<Transformer> = registry.ordered().filterNot { it is RenamingTransformer }
     reports[module.stableId] = PipelineExecutor().execute(context, bodyPasses, excludedClasses, excludedResources, detailed = true)
     processors.forEach { it.beforeWrite(context) }
+    outputProcessors[module.stableId] = processors.toList()
     applied.cleanup()
     frameRecompute[module.stableId] = bodyPasses.any { it.requiresFrameRecomputation }
     return roots
   }
 
   private val frameRecompute = LinkedHashMap<String, Boolean>()
+  private val outputProcessors = LinkedHashMap<String, List<OutputProcessor>>()
 }

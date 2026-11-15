@@ -31,7 +31,7 @@ import java.util.concurrent.Callable
 @Command(
   name = "assemble", mixinStandardHelpOptions = true,
   description = ["Obfuscate several JARs in one cross-artifact naming universe so renamed API symbols stay consistent across artifacts (experimental)."],
-  footer = ["Each --artifact-args FILE uses the same options as 'obfuscate' (via @file expansion); renaming options there are ignored."],
+  footer = ["Each --artifact-args FILE uses the same options as 'obfuscate' (via @file expansion). Renaming options there are ignored (rename is session-wide); body-pass and package-selection options (including --package/--no-default-package) apply per artifact."],
 )
 internal class AssembleCommand : Callable<Int> {
   @Spec lateinit var spec: CommandSpec
@@ -86,12 +86,15 @@ internal class AssembleCommand : Callable<Int> {
       val input = Paths.get(parts[1])
       val output = if (parts.size == 3) Paths.get(parts[2])
       else input.resolveSibling(input.fileName.toString().removeSuffix(".jar") + "-obfuscated.jar")
-      val config = argsById[id]?.let { file ->
-        val command = ObfuscateCommand()
-        CommandLine(command).parseArgs("@$file")
-        command.configuration()
-      } ?: ObfuscationConfig()
-      AssemblyModule(id, input, output, config)
+      val command = argsById[id]?.let { file ->
+        ObfuscateCommand().also { CommandLine(it).parseArgs("@$file") }
+      }
+      AssemblyModule(
+        id, input, output,
+        command?.configuration() ?: ObfuscationConfig(),
+        packageIds = command?.packageIds ?: emptyList(),
+        noDefaultPackage = command?.noDefaultPackage ?: false,
+      )
     }
 
     val renameConfig = ObfuscationConfig(
