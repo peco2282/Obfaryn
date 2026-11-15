@@ -4,6 +4,8 @@
 
 `obfaryn-api` defines the contracts shared by the execution engine and extensions. It exposes ASM tree nodes but does **not** load JARs or execute a pipeline itself. Start with a `Transformer` to change bytecode/resources, or a `Platform` to detect a framework and supply keep rules and generated content.
 
+Follow sections 1–3 for the smallest working transformer. Use sections 4–6 only when you need names/resources, framework integration, or custom literal algorithms. The resulting extension compiles without core or standard implementations and participates in the same policy, budget, and lifecycle contracts as built-in passes.
+
 ## 1. Dependencies and source layout
 
 Build this repository with JDK 21 and the checked-in Gradle wrapper. API consumers should use a compatible Kotlin compiler (this project uses language/API version 2.1). Library bytecode targets Java 8; the Gradle plugin targets Java 17.

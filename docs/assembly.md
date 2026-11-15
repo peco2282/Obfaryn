@@ -4,6 +4,18 @@
 
 The engine and the standard distribution are separate dependencies. Extensions can be built outside this repository with **only `obfaryn-api`**. There is no central list of permitted user packages, transformer classes, or custom feature IDs.
 
+Use this guide according to your integration point:
+
+| You want to… | Read |
+| --- | --- |
+| Define a recipe inside one application | [Define a recipe](#define-a-recipe-in-your-own-project) |
+| Publish a reusable extension JAR | [Discover an extension JAR](#discover-an-extension-jar) |
+| Load an extension from the CLI or Gradle | [CLI](#cli) or [Gradle](#gradle) |
+| Implement renaming, policies, or output hooks | [Dedicated tools and advanced contracts](#dedicated-tools-and-advanced-contracts) |
+| Confirm the assembled result | [Validation](#validation) |
+
+The key boundary is simple: API defines contracts, core executes them, and standard supplies the built-in recipe. Installing an extension makes it discoverable; it does not select or execute it.
+
 | Module / contract | Responsibility |
 | --- | --- |
 | `obfaryn-api` | Transformer, recipe, platform, mapping, policy and lifecycle contracts |

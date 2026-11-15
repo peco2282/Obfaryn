@@ -15,9 +15,23 @@
 
 ASMベースのKotlin/JVM・Java JAR難読化ツールです: 文字列/数値リテラル暗号化、クラス・メソッド・フィールドのリネーム、任意の制御フロー・呼び出し間接化保護、VM風メソッド仮想化、オフライン整合性封印。リリースは[Maven Central](https://central.sonatype.com/namespace/com.peco2282.obfaryn)で公開しています。
 
+目的に合う入口から読み始めてください。
+
+| 目的 | 入口 |
+| --- | --- |
+| GradleからJARを保護する | [Gradleクイックスタート](#gradle-plugin-デフォルト) |
+| ターミナルからJARを保護する | [CLIクイックスタート](#cli-デフォルト) |
+| 要件とモジュール構成を確認する | [要件](#要件) |
+| ポリシー・予算・事前解決を設定する | [保護設定](docs/protection.ja.md) |
+| 拡張や独自recipeを作る | [組み立てガイド](docs/assembly.ja.md) |
+| 実行時・変換時コストを測る | [性能計測](docs/performance.ja.md) |
+
+> [!IMPORTANT]
+> 難読化はcodeの表現を変えますが、信頼境界にはなりません。秘密情報や認可判断を配布するclient codeに置かないでください。まず既定profileで変換後JARを検証し、コストの高い保護は必要なmethodだけに有効化してください。
+
 ## クイックスタート
 
-### パターン1 — Gradle plugin、デフォルトのみ
+### Gradle plugin: デフォルト
 
 `settings.gradle.kts`:
 ```kotlin
@@ -37,13 +51,13 @@ plugins {
 }
 ```
 
-`obfaryn { ... }`ブロックは不要です——`protection = "standard"`、`platform = "auto"`、文字列/数値暗号化、デバッグ情報除去、リネームはいずれも既定で有効です。実行:
+`obfaryn { ... }`ブロックは不要です。`protection = "standard"`、`platform = "auto"`、文字列/数値暗号化、デバッグ情報除去、リネームはいずれも既定で有効です。実行:
 ```bash
 ./gradlew obfuscateJar
 ```
 出力は`build/libs/<名前>-obfuscated.jar`、同じ場所に`.mapping.txt`も出力されます。全オプションは[Gradle プラグイン](#gradle-プラグイン)を参照してください。
 
-### パターン2 — Gradle plugin、シード指定とstrong保護
+### Gradle plugin: 再現可能なstrong保護
 
 ```kotlin
 obfaryn {
@@ -54,7 +68,7 @@ obfaryn {
 }
 ```
 
-### パターン3 — CLI、デフォルトのみ
+### CLI: デフォルト
 
 GitHub Releaseからインストール(Linux/macOS):
 ```bash
@@ -76,16 +90,16 @@ obfaryn input.jar
 ```
 Gradle pluginと同じ`standard`デフォルトです。出力は入力と同じ場所の`input-obfuscated.jar`。全フラグは[CLI](#cli)を参照してください。
 
-### パターン4 — CLI、よく使う数個のフラグ
+### CLI: よく使うオプション
 
 ```bash
 obfaryn input.jar -o output.jar --seed 123 --protection strong \
   --application-package com.example.myapp --keep com.example.myapp.PublicApi
 ```
 
-複数プロジェクトで使い回すフラグ組み合わせは名前付きプリセットとして保存できます——[名前付きプリセット](#名前付きプリセット)を参照。
+複数プロジェクトで使い回すフラグの組み合わせは、名前付きプリセットとして保存できます。詳しくは[名前付きプリセット](#名前付きプリセット)を参照してください。
 
-### パターン5 — platform指定(例: PaperまたはSpring Boot)
+### platform連携: PaperまたはSpring Boot
 
 ```kotlin
 dependencies {
@@ -98,7 +112,7 @@ obfaryn {
 ```
 `obfarynPlatform`はplugin自身と同じリリースリポジトリから解決され、アプリケーション自身のクラスパスや出力JARには追加されません。CLIで同じことをするには、プラットフォームのJARを自分でダウンロードし`--extension`で渡します: `obfaryn input.jar --extension obfaryn-platform-paper-1.0.0.jar --platform paper`。[拡張JARの読み込み](docs/assembly.ja.md#拡張jarとして配る)を参照してください。
 
-`obfaryn-platform-springboot`は`@SpringBootApplication`クラスか`META-INF/MANIFEST.MF`の`Start-Class`属性だけからSpring Bootアプリケーションを検出します。Spring Boot/Frameworkのjarをクラスパスに置く必要はなく、Spring Boot実行可能jarの`BOOT-INF/classes`/`BOOT-INF/lib`というネストされたレイアウトも展開しません——展開済みのクラス群か、素の(fatでない)jarを対象にしてください。`@Scheduled`/`@EventListener`/`@Async`メソッドとアプリケーションの`main`メソッド、およびそれらが呼び出す先をVM化から保護する点は、`obfaryn-platform-paper`がイベントハンドラやtickコールバックを保護するのと同じ仕組みです。
+`obfaryn-platform-springboot`は`@SpringBootApplication`クラスか`META-INF/MANIFEST.MF`の`Start-Class`属性だけからSpring Bootアプリケーションを検出します。Spring Boot/Frameworkのjarをクラスパスに置く必要はありません。Spring Boot実行可能jarの`BOOT-INF/classes`/`BOOT-INF/lib`というネストされたレイアウトは展開しないため、展開済みのクラス群か、素の(fatでない)jarを対象にしてください。`@Scheduled`/`@EventListener`/`@Async`メソッドとアプリケーションの`main`メソッド、およびそれらが呼び出す先をVM化から保護する点は、`obfaryn-platform-paper`がイベントハンドラやtickコールバックを保護するのと同じ仕組みです。
 
 ---
 
@@ -174,7 +188,29 @@ input.jar
 
 ### 名前付きプリセット
 
-`obfaryn.args`は便利ですが、毎回フルパスを書く必要があり、名前で発見・共有する手段がありません。`--preset NAME`はその名前付き版です — `@<dir>/NAME.args`に展開され、優先度順に`--preset-dir DIR`(繰り返し指定可、最優先)、プロジェクトローカルの`.obfaryn/presets/`、ユーザー全体の`~/.obfaryn/presets/`から解決されます。ユーザー全体用ディレクトリは、個人が自分用のレシピを一度保存してどのプロジェクトからでも`--preset NAME`で再利用できる、パス入力不要のケースに対応します。`--preset`/`--preset-dir`は通常のオプションではありません——Picocliが解析する前に`@file`構文へ置き換えられるので、プリセットファイルは上記の`obfaryn.args`と全く同じ形式で、さらに`@file`/`--preset`を含めることもできます。
+`obfaryn.args`は便利ですが、実行するたびにファイルのパスを指定する必要があります。
+よく使う設定を名前で保存するには、`--preset NAME`を使用します。
+
+#### プリセットの検索順
+
+プリセットの実体は、`<プリセット名>.args`という名前の引数ファイルです。
+次のディレクトリを上から順に検索し、最初に見つかったファイルを使用します。
+
+1. `--preset-dir DIR`で指定したディレクトリ(複数回指定可能)
+2. プロジェクト内の`.obfaryn/presets/`
+3. ユーザー共通の`~/.obfaryn/presets/`
+
+たとえば`--preset strong-paper`を指定すると、検索対象のディレクトリから`strong-paper.args`を読み込みます。
+
+自分だけが使うプリセットは`~/.obfaryn/presets/`に保存しておくと、どのプロジェクトからでも利用できます。
+
+#### プリセットファイルの形式
+
+`--preset`と`--preset-dir`は、Picocliによる通常の引数解析より前に処理されます。
+見つかったプリセットは`@file`形式の引数ファイルとして読み込まれます。
+
+ファイルの内容は、前述の`obfaryn.args`と同じ形式で記述できます。
+プリセットから別の`@file`や`--preset`を参照することもできます。
 
 ```shell
 mkdir -p ~/.obfaryn/presets
@@ -187,7 +223,21 @@ obfaryn input.jar --preset strong-paper -o output.jar
 obfaryn list-presets   # 何も適用せずに利用可能なプリセットを確認
 ```
 
-プリセット名に使えるのは英数字・`-`・`_`・`.`のみで、パス区切り文字は使えません。解決できない名前は他の引数解析より前にエラーになります。`list-presets`も同じ`--preset-dir`を受け付けますが——他のすべてのコマンドにおける`--preset`とは異なり——プリセットを解決するために消費するのではなく、スキャン対象を指定する通常のオプションとして解析します。
+#### プリセット名の制約
+
+プリセット名の先頭には英数字を使用してください。
+2文字目以降には、英数字・`-`・`_`・`.`を使用できます。
+パス区切り文字は使用できません。
+
+名前が不正な場合やプリセットが見つからない場合は、通常の引数解析を始める前にエラーになります。
+
+#### 利用可能なプリセットの確認
+
+`list-presets`は、利用可能なプリセットを一覧表示するコマンドです。
+このコマンドでも`--preset-dir DIR`を指定でき、そのディレクトリを検索対象に追加できます。
+
+ほかのコマンドとは異なり、`list-presets`の`--preset-dir`はプリセットの読み込みには使いません。
+一覧を検索するディレクトリを指定する、通常のコマンドオプションとして解析されます。
 
 ### シェルの補完
 
@@ -411,7 +461,7 @@ Obfuscator(config = config, pipelineConfigurers = listOf(extension))
 
 `registry["id"]` は登録済みのパスまたは `null` を返します。`add` / `+=` は重複 ID を拒否し、`disable` は未知の ID を拒否し、`replace` は既存の ID と一致する置換 ID を要求します。無効化された標準パスは登録されません。コンフィグラーはレガシーな `configurePipeline` コールバックの後にリスト順で実行され、その後に依存関係の欠落や循環が検証されます。依存関係は数値順よりも優先され、実行可能なパスは `order`、次いで ID の順に選択されます。同一 ID に対する複数回の置換は後勝ちです。
 
-このように構築した `PipelineConfigurer` は、`Obfuscator(...)` を直接呼び出すランチャー内か、Gradleビルドスクリプトの `pipeline { }` ブロック内に埋め込んだ場合にのみ動作します。自前のランチャーを持たずJARとしてモジュールを配布するなら、代わりに同じレジストリ専用の編集を`TransformationPackageProvider`/`--package`/`packageIds`で公開してください——ServiceLoaderで発見可能、`id`で明示選択、providerのJARを導入しただけでは暗黙に実行されません。recipeがレジストリしか必要としない場合は、`TransformationPackage.configure`が受け取る`context`引数を単に無視するだけで済みます。[サンプルprovider](examples/custom-extension/src/main/kotlin/example/extension/ExamplePackage.kt)を参照してください。何も変換せずに、あるクラスパスで実際にどのplatform・packageのprovider IDが見えているかを確認するには、`obfaryn list-extensions [--extension JAR]`またはGradleの`listObfarynExtensions`タスクを実行してください。
+このように構築した `PipelineConfigurer` は、`Obfuscator(...)` を直接呼び出すランチャー内か、Gradleビルドスクリプトの `pipeline { }` ブロック内に埋め込んだ場合にのみ動作します。自前のランチャーを持たずJARとしてモジュールを配布するなら、代わりに同じレジストリ専用の編集を`TransformationPackageProvider`/`--package`/`packageIds`で公開してください。これはServiceLoaderで検出でき、`id`で明示的に選択できます。providerのJARを導入しただけでは暗黙に実行されません。recipeがレジストリしか必要としない場合は、`TransformationPackage.configure`が受け取る`context`引数を単に無視するだけで済みます。[サンプルprovider](examples/custom-extension/src/main/kotlin/example/extension/ExamplePackage.kt)を参照してください。何も変換せずに、あるクラスパスで実際にどのplatform・packageのprovider IDが見えているかを確認するには、`obfaryn list-extensions [--extension JAR]`またはGradleの`listObfarynExtensions`タスクを実行してください。
 
 カスタム本体変換は、標準の本体変換やメソッドメタデータ削除と同様に、`context.transformationPolicy.canTransformBody(owner, method)` を参照する必要があります。クラス/フィールドのメタデータ削除は `canTransformMetadata(owner)` を参照し、定数変換は `canTransformConstant(owner, field)` を参照します。追加された 2 つのメソッドは既定で変更を許可し、SAM 構築を維持します。カスタムコンテキストでは既定ですべての変換が許可されます。ポリシーは推奨事項の確認用であり、ASM による変更を強制的に防ぐガードではありません。`@HotPath` を含む既存のアノテーションセマンティクスは変更されていません。
 
@@ -585,7 +635,7 @@ IR は JVM のローカルインデックスを保持し、long と double は�
 
 `runtimeGroupSize` は正の整数で、既定値は 8 です。アクセス権を維持するため、グループは元のパッケージ内に留まります。値 1 はメソッドごとに独立したランタイムを生成するため分離強度は高まりますが、クラス数やメモリ使用量が増加します。16〜32 はオーバーヘッドを抑える設定です。シードが指定されている場合、同一の入力、設定、シード、ツールバージョンに対して再現性のある出力が生成されます。ランタイムコードと鍵は解析可能であり、仮想化は暗号学的な秘匿性を保証するものではありません。
 
-VM化したメソッドはJITコンパイル済みバイトコードではなくインタプリタ経由で実行されるため、呼び出しコストは明確に増加します——これは欠陥ではなく想定されたトレードオフです。ローカルでの合成測定(同一JVM内で、分岐・ループ・配列アクセス・ネストした呼び出し・型付き例外ハンドラを含む同一ロジックのVM化版/非VM化版を交互に50万回ウォームアップ→交互に50万回計測)では、**中央値(p50)で約60倍の遅延増加**、テイル(p99)は60〜100倍で実行ごとのばらつきが大きいという結果でした。これは個別のメソッドに対する保証ではなく、似た形状のメソッドに対する桁感覚として扱ってください——実際のオーバーヘッドはメソッド自体の形状(ループが多いほど1呼び出しあたりの解釈命令数が増える)とホストJVM/JITに依存します。これこそ`@Virtualize`がメソッド単位の明示的なopt-inである理由であり、`@HotPath`で遅延に敏感なメソッドを除外できる理由です——頻繁に呼ばれるホットパスではなく、頻度が低く機密性の高いロジックをVM化してください。
+VM化したメソッドはJITコンパイル済みバイトコードではなくインタプリタ経由で実行されるため、呼び出しコストは明確に増加します。これは欠陥ではなく、想定されたトレードオフです。ローカルでの合成測定(同一JVM内で、分岐・ループ・配列アクセス・ネストした呼び出し・型付き例外ハンドラを含む同一ロジックのVM化版/非VM化版を交互に50万回ウォームアップ→交互に50万回計測)では、**中央値(p50)で約60倍の遅延増加**、テイル(p99)は60〜100倍で実行ごとのばらつきが大きいという結果でした。これは個別のメソッドに対する保証ではなく、似た形状のメソッドに対する桁感覚として扱ってください。実際のオーバーヘッドはメソッド自体の形状(ループが多いほど1呼び出しあたりの解釈命令数が増える)とホストJVM/JITに依存します。そのため、`@Virtualize`はメソッド単位で明示的に有効化し、`@HotPath`で遅延に敏感なメソッドを除外できる設計になっています。頻繁に呼ばれるホットパスではなく、頻度が低く機密性の高いロジックをVM化してください。
 
 各ランタイムグループは命令 ID、ワード幅、スロット配置、ヘッダー/マスク位置、分岐テーブル形式、エンコード鍵を変化させます。未使用のワードはランダム化され、以降の復号状態に寄与します。ブリッジは元の呼び出し元クラス内の synthetic static メソッドとして配置され、通常の JVM アクセス命令を使用するため、後続の名前変更に追従します。ランタイムは Java テンプレートから特殊化されるため、解析によってメソッドとプログラムの対応関係を復元可能です。
 

@@ -1,5 +1,10 @@
 # Repository Guidelines
 
+Use this file as a contributor checklist. For product usage, start with
+[`README.md`](README.md); for extension architecture, see
+[`docs/assembly.md`](docs/assembly.md). The invariants below take precedence over
+convenience when changing transformation behavior.
+
 ## Project Structure & Module Organization
 
 Obfaryn is an ASM-based obfuscator for Kotlin/JVM and Java JARs. Gradle modules separate responsibilities:

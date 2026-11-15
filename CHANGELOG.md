@@ -1,10 +1,15 @@
 # Changelog
 
+This file records user-visible changes in reverse chronological order. Start with
+**Unreleased** when upgrading from the latest release; use a versioned section when
+upgrading across older releases. Entries describe behavior, while setup and usage
+belong in the [README](README.md) and the guides under [`docs/`](docs/).
+
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/). No tags exist in this
 repository yet; versions below are correlated with `gradle.properties`' `releaseVersion` at the
 time of the "Bump to" commit, not with a Git tag.
 
-## [Unreleased]
+## [1.1.0-RC1]
 
 ### Fixed
 

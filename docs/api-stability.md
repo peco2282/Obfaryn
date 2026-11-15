@@ -5,6 +5,12 @@
 Accepted for the 1.0.0 release. Its purpose: "is this change breaking?" has one answer everyone
 can check against, instead of being re-litigated per pull request.
 
+## How to use this policy
+
+- If you consume Obfaryn, use the [module tiers](#module-stability-tiers) to decide which APIs are safe to depend on.
+- If you change Obfaryn, compare the change with both the covered and excluded lists before opening a pull request.
+- A “stable surface” protects documented source, binary, CLI, or DSL behavior. It does not promise performance or undocumented implementation details.
+
 ## What 1.0.0 promises (semver-breaking requires a major bump)
 
 - **CLI flags and their behavior** (`obfaryn-cli`): removing a flag, changing its default,

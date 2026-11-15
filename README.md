@@ -15,9 +15,23 @@
 
 An ASM-based obfuscator for Kotlin/JVM and Java JARs: string/number literal encryption, class/method/field renaming, optional control-flow and call-indirection protection, VM-style method virtualization, and offline integrity sealing. Releases are published to [Maven Central](https://central.sonatype.com/namespace/com.peco2282.obfaryn).
 
+Choose the shortest path for what you want to do:
+
+| Goal | Start here |
+| --- | --- |
+| Protect a JAR from Gradle | [Gradle quickstart](#gradle-plugin-defaults) |
+| Protect a JAR from a terminal | [CLI quickstart](#cli-defaults) |
+| Review requirements and module roles | [Requirements](#requirements) |
+| Configure policies, budgets, or prelinking | [Protection controls](docs/protection.md) |
+| Build an extension or custom recipe | [Assembly guide](docs/assembly.md) |
+| Measure runtime or build-time cost | [Performance measurement](docs/performance.md) |
+
+> [!IMPORTANT]
+> Obfuscation changes representation, not trust boundaries. Keep secrets and authorization decisions outside distributed client code. Start with the default profile, verify the transformed JAR, and enable expensive protections only for methods that need them.
+
 ## Quickstart
 
-### Pattern 1 — Gradle plugin, defaults only
+### Gradle plugin: defaults
 
 `settings.gradle.kts`:
 ```kotlin
@@ -43,7 +57,7 @@ No `obfaryn { ... }` block is needed — `protection = "standard"`, `platform = 
 ```
 Output: `build/libs/<name>-obfuscated.jar`, with a `.mapping.txt` beside it. See [Gradle plugin](#gradle-plugin) for every option.
 
-### Pattern 2 — Gradle plugin, a seed and strong protection
+### Gradle plugin: reproducible strong protection
 
 ```kotlin
 obfaryn {
@@ -54,7 +68,7 @@ obfaryn {
 }
 ```
 
-### Pattern 3 — CLI, defaults only
+### CLI: defaults
 
 Install from a GitHub Release (Linux/macOS):
 ```bash
@@ -76,7 +90,7 @@ obfaryn input.jar
 ```
 Same `standard` defaults as the Gradle plugin. Output: `input-obfuscated.jar` beside the input. See [CLI](#cli) for every flag.
 
-### Pattern 4 — CLI with a few common flags
+### CLI: common options
 
 ```bash
 obfaryn input.jar -o output.jar --seed 123 --protection strong \
@@ -85,7 +99,7 @@ obfaryn input.jar -o output.jar --seed 123 --protection strong \
 
 Save a flag combination you reuse across projects as a named preset — see [Named presets](#named-presets).
 
-### Pattern 5 — targeting a platform (e.g. Paper or Spring Boot)
+### Platform integration: Paper or Spring Boot
 
 ```kotlin
 dependencies {

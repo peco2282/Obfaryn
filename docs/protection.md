@@ -2,6 +2,16 @@
 
 These features apply to JVM programs independently of Paper. Method identities use original JVM internal names: `com/example/Physics.step(I)I`. Application roots are required for call indirection and integer arithmetic. Existing `@Virtualize` selection, exclusions and its analysis report remain separate; ordinary body budgets do not predict or bound interpreter execution time.
 
+The controls are independent:
+
+| Control | Purpose |
+| --- | --- |
+| Feature policy | Decide which transformations may affect each original method |
+| Structural budgets | Bound code growth and roll back an over-budget class/pass atomically |
+| Explicit prelinking | Prepare a bounded set of call sites without executing their targets |
+
+Configuration is resolved from original method identities. Body restrictions win first; annotations and matching rules then refine individual features. A per-method permission cannot enable a pass that is globally absent.
+
 ## Per-feature annotations
 
 ```kotlin

@@ -5,16 +5,14 @@ regression tracking on a fixed machine; they are not Paper/Spring Boot server gu
 establish absolute throughput for any real application. Run them apart from builds and tests, and
 treat small deltas on shared CI runners as noise.
 
-Four kinds of measurement exist here, each for a different purpose; none duplicates another:
+Choose the measurement that matches your question; the four tools measure different things:
 
-- `obfaryn-benchmarks` (JMH): steady-state, JIT-warmed per-call overhead of one transformation pass
-  at a time, against the same unobfuscated method.
-- `scripts/performance/run.py`: a whole synthetic tick workload across `original`/`protected`/
-  `prepared`/`hotpath` variants, multi-fork, with percentiles.
-- `scripts/performance/virtualization.py`: isolated VM-dispatch cost (virtualized vs plain
-  bytecode), multi-fork, with percentiles and an allocation-per-call figure.
-- `scripts/performance/process.py`: the obfuscation engine's own process footprint -- wall/CPU
-  time, peak RSS, GC activity -- not the output jar's runtime behavior.
+| Tool | Question it answers | Main output |
+| --- | --- | --- |
+| `obfaryn-benchmarks` (JMH) | What is the steady-state cost of one transformed call? | JIT-warmed per-call overhead against the same unobfuscated method |
+| `scripts/performance/run.py` | How do whole tick-like variants compare? | Multi-fork latency percentiles for `original`/`protected`/`prepared`/`hotpath` |
+| `scripts/performance/virtualization.py` | What does isolated VM dispatch cost? | Multi-fork percentiles and allocation per call for virtualized versus plain bytecode |
+| `scripts/performance/process.py` | What does the obfuscation process itself cost? | Wall/CPU time, peak RSS, and GC activity—not output-JAR runtime behavior |
 
 Every `results.json` these write now also carries `os`, `cpu`, `cpuCount` and `gitCommit`
 (from `scripts/performance/environment.py`, or JMH's own `# VM version` line) so a result can be

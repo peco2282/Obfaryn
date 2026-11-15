@@ -5,16 +5,14 @@
 の証明でもありません。ビルドやテストとは分けて実行し、共有 CI ランナー上の小さな差はノイズとして
 扱ってください。
 
-ここには目的の異なる4種類の計測があり、互いに重複しません。
+確認したい内容に合う計測を選んでください。4つのtoolは、それぞれ異なる対象を測ります。
 
-- `obfaryn-benchmarks`(JMH): 1つの変換パスだけを対象に、ウォームアップ済み・JIT最適化後の定常状態
-  での呼び出しごとのオーバーヘッドを、同一の未難読化メソッドと比較します。
-- `scripts/performance/run.py`: `original`/`protected`/`prepared`/`hotpath` の全体 tick ワークロード
-  を複数 fork・百分位で比較します。
-- `scripts/performance/virtualization.py`: 仮想化対象メソッドと素のバイトコードの VM ディスパッチコス
-  トを、複数 fork・百分位・呼び出しあたりアロケーションで切り分けます。
-- `scripts/performance/process.py`: 出力 jar の実行時挙動ではなく、難読化エンジン自身のプロセスの足
-  跡 — 壁時計/CPU時間・最大RSS・GC量 — を計測します。
+| tool | 確認できること | 主な出力 |
+| --- | --- | --- |
+| `obfaryn-benchmarks`(JMH) | 変換後の1回の呼び出しにかかる定常コスト | 同じ未難読化methodを基準にした、warmup・JIT最適化後のoverhead |
+| `scripts/performance/run.py` | tickに似たworkload全体のvariant比較 | `original`/`protected`/`prepared`/`hotpath`の複数fork・latency百分位 |
+| `scripts/performance/virtualization.py` | VM dispatch単体のコスト | 仮想化bytecodeと通常bytecodeの複数fork・百分位・呼び出しごとのallocation |
+| `scripts/performance/process.py` | 難読化process自体のコスト | 壁時計/CPU時間・最大RSS・GC量。出力JARの実行時挙動ではない |
 
 これらが書き出す `results.json` には、どれも `os`/`cpu`/`cpuCount`/`gitCommit`
 (`scripts/performance/environment.py`、または JMH 自身の `# VM version` 行) が含まれるようになり、

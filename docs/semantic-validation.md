@@ -2,6 +2,14 @@
 
 Bytecode verification checks JVM structure; it does not establish equivalent behavior. The core regression suite runs independently loaded original and transformed fixtures with the same operation sequences, comparing return values, exception types/messages, and state after every operation. Independent expected states catch mistakes shared by both executions. Original application classes are absent from the transformed loader.
 
+This document answers three questions:
+
+1. What behavior does the repeatable regression suite compare?
+2. Which initialization and language/runtime cases have dedicated coverage?
+3. What remains outside the evidence provided by those tests?
+
+For a quick decision, read [Remaining boundaries](#remaining-boundaries). For reproduction, run the commands below.
+
 Run on JDK 21. The script adds `-Xverify:all` to the test JVM; `--full` runs the entire core and CLI suites:
 
 ```sh
