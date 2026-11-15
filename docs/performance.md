@@ -106,12 +106,15 @@ latency percentiles, per-tick allocation, and a bit-identical checksum across va
 
 Isolates the interpreter cost of method virtualization. Both jars run through the engine with every
 ordinary pass disabled; the only difference is that the measured method is virtualized in one and
-left as plain bytecode in the other. Two targets are measured:
+left as plain bytecode in the other. Three targets are measured:
 
 - `hot` — a fixed, dispatch-heavy integer loop, so a call's cost is dominated by VM instruction
   dispatch/decode.
 - `tiny` — a few operations, so a call's cost is dominated by per-invocation plumbing (frame
   acquire/release, thread-local pool, argument marshalling, return boxing).
+- `branch` — a control-flow-heavy loop whose cost is dominated by data-dependent comparisons and
+  jumps, isolating how the VM dispatches branches rather than arithmetic throughput. Measurement
+  only; the interpreter is unchanged.
 
 `VmBenchmark.java` reports cold first call, warm p50/p95/p99, per-call thread allocation, and a
 checksum that must match between the original and virtualized jars (behavioral equivalence guard).
