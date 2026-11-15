@@ -153,6 +153,8 @@ Gradle では `controlFlow { mode = "light" }`・`calls { enabled = true; prelin
 
 Obfaryn の独自ソースコード（API、アノテーション、core、transformer、CLI、Gradle プラグインを含む）は [Mozilla Public License 2.0](LICENSE) の下で提供されます。Obfaryn のソースファイルを改変して配布する場合は、そのファイルのソースを MPL 2.0 の条件で公開する必要があります。Obfaryn を単に利用する別ファイルには独自のライセンスを適用できます。Gradle Wrapper およびサードパーティ依存関係は、それぞれのライセンスを保持します。
 
+Obfaryn は自前のランタイムコード（`obfaryn-runtime` テンプレートと、検証・仮想化・prelink/連結・呼び出し間接化・リテラル復号のコード）を生成・注入して出力 JAR に埋め込みます。この性質を踏まえ、[Obfaryn Output and Runtime Exception](LICENSE-EXCEPTION)（出力・ランタイム例外）が追加の許可を与えます。すなわち、出力に埋め込まれたこれらのコードは、あなたが選ぶ任意の条件（プロプライエタリを含む）で難読化出力の一部として配布でき、出力やあなた自身のコードが MPL の対象になることはありません。例外は「出力に埋め込まれるコード」に対してのみ許可を追加するもので、Obfaryn 本体の配布は MPL のままです。
+
 ## CLI
 
 Windows の場合、アプリケーション配布物をビルドして実行します:

@@ -1,0 +1,79 @@
+Obfaryn Output and Runtime Exception
+====================================
+
+SPDX-License-Identifier reference: LicenseRef-Obfaryn-Output-Exception
+
+This Exception is an additional permission that the copyright holder of Obfaryn
+grants to every recipient of Obfaryn, alongside the Mozilla Public License,
+version 2.0 ("MPL") under which Obfaryn is otherwise licensed (see the
+accompanying LICENSE file). It works with, and in the spirit of, MPL Section 3.3
+("Distribution of a Larger Work"), but the permission itself is granted by the
+copyright holder and does not depend on any single MPL section. It only grants
+rights in addition to the MPL; it never removes or narrows any right the MPL
+already gives you, and if any wording here appears to conflict with the MPL,
+this Exception operates only to the extent it grants more permission.
+
+0. Definitions
+--------------
+
+"Obfaryn" is the software licensed under the MPL, as identified in the
+accompanying LICENSE file.
+
+"Covered Software" has the meaning given in the MPL: the Obfaryn source-code
+files themselves and modifications to them.
+
+"You" means an individual or legal entity running Obfaryn on input you have the
+right to process.
+
+"Output Artifact" means a JAR file, a set of class files, or other build output
+that Obfaryn produces by transforming your input, where that input is not itself
+Covered Software.
+
+"Runtime Code" means the portions of Obfaryn that, by design, Obfaryn copies,
+embeds, injects, specializes, or generates into an Output Artifact. This
+includes, without limitation, the runtime and linkage templates of the
+`obfaryn-runtime` module and the verifier, virtualization-runtime,
+prelink/linkage, call-indirection, and literal-decoder code that Obfaryn emits
+into an Output Artifact. It does not include Obfaryn classes that you merely use
+at build time and do not distribute inside an Output Artifact.
+
+1. Grant of Additional Permission
+---------------------------------
+
+You may incorporate the Runtime Code into your Output Artifact and may use,
+reproduce, and distribute that Output Artifact, including the incorporated
+Runtime Code, under license terms of your own choosing (including proprietary
+terms), provided you comply with the MPL as to any Covered Software you
+distribute as source.
+
+Incorporating Runtime Code into an Output Artifact, or distributing that Output
+Artifact, does not of itself:
+
+  (a) make your Output Artifact, your own input code, or any file that is not
+      Covered Software into "Covered Software"; or
+
+  (b) subject your Output Artifact or your own code to the MPL; or
+
+  (c) create any obligation under MPL Section 3 (such as making source
+      available) with respect to the Runtime Code as embedded in the Output
+      Artifact.
+
+2. What this Exception does NOT do
+----------------------------------
+
+This Exception does not grant permission to relicense, sublicense, or
+redistribute Obfaryn's own source files, its modules as published, or any
+Covered Software, under terms other than the MPL. Distributing Obfaryn itself
+(its source or its unmodified/modified module JARs, as opposed to an Output
+Artifact produced by running it) remains governed solely by the MPL. This
+Exception does not change the license of Obfaryn's third-party dependencies or
+of the Gradle Wrapper, each of which keeps its own license.
+
+3. No warranty / not legal advice
+---------------------------------
+
+The Runtime Code and this Exception are provided on an "as is" basis, without
+warranty of any kind, to the extent permitted by applicable law; the MPL's
+disclaimers apply. This text is provided for convenience and is not legal
+advice. If the exact scope matters to your distribution, obtain your own legal
+review.
