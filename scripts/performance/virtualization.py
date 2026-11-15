@@ -40,10 +40,22 @@ public final class Workload {
   }
   // A few operations only; cost dominated by per-invocation plumbing, not dispatch.
   public static int tiny(int a) { return (a * 3 + 1) ^ (a >>> 1); }
+  // Control-flow-heavy: data-dependent branches dominate, so the measured cost isolates how the VM
+  // dispatches comparisons and jumps rather than arithmetic throughput (the `hot` profile). Pure
+  // measurement -- the interpreter is unchanged; this only adds a third dispatch profile to report.
+  public static int branch(int a) {
+    int x = a, acc = 0;
+    for (int i = 0; i < 48; i++) {
+      if ((x & 1) == 0) acc += x; else acc -= (x >> 1);
+      if (x % 3 == 0) acc ^= i; else if (x % 3 == 1) acc += i * 2; else acc -= i;
+      x = x * 1103515245 + 12345;
+    }
+    return acc;
+  }
 }
 """
 
-METHODS = ['hot', 'tiny']
+METHODS = ['hot', 'tiny', 'branch']
 
 
 def execute(args, log=None):
@@ -98,7 +110,7 @@ def main():
 
   jars = {
     'original': obfuscate('original', []),
-    'virtual': obfuscate('virtual', ['--virtualize-method', r'bench/Workload\.(hot|tiny)\(I\)I']),
+    'virtual': obfuscate('virtual', ['--virtualize-method', r'bench/Workload\.(hot|tiny|branch)\(I\)I']),
   }
 
   # results[method][jar] = [per-fork samples]

@@ -44,6 +44,7 @@ jobs:
       - run: python3 scripts/verify-cli-distribution.py
       - run: python3 scripts/verify-jpms-module.py
       - run: python3 scripts/report-summary.py --self-test
+      - run: python3 scripts/residual-leak-scan.py --self-test
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
