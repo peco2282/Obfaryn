@@ -2,6 +2,15 @@
 
 # Obfaryn
 
+<p align="center">
+  <a href="https://central.sonatype.com/namespace/com.peco2282.obfaryn"><img src="https://img.shields.io/maven-central/v/com.peco2282.obfaryn/obfaryn-core?label=Maven%20Central&color=blue" alt="Maven Central"></a>
+  <a href="https://github.com/peco2282/Obfaryn/actions/workflows/verification.yml"><img src="https://img.shields.io/github/actions/workflow/status/peco2282/Obfaryn/verification.yml?branch=main&label=build" alt="Build"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/peco2282/Obfaryn?color=brightgreen" alt="License: MPL-2.0"></a>
+  <img src="https://img.shields.io/badge/Java-8%2B-ED8B00?logo=openjdk&logoColor=white" alt="Java 8+ (library & CLI bytecode)">
+  <img src="https://img.shields.io/badge/Kotlin-2.1-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin 2.1 (language level)">
+  <a href="https://peco2282.github.io/Obfaryn/"><img src="https://img.shields.io/badge/API%20docs-Dokka-025997" alt="API docs"></a>
+</p>
+
 [日本語](README.ja.md) · [API docs](https://peco2282.github.io/Obfaryn/)
 
 An ASM-based obfuscator for Kotlin/JVM and Java JARs: string/number literal encryption, class/method/field renaming, optional control-flow and call-indirection protection, VM-style method virtualization, and offline integrity sealing. Releases are published to [Maven Central](https://central.sonatype.com/namespace/com.peco2282.obfaryn).
