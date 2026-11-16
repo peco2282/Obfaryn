@@ -248,6 +248,24 @@ obfaryn deobfuscate-stacktrace --mapping output.mapping.txt stacktrace.txt
 
 Class names and unambiguous method names can be restored. Removed line numbers cannot.
 
+### Cross-artifact assembly (experimental)
+
+When an internal API library, its implementation, and the application that uses it are separate JARs, obfuscating them one at a time breaks the links between them: renaming an API symbol leaves the consumers pointing at the old name. The `assemble` subcommand obfuscates several JARs in **one naming universe**, so an API symbol and every implementation and consumer reference to it follow the same rename and keep linking. It writes one output JAR per input and a single combined mapping. This is for a whole program that is built together; it is not the model where an obfuscated API is shipped and rebuilt later. See [docs/multi-artifact-assembly.md](docs/multi-artifact-assembly.md) for the design.
+
+```shell
+obfaryn assemble \
+  -a api=api.jar \
+  -a impl=impl.jar \
+  -a app=app.jar=build/app-obf.jar \
+  --artifact-args app=app.args \
+  --seed 7 \
+  --mapping build/assembly.mapping.txt
+```
+
+Each `--artifact`/`-a` is `ID=INPUT[=OUTPUT]` (repeatable); the output defaults to `INPUT-obfuscated.jar` beside the input. Renaming is decided once for the whole program through the session options (`--no-rename[-classes|-methods|-fields]`, `--flatten-packages`, `--target-package`, `--application-package`, `--seed`). Each artifact still selects its **own** platform and body passes through `--artifact-args ID=FILE`, an args file using the exact options of `obfuscate` (its renaming options are ignored, since rename is global). Sibling artifacts form the naming universe and are excluded from `--classpath` automatically; list only external dependencies there, and provider JARs with `--extension`. The single mapping defaults to `assembly.mapping.txt` beside the first output.
+
+Two artifacts that define the same internal class name are rejected (one naming universe allows no duplicates). Per-artifact `--call-indirection`/`--prelink-calls` and integrity sealing are rejected, because they must run after the global rename. Writing several JARs is not a single transaction: a mid-run failure can leave only some written.
+
 ### Compatibility rules
 
 Kotlin metadata mode defaults to `AUTO`. Both `AUTO` and `PRESERVE` (`--preserve-kotlin-metadata`) retain application metadata and safely rewrite class names, types, JVM signatures, and Kotlin module maps during renaming or relocation; Eligible Kotlin functions, properties, and JVM member signatures are renamed together. Keep rules and external API overrides still apply. Names used by compiler conventions (including multifile facades, value-class ABI helpers, `@JvmStatic`, data-class components, and callable references) remain conservatively protected. Eligible default-argument methods and their `$default` helpers are renamed together, preserving Kotlin default calls and reflection. These protections are scoped to declaring classes and signatures; unrelated methods sharing a name are not kept. Enum constant names are retained. Entrypoints reported by the selected platform provider, or manifest entrypoints, establish application package roots; bundled classes outside known roots keep their names. Add roots with `--application-package`. Only explicit `STRIP` (`--strip-kotlin-metadata`) requests metadata removal throughout the JAR, subject to exclusions and annotation policies. Stripping may break Kotlin reflection or `kotlinx.serialization`; test in the target runtime.
@@ -339,6 +357,27 @@ obfaryn {
 The nested `string` / `number` `enabled` flags and `metadata` properties share values with the existing flat properties (`stringEncryption`, `numberObfuscation`, `stripDebugInfo`, etc.); the last assignment wins. The same blocks work in Groovy DSL. `includeConstantFields = false` disables extraction only for that constant type. Both literal blocks accept an optional `random` generator; omitted generators follow the existing `seed`. To customize one, add `import java.util.Random` and set `random = Random(10)`. `string.strategy` accepts `StringEncryptionCodec`, pairing encryption with runtime decoder generation. Numeric customization uses `number.strategy` and `number.selector`.
 
 `output.directory` / `fileName` customize the output folder and name. An explicit `output.file = "dist/protected.jar"` takes precedence over both. An omitted `mapping` is placed beside the output JAR. Paths are project-relative or absolute. The default directory follows Gradle's `buildDirectory`, and the existing `outputSuffix` still applies to default names. Input, output, and mapping paths must differ. Because custom strategy and random-generator state cannot be reliably fingerprinted, `obfuscateJar` runs on every invocation.
+
+### Cross-artifact assembly (experimental)
+
+For a multi-module build where an internal API, its implementation, and the application are separate subprojects, obfuscating each JAR on its own breaks the references between them. The `obfarynAssembly` block obfuscates several subproject JARs in **one naming universe**, so a renamed API symbol stays consistent across every artifact. Apply the plugin on the aggregating project (usually the root) and list the participating subprojects; each subproject keeps configuring its **own** body passes through its own `obfaryn { }` block, while renaming is decided once for the whole program here. See [docs/multi-artifact-assembly.md](docs/multi-artifact-assembly.md) for the design.
+
+```kotlin
+// root build.gradle.kts
+plugins { id("com.peco2282.obfaryn") version "1.0.0" }
+
+obfarynAssembly {
+  artifact(project(":api"))
+  artifact(project(":impl"))
+  artifact(project(":app"))
+  rename { classes = true; methods = true; fields = true }
+  seed = 7L                     // rename (session) seed; body seeds stay per subproject
+  // flattenPackages = true; targetPackage = "shaded"
+  // outputDirectory = "build/obf"  // default: each subproject's build/libs
+}
+```
+
+The `obfuscateAssembly` task depends on each listed subproject's `jar` (or `shadowJar`), collects their settings and JARs into one session, and writes one obfuscated JAR per subproject plus a single mapping (default `build/obfaryn/assembly.mapping.txt`). Sibling artifacts form the naming universe and are excluded from the dependency classpath automatically. The task is registered on every project the plugin is applied to but only runs where `artifact(...)` is declared. Duplicate class names across artifacts are rejected; per-artifact `callIndirection`/`prelinkCalls` and integrity sealing are rejected (they must run after the global rename); writing several JARs is not a single transaction. Groovy DSL uses the same block. The existing single-artifact `obfuscateJar` task is unchanged.
 
 ## Core and platform API
 

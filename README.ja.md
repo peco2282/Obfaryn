@@ -284,6 +284,24 @@ obfaryn deobfuscate-stacktrace --mapping output.mapping.txt stacktrace.txt
 
 クラス名および一意に識別可能なメソッド名を復元できます。削除された行番号は復元できません。
 
+### 成果物横断アセンブリ（experimental）
+
+内部 API ライブラリ・その実装・それを利用するアプリケーションが別々の JAR の場合、1 つずつ難読化すると成果物間のリンクが壊れます。API 記号を改名しても、利用側は古い名前を指したままになるためです。`assemble` サブコマンドは複数の JAR を**1 つの命名宇宙**で難読化し、API 記号とその実装・利用側の参照すべてが同じ改名・keep に追従するようにします。入力ごとに 1 つの出力 JAR と、単一の統合マッピングを書き出します。これは一緒にビルドされるプログラム全体を対象とするもので、難読化済み API を配布して後から再ビルドする運用は対象外です。設計は [docs/multi-artifact-assembly.md](docs/multi-artifact-assembly.md) を参照してください。
+
+```shell
+obfaryn assemble \
+  -a api=api.jar \
+  -a impl=impl.jar \
+  -a app=app.jar=build/app-obf.jar \
+  --artifact-args app=app.args \
+  --seed 7 \
+  --mapping build/assembly.mapping.txt
+```
+
+各 `--artifact`/`-a` は `ID=INPUT[=OUTPUT]`（繰り返し可）で、出力を省略すると入力の隣に `INPUT-obfuscated.jar` を生成します。改名はセッションオプション（`--no-rename[-classes|-methods|-fields]`、`--flatten-packages`、`--target-package`、`--application-package`、`--seed`）でプログラム全体に対して 1 回だけ決定されます。各成果物は `--artifact-args ID=FILE` によって**自分の** platform と body 系パスを個別に選択します。この引数ファイルは `obfuscate` と同じオプションを使います（改名オプションは無視されます＝改名はプログラム全体）。兄弟成果物は命名宇宙を構成するため `--classpath` から自動で除外されます。`--classpath` には外部依存のみを、プロバイダー JAR は `--extension` で指定してください。単一マッピングは既定で最初の出力の隣の `assembly.mapping.txt` です。
+
+同名の内部クラスを持つ 2 つの成果物は拒否されます（1 つの命名宇宙では重複を許しません）。成果物個別の `--call-indirection`/`--prelink-calls` と integrity 署名は、グローバル改名の後に実行する必要があるため拒否されます。複数 JAR の書き出しは単一トランザクションではなく、途中失敗で一部のみ出力されることがあります。
+
 ### 互換性ルール
 
 Kotlin メタデータモードの既定値は `AUTO` です。`AUTO` と `PRESERVE`（`--preserve-kotlin-metadata`）はどちらもアプリケーションのメタデータを保持し、名前変更や再配置に合わせてクラス名、型、JVM シグネチャ、Kotlin モジュールマップを安全に書き換えます。対象となる Kotlin 関数・プロパティと JVM メンバーシグネチャも連携して名前を変更します。keep ルールと外部 API のオーバーライドは引き続き保護します。マルチファイルファサード、値クラスの ABI ヘルパー、`@JvmStatic`、データクラスの component 関数、callable reference など、コンパイラが名前で参照するメンバーは保守的に保護します。対応するデフォルト引数付きメソッドと `$default` ヘルパーは連動してリネームし、Kotlin の既定引数呼び出しとリフレクションを維持します。保持は宣言クラスとシグネチャに限定し、無関係な同名メソッドには波及しません。enum 定数名も保持します。選択されたプラットフォームプロバイダーが報告するエントリポイント、またはマニフェストのエントリポイントによってアプリケーションパッケージルートが確定し、既知のルート外にある同梱クラスの名前は保持されます。`--application-package` でルートを追加できます。明示的な `STRIP`（`--strip-kotlin-metadata`）のみが、除外指定やアノテーションポリシーに従って JAR 全体でのメタデータ削除を要求します。削除は Kotlin リフレクションや `kotlinx.serialization` を破損させる可能性があるため、対象ランタイムでテストしてください。
@@ -375,6 +393,27 @@ obfaryn {
 ネストされた `string` / `number` の `enabled` フラグおよび `metadata` のプロパティは、既存のフラットプロパティ（`stringEncryption`、`numberObfuscation`、`stripDebugInfo` など）と値を共有し、後に代入された設定が優先されます。Groovy DSL でも同じブロックが機能します。`includeConstantFields = false` はその定数種別に対する展開処理のみを無効化します。両方のリテラルブロックは任意の `random` ジェネレーターを受け付けます。省略した場合は既存の `seed` に従います。個別にカスタマイズする場合は `import java.util.Random` を追加し、`random = Random(10)` を設定します。`string.strategy` は暗号化と復号コード生成を対にする `StringEncryptionCodec` を受け付けます。数値には `number.strategy` と `number.selector` を指定できます。
 
 `output.directory` / `fileName` で出力先フォルダーと名前をカスタマイズできます。明示的な `output.file = "dist/protected.jar"` は両方の設定に優先します。`mapping` を省略した場合は出力 JAR の隣に配置されます。パスはプロジェクト相対または絶対パスです。既定のディレクトリは Gradle の `buildDirectory` に従い、既存の `outputSuffix` も既定名に適用されます。入力 JAR、出力 JAR、およびマッピングのパスはすべて異なる必要があります。カスタム戦略や乱数ジェネレーターの状態を確実にフィンガープリントできないため、`obfuscateJar` は実行ごとに毎回実行されます。
+
+### 成果物横断アセンブリ（experimental）
+
+内部 API・その実装・アプリケーションが別々のサブプロジェクトであるマルチモジュールビルドでは、各 JAR を個別に難読化すると成果物間の参照が壊れます。`obfarynAssembly` ブロックは複数のサブプロジェクト JAR を**1 つの命名宇宙**で難読化し、改名された API 記号が全成果物で一貫するようにします。プラグインを集約プロジェクト（通常はルート）に適用して対象サブプロジェクトを列挙します。各サブプロジェクトは自分の `obfaryn { }` ブロックで**自分の** body 系を個別設定し、改名はここでプログラム全体に対して 1 回だけ決定されます。設計は [docs/multi-artifact-assembly.md](docs/multi-artifact-assembly.md) を参照してください。
+
+```kotlin
+// ルートの build.gradle.kts
+plugins { id("com.peco2282.obfaryn") version "1.0.0" }
+
+obfarynAssembly {
+  artifact(project(":api"))
+  artifact(project(":impl"))
+  artifact(project(":app"))
+  rename { classes = true; methods = true; fields = true }
+  seed = 7L                     // 改名（セッション）seed。body seed はサブプロジェクトごと
+  // flattenPackages = true; targetPackage = "shaded"
+  // outputDirectory = "build/obf"  // 既定: 各サブプロジェクトの build/libs
+}
+```
+
+`obfuscateAssembly` タスクは列挙した各サブプロジェクトの `jar`（または `shadowJar`）に依存し、それらの設定と JAR を 1 つのセッションに集約して、サブプロジェクトごとに難読化 JAR を 1 つと単一マッピング（既定 `build/obfaryn/assembly.mapping.txt`）を書き出します。兄弟成果物は命名宇宙を構成するため依存 classpath から自動で除外されます。タスクはプラグイン適用先すべてに登録されますが、`artifact(...)` を宣言したプロジェクトでのみ実行されます。成果物間の同名クラスは拒否され、成果物個別の `callIndirection`/`prelinkCalls` と integrity 署名は拒否されます（グローバル改名の後に実行する必要があるため）。複数 JAR の書き出しは単一トランザクションではありません。Groovy DSL でも同じブロックが使えます。既存の単一成果物向け `obfuscateJar` タスクは変更ありません。
 
 ## Core および Platform API
 
