@@ -120,6 +120,10 @@ CLI配布物とplatform JARをビルドした後、`python3 scripts/verify-sprin
 ロード、policy適用、変換、出力JARの実行を検証できます。このスクリプトはオフラインで動く互換
 annotation stubを使い、Spring Framework自体は起動せず、アプリケーションレベルのSpring互換性までは
 主張しません。
+別のネットワーク依存検証`python3 scripts/verify-springboot-runtime.py`は、固定した実Spring Boot
+アプリケーションをビルドし、元のplain JARとstrong変換後のplain JARをそれぞれ実行します。component
+scan、constructor injection、schedule、event listener、async proxy、contextの正常終了を対象とし、変換
+後の実行クラスパスには元のアプリケーションJARを含めません。
 
 ---
 

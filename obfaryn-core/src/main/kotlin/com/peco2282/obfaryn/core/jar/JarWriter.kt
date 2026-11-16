@@ -12,8 +12,9 @@ import java.util.jar.JarOutputStream
 /**
  * Writes transformed classes and resources as a JAR.
  *
- * Classes are emitted before resources; reproducible mode sorts each group and sets entry
- * timestamps to zero. This does not make randomly transformed class bytes deterministic.
+ * Parent directory entries are emitted before classes and resources so class-loader package
+ * resource discovery keeps working. Reproducible mode sorts each group and sets entry timestamps
+ * to zero. This does not make randomly transformed class bytes deterministic.
  * Obsolete input JAR signature resources are omitted because transforming bytecode invalidates
  * those signatures.
  */
@@ -46,6 +47,7 @@ class JarWriter {
 
     ClassHierarchyResolver(context, if (recomputeFrames) classpath else emptyList()).use { hierarchy -> Files.newOutputStream(output).use { fileOutput ->
       JarOutputStream(fileOutput).use { jarOutput ->
+        writeDirectories(context, jarOutput, reproducible)
         writeClasses(
           context = context,
           output = jarOutput,
@@ -62,6 +64,23 @@ class JarWriter {
         )
       }
     } }
+  }
+
+  private fun writeDirectories(
+    context: ObfuscationContext,
+    output: JarOutputStream,
+    reproducible: Boolean,
+  ) {
+    val entryNames = context.classes.values.map { "${it.name}.class" } +
+      context.resources.values.asSequence()
+        .filterNot { Regex("(?i)^META-INF/[^/]+\\.(SF|RSA|DSA|EC)$").matches(it.name) }
+        .map { it.name }
+    for (name in jarDirectoryNames(entryNames.asIterable())) {
+      val entry = JarEntry(name)
+      if (reproducible) entry.time = 0
+      output.putNextEntry(entry)
+      output.closeEntry()
+    }
   }
 
   private fun writeClasses(

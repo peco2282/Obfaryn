@@ -55,3 +55,9 @@ String accessors decode and intern without caching when called before cache setu
 Record SHA-256 of the input, output, mapping and reports before testing. Record the tool build, settings and resolved dependency classpath. Do not infer common input from version labels or timestamps. Where deterministic replay is available, regenerate into a separate destination using the same tool, input, configuration and dependencies, then compare all four generated artifacts byte-for-byte. After an engine change, regenerate again; old output does not validate new code. Keep per-run hashes and logs outside committed source.
 
 These fixtures establish only the exercised behavior on the tested JVM. They do not execute a live Paper match, scheduler, network events or real players, and cannot guarantee all consumer paths, concurrency, supported JVM/OS combinations or complete semantic equivalence. MockBukkit missing a CraftPlayer is an environment limitation, not evidence of a transformation defect.
+
+The networked `scripts/verify-springboot-runtime.py` check separately exercises a pinned real
+Spring Boot application. It compares successful original and transformed starts while keeping the
+original application JAR off the transformed classpath, and covers component scanning, constructor
+injection, scheduled/event/async callbacks, and shutdown. It is framework evidence for those paths,
+not a claim about every Spring module, dynamic configuration, web stack, or deployment model.

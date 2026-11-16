@@ -77,7 +77,7 @@ class TransformationReportDetailTest {
     // the JAR carries the report's marker text.
     JarFile(output.toFile()).use { jar ->
       val names = jar.entries().asSequence().map { it.name }.toList()
-      assertEquals(listOf("app/Main.class"), names)
+      assertEquals(listOf("app/", "app/Main.class"), names)
       for (entry in names) jar.getInputStream(jar.getJarEntry(entry)).use {
         assertFalse(String(it.readBytes(), Charsets.ISO_8859_1).contains("appliedConstraints"))
       }

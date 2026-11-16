@@ -67,6 +67,10 @@ class IntegrityTest {
     val input = input()
     Obfuscator(config).obfuscate(input, output)
     assertEquals(42, execute(output))
+    JarFile(output.toFile()).use { jar ->
+      assertTrue(jar.getJarEntry("META-INF/")?.isDirectory == true)
+      assertTrue(jar.getJarEntry("META-INF/obfaryn/")?.isDirectory == true)
+    }
     val repeated = dir.resolve("repeated.jar")
     Obfuscator(config).obfuscate(input, repeated)
     assertArrayEquals(Files.readAllBytes(output), Files.readAllBytes(repeated))

@@ -38,6 +38,7 @@ Use JDK 21 and the checked-in Gradle wrapper (`gradlew.bat` on Windows).
 - `python3 scripts/verify-cli-distribution.py`: after `installDist`, transform and execute a Java 8 fixture using only the installed CLI and output JAR.
 - `python3 scripts/verify-custom-extension.py`: after `installDist` and `:examples:custom-extension:jar`, load an API-only provider with the installed CLI and verify the output JAR independently.
 - `python3 scripts/verify-springboot-extension.py`: after `installDist` and `:platforms:springboot:jar`, load the self-contained Spring Boot provider with the installed CLI, verify its VM exclusions, and execute the output JAR.
+- `python3 scripts/verify-springboot-runtime.py`: networked compatibility check that builds a pinned real Spring Boot application, then runs both the original and strongly transformed plain JAR against the same external dependencies.
 - `python3 scripts/compatibility/run.py`: build pinned JOML/colormath/kotlinpoet sources and run their tests against transformed JARs. Use `--project joml`, `--project colormath` or `--project kotlinpoet` to narrow the run; `--skip-build` requires an existing matching upstream build.
 - `python3 scripts/performance/run.py`: synthetic workload, three JVM forks by default, timed warmup, latency percentiles, allocations and result checks. Run separately from builds/tests for useful timing.
 

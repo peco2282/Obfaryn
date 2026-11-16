@@ -1,6 +1,7 @@
 package com.peco2282.obfaryn.core.integrity
 
 import com.peco2282.obfaryn.api.ObfuscationContext
+import com.peco2282.obfaryn.core.jar.jarDirectoryNames
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
@@ -98,6 +99,11 @@ class IntegrityProtection(privateKey: Path, publicKey: Path) {
           }
         }
         JarOutputStream(Files.newOutputStream(temporary)).use { out ->
+          val outputNames = entries.map { it.name } + listOf(MANIFEST, SIGNATURE)
+          for (name in jarDirectoryNames(outputNames)) {
+            out.putNextEntry(JarEntry(name).apply { if (reproducible) time = 0 })
+            out.closeEntry()
+          }
           for (entry in entries) {
             out.putNextEntry(JarEntry(entry.name).apply { time = if (reproducible) 0 else entry.time })
             jar.getInputStream(entry).use { it.copyTo(out) }

@@ -120,6 +120,10 @@ Repository contributors can verify Spring Boot provider loading, policy applicat
 and output execution with `python3 scripts/verify-springboot-extension.py` after building the CLI
 distribution and platform JAR. The script uses compatible annotation stubs to stay offline; it does
 not start the Spring Framework or claim application-level Spring compatibility.
+The separate, networked `python3 scripts/verify-springboot-runtime.py` check builds a pinned real
+Spring Boot application and runs both the original and strongly transformed plain JAR. It covers
+component scanning, constructor injection, scheduling, event listeners, async proxies, and clean
+context shutdown while keeping the original application JAR off the transformed runtime classpath.
 
 ---
 

@@ -55,3 +55,9 @@ python3 scripts/verify-semantic-regressions.py --full
 入力・出力・mapping・レポートの SHA-256、ツール、設定、解決済み依存クラスパスを記録します。同じバージョンや時刻だけで同一入力と判断しません。再現可能なら同じツール・入力・設定・依存で別の出力先へ再生成し、JAR と 3 レポートをバイト単位で比較します。エンジン修正後は再生成が必要で、古い JAR は修正版の検証になりません。実行ごとのハッシュとログはコミット対象外に保存します。
 
 確認できるのは、実行した JVM と入力・操作列の範囲です。実 Paper の試合・scheduler・ネットワーク・実プレイヤーは動かしておらず、全製品経路・並行性・全 JVM/OS・完全な等価性は保証しません。MockBukkit で CraftPlayer が存在しない停止は環境上の制限であり、変換不具合の証拠として扱いません。
+
+ネットワーク依存の`scripts/verify-springboot-runtime.py`は、これらとは別に固定した実Spring Boot
+アプリケーションを検証します。変換後のクラスパスから元のアプリケーションJARを除外した状態で、元と
+変換後の起動成功を比較し、component scan、constructor injection、scheduled/event/async callback、
+終了処理を実行します。これは対象経路についてのframework上の証拠であり、全Spring module、動的設定、
+web stack、deployment形態の互換性を主張するものではありません。
