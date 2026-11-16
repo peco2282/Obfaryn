@@ -129,26 +129,27 @@ def main():
   build_java_version = subprocess.run(['java', '-version'], text=True,
                                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.strip()
   cli = build_cli()
-  protected = compile_and_obfuscate(cli, work)
+  with tempfile.TemporaryDirectory(prefix='obfaryn-jdk-matrix-') as temporary:
+    protected = compile_and_obfuscate(cli, Path(temporary))
 
-  jdks = discover_jdks(args.jdk)
-  if not jdks:
-    raise SystemExit('No JDKs found under ~/.sdkman/candidates/java; pass --jdk LABEL=PATH explicitly')
+    jdks = discover_jdks(args.jdk)
+    if not jdks:
+      raise SystemExit('No JDKs found under ~/.sdkman/candidates/java; pass --jdk LABEL=PATH explicitly')
 
-  cases = [(1, 3), (10, 0), (-7, 4), (5, -2)]
-  results = {}
-  for label, java in sorted(jdks.items(), key=lambda kv: kv[0]):
-    outcomes = []
-    ok = True
-    for a, b in cases:
-      code, out = run([java, '-Xverify:all', '-jar', protected, a, b], check=False)
-      actual = out.strip().splitlines()[-1] if out.strip() else ''
-      want = str(expected(a, b))
-      passed = code == 0 and actual == want
-      outcomes.append({'args': [a, b], 'expected': want, 'actual': actual, 'exitCode': code, 'passed': passed})
-      ok = ok and passed
-    results[label] = {'javaLauncher': str(java), 'passed': ok, 'cases': outcomes}
-    print(f"JDK {label}: {'PASS' if ok else 'FAIL'}", flush=True)
+    cases = [(1, 3), (10, 0), (-7, 4), (5, -2)]
+    results = {}
+    for label, java in sorted(jdks.items(), key=lambda kv: kv[0]):
+      outcomes = []
+      ok = True
+      for a, b in cases:
+        code, out = run([java, '-Xverify:all', '-jar', protected, a, b], check=False)
+        actual = out.strip().splitlines()[-1] if out.strip() else ''
+        want = str(expected(a, b))
+        passed = code == 0 and actual == want
+        outcomes.append({'args': [a, b], 'expected': want, 'actual': actual, 'exitCode': code, 'passed': passed})
+        ok = ok and passed
+      results[label] = {'javaLauncher': str(java), 'passed': ok, 'cases': outcomes}
+      print(f"JDK {label}: {'PASS' if ok else 'FAIL'}", flush=True)
 
   report = {
     'schemaVersion': 1,

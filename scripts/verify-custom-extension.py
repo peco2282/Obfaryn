@@ -12,6 +12,14 @@ ROOT = Path(__file__).resolve().parents[1]
 CLI = ROOT / 'obfaryn-cli/build/install/obfaryn/bin/obfaryn'
 
 
+def release_version():
+    for line in (ROOT / 'gradle.properties').read_text(encoding='utf-8').splitlines():
+        key, separator, value = line.partition('=')
+        if separator and key.strip() == 'releaseVersion':
+            return value.strip()
+    return '0.0.0-SNAPSHOT'
+
+
 def run(args, expected=0):
     result = subprocess.run(list(map(str, args)), capture_output=True, text=True)
     if result.returncode != expected:
@@ -20,10 +28,9 @@ def run(args, expected=0):
 
 
 def main():
-    extensions = list((ROOT / 'examples/custom-extension/build/libs').glob('*.jar'))
-    if not CLI.is_file() or len(extensions) != 1:
+    extension = ROOT / 'examples/custom-extension/build/libs' / f'custom-extension-{release_version()}.jar'
+    if not CLI.is_file() or not extension.is_file():
         raise RuntimeError('Run :obfaryn-cli:installDist :examples:custom-extension:jar first')
-    extension = extensions[0]
     with tempfile.TemporaryDirectory(prefix='obfaryn-custom-extension-') as temporary:
         work = Path(temporary)
         source = work / 'Main.java'
