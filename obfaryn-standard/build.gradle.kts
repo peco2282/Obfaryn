@@ -21,7 +21,7 @@ repositories { mavenCentral() }
 // version that does match each other (2.1.21, the project's pinned language/API level), so
 // SerializationCompatibilityTest can load an isolated, internally-consistent compiler + plugin
 // pair via a dedicated classloader without changing testRuntimeClasspath's own resolved versions.
-val serializationCompiler by configurations.creating
+val serializationCompiler = configurations.create("serializationCompiler")
 dependencies {
   api(project(":obfaryn-core"))
   api(project(":obfaryn-transformer"))

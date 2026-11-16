@@ -58,7 +58,7 @@ publishing {
 }
 
 
-val paperPlatformFixture by configurations.creating {
+val paperPlatformFixture = configurations.create("paperPlatformFixture") {
   isCanBeConsumed = false
 }
 dependencies {
