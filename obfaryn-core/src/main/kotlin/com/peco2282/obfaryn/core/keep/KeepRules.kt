@@ -49,7 +49,7 @@ class KeepRules : PlatformConfiguration {
 
   override fun keepClass(name: String) = apply { classes += name.replace('.', '/') }
   override fun keepClassNameOnly(name: String) = apply { classNamesOnly += name.replace('.', '/') }
-  fun keepClassNameAndPublicMembers(name: String) = apply {
+  override fun keepClassNameAndPublicMembers(name: String) = apply {
     val internalName = name.replace('.', '/')
     classNamesOnly += internalName
     publicMembers += internalName

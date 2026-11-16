@@ -10,6 +10,7 @@ import com.peco2282.obfaryn.api.PlatformOptions
 import com.peco2282.obfaryn.api.transformer.MemberKey
 import com.peco2282.obfaryn.platformkit.isAnnotatedWith
 import com.peco2282.obfaryn.platformkit.methodCallClosure
+import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ClassNode
 import java.util.jar.Manifest
 
@@ -39,7 +40,23 @@ class SpringBootPlatform(override val metadata: PlatformMetadata) : Platform {
 
   override fun configure(context: PlatformContext, options: PlatformOptions, target: PlatformConfiguration) {
     entrypoints(context, options).forEach(target::keepClassNameOnly)
+    configureConfigurationProperties(context, target)
     configurePerformanceSensitiveMethods(context, options, target)
+  }
+
+  private fun configureConfigurationProperties(context: PlatformContext, target: PlatformConfiguration) {
+    for (owner in context.classes.values) {
+      if (owner.isAnnotatedWith(CONFIGURATION_PROPERTIES)) {
+        target.keepClassNameAndPublicMembers(owner.name)
+      }
+      for (method in owner.methods.filter { it.isAnnotatedWith(CONFIGURATION_PROPERTIES) }) {
+        target.keepMethod(owner.name, method.name, method.desc)
+        val result = Type.getReturnType(method.desc)
+        if (result.sort == Type.OBJECT && result.internalName in context.classes) {
+          target.keepClassNameAndPublicMembers(result.internalName)
+        }
+      }
+    }
   }
 
   private fun startClass(context: PlatformContext): String? =
@@ -87,5 +104,6 @@ class SpringBootPlatform(override val metadata: PlatformMetadata) : Platform {
     const val SCHEDULED = "org.springframework.scheduling.annotation.Scheduled"
     const val EVENT_LISTENER = "org.springframework.context.event.EventListener"
     const val ASYNC = "org.springframework.scheduling.annotation.Async"
+    const val CONFIGURATION_PROPERTIES = "org.springframework.boot.context.properties.ConfigurationProperties"
   }
 }

@@ -89,6 +89,32 @@ class SpringBootPlatformTest {
   }
 
   @Test
+  fun preservesConfigurationPropertyContractsWithoutKeepingPrivateImplementationMembers() {
+    val annotation = "Lorg/springframework/boot/context/properties/ConfigurationProperties;"
+    val settings = ClassNode().apply {
+      version = Opcodes.V17; access = Opcodes.ACC_PUBLIC; name = "sample/Settings"; superName = "java/lang/Object"
+      visibleAnnotations = mutableListOf(AnnotationNode(annotation))
+      methods.add(MethodNode(Opcodes.ACC_PUBLIC, "getAnswer", "()I", null, null))
+      methods.add(MethodNode(Opcodes.ACC_PUBLIC, "setAnswer", "(I)V", null, null))
+      methods.add(MethodNode(Opcodes.ACC_PRIVATE, "normalize", "(I)I", null, null))
+    }
+    val configuration = ClassNode().apply {
+      version = Opcodes.V17; access = Opcodes.ACC_PUBLIC; name = "sample/Configuration"; superName = "java/lang/Object"
+      methods.add(MethodNode(Opcodes.ACC_PUBLIC, "settings", "()Lsample/Settings;", null, null).apply {
+        visibleAnnotations = mutableListOf(AnnotationNode(annotation))
+      })
+    }
+    val ctx = context(listOf(settings, configuration).associateBy { it.name })
+    val keep = KeepRules()
+    platform.configure(ctx, MapPlatformOptions(), keep)
+
+    assertTrue(keep.className(settings.name))
+    assertTrue(keep.publicMembers(settings.name))
+    assertTrue(keep.method(configuration.name, "settings", "()Lsample/Settings;"))
+    assertFalse(keep.method(settings.name, "normalize", "(I)I"))
+  }
+
+  @Test
   fun excludesHotCallbacksAndTheirApplicationDependenciesFromVirtualization() {
     fun method(access: Int, name: String, descriptor: String, call: Triple<String, String, String>? = null) =
       MethodNode(access, name, descriptor, null, null).apply {

@@ -59,5 +59,5 @@ These fixtures establish only the exercised behavior on the tested JVM. They do 
 The networked `scripts/verify-springboot-runtime.py` check separately exercises a pinned real
 Spring Boot application. It compares successful original and transformed starts while keeping the
 original application JAR off the transformed classpath, and covers component scanning, constructor
-injection, scheduled/event/async callbacks, and shutdown. It is framework evidence for those paths,
+injection, configuration-property binding, scheduled/event/async callbacks, and shutdown. It is framework evidence for those paths,
 not a claim about every Spring module, dynamic configuration, web stack, or deployment model.

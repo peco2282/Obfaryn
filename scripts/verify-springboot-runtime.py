@@ -73,6 +73,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class AnswerService { public int answer() { return 42; } }
 ''')
+        write(work / 'src/main/java/fixture/Settings.java', '''package fixture;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+@ConfigurationProperties(prefix = "fixture")
+public class Settings {
+  private int answer;
+  public int getAnswer() { return answer; }
+  public void setAnswer(int answer) { this.answer = answer; }
+}
+''')
         write(work / 'src/main/java/fixture/Probe.java', '''package fixture;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -106,17 +115,20 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 @SpringBootApplication
 @EnableAsync
 @EnableScheduling
+@EnableConfigurationProperties(Settings.class)
 public class Application {
   public static void main(String[] args) throws Exception {
     ConfigurableApplicationContext context = new SpringApplicationBuilder(Application.class)
       .web(WebApplicationType.NONE)
-      .properties(Map.of("spring.main.banner-mode", "off", "logging.level.root", "OFF"))
+      .properties(Map.of("spring.main.banner-mode", "off", "logging.level.root", "OFF", "fixture.answer", "42"))
       .run(args);
     try {
       Probe probe = context.getBean(Probe.class);
+      if (context.getBean(Settings.class).getAnswer() != 42) throw new AssertionError("configuration");
       context.publishEvent(new Signal("event-ok"));
       if (probe.asyncAnswer().get(10, TimeUnit.SECONDS) != 42) throw new AssertionError("async");
       if (!probe.scheduledLatch().await(10, TimeUnit.SECONDS)) throw new AssertionError("scheduled");
@@ -156,7 +168,7 @@ public class Application {
         if summary.get('platform') != 'springboot':
             raise AssertionError(summary)
 
-    print(f'Spring Boot {BOOT_VERSION}: DI, component scan, scheduled/event/async callbacks and transformed execution passed')
+    print(f'Spring Boot {BOOT_VERSION}: DI, configuration binding, component scan, scheduled/event/async callbacks and transformed execution passed')
 
 
 if __name__ == '__main__':

@@ -59,6 +59,15 @@ interface PlatformConfiguration {
   fun keepClassNameOnly(name: String): PlatformConfiguration = keepClass(name)
 
   /**
+   * Preserves the class name and the names of its public methods and fields.
+   *
+   * Framework integrations use this for JavaBean-style types whose public property names are an
+   * external contract while private implementation members may still be renamed. The default
+   * delegates to [keepClass] for compatibility with older implementations.
+   */
+  fun keepClassNameAndPublicMembers(name: String): PlatformConfiguration = keepClass(name)
+
+  /**
    * Preserves class and member names within the specified package.
    * The core implementation includes subpackages as well as the named package itself.
    *

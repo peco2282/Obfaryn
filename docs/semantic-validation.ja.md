@@ -58,6 +58,6 @@ python3 scripts/verify-semantic-regressions.py --full
 
 ネットワーク依存の`scripts/verify-springboot-runtime.py`は、これらとは別に固定した実Spring Boot
 アプリケーションを検証します。変換後のクラスパスから元のアプリケーションJARを除外した状態で、元と
-変換後の起動成功を比較し、component scan、constructor injection、scheduled/event/async callback、
+変換後の起動成功を比較し、component scan、constructor injection、configuration property binding、scheduled/event/async callback、
 終了処理を実行します。これは対象経路についてのframework上の証拠であり、全Spring module、動的設定、
 web stack、deployment形態の互換性を主張するものではありません。

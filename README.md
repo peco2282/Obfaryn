@@ -113,6 +113,9 @@ obfaryn {
 `obfarynPlatform` resolves from the same release repository as the plugin itself; it is not added to the application's own classpath or the output JAR. CLI equivalent: download the platform's JAR yourself and pass it with `--extension`, e.g. `obfaryn input.jar --extension obfaryn-platform-paper-1.0.0.jar --platform paper`. See [Discover an extension JAR](docs/assembly.md#discover-an-extension-jar).
 
 `obfaryn-platform-springboot` detects a Spring Boot application from an `@SpringBootApplication` class or a `META-INF/MANIFEST.MF` `Start-Class` attribute alone — it does not require the Spring Boot/Framework jars on the classpath, and does not unpack a Spring Boot executable jar's nested `BOOT-INF/classes`/`BOOT-INF/lib` layout; point it at an already-exploded set of classes or a plain (non-fat) jar. It protects `@Scheduled`/`@EventListener`/`@Async` methods and the application's `main` method, plus whatever they call, from virtualization the same way `obfaryn-platform-paper` protects event handlers and tick callbacks.
+Types annotated with `@ConfigurationProperties` retain their class name and public member names so
+external property keys continue to bind; private implementation members remain renameable. For an
+annotated factory method, its method name and the application return type's public contract are kept.
 
 The published Paper and Spring Boot platform JARs include the small `obfaryn-platform-kit`
 implementation they need, so a CLI user passes only the selected platform JAR to `--extension`.
@@ -122,7 +125,7 @@ distribution and platform JAR. The script uses compatible annotation stubs to st
 not start the Spring Framework or claim application-level Spring compatibility.
 The separate, networked `python3 scripts/verify-springboot-runtime.py` check builds a pinned real
 Spring Boot application and runs both the original and strongly transformed plain JAR. It covers
-component scanning, constructor injection, scheduling, event listeners, async proxies, and clean
+component scanning, constructor injection, configuration-property binding, scheduling, event listeners, async proxies, and clean
 context shutdown while keeping the original application JAR off the transformed runtime classpath.
 
 ---

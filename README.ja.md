@@ -113,6 +113,9 @@ obfaryn {
 `obfarynPlatform`はplugin自身と同じリリースリポジトリから解決され、アプリケーション自身のクラスパスや出力JARには追加されません。CLIで同じことをするには、プラットフォームのJARを自分でダウンロードし`--extension`で渡します: `obfaryn input.jar --extension obfaryn-platform-paper-1.0.0.jar --platform paper`。[拡張JARの読み込み](docs/assembly.ja.md#拡張jarとして配る)を参照してください。
 
 `obfaryn-platform-springboot`は`@SpringBootApplication`クラスか`META-INF/MANIFEST.MF`の`Start-Class`属性だけからSpring Bootアプリケーションを検出します。Spring Boot/Frameworkのjarをクラスパスに置く必要はありません。Spring Boot実行可能jarの`BOOT-INF/classes`/`BOOT-INF/lib`というネストされたレイアウトは展開しないため、展開済みのクラス群か、素の(fatでない)jarを対象にしてください。`@Scheduled`/`@EventListener`/`@Async`メソッドとアプリケーションの`main`メソッド、およびそれらが呼び出す先をVM化から保護する点は、`obfaryn-platform-paper`がイベントハンドラやtickコールバックを保護するのと同じ仕組みです。
+`@ConfigurationProperties`を付けた型は、外部property keyからのbindを維持するため、クラス名とpublic
+member名を保持します。private実装memberは引き続き改名できます。factory methodに付けた場合は、その
+method名とアプリケーション内の戻り値型のpublic契約を保持します。
 
 配布するPaper/Spring Boot platform JARには、必要な小さな`obfaryn-platform-kit`実装を同梱します。
 そのためCLI利用者が`--extension`へ渡すのは、選択したplatform JARだけです。リポジトリの開発者は
@@ -122,7 +125,7 @@ annotation stubを使い、Spring Framework自体は起動せず、アプリケ�
 主張しません。
 別のネットワーク依存検証`python3 scripts/verify-springboot-runtime.py`は、固定した実Spring Boot
 アプリケーションをビルドし、元のplain JARとstrong変換後のplain JARをそれぞれ実行します。component
-scan、constructor injection、schedule、event listener、async proxy、contextの正常終了を対象とし、変換
+scan、constructor injection、configuration property binding、schedule、event listener、async proxy、contextの正常終了を対象とし、変換
 後の実行クラスパスには元のアプリケーションJARを含めません。
 
 ---
