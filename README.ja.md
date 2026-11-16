@@ -114,6 +114,13 @@ obfaryn {
 
 `obfaryn-platform-springboot`は`@SpringBootApplication`クラスか`META-INF/MANIFEST.MF`の`Start-Class`属性だけからSpring Bootアプリケーションを検出します。Spring Boot/Frameworkのjarをクラスパスに置く必要はありません。Spring Boot実行可能jarの`BOOT-INF/classes`/`BOOT-INF/lib`というネストされたレイアウトは展開しないため、展開済みのクラス群か、素の(fatでない)jarを対象にしてください。`@Scheduled`/`@EventListener`/`@Async`メソッドとアプリケーションの`main`メソッド、およびそれらが呼び出す先をVM化から保護する点は、`obfaryn-platform-paper`がイベントハンドラやtickコールバックを保護するのと同じ仕組みです。
 
+配布するPaper/Spring Boot platform JARには、必要な小さな`obfaryn-platform-kit`実装を同梱します。
+そのためCLI利用者が`--extension`へ渡すのは、選択したplatform JARだけです。リポジトリの開発者は
+CLI配布物とplatform JARをビルドした後、`python3 scripts/verify-springboot-extension.py`でproviderの
+ロード、policy適用、変換、出力JARの実行を検証できます。このスクリプトはオフラインで動く互換
+annotation stubを使い、Spring Framework自体は起動せず、アプリケーションレベルのSpring互換性までは
+主張しません。
+
 ---
 
 APIだけに依存して独自パーツ・構成パッケージを定義できます。coreは標準Transformerへ依存しません。[組み立てと拡張契約](docs/assembly.ja.md)を参照してください。

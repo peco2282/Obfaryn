@@ -29,12 +29,20 @@ repositories {
 
 dependencies {
   compileOnly(project(":obfaryn-api"))
-  implementation(project(":obfaryn-platform-kit"))
+  compileOnly(project(":obfaryn-platform-kit"))
 
   testImplementation(project(":obfaryn-standard"))
   testImplementation(platform(libs.junit5.bom))
   testImplementation(libs.junit.jupiter)
+  testRuntimeOnly(project(":obfaryn-platform-kit"))
   testRuntimeOnly(libs.junit.platform.launcher)
+}
+
+val platformKitJar = project(":obfaryn-platform-kit").tasks.named<Jar>("jar")
+tasks.jar {
+  from(platformKitJar.map { zipTree(it.archiveFile.get().asFile) }) {
+    include("com/peco2282/obfaryn/platformkit/**")
+  }
 }
 
 publishing {

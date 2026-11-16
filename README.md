@@ -114,6 +114,13 @@ obfaryn {
 
 `obfaryn-platform-springboot` detects a Spring Boot application from an `@SpringBootApplication` class or a `META-INF/MANIFEST.MF` `Start-Class` attribute alone — it does not require the Spring Boot/Framework jars on the classpath, and does not unpack a Spring Boot executable jar's nested `BOOT-INF/classes`/`BOOT-INF/lib` layout; point it at an already-exploded set of classes or a plain (non-fat) jar. It protects `@Scheduled`/`@EventListener`/`@Async` methods and the application's `main` method, plus whatever they call, from virtualization the same way `obfaryn-platform-paper` protects event handlers and tick callbacks.
 
+The published Paper and Spring Boot platform JARs include the small `obfaryn-platform-kit`
+implementation they need, so a CLI user passes only the selected platform JAR to `--extension`.
+Repository contributors can verify Spring Boot provider loading, policy application, transformation,
+and output execution with `python3 scripts/verify-springboot-extension.py` after building the CLI
+distribution and platform JAR. The script uses compatible annotation stubs to stay offline; it does
+not start the Spring Framework or claim application-level Spring compatibility.
+
 ---
 
 Build your own parts and recipes with API-only dependencies; core has no standard transformation dependency. See [assembly and extension contracts](docs/assembly.md).

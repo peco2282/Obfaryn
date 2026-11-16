@@ -40,8 +40,9 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
-      - run: ./gradlew test :obfaryn-cli:installDist
+      - run: ./gradlew test :obfaryn-cli:installDist :platforms:springboot:jar
       - run: python3 scripts/verify-cli-distribution.py
+      - run: python3 scripts/verify-springboot-extension.py
       - run: python3 scripts/verify-jpms-module.py
       - run: python3 scripts/report-summary.py --self-test
       - run: python3 scripts/residual-leak-scan.py --self-test
