@@ -9,6 +9,58 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). No tags 
 repository yet; versions below are correlated with `gradle.properties`' `releaseVersion` at the
 time of the "Bump to" commit, not with a Git tag.
 
+## [Unreleased]
+
+### Fixed
+
+- Cross-artifact assembly (`assemble` / `AssemblySession`) silently diverged from single-artifact
+  `obfuscate` on two points, now aligned: (1) `AssemblyContext.protectInput` was a no-op and
+  `OutputProcessor.afterWrite` was never called (only `beforeWrite`) — `protectInput` is now an
+  overwrite guard that rejects any package input resolving to an artifact output, and `afterWrite`
+  runs per artifact after each JAR is written in Phase C, so a platform-supplied package behaves
+  the same as under `obfuscate`; (2) `assemble` hardcoded the standard recipe and silently dropped
+  `--package`/`--no-default-package` passed in `--artifact-args` — `AssemblyModule` now carries
+  per-artifact `packageIds`/`noDefaultPackage` and builds each artifact's body pipeline from them
+  (session-wide renaming is unchanged). See [docs/assembly.md](docs/assembly.md).
+- `JarWriter` now emits parent package directory entries before classes and resources, so
+  class-loader package/resource scanning (e.g. Spring component scanning over the output JAR) keeps
+  working; previously directory entries were omitted and a scan over a directory-less JAR found
+  nothing. Reproducible mode still sorts entries and zeroes timestamps; JAR signature resources are
+  still dropped. Covered by `JarWriterTest`; a networked `scripts/verify-springboot-runtime.py`
+  check exercises a real Spring Boot app. See [docs/semantic-validation.md](docs/semantic-validation.md).
+- Spring Boot platform (`obfaryn-platform-springboot`) now preserves `@ConfigurationProperties`
+  binding contracts: a `@ConfigurationProperties` class keeps its name and public member names, and
+  a `@ConfigurationProperties` factory method keeps its name and the public members of the type it
+  returns, so relaxed property binding against the transformed application still resolves. Covered
+  by `SpringBootPlatformTest`.
+- Platform extension jars (`obfaryn-platform-paper`, `obfaryn-platform-springboot`) are now
+  self-contained: each bundles the `obfaryn-platform-kit` classes it uses, so the published jar
+  loads through the CLI's extension classloader without `platform-kit` also on the classpath. A new
+  `scripts/verify-springboot-extension.py` loads the self-contained Spring Boot provider with the
+  installed CLI and verifies its VM exclusions end to end.
+- `scripts/verify-custom-extension.py` and `scripts/verify-jdk-matrix.py` are now repeatable —
+  re-running them no longer fails on state left by a previous run.
+
+### Added
+
+- `LICENSE-EXCEPTION` (the Obfaryn Output and Runtime Exception): Obfaryn embeds and generates
+  runtime code (the `obfaryn-runtime` templates, the verifier, virtualization, prelink/linkage,
+  call-indirection and literal-decoder code) into the JARs it produces, which under MPL 2.0's
+  file-level copyleft could otherwise encumber a user's obfuscated output. The exception is an
+  additional permission letting users distribute that embedded/generated code inside their output
+  under terms of their choosing, without the output or their own code becoming MPL-covered.
+  Distributing Obfaryn itself stays under the MPL. Documented in README.md/README.ja.md.
+- `PlatformConfiguration.keepClassNameAndPublicMembers(name)`: preserves a class name plus its
+  public method and field names, for JavaBean-style types whose public property names are an
+  external contract while private members may still be renamed. Additive — the default delegates to
+  `keepClass`, so existing `PlatformConfiguration` implementations keep compiling.
+- `GsonDtoCompatibilityTest` (`obfaryn-standard`) and a strengthened `SerializationCompatibilityTest`:
+  assert that an external serialization schema does not follow obfuscated JVM names under full
+  class/method/field renaming. The kotlinx.serialization test now checks the complete JSON text
+  (including an explicit `@SerialName`) and requires DTO fields to be renamed; the Gson test shows
+  `@SerializedName` keys staying stable while the underlying JVM fields and classes are renamed,
+  verified through the transformed JAR only. See [docs/semantic-validation.md](docs/semantic-validation.md).
+
 ## [1.1.0-RC1]
 
 ### Fixed
