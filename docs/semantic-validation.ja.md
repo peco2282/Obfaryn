@@ -27,7 +27,9 @@ python3 scripts/verify-semantic-regressions.py --full
 
 `CoroutineCompatibilityTest` は同じ併用構成を`kotlinx.coroutines`ベースのfixtureに適用します: 停止点をまたいでスピルされるローカル変数を持つsuspend関数(コンパイラ自身のcontinuationステートマシン)、停止中の呼び出し連鎖からの例外伝播、構造化並行性のキャンセル(子`launch`を通じた`CancellationException`伝播)、`async`/`awaitAll`による合成です。各シナリオは内部で`runBlocking`を使う通常のブロッキング関数として公開されており、素のリフレクションから呼び出せます。キャンセルは実時間の`delay()`ではなく協調的な`yield()`を使うため、ホストの速度や難読化後の処理がどれだけ遅くなっても結果は決定的です。keepルールは不要です: continuation自身のフィールド/メソッドはコンパイラが生成したバイトコードで到達し、名前で参照されないためです。
 
-`SerializationCompatibilityTest` は同じ併用構成(縮小プロファイルではなく完全なクラス/メソッド/フィールドのリネームを含む)を`kotlinx.serialization`ベースのfixtureに適用します: `@Serializable`なdata classを`Json.encodeToString`/`decodeFromString`で往復させます。生成される`$serializer`/エンコード・デコードのバイトコードはdata classのコンストラクタとプロパティアクセサを直接呼び出し、名前によるランタイムリフレクションを経由しないため、serializableクラス自体へのkeepルールなしで完全なリネームを生き残ります——これは(本テストが代表しているとは主張していない)仮想的なリフレクションベースのシリアライズライブラリとは異なります。kotlinx.serializationコンパイラプラグインは、実際に公開されているKotlinコンパイラバージョンに固定された専用クラスローダー経由でロードされます(`obfaryn-standard/build.gradle.kts`の`serializationCompiler`コンフィグレーション参照)。これはモジュール自身の(より新しい)`kotlin("compiler-embeddable")`バージョンとは分離されています。
+`SerializationCompatibilityTest` は同じ併用構成(縮小プロファイルではなく完全なクラス/メソッド/フィールドのリネームを含む)を`kotlinx.serialization`ベースのfixtureに適用します。`@Serializable`なdata classを`Json.encodeToString`/`decodeFromString`で往復させ、DTOフィールドが実際にリネームされたことを要求したうえで、明示的な`@SerialName`を含むJSON全文を検証します。生成される`$serializer`/エンコード・デコードのバイトコードはdata classのコンストラクタとプロパティアクセサを直接呼び出し、名前によるランタイムリフレクションを経由しないため、serializableクラス自体へのkeepルールなしで完全なリネームを生き残ります。kotlinx.serializationコンパイラプラグインは、実際に公開されているKotlinコンパイラバージョンに固定された専用クラスローダー経由でロードされます(`obfaryn-standard/build.gradle.kts`の`serializationCompiler`コンフィグレーション参照)。これはモジュール自身の(より新しい)`kotlin("compiler-embeddable")`バージョンとは分離されています。
+
+`GsonDtoCompatibilityTest`は対照的なリフレクションベースのケースを扱います。外部仕様として固定するDTOキーをすべて`@SerializedName`で宣言し、内部のJVMフィールドとクラスが実際にリネームされたことを要求したうえで、変換後JARだけを使ったGsonの正確なJSON出力とデシリアライズを検証します。注釈のないGsonフィールドのJSONキーを元名のまま維持することは保証しません。外部schemaに応じて、フィールド名をkeepするか、`@SerializedName`を付けるか、DTOを保護してください。
 
 ## 初期化順序の回帰
 

@@ -32,6 +32,8 @@ dependencies {
   testImplementation(platform(libs.junit5.bom))
   testImplementation(kotlin("reflect"))
   testImplementation(kotlin("compiler-embeddable"))
+  // Compatibility fixture only; Gson is not part of Obfaryn's production dependency surface.
+  testImplementation("com.google.code.gson:gson:2.14.0")
   testImplementation(libs.kotlinx.coroutines.core)
   testImplementation(libs.junit.jupiter)
   testRuntimeOnly(libs.junit.platform.launcher)

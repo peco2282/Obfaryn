@@ -10,16 +10,16 @@ import javax.tools.ToolProvider
 
 /** Shared compiler/JAR fixture; individual feature tests own their behavior assertions. */
 object JavaJarFixture {
-  fun compile(dir: Path, sources: Map<String, String>): Path {
+  fun compile(dir: Path, sources: Map<String, String>, additionalClasspath: List<Path> = emptyList()): Path {
     val files = sources.map { (name, source) ->
       dir.resolve("sources/$name.java").also { Files.createDirectories(it.parent); Files.write(it, source.toByteArray()) }
     }
     val classes = dir.resolve("classes"); Files.createDirectories(classes)
     val annotations = com.peco2282.obfaryn.annotations.Protection::class.java.protectionDomain.codeSource.location.toURI()
     val kotlin = kotlin.Unit::class.java.protectionDomain.codeSource.location.toURI()
-    val args = listOf("--release", "8", "-classpath", listOf(annotations, kotlin).joinToString(java.io.File.pathSeparator) {
-      java.nio.file.Paths.get(it).toString()
-    }, "-d", classes.toString()) + files.map(Path::toString)
+    val classpath = listOf(annotations, kotlin).map { java.nio.file.Paths.get(it) } + additionalClasspath
+    val args = listOf("--release", "8", "-classpath", classpath.joinToString(java.io.File.pathSeparator),
+      "-d", classes.toString()) + files.map(Path::toString)
     assertEquals(0, ToolProvider.getSystemJavaCompiler().run(null, null, null, *args.toTypedArray()))
     val input = dir.resolve("input.jar")
     JarOutputStream(Files.newOutputStream(input)).use { jar ->

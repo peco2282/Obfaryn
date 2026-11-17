@@ -61,20 +61,26 @@ class SerializationCompatibilityTest {
 
   private val source = """
     package serial
+    import kotlinx.serialization.SerialName
     import kotlinx.serialization.Serializable
     import kotlinx.serialization.encodeToString
     import kotlinx.serialization.decodeFromString
     import kotlinx.serialization.json.Json
 
     @Serializable
-    data class Payload(val id: Int, val name: String, val tags: List<String>, val active: Boolean)
+    data class Payload(
+      val id: Int,
+      @SerialName("display_name") val name: String,
+      val tags: List<String>,
+      val active: Boolean,
+    )
 
     object Workload {
       fun roundTrip(id: Int): String {
         val original = Payload(id, "item-${'$'}id", listOf("a", "b", "c"), id % 2 == 0)
         val json = Json.encodeToString(original)
         val decoded = Json.decodeFromString<Payload>(json)
-        return (decoded == original).toString() + ":" + decoded.toString() + ":" + json.length
+        return (decoded == original).toString() + ":" + json
       }
     }
   """.trimIndent()
@@ -113,6 +119,7 @@ class SerializationCompatibilityTest {
       )
       val result = Obfuscator(config).obfuscate(input, output)
       assertTrue(result.classesRenamed > 0, "seed=$seed: the serializable class/companion must actually be renamed for this test to mean anything")
+      assertTrue(result.fieldsRenamed > 0, "seed=$seed: DTO fields must actually be renamed for this test to mean anything")
       val mapped = Files.readAllLines(requireNotNull(result.mapping))
         .first { it.startsWith("serial/Workload -> ") }.substringAfter(" -> ").replace('/', '.')
 
@@ -130,7 +137,12 @@ class SerializationCompatibilityTest {
             val a = originalMethod.invoke(originalInstance, id)
             val b = obfuscatedMethod.invoke(obfuscatedInstance, id)
             assertEquals(a, b, "seed=$seed id=$id")
-            assertTrue((a as String).startsWith("true:"), "round trip must decode back to an equal value: $a")
+            val active = id % 2 == 0
+            assertEquals(
+              "true:{\"id\":$id,\"display_name\":\"item-$id\",\"tags\":[\"a\",\"b\",\"c\"],\"active\":$active}",
+              a,
+              "seed=$seed id=$id: the external JSON schema must not follow obfuscated JVM names",
+            )
           }
         }
       }
