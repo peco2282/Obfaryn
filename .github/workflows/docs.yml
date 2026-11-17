@@ -34,6 +34,9 @@ jobs:
 
   deploy:
     needs: build
+    # The github-pages environment's protection rules reject non-default refs (e.g. v* tags),
+    # so only deploy from main or a manual dispatch; tag pushes still run build for validation.
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
