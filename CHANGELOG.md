@@ -7,10 +7,13 @@ belong in the [README](README.md) and the guides under [`docs/`](docs/).
 
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/). Each version below is
 correlated with `gradle.properties`' `releaseVersion` at the time of its "Bump to" commit; a
-lightweight Git tag (`v1.0.0`, `v1.1.0-RC1`) marks that commit. **Unreleased** collects changes
-made after the latest such tag.
+lightweight Git tag (`v1.0.0`, `v1.1.0-RC1`, `v1.1.0`) marks that commit. **Unreleased** collects
+changes made after the latest such tag.
 
-## [Unreleased]
+## [1.1.0]
+
+Supersedes `1.1.0-RC1`; the changes below are on top of that pre-release (see its section for
+what it already shipped).
 
 ### Fixed
 
