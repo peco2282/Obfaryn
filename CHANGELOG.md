@@ -5,9 +5,10 @@ This file records user-visible changes in reverse chronological order. Start wit
 upgrading across older releases. Entries describe behavior, while setup and usage
 belong in the [README](README.md) and the guides under [`docs/`](docs/).
 
-Format loosely follows [Keep a Changelog](https://keepachangelog.com/). No tags exist in this
-repository yet; versions below are correlated with `gradle.properties`' `releaseVersion` at the
-time of the "Bump to" commit, not with a Git tag.
+Format loosely follows [Keep a Changelog](https://keepachangelog.com/). Each version below is
+correlated with `gradle.properties`' `releaseVersion` at the time of its "Bump to" commit; a
+lightweight Git tag (`v1.0.0`, `v1.1.0-RC1`) marks that commit. **Unreleased** collects changes
+made after the latest such tag.
 
 ## [Unreleased]
 
