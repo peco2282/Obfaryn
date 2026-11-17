@@ -50,7 +50,7 @@ python3 scripts/verify-semantic-regressions.py --full
 | 制御フロー | light は直接分岐と例外ハンドラーの優先順を保持します。既存テストでは入れ子の例外・finally・monitor も検証します。全 CFG やスケジュールを網羅しません。 |
 | 間接呼び出し | コンストラクター・クラス初期化・synthetic・未対応呼び出し形式を除外します。既存 prelink テストで範囲制限と対象初期化も確認します。完全なスタックトレース・時間・リンク失敗の等価性は検証しません。 |
 | 文字列・定数 | intern による同一性と初期化再入を確認します。抽出対象の外部 API 定数は Java のコンパイル時定数でなくなるため keep が必要です。OOM・全並行実行順・初期化デッドロックは対象外です。 |
-| Kotlin/JVM 契約 | メタデータとコンパイラ ABI の保護に加え、既存 relocation テストでは利用側の再コンパイル・reflection を確認します。`kotlinx.serialization`のコンパイラ生成`$serializer`と`kotlinx.coroutines`のコンパイラ生成continuationは、いずれも名前によるランタイムリフレクションで到達されないため、keepルールなしで完全なリネームを生き残ります(`SerializationCompatibilityTest`/`CoroutineCompatibilityTest`参照)。動的に構築する reflection 名、リネーム後のクラスを元の宣言名でreflectする Kotlin reflection(`kotlin-reflect`)、外部設定、未知の compiler/plugin metadata は依然として keep または拒否が必要です。 |
+| Kotlin/JVM 契約 | メタデータとコンパイラ ABI の保護に加え、既存 relocation テストでは利用側の再コンパイル・reflection を確認します。`kotlinx.serialization`のコンパイラ生成`$serializer`と`kotlinx.coroutines`のコンパイラ生成continuationは、いずれも名前によるランタイムリフレクションで到達されないため、keepルールなしで完全なリネームを生き残ります(`SerializationCompatibilityTest`/`CoroutineCompatibilityTest`参照)。JVM フィールド名ではなく注釈でキー付けされるリフレクションベースのライブラリ(Gson の`@SerializedName`)も同様に、内部のフィールドとクラスがリネームされても外部 JSON schema を維持します(`GsonDtoCompatibilityTest`参照)。注釈のない JVM 名で読まれるフィールドは依然として keep が必要です。動的に構築する reflection 名、リネーム後のクラスを元の宣言名でreflectする Kotlin reflection(`kotlin-reflect`)、外部設定、未知の compiler/plugin metadata は依然として keep または拒否が必要です。 |
 
 ## 成果物の由来と実製品の検証
 
