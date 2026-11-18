@@ -13,6 +13,7 @@ profile:
     - inspection: UnusedSymbol
       ignore:
         - "**/api/**"
+        - "**/annotations/**"
 include:
   - name: CheckDependencyLicenses
 
