@@ -3,11 +3,7 @@ package com.peco2282.obfaryn.gradle
 import com.peco2282.obfaryn.api.MapPlatformOptions
 import com.peco2282.obfaryn.api.assembly.TransformationPackage
 import com.peco2282.obfaryn.api.protection.ProtectionRule
-import com.peco2282.obfaryn.core.ProtectionLevel
-import com.peco2282.obfaryn.core.ObfuscationConfig
-import com.peco2282.obfaryn.core.KotlinMetadataMode
 import com.peco2282.obfaryn.core.Obfuscator
-import com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode
 import com.peco2282.obfaryn.api.transformer.StringEncryptionCodec
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy
 import com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector
@@ -319,7 +315,7 @@ class ObfarynPlugin : Plugin<Project> {
               return@provider project.file(path)
             }
             val fileName = extension.output.fileName
-              ?: source.archiveFile.get().asFile.name.removeSuffix(".jar") + "-${extension.outputSuffix}.jar"
+              ?: (source.archiveFile.get().asFile.name.removeSuffix(".jar") + "-${extension.outputSuffix}.jar")
             require(fileName.isNotBlank() && '/' !in fileName && '\\' !in fileName && fileName.endsWith(".jar")) {
               "output.fileName must be a JAR file name; use output.file for a full path"
             }

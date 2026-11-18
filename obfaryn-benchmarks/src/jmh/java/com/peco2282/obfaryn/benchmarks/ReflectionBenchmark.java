@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Baseline call-mechanism costs: a statically-compiled direct call, a bound
  * {@link MethodHandle#invokeExact} (what {@link PassOverheadBenchmark} uses throughout), and
- * {@link Method#invoke}, all computing the same thing. {@code bench.Workload} is loaded in an
+ * {@link Method#invoke(Object, Object...)}, all computing the same thing. {@code bench.Workload} is loaded in an
  * isolated classloader exactly as {@link PassOverheadBenchmark} loads it, so this is not special
  * cased to being unobfuscated; it is the same fixture's {@code plain} method, used here as the
  * reference point for interpreting the MethodHandle-based numbers elsewhere in this module.

@@ -4,7 +4,6 @@ import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.context.ResourceEntry
 import com.peco2282.obfaryn.api.transformer.NamePreservation
 import com.peco2282.obfaryn.api.transformer.RenamingTransformer
-import com.peco2282.obfaryn.api.transformer.Transformer
 import com.peco2282.obfaryn.api.transformer.TransformerReport
 import com.peco2282.obfaryn.api.transformer.MemberKey as ApiMemberKey
 import com.peco2282.obfaryn.core.ObfuscationConfig

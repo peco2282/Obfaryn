@@ -1,7 +1,6 @@
 package com.peco2282.obfaryn.standard
 
 import com.peco2282.obfaryn.api.MapPlatformOptions
-import com.peco2282.obfaryn.api.PlatformContext
 import com.peco2282.obfaryn.api.assembly.AssemblyArtifact
 import com.peco2282.obfaryn.api.assembly.AssemblyContext
 import com.peco2282.obfaryn.api.assembly.AssemblyResult

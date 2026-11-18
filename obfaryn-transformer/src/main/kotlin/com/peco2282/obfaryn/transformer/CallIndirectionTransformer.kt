@@ -101,7 +101,7 @@ class CallIndirectionTransformer @JvmOverloads constructor(
             call.owner != "java/lang/Object" && call.name == "clone") { skipped++; continue }
           val key = random.nextInt()
           var siteName: String
-          do { siteName = "c" + java.lang.Integer.toUnsignedString(random.nextInt(), 36) } while (!siteNames.add(siteName))
+          do { siteName = "c" + Integer.toUnsignedString(random.nextInt(), 36) } while (!siteNames.add(siteName))
           val replacement = InvokeDynamicInsnNode(siteName,
             descriptor, bootstrap, encode(call.owner, key), encode(call.name, key), encode(call.desc, key), key, call.opcode)
           method.instructions.set(call, replacement)
@@ -114,7 +114,7 @@ class CallIndirectionTransformer @JvmOverloads constructor(
       if (prelink && ownerSites.isNotEmpty()) PrelinkGenerator.generate(owner, ownerSites, bootstrap)
     }
     if (calls > 0) {
-      val names = mapOf(templateName to helperName, templateName + "\$SiteCache" to helperName + "\$C")
+      val names = mapOf(templateName to helperName, "$templateName\$SiteCache" to "$helperName\$C")
       for ((templateClass, outputClass) in names) {
         val template = ClassNode()
         CallLinker::class.java.getResourceAsStream("/$templateClass.class")!!.use {

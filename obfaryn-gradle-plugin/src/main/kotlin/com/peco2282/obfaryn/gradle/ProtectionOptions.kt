@@ -9,7 +9,7 @@ import org.gradle.api.model.ObjectFactory
 import java.util.Locale
 import javax.inject.Inject
 
-internal fun flowMode(value: String): ControlFlowMode = ControlFlowMode.values()
+internal fun flowMode(value: String): ControlFlowMode = ControlFlowMode.entries
   .firstOrNull { it.name.equals(value, ignoreCase = true) }
   ?: throw IllegalArgumentException("Control flow mode must be inherit, none, light or dispatch: $value")
 

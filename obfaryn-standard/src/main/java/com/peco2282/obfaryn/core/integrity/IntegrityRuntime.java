@@ -1,6 +1,6 @@
 package com.peco2282.obfaryn.core.integrity;
 
-import com.peco2282.obfaryn.core.context.ObfuscationContext;
+import com.peco2282.obfaryn.api.ObfuscationContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,7 +25,7 @@ import java.util.jar.JarFile;
  * metadata.
  * This class is final and cannot be instantiated.
  *
- * @see IntegrityProtection#inject(ObfuscationContext, Set, Random)
+ * @see IntegrityProtection#inject 
  */
 @SuppressWarnings("unused")
 public final class IntegrityRuntime {

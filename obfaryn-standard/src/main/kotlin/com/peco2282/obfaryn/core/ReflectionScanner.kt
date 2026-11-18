@@ -26,7 +26,7 @@ internal object ReflectionScanner {
     val warnings = linkedSetOf<String>()
     for (node in context.classes.values) for (method in node.methods) {
       val frames by lazy {
-        runCatching { Analyzer(object : SourceInterpreter(Opcodes.ASM9) {
+        runCatching { Analyzer(object : SourceInterpreter(ASM9) {
           override fun copyOperation(insn: AbstractInsnNode, value: SourceValue): SourceValue = value
         }).analyze(node.name, method) }.getOrNull()
       }
