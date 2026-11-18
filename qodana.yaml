@@ -9,5 +9,12 @@ projectJDK: "21"
 
 profile:
   name: qodana.recommended
+  inspections:
+    - inspection: UnusedSymbol
+      ignore:
+        - "**/api/**"
 include:
   - name: CheckDependencyLicenses
+
+exclude:
+  - name: GrazieInspection
