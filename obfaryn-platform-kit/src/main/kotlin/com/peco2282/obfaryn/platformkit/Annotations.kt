@@ -5,8 +5,8 @@ import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldNode
 import org.objectweb.asm.tree.MethodNode
 
-/** Converts a dotted or internal class name to a JVM annotation descriptor (`Lcom/example/Ann;`). */
-private fun annotationDescriptorOf(annotationClassName: String) = "L${annotationClassName.toInternalName()};"
+/** A JVM annotation descriptor (`Lcom/example/Ann;`) is just an object descriptor; see [objectDescriptorOf]. */
+private fun annotationDescriptorOf(annotationClassName: String) = objectDescriptorOf(annotationClassName)
 
 private fun List<AnnotationNode>?.has(descriptor: String) = orEmpty().any { it.desc == descriptor }
 

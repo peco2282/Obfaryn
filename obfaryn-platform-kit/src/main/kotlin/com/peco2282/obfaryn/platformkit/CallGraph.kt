@@ -23,7 +23,7 @@ fun PlatformContext.methodCallClosure(
 ): Set<MemberKey> {
   val methods: Map<MemberKey, MethodNode> = classes.values.asSequence()
     .filter(scope)
-    .flatMap { owner -> owner.methods.asSequence().map { MemberKey(owner.name, it.name, it.desc) to it } }
+    .flatMap { owner -> owner.methods.asSequence().map { MemberKey.of(owner.name, it.name, it.desc) to it } }
     .toMap()
 
   val visited = linkedSetOf<MemberKey>()
@@ -35,7 +35,7 @@ fun PlatformContext.methodCallClosure(
     for (instruction in method.instructions) {
       val invoke = instruction as? MethodInsnNode ?: continue
       if (invoke.name.startsWith("<")) continue
-      val target = MemberKey(invoke.owner, invoke.name, invoke.desc)
+      val target = MemberKey.of(invoke.owner, invoke.name, invoke.desc)
       if (target in methods && visited.add(target)) queue.addLast(target)
     }
   }

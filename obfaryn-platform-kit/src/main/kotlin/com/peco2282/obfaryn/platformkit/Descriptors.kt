@@ -39,3 +39,22 @@ val Constructor<*>.memberKey: MemberKey get() = MemberKey(declaringClass.interna
 
 /** This field's identity as a [MemberKey] (owner, name, its type's descriptor). */
 val Field.memberKey: MemberKey get() = MemberKey(declaringClass.internalName, name, type.descriptor)
+
+// --- String-level JVM name/descriptor conversions ---
+// The one authoritative place for converting between the three easily-confused class-name forms:
+// dotted (`com.example.Foo`), JVM internal (`com/example/Foo`) and object descriptor
+// (`Lcom/example/Foo;`). Do not hand-write `replace('.', '/')` or `"L" + name + ";"` elsewhere;
+// route it through these so a provider never passes one form where another is expected. For a type
+// that is actually loadable, prefer the reflection-based [internalName]/[descriptor] above.
+
+/**
+ * Converts a dotted class name (`java.lang.Runnable`) to JVM internal form (`java/lang/Runnable`).
+ * An internal name passes through unchanged. Do not pass a descriptor (`Ljava/lang/Runnable;`) here.
+ */
+fun String.toInternalName(): String = replace('.', '/')
+
+/**
+ * JVM object type descriptor (`Lcom/example/Foo;`) for a class named in dotted or internal form.
+ * For a reflected [Class], prefer [descriptor]; use this only for a name held as a plain string.
+ */
+fun objectDescriptorOf(className: String): String = "L${className.toInternalName()};"

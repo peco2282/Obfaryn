@@ -5,6 +5,7 @@ import com.peco2282.obfaryn.api.transformer.MemberKey
 import com.peco2282.obfaryn.platformkit.isAnnotatedWith
 import com.peco2282.obfaryn.platformkit.isSubtypeOf
 import com.peco2282.obfaryn.platformkit.methodCallClosure
+import com.peco2282.obfaryn.platformkit.toInternalName
 import org.objectweb.asm.tree.ClassNode
 
 class PaperPlatform(override val metadata: PlatformMetadata) : Platform {
@@ -26,7 +27,7 @@ class PaperPlatform(override val metadata: PlatformMetadata) : Platform {
       val yaml = data.toString(Charsets.UTF_8)
       for (line in yaml.lineSequence()) {
         val match = Regex("^(main|bootstrapper|loader):\\s*['\"]?([^\\s#'\"]+)").find(line) ?: continue
-        add(match.groupValues[2].replace('.', '/'))
+        add(match.groupValues[2].toInternalName())
       }
     }
   }

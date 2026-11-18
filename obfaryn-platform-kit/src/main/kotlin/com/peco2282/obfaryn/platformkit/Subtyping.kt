@@ -50,6 +50,4 @@ inline fun <reified T> PlatformContext.isSubtypeOf(name: String): Boolean = clas
 
 /** @see Map.isSubtypeOf */
 inline fun <reified T> ObfuscationContext.isSubtypeOf(name: String): Boolean = classes.isSubtypeOf(name, T::class.java)
-
-/** Converts a dotted class name (`java.lang.Runnable`) to JVM internal form (`java/lang/Runnable`). Internal names pass through unchanged. */
-fun String.toInternalName(): String = replace('.', '/')
+// `String.toInternalName()` now lives with the other name/descriptor conversions in Descriptors.kt.

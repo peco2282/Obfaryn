@@ -10,6 +10,7 @@ import com.peco2282.obfaryn.api.PlatformOptions
 import com.peco2282.obfaryn.api.transformer.MemberKey
 import com.peco2282.obfaryn.platformkit.isAnnotatedWith
 import com.peco2282.obfaryn.platformkit.methodCallClosure
+import com.peco2282.obfaryn.platformkit.toInternalName
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ClassNode
 import java.util.jar.Manifest
@@ -35,7 +36,7 @@ class SpringBootPlatform(override val metadata: PlatformMetadata) : Platform {
 
   override fun entrypoints(context: PlatformContext, options: PlatformOptions): Set<String> = buildSet {
     context.classes.values.filter { it.isAnnotatedWith(SPRING_BOOT_APPLICATION) }.forEach { add(it.name) }
-    startClass(context)?.let { add(it.replace('.', '/')) }
+    startClass(context)?.let { add(it.toInternalName()) }
   }
 
   override fun configure(context: PlatformContext, options: PlatformOptions, target: PlatformConfiguration) {
