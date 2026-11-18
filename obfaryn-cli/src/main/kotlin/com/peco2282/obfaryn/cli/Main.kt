@@ -420,6 +420,9 @@ internal class PlatformOptionConverter : CommandLine.ITypeConverter<PlatformOpti
 
 internal class PlatformCandidates : ArrayList<String>(listOf("auto") + Platforms.all().map { it.id })
 internal class VirtualizationModeCandidates : ArrayList<String>(listOf("strict", "eligible"))
+// Lowercase so tab-completion offers `bash`/`zsh` (what users type and the help text shows), not the
+// enum's uppercase constant names. Shell parsing accepts either case, but `compgen -W` is case-sensitive.
+internal class ShellCandidates : ArrayList<String>(Shell.entries.map { it.name.lowercase() })
 internal class VirtualizationModeConverter : CommandLine.ITypeConverter<VirtualizationSelectionMode> {
   override fun convert(value: String): VirtualizationSelectionMode = when (value.lowercase()) {
     "strict" -> VirtualizationSelectionMode.STRICT
@@ -500,7 +503,7 @@ internal enum class Shell { BASH, ZSH }
 @Command(name = "completion", mixinStandardHelpOptions = true, description = ["Print a completion script. Source it in bash or zsh (via bashcompinit)."])
 internal class CompletionCommand : Callable<Int> {
   @Spec lateinit var spec: CommandSpec
-  @Parameters(index = "0", paramLabel = "SHELL", description = ["Shell: \${COMPLETION-CANDIDATES}."])
+  @Parameters(index = "0", paramLabel = "SHELL", completionCandidates = ShellCandidates::class, description = ["Shell: \${COMPLETION-CANDIDATES}."])
   lateinit var shell: Shell
 
   override fun call(): Int {
