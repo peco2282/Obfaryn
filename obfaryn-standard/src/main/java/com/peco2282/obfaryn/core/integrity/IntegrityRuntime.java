@@ -1,7 +1,5 @@
 package com.peco2282.obfaryn.core.integrity;
 
-import com.peco2282.obfaryn.api.ObfuscationContext;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
