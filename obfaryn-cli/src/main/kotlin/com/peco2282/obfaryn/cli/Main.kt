@@ -264,10 +264,12 @@ internal open class ObfuscateCommand : Callable<Int> {
   @Option(names = ["--no-rename-fields"], description = ["Disable field renaming."])
   var noRenameFields = false
   @Option(names = ["--strip-kotlin-metadata"], description = ["Strip Kotlin metadata throughout the JAR."])
+  @Suppress("UNUSED")
   fun stripKotlinMetadata(enabled: Boolean) {
     stripMetadata = enabled
   }
   @Option(names = ["--preserve-kotlin-metadata"], description = ["Preserve Kotlin metadata and protect Kotlin class names."])
+  @Suppress("UNUSED")
   fun preserveKotlinMetadata(enabled: Boolean) {
     if (enabled) {
       stripMetadata = false
@@ -492,7 +494,8 @@ internal class ListPresetsCommand : Callable<Int> {
   }
 }
 
-internal enum class Shell { bash, zsh }
+@Suppress("UNUSED")
+internal enum class Shell { BASH, ZSH }
 
 @Command(name = "completion", mixinStandardHelpOptions = true, description = ["Print a completion script. Source it in bash or zsh (via bashcompinit)."])
 internal class CompletionCommand : Callable<Int> {
@@ -502,7 +505,7 @@ internal class CompletionCommand : Callable<Int> {
 
   override fun call(): Int {
     val writer = spec.commandLine().out
-    if (shell == Shell.zsh) writer.println("autoload -Uz compinit bashcompinit\ncompinit\nbashcompinit")
+    if (shell == Shell.ZSH) writer.println("autoload -Uz compinit bashcompinit\ncompinit\nbashcompinit")
     writer.print(AutoComplete.bash("obfaryn", spec.root().commandLine()))
     writer.flush()
     return 0

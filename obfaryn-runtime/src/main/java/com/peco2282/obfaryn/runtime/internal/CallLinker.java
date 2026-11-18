@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Template copied into the output under a fresh name; requires only Java 8.
  * @hidden
  */
+@SuppressWarnings("JavadocDeclaration")
 public final class CallLinker {
   private CallLinker() {}
   // ClassValue lets child-loader callers be collected while a parent-held linker stays alive.
