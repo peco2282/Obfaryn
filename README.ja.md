@@ -293,6 +293,7 @@ source ./obfaryn-completion.zsh
 | `--dry-run` | JAR やマッピングを書き込まずに、計画された件数とマッピングのみを確認。 |
 | `--verify-output` | ASM の `CheckClassAdapter` を使用して出力クラスを検証。 |
 | `--classpath dependency.jar` | 外部依存関係を追加（複数指定可能）。 |
+| `--apply-mapping file` | 別途難読化した成果物のマッピングを再適用し、その成果物への参照を配布済みの名前に合わせる（複数指定可能）。対象成果物は `--classpath` にも必要。[配布済み成果物のマッピング再適用](#配布済み成果物のマッピング再適用)を参照。 |
 | `--recompute-frames` | StackMap フレームを再計算。 |
 | `--application-package package` | アプリケーションパッケージルートを追加（複数指定可能）。 |
 | `--strip-generic-signatures`, `--keep-method-parameters` | シグネチャおよびメソッドパラメータのメタデータを制御。 |
@@ -326,6 +327,20 @@ obfaryn assemble \
 各 `--artifact`/`-a` は `ID=INPUT[=OUTPUT]`（繰り返し可）で、出力を省略すると入力の隣に `INPUT-obfuscated.jar` を生成します。改名はセッションオプション（`--no-rename[-classes|-methods|-fields]`、`--flatten-packages`、`--target-package`、`--application-package`、`--seed`）でプログラム全体に対して 1 回だけ決定されます。各成果物は `--artifact-args ID=FILE` によって**自分の** platform と body 系パスを個別に選択します。この引数ファイルは `obfuscate` と同じオプションを使います（改名オプションは無視されます＝改名はプログラム全体）。兄弟成果物は命名宇宙を構成するため `--classpath` から自動で除外されます。`--classpath` には外部依存のみを、プロバイダー JAR は `--extension` で指定してください。単一マッピングは既定で最初の出力の隣の `assembly.mapping.txt` です。
 
 同名の内部クラスを持つ 2 つの成果物は拒否されます（1 つの命名宇宙では重複を許しません）。成果物個別の `--call-indirection`/`--prelink-calls` と integrity 署名は、グローバル改名の後に実行する必要があるため拒否されます。複数 JAR の書き出しは単一トランザクションではなく、途中失敗で一部のみ出力されることがあります。
+
+### 配布済み成果物のマッピング再適用
+
+成果物横断アセンブリは全 JAR が同時に揃っている必要があります。一方、難読化済み成果物（典型的には内部 API）を**先に配布**し、利用側を**後から別ビルドで**難読化する場合は、先行成果物のマッピングを再適用して、利用側の参照が配布済みの名前に一致するようにします。
+
+```shell
+obfaryn app.jar --output app-obf.jar \
+  --application-package app \
+  --apply-mapping api.mapping.txt --classpath api-obf.jar
+```
+
+`--apply-mapping` は、利用側が名前を採番する前に API の改名を固定割当として投入します。これにより API への参照は配布済みの名前に解決され、利用側自身の名前はそれらを避けます。配布済みの API JAR は `--classpath` で渡します。複数の上流成果物には `--apply-mapping` を繰り返します。利用側のマッピングは自己完結（適用した改名をマージ）し、各成果物の SHA-256 を provenance として記録するため、連鎖全体が検証可能なまま保たれます。
+
+ガード: 適用マッピングと利用側入力の両方に存在するクラスは拒否されます。2 つの適用マッピングが名前で食い違う場合は拒否されます（同一エントリはマージされるため、共通の上流が複数ファイル経由で届くのは問題ありません）。classpath 上の成果物が、マッピング作成時のビルドと異なる場合は stale として拒否されます。Gradle では `appliedMappings` が相当します。設計は [docs/apply-mapping.md](docs/apply-mapping.md) を参照してください。
 
 ### 互換性ルール
 
@@ -414,6 +429,8 @@ obfaryn {
 ```
 
 `obfuscateJar` は `shadowJar` が存在すればそれを、なければ `jar` を入力として使用します。出力設定を省略した場合は `build/libs/*-obfuscated.jar` とマッピングを生成します。プラグインはメソッドの名前変更、フレームの再計算、およびアノテーションで選択された仮想化のために、`runtimeClasspath` と `compileClasspath` を自動で供給します。
+
+別途難読化した依存のマッピングを再適用する（先に配布して後から再ビルドする運用。`obfuscateAssembly` の対になるもの）には、`appliedMappings = listOf("api.mapping.txt")` を設定し、その難読化済み依存を classpath に残します。これにより依存への参照が配布済みの名前に一致します。衝突・同名クラス・stale の各ガードは同様に適用されます。[配布済み成果物のマッピング再適用](#配布済み成果物のマッピング再適用)および [docs/apply-mapping.md](docs/apply-mapping.md) を参照してください。
 
 ネストされた `string` / `number` の `enabled` フラグおよび `metadata` のプロパティは、既存のフラットプロパティ（`stringEncryption`、`numberObfuscation`、`stripDebugInfo` など）と値を共有し、後に代入された設定が優先されます。Groovy DSL でも同じブロックが機能します。`includeConstantFields = false` はその定数種別に対する展開処理のみを無効化します。両方のリテラルブロックは任意の `random` ジェネレーターを受け付けます。省略した場合は既存の `seed` に従います。個別にカスタマイズする場合は `import java.util.Random` を追加し、`random = Random(10)` を設定します。`string.strategy` は暗号化と復号コード生成を対にする `StringEncryptionCodec` を受け付けます。数値には `number.strategy` と `number.selector` を指定できます。
 

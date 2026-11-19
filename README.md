@@ -258,6 +258,7 @@ Keep the generated file and source it from `.bashrc` / `.zshrc` for subsequent s
 | `--dry-run` | Show planned counts and mapping without writing a JAR or mapping. |
 | `--verify-output` | Validate written classes with ASM `CheckClassAdapter`. |
 | `--classpath dependency.jar` | Add an external dependency; repeat as needed. |
+| `--apply-mapping file` | Re-apply a separately-obfuscated artifact's mapping so references to it match its shipped names; repeat as needed. That artifact must also be on `--classpath`. See [Re-applying a shipped artifact's mapping](#re-applying-a-shipped-artifacts-mapping). |
 | `--recompute-frames` | Recalculate StackMap frames. |
 | `--application-package package` | Add an application package root; repeat as needed. |
 | `--strip-generic-signatures`, `--keep-method-parameters` | Control signature and parameter metadata. |
@@ -291,6 +292,20 @@ obfaryn assemble \
 Each `--artifact`/`-a` is `ID=INPUT[=OUTPUT]` (repeatable); the output defaults to `INPUT-obfuscated.jar` beside the input. Renaming is decided once for the whole program through the session options (`--no-rename[-classes|-methods|-fields]`, `--flatten-packages`, `--target-package`, `--application-package`, `--seed`). Each artifact still selects its **own** platform and body passes through `--artifact-args ID=FILE`, an args file using the exact options of `obfuscate` (its renaming options are ignored, since rename is global). Sibling artifacts form the naming universe and are excluded from `--classpath` automatically; list only external dependencies there, and provider JARs with `--extension`. The single mapping defaults to `assembly.mapping.txt` beside the first output.
 
 Two artifacts that define the same internal class name are rejected (one naming universe allows no duplicates). Per-artifact `--call-indirection`/`--prelink-calls` and integrity sealing are rejected, because they must run after the global rename. Writing several JARs is not a single transaction: a mid-run failure can leave only some written.
+
+### Re-applying a shipped artifact's mapping
+
+Cross-artifact assembly needs every JAR at once. When instead an obfuscated artifact (typically an internal API) is **shipped first** and a consumer is obfuscated **later, in a separate build**, re-apply the first artifact's mapping so the consumer's references match the names it was actually shipped with:
+
+```shell
+obfaryn app.jar --output app-obf.jar \
+  --application-package app \
+  --apply-mapping api.mapping.txt --classpath api-obf.jar
+```
+
+`--apply-mapping` injects the API's renames as fixed assignments before the consumer allocates names, so references to the API resolve to its shipped names and the consumer's own names avoid them. Pass the shipped API JAR on `--classpath`. Repeat `--apply-mapping` for several upstream artifacts. The consumer's mapping is self-contained (it merges in the applied renames) and records each artifact's SHA-256 as provenance, so the whole chain stays verifiable.
+
+Guards: a class present in both an applied mapping and the consumer input is rejected; two applied mappings that disagree on a name are rejected (identical entries merge, so a shared upstream reaching through more than one file is fine); and an applied mapping whose artifact on the classpath differs from the build it was made against is rejected as stale. The Gradle equivalent is `appliedMappings`. See [docs/apply-mapping.md](docs/apply-mapping.md) for the design.
 
 ### Compatibility rules
 
@@ -379,6 +394,8 @@ obfaryn {
 ```
 
 `obfuscateJar` uses `shadowJar` when available, otherwise `jar`. Without output settings it writes `build/libs/*-obfuscated.jar` with a mapping. The plugin automatically supplies `runtimeClasspath` and `compileClasspath` for method renaming, frame recomputation, and annotation-selected virtualization.
+
+To re-apply a separately-obfuscated dependency's mapping (the shipped-first-rebuild-later model, the counterpart of `obfuscateAssembly`), set `appliedMappings = listOf("api.mapping.txt")` and keep that obfuscated dependency on the classpath. References to it then match its shipped names; the same conflict, duplicate-class and stale-mapping guards apply. See [Re-applying a shipped artifact's mapping](#re-applying-a-shipped-artifacts-mapping) and [docs/apply-mapping.md](docs/apply-mapping.md).
 
 The nested `string` / `number` `enabled` flags and `metadata` properties share values with the existing flat properties (`stringEncryption`, `numberObfuscation`, `stripDebugInfo`, etc.); the last assignment wins. The same blocks work in Groovy DSL. `includeConstantFields = false` disables extraction only for that constant type. Both literal blocks accept an optional `random` generator; omitted generators follow the existing `seed`. To customize one, add `import java.util.Random` and set `random = Random(10)`. `string.strategy` accepts `StringEncryptionCodec`, pairing encryption with runtime decoder generation. Numeric customization uses `number.strategy` and `number.selector`.
 
