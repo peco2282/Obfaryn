@@ -16,7 +16,7 @@
 
 ステータス: **experimental（エンジン＋ファサード＋Gradle集約＋CLI 実装済み）**
 対象読者: Obfaryn 開発者
-関連: [assembly.md](assembly.md), [protection.md](protection.md)
+関連: [assembly.md](assembly.md), [protection.md](protection.md), [apply-mapping.md](apply-mapping.md)（対になる「配布して後からビルド」運用）
 
 > **実装状況（2026-11）**: 本仕様のエンジン機構（obfaryn-api 契約・obfaryn-core 機構）、obfaryn-standard のセッションファサード、obfaryn-gradle-plugin の集約タスク（`obfuscateAssembly`＋`obfarynAssembly` 拡張）、および obfaryn-cli の `assemble` サブコマンドを実装した。実装で確定した命名と §12 の方針は §13 を参照。
 
@@ -40,7 +40,7 @@
 
 ### 1.3 非目標（Non-goals）
 
-- 難読化済みAPIを成果物として配布し、第三者が後からビルドする運用（逐次 `apply-mapping` 方式であり本仕様の対象外）。
+- 難読化済みAPIを成果物として配布し、第三者が後からビルドする運用（逐次 `apply-mapping` 方式。本仕様の対象外で、[apply-mapping.md](apply-mapping.md) が担う）。
 - 複数jar書き出しの原子性保証（単一トランザクションではない）。
 - ファイルシステムロック、マルチ成果物トランザクション。
 - live Paper挙動・全JVM/OS・module-path実行の反復テスト保証（[AGENTS.md] の検証スコープに従う）。
