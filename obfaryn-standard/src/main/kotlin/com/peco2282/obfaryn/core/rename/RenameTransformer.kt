@@ -2,12 +2,18 @@ package com.peco2282.obfaryn.core.rename
 
 import com.peco2282.obfaryn.api.ObfuscationContext
 import com.peco2282.obfaryn.api.context.ResourceEntry
+import com.peco2282.obfaryn.api.transformer.MappingFormat
+import com.peco2282.obfaryn.api.transformer.MappingSource
+import com.peco2282.obfaryn.api.transformer.NameMapping
 import com.peco2282.obfaryn.api.transformer.NamePreservation
 import com.peco2282.obfaryn.api.transformer.RenamingTransformer
 import com.peco2282.obfaryn.api.transformer.TransformerReport
 import com.peco2282.obfaryn.api.transformer.MemberKey as ApiMemberKey
+import java.nio.file.Path
+import kotlin.io.path.readText
 import com.peco2282.obfaryn.core.ObfuscationConfig
 import com.peco2282.obfaryn.core.annotation.ObfuscationAnnotationPolicy
+import com.peco2282.obfaryn.core.mapping.MappingDigest
 import com.peco2282.obfaryn.core.keep.KeepRules
 import com.peco2282.obfaryn.core.jar.ClassHierarchyResolver
 import org.objectweb.asm.Opcodes
@@ -38,6 +44,8 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
   override val packageMapping = linkedMapOf<String, String>()
   val warnings = mutableListOf<String>()
   private var names = NamePreservation.NONE
+  /** Provenance of applied (re-used) mappings, carried into this run's output for chained apply. */
+  private var importedSources: List<MappingSource> = emptyList()
 
   override val transformedCount: Int get() = classMapping.size + methodMapping.size + fieldMapping.size
   override fun report() = TransformerReport(id, warnings = warnings.toList())
@@ -63,6 +71,24 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     val generatedByPackage = mutableMapOf<String, NameGenerator>()
     val generatedByOuter = mutableMapOf<String, NameGenerator>()
     val occupied = nodes.map { it.name }.toMutableSet()
+    // apply-mapping: inject the renames of separately-obfuscated artifacts (named by config.appliedMappings,
+    // present on the classpath) as fixed assignments before allocation, so references to them resolve to
+    // the names they were actually given and this run's own names avoid them. Those classes must not also
+    // be inputs of this run. Their provenance is carried into this run's output for chained apply.
+    if (config.appliedMappings.isNotEmpty()) {
+      val applied = loadAppliedMappings(config.appliedMappings)
+      verifyAppliedSources(applied.sources, config.classpath)
+      val collisions = applied.classes.keys.intersect(occupied)
+      require(collisions.isEmpty()) {
+        "apply-mapping: class(es) ${collisions.sorted()} appear in both an applied mapping and this run's input"
+      }
+      classMapping.putAll(applied.classes)
+      methodMapping.putAll(applied.methods)
+      fieldMapping.putAll(applied.fields)
+      packageMapping.putAll(applied.packages)
+      occupied += applied.classes.values
+      importedSources = applied.sources
+    }
     val target = config.targetPackage?.replace('.', '/').takeIf { config.flattenPackages }
     val applicationPackages = config.applicationPackages.map { it.replace('.', '/').trimEnd('/') + "/" }.toSet()
     fun isInApplicationPackage(name: String) = applicationPackages.any { name.startsWith(it) }
@@ -263,9 +289,45 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     else -> false
   }
 
-  override fun mappingText(): String = buildString {
-    for ((old, new) in classMapping) appendLine("$old -> $new")
-    for ((key, new) in methodMapping) appendLine("  ${key.owner}.${key.name}${key.desc} -> $new")
-    for ((key, new) in fieldMapping) appendLine("  ${key.owner}.${key.name}:${key.desc} -> $new")
+  /**
+   * Fails if any artifact an applied mapping was built against is missing from the classpath or
+   * present with a different digest — a stale re-apply that would otherwise diverge silently.
+   */
+  private fun verifyAppliedSources(sources: List<MappingSource>, classpath: List<Path>) {
+    for (source in sources) {
+      val match = classpath.firstOrNull { it.fileName?.toString() == source.identifier }
+      requireNotNull(match) {
+        "apply-mapping: '${source.identifier}', which an applied mapping was built against, is not on the classpath to verify"
+      }
+      val actual = MappingDigest.of(match)
+      require(actual == source.digest) {
+        "apply-mapping: '${source.identifier}' on the classpath (digest $actual) does not match the applied " +
+          "mapping (expected ${source.digest}); the mapping is stale for this build of the artifact"
+      }
+    }
   }
+
+  /** Parses and merges the applied mapping files into one forward model, accumulating provenance. */
+  private fun loadAppliedMappings(paths: List<Path>): NameMapping {
+    val classes = LinkedHashMap<String, String>()
+    val methods = LinkedHashMap<MemberKey, String>()
+    val fields = LinkedHashMap<MemberKey, String>()
+    val packages = LinkedHashMap<String, String>()
+    val sources = mutableListOf<MappingSource>()
+    for (path in paths) {
+      val model = MappingFormat.parse(path.readText())
+      classes.putAll(model.classes)
+      methods.putAll(model.methods)
+      fields.putAll(model.fields)
+      packages.putAll(model.packages)
+      sources += model.sources
+    }
+    return NameMapping(classes, methods, fields, packages, sources)
+  }
+
+  // Renders this run's tables (including any applied fixed assignments, so the output is a self-contained
+  // merged mapping) plus the accumulated provenance of the artifacts those assignments came from, through
+  // MappingFormat — the single authority for the textual format.
+  override fun mappingText(): String =
+    MappingFormat.render(classMapping, methodMapping, fieldMapping, packageMapping, importedSources)
 }

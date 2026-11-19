@@ -1,7 +1,10 @@
 package com.peco2282.obfaryn.core
 
 import com.peco2282.obfaryn.api.assembly.*
+import com.peco2282.obfaryn.api.transformer.MappingFormat
+import com.peco2282.obfaryn.api.transformer.MappingSource
 import com.peco2282.obfaryn.api.transformer.RenamingTransformer
+import com.peco2282.obfaryn.core.mapping.MappingDigest
 import com.peco2282.obfaryn.standard.StandardPackage
 import com.peco2282.obfaryn.api.MapPlatformOptions
 import com.peco2282.obfaryn.api.transformer.Transformer
@@ -293,7 +296,15 @@ class Obfuscator(
         output.resolveSibling(output.fileName.toString().removeSuffix(".jar") + ".mapping.txt") else null
     if (mappingOutput != null) {
       mappingOutput.parent?.let(Files::createDirectories)
-      mappingOutput.writeText(mappingText)
+      // Record this output JAR's digest as a provenance source so a later run that re-applies this
+      // mapping can detect being pointed at a different build of this artifact. The output on disk is
+      // already the final (sealed) artifact at this point. An empty mapping anchors nothing.
+      val text = if (mappingText.isEmpty()) mappingText else MappingFormat.render(
+        MappingFormat.parse(mappingText).let { model ->
+          model.copy(sources = model.sources + MappingSource(output.fileName.toString(), MappingDigest.of(output)))
+        }
+      )
+      mappingOutput.writeText(text)
     }
     return ObfuscationResult(
       classesLoaded, resourcesLoaded, platform.id,

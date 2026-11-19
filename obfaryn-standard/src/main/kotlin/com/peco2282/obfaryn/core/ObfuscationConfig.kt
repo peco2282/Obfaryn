@@ -156,6 +156,16 @@ data class ObfuscationConfig(
   val transformationReport: Path? = null,
   /** Explicit run mode; INHERIT derives the mode from the existing flags and protection level. */
   val controlFlowMode: ControlFlowMode = ControlFlowMode.INHERIT,
+  /**
+   * Prior mapping files whose renames are re-applied to this run (apply-mapping). Each file was
+   * produced when an earlier artifact (typically a separately shipped API) was obfuscated; the
+   * named artifacts are referenced by this run but not part of it, so they must also be on
+   * [classpath]. Their renames are injected as fixed assignments before this run allocates names,
+   * so references to those artifacts resolve to the names they were actually given, and this run's
+   * own names avoid them. The classes they describe must not also be inputs of this run.
+   * See [docs/apply-mapping.md](apply-mapping.md).
+   */
+  val appliedMappings: List<Path> = emptyList(),
 ) {
   /** Final run mode before per-method policy; NONE prevents registration of the control-flow pass. */
   val effectiveControlFlowMode: ControlFlowMode

@@ -1,5 +1,6 @@
 package com.peco2282.obfaryn.core.mapping
 
+import com.peco2282.obfaryn.api.transformer.MappingFormat
 import java.nio.file.Path
 import kotlin.io.path.readText
 
@@ -53,37 +54,19 @@ class Mapping private constructor(
     fun read(path: Path): Mapping = parse(path.readText())
 
     /**
-     * Parses `original -> replacement` lines; indentation distinguishes members from classes.
-     * Member lines carry their own owner and need not follow a corresponding class line.
-     * Blank lines are ignored, repeated class keys use the last value, and member entries are
-     * retained in input order. Syntax checks do not validate JVM descriptor correctness.
+     * Parses mapping text via [MappingFormat] (the shared format authority) and builds the
+     * reverse-lookup view used for de-obfuscation. Package and provenance entries are accepted and
+     * ignored here, since stack-frame recovery uses only class and member names.
      *
      * @throws IllegalArgumentException If a line lacks the required mapping structure.
      */
     fun parse(text: String): Mapping {
-      val classes = linkedMapOf<String, String>()
-      val methods = mutableListOf<MappedMember>()
-      val fields = mutableListOf<MappedMember>()
-      for (line in text.lineSequence()) {
-        if (line.isBlank()) continue
-        val parts = line.trim().split(" -> ", limit = 2)
-        require(parts.size == 2) { "Invalid mapping line: $line" }
-        val (old, new) = parts
-        if (!line.first().isWhitespace()) {
-          require(old.isNotBlank() && new.isNotBlank()) { "Invalid class mapping: $line" }
-          classes[old] = new
-        } else {
-          val owner = old.substringBeforeLast('.', "")
-          val member = old.substringAfterLast('.')
-          require(owner.isNotEmpty()) { "Invalid member mapping: $line" }
-          if ('(' in member) methods += MappedMember(owner, member.substringBefore('('), member.substring(member.indexOf('(')), new)
-          else {
-            require(':' in member) { "Invalid field mapping: $line" }
-            fields += MappedMember(owner, member.substringBefore(':'), member.substringAfter(':'), new)
-          }
-        }
-      }
-      return Mapping(classes, methods, fields)
+      val model = MappingFormat.parse(text)
+      return Mapping(
+        LinkedHashMap(model.classes),
+        model.methods.map { (key, obfuscated) -> MappedMember(key.owner, key.name, key.desc, obfuscated) },
+        model.fields.map { (key, obfuscated) -> MappedMember(key.owner, key.name, key.desc, obfuscated) },
+      )
     }
   }
 }
