@@ -101,7 +101,6 @@ subprojects {
   }
 
   val targetJava = when (name) {
-//    "obfaryn-api", "obfaryn-annotations" -> 8
     "obfaryn-gradle-plugin" -> 17 to 17
     else -> 8 to 1.8
   }
