@@ -1,0 +1,64 @@
+name: Publish to Maven Central
+
+# Uploads the signed artifacts of every published module to Sonatype's Central Portal via the
+# nmcp aggregation task configured in settings.gradle.kts. Publishing is USER_MANAGED, so this
+# workflow only *uploads* a deployment; release it afterwards from https://central.sonatype.com/.
+#
+# Runs when a GitHub Release is published (its tag drives the version), or on demand for an
+# existing tag. It is intentionally separate from release.yml, which attaches the CLI distribution
+# to the GitHub Release — the two run independently for the same tag.
+#
+# Required repository secrets:
+#   CENTRAL_USERNAME / CENTRAL_PASSWORD  Central Portal user *token* (not your login password).
+#   SIGNING_KEY                          ASCII-armored PGP private key (the full block).
+#   SIGNING_PASSWORD                     Passphrase for that key.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to publish, e.g. v1.1.0'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ inputs.tag || github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.tag || github.event.release.tag_name }}
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
+      - name: Resolve release version from tag
+        id: version
+        run: |
+          ref='${{ inputs.tag || github.event.release.tag_name }}'
+          version="${ref#v}"
+          case "$version" in
+            *[Ss][Nn][Aa][Pp][Ss][Hh][Oo][Tt]*)
+              echo "A -SNAPSHOT tag cannot be published as a release: $version" >&2
+              exit 1 ;;
+          esac
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Publish to Central Portal
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: >-
+          ./gradlew nmcpPublishAggregationToCentralPortal
+          -PreleaseVersion=${{ steps.version.outputs.version }}
+          --no-configuration-cache --stacktrace

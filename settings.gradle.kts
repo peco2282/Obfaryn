@@ -21,9 +21,9 @@ pluginManagement {
 // Portal; does not create publications or apply maven-publish itself. Credentials: CENTRAL_USERNAME
 // / CENTRAL_PASSWORD env vars, or centralUsername / centralPassword in (gitignored) secrets.properties
 // -- the same Central Portal user token used for the existing distribution publish, not your login
-// password. Run `./gradlew publishAggregationToCentralPortal` to upload (USER_MANAGED: release it
-// from https://central.sonatype.com/ afterward), or `publishAggregationToCentralSnapshots` for a
-// `-SNAPSHOT` version.
+// password. Run `./gradlew nmcpPublishAggregationToCentralPortal` to upload (USER_MANAGED: release it
+// from https://central.sonatype.com/ afterward), or `nmcpPublishAggregationToCentralPortalSnapshots`
+// for a `-SNAPSHOT` version. The release upload also runs from .github/workflows/publish.yml.
 plugins {
   id("com.gradleup.nmcp.settings") version "1.6.2"
 }
