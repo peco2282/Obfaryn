@@ -57,3 +57,5 @@ include("platforms:springboot")
 include("obfaryn-standard")
 include("obfaryn-benchmarks")
 include("examples:custom-extension")
+
+include("platforms:mc-mod")

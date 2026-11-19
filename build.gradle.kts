@@ -144,6 +144,7 @@ dependencies {
   dokka(project(":obfaryn-gradle-plugin"))
   dokka(project(":platforms:paper"))
   dokka(project(":platforms:springboot"))
+  dokka(project(":platforms:mc-mod"))
 }
 
 tasks.test {

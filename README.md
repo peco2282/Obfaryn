@@ -117,7 +117,18 @@ Types annotated with `@ConfigurationProperties` retain their class name and publ
 external property keys continue to bind; private implementation members remain renameable. For an
 annotated factory method, its method name and the application return type's public contract are kept.
 
-The published Paper and Spring Boot platform JARs include the small `obfaryn-platform-kit`
+`obfaryn-platform-mc-mod` adds three Minecraft mod-loader providers — `fabric`, `forge` and
+`neoforge` — detected from a loader descriptor (`fabric.mod.json`, `META-INF/mods.toml`,
+`META-INF/neoforge.mods.toml`) or the loader's own marker (a Fabric initializer interface, a Forge
+or NeoForge `@Mod` class) without the loader jars on the classpath. Each keeps its mod/entrypoint
+class names and loader resources verbatim; Forge and NeoForge additionally keep `@SubscribeEvent`
+handlers and whatever they call as plain bytecode, the same hot-path policy the Paper and Spring Boot
+providers apply (Fabric registers callbacks as lambdas, so it declares no annotation-driven
+exclusions). Contributors can verify provider loading, policy application and output execution with
+`python3 scripts/verify-mc-mod-extension.py` after building the CLI distribution and
+`:platforms:mc-mod:jar`.
+
+The published Paper, Spring Boot and Minecraft mod platform JARs include the small `obfaryn-platform-kit`
 implementation they need, so a CLI user passes only the selected platform JAR to `--extension`.
 Repository contributors can verify Spring Boot provider loading, policy application, transformation,
 and output execution with `python3 scripts/verify-springboot-extension.py` after building the CLI
@@ -161,6 +172,7 @@ The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The `obfaryn-api`, `obfar
 | `obfaryn-platform-kit` | Kotlin helpers (annotation/subtype/call-graph checks) for writing a `Platform`, hiding raw ASM |
 | `platforms/paper` | External Paper platform provider (`obfaryn-platform-paper`) |
 | `platforms/springboot` | External Spring Boot platform provider (`obfaryn-platform-springboot`) |
+| `platforms/mc-mod` | External Minecraft mod platform providers (`obfaryn-platform-mc-mod`: `fabric`/`forge`/`neoforge`) |
 | `obfaryn-benchmarks` | JMH micro-benchmarks for per-call transformation-pass overhead; see [docs/performance.md](docs/performance.md) |
 
 ## License
@@ -178,7 +190,7 @@ On Windows, build and run the application distribution:
 .\obfaryn-cli\build\install\obfaryn\bin\obfaryn.bat input.jar -o output.jar --platform paper --seed 123 --keep com.example.PublicApi
 ```
 
-On other platforms, use `./gradlew` and the generated `bin/obfaryn` script. `--platform` accepts `auto` (default), `generic`, and IDs supplied by installed platform providers such as `paper` or `springboot`. The Paper example requires `obfaryn-platform-paper` on the runtime classpath.
+On other platforms, use `./gradlew` and the generated `bin/obfaryn` script. `--platform` accepts `auto` (default), `generic`, and IDs supplied by installed platform providers such as `paper`, `springboot`, `fabric`, `forge` or `neoforge`. The Paper example requires `obfaryn-platform-paper` on the runtime classpath.
 
 With the installed distribution's `bin` directory on `PATH`:
 

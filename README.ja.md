@@ -117,7 +117,17 @@ obfaryn {
 member名を保持します。private実装memberは引き続き改名できます。factory methodに付けた場合は、その
 method名とアプリケーション内の戻り値型のpublic契約を保持します。
 
-配布するPaper/Spring Boot platform JARには、必要な小さな`obfaryn-platform-kit`実装を同梱します。
+`obfaryn-platform-mc-mod`はMinecraftのmod-loaderプロバイダーを3つ追加します(`fabric`/`forge`/
+`neoforge`)。loaderのディスクリプタ(`fabric.mod.json`/`META-INF/mods.toml`/
+`META-INF/neoforge.mods.toml`)か、loader固有のマーカー(Fabricのinitializer interface、Forge/
+NeoForgeの`@Mod`クラス)から、loaderのjarをクラスパスに置かずに検出します。いずれもmod/entrypoint
+クラス名とloaderリソースをそのまま保持し、Forge/NeoForgeはさらに`@SubscribeEvent`ハンドラとその
+呼び出し先を素のバイトコードとして保持します(Paper/Spring Bootと同じhot-pathポリシー。Fabricは
+コールバックをlambdaで登録するため、annotation起点の除外は宣言しません)。CLI配布物と
+`:platforms:mc-mod:jar`をビルドした後、`python3 scripts/verify-mc-mod-extension.py`でproviderの
+ロード、policy適用、出力JARの実行を検証できます。
+
+配布するPaper/Spring Boot/Minecraft mod platform JARには、必要な小さな`obfaryn-platform-kit`実装を同梱します。
 そのためCLI利用者が`--extension`へ渡すのは、選択したplatform JARだけです。リポジトリの開発者は
 CLI配布物とplatform JARをビルドした後、`python3 scripts/verify-springboot-extension.py`でproviderの
 ロード、policy適用、変換、出力JARの実行を検証できます。このスクリプトはオフラインで動く互換
@@ -161,6 +171,7 @@ Gradle では `controlFlow { mode = "light" }`・`calls { enabled = true; prelin
 | `obfaryn-platform-kit` | `Platform`実装を書くためのKotlinヘルパー(アノテーション/継承/呼び出しグラフ判定)、生ASMを隠す |
 | `platforms/paper` | 外部 Paper プラットフォームプロバイダー (`obfaryn-platform-paper`) |
 | `platforms/springboot` | 外部 Spring Boot プラットフォームプロバイダー (`obfaryn-platform-springboot`) |
+| `platforms/mc-mod` | 外部 Minecraft mod プラットフォームプロバイダー (`obfaryn-platform-mc-mod`: `fabric`/`forge`/`neoforge`) |
 | `obfaryn-benchmarks` | 変換パスごとの呼び出しオーバーヘッドを計測する JMH マイクロベンチマーク。[docs/performance.ja.md](docs/performance.ja.md) 参照 |
 
 ## ライセンス
@@ -178,7 +189,7 @@ Windows の場合、アプリケーション配布物をビルドして実行し
 .\obfaryn-cli\build\install\obfaryn\bin\obfaryn.bat input.jar -o output.jar --platform paper --seed 123 --keep com.example.PublicApi
 ```
 
-その他のプラットフォームでは `./gradlew` と生成された `bin/obfaryn` スクリプトを使用します。`--platform` は `auto`（既定値）、`generic`、および導入されたプラットフォームプロバイダーが提供する ID（`paper`や`springboot`など）を受け付けます。Paper の例では実行時クラスパスに `obfaryn-platform-paper` が必要です。
+その他のプラットフォームでは `./gradlew` と生成された `bin/obfaryn` スクリプトを使用します。`--platform` は `auto`（既定値）、`generic`、および導入されたプラットフォームプロバイダーが提供する ID（`paper`、`springboot`、`fabric`、`forge`、`neoforge`など）を受け付けます。Paper の例では実行時クラスパスに `obfaryn-platform-paper` が必要です。
 
 インストールされた配布物の `bin` ディレクトリを `PATH` に追加している場合:
 
