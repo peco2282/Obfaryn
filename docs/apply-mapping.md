@@ -12,11 +12,11 @@
 | 再適用の意味論を理解する | [5. 再適用の意味論](#5-再適用の意味論) |
 | 失敗条件や制約を確認する | [8. 不変条件・エラー処理](#8-不変条件エラー処理) |
 
-ステータス: **design（設計確定・未実装）**
+ステータス: **implemented（エンジン＋CLI＋Gradle 実装済み。§13 参照）**
 対象読者: Obfaryn 開発者
 関連: [multi-artifact-assembly.md](multi-artifact-assembly.md), [assembly.md](assembly.md), [protection.md](protection.md)
 
-> **実装状況（2026-11）**: 本書は設計のみ。実装はまだ無い。[multi-artifact-assembly.md](multi-artifact-assembly.md) の whole-program 集約（全成果物が揃う前提）と対になる、**成果物を配布して後からビルドする**運用のための設計である。
+> **実装状況（2026-11）**: エンジン（`RenameTransformer` の固定割当投入・名前予約・衝突/同一クラス/stale 判定、`MappingFormat` によるフォーマット、`MappingDigest` による provenance）、CLI（`--apply-mapping`）、Gradle（`obfaryn { appliedMappings }`）を実装した。確定した命名と §12 未決事項の確定方針は §13 を参照。[multi-artifact-assembly.md](multi-artifact-assembly.md) の whole-program 集約（全成果物が揃う前提）と対になる、**成果物を配布して後からビルドする**運用である。
 
 > **命名方針**: 本書は[multi-artifact-assembly.md](multi-artifact-assembly.md)と同じく、**新規に作成する型・メンバ・フラグ・タスクの名前を規定しない**。すべて役割で記述する。
 > 文中で参照の便宜上つける**仮ラベルは `〈 〉` で囲む**（例: 〈適用マッピング〉）。実際の名前は実装時に決める。
@@ -230,6 +230,45 @@ B の難読化結果のマッピングは、**〈適用ソース〉由来のエ�
 3. **識別子の形**（§4.3・§8.2）: JAR ファイル名か Maven coordinate か。classpath 上の JAR を一意特定できること。
 4. **digest のアルゴリズムと対象**（§8.2）: JAR バイト全体か、正規化後か。
 5. **新規の型・メンバ・フラグ・タスク名**: 本書は規定しない。実装着手時に決める。
+
+---
+
+## 13. 実装（確定した命名と方針）
+
+本仕様を実装した。確定した名前と、§12 未決事項の確定方針は以下。
+
+### 13.1 確定した型・メンバ・フラグ
+
+| 役割（仕様中の仮ラベル） | 実装名 | 位置 |
+|---|---|---|
+| フォーマット単一権威（§3.1） | `MappingFormat`（`render`/`parse`） | obfaryn-api `transformer` |
+| 順引きモデル（§2） | `NameMapping`（`classes`/`methods`/`fields`/`packages`/`sources`） | obfaryn-api `transformer` |
+| 〈ソースエントリ〉（§4.3） | `MappingSource`（`identifier`/`digest`） | obfaryn-api `transformer` |
+| 〈適用ソース〉入力（§3.2・§10） | `ObfuscationConfig.appliedMappings: List<Path>` | obfaryn-standard |
+| 固定割当投入・名前予約・衝突/stale 判定（§5・§7・§8） | `RenameTransformer`（`loadAppliedMappings`/`verifyAppliedSources`、`mappingText` override） | obfaryn-standard |
+| digest 算出（§8.2） | `MappingDigest.of`（SHA-256 → `sha256:<hex>`） | obfaryn-standard `mapping` |
+| 自己 provenance 発行（§4.3） | `Obfuscator` のマッピング書き出し（最終 JAR の digest を `# source` に） | obfaryn-standard |
+| CLI 入力（§10） | `--apply-mapping FILE`（繰り返し可） | obfaryn-cli |
+| Gradle 入力（§10） | `obfaryn { appliedMappings = [...] }` | obfaryn-gradle-plugin |
+
+`RenameTransformer`・`Remapper`/`ClassRemapper`・`SequentialNameGenerator`・`occupied` は無改造の既存機構を使う。既存の `.mapping.txt` 書き出し経路は不変。
+
+### 13.2 §12 未決事項の確定
+
+1. **§12-1（package 行構文）**: `package <元> -> <新>`（行頭、`package ` 接頭辞）。クラス行・メンバ行と構文的に区別でき、`MappingFormat.parse` が後方互換に読む。
+2. **§12-2（来歴ヘッダ表現）**: `#` コメント行。provenance は `# source <識別子> <digest>`。他の `#` 行は無視され前方互換。空マッピングはヘッダも本体も出さず `""`。
+3. **§12-3（識別子の形）**: 出力 JAR のファイル名。適用時に classpath 上の同名エントリと突き合わせる。
+4. **§12-4（digest）**: 出力 JAR バイト全体の SHA-256（`sha256:<lowercase-hex>`）。
+
+### 13.3 衝突・同一の扱い（§8 の確定）
+
+- **同一クラス両在**（適用ソースの元クラスが入力にも存在）→ 拒否。
+- **複数適用の衝突**: 同一キー→同じ値はマージ（共通上流がダイヤモンド依存で二重に届く正当ケース）、違う値は拒否。source も同一識別子→同じ digest は集約、違う digest は拒否。
+- **stale**: provenance の各ソースを classpath 上の同名 JAR と digest 照合し、不在/不一致は拒否。
+
+### 13.4 検証
+
+`python3 scripts/verify-apply-mapping.py`（installDist 後）が、インストール済み CLI で API を単独難読化 → マッピングを適用して consumer を難読化 → 両 JAR を元クラス抜きで一緒に実行、マージ出力・provenance・stale 拒否までを独立検証する。単体は `obfaryn-standard` の `ApplyMappingTest`、`obfaryn-api` の `MappingFormatTest`、CLI/Gradle の各パースト テスト。
 
 ---
 
