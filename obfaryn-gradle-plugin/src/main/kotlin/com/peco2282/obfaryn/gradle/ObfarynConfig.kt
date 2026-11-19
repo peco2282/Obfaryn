@@ -27,6 +27,7 @@ internal fun ObfarynExtension.toObfuscationConfig(project: Project, dependencyCl
     reproducible = reproducible,
     recomputeFrames = recomputeFrames,
     classpath = dependencyClasspath,
+    appliedMappings = appliedMappings.map { project.file(it).toPath() },
     stringEncryption = stringEncryption,
     numberObfuscation = numberObfuscation,
     stringConstantFields = string.includeConstantFields,

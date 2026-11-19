@@ -155,6 +155,9 @@ open class VirtualizationOptions {
  * @property reproducible Ensures that the obfuscation process produces consistent outputs for identical inputs.
  * @property recomputeFrames Recomputes stack frames for the obfuscated bytecode if enabled.
  * @property classpath A list of additional paths to include in the classpath for the obfuscation process.
+ * @property appliedMappings Mapping files from previously obfuscated artifacts (typically a separately
+ *   shipped API) whose renames are re-applied, so references to them match their shipped names. Those
+ *   artifacts must also be on [classpath]. Paths are resolved against the project directory.
  * @property seed An optional seed value for initializing the random number generator used in obfuscation.
  * @property keep A list of patterns specifying elements to be excluded from obfuscation.
  * @property excludeClasses A list of class names to exclude from the obfuscation process.
@@ -205,6 +208,7 @@ open class ObfarynExtension @Inject constructor(objects: ObjectFactory) {
   var reproducible = true
   var recomputeFrames = false
   var classpath = listOf<String>()
+  var appliedMappings = listOf<String>()
   var seed: Long? = null
   var keep = listOf<String>()
   var excludeClasses = listOf<String>()

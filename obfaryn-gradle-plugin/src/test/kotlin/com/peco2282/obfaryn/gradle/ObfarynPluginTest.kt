@@ -172,6 +172,17 @@ class ObfarynPluginTest {
     assertEquals(1, extension.protectionRules.size)
   }
 
+  @Test fun appliedMappingsResolveAgainstProjectAndReachConfiguration() {
+    val project = ProjectBuilder.builder().build()
+    val extension = project.extensions.create("obfaryn", ObfarynExtension::class.java)
+    extension.appliedMappings = listOf("api.mapping.txt", "lib/mapping.txt")
+    val config = extension.toObfuscationConfig(project, emptyList())
+    assertEquals(
+      listOf(project.file("api.mapping.txt").toPath(), project.file("lib/mapping.txt").toPath()),
+      config.appliedMappings,
+    )
+  }
+
   @Test fun nestedDslConfiguresTransformationsAndOutputPaths() {
     Files.writeString(dir.resolve("settings.gradle.kts"), "rootProject.name = \"sample\"")
     Files.writeString(dir.resolve("build.gradle.kts"), """

@@ -102,7 +102,8 @@ class Obfuscator(
       reportPath?.let { "Virtualization report" to it },
       config.transformationReport?.let { "Transformation report" to it },
     )
-    val protectedPaths = listOfNotNull(input, config.integrityPrivateKey, config.integrityPublicKey) + config.classpath + protectedInputs
+    val protectedPaths = listOfNotNull(input, config.integrityPrivateKey, config.integrityPublicKey) +
+      config.classpath + config.appliedMappings + protectedInputs
     for ((index, destination) in destinations.withIndex()) {
       val (label, path) = destination
       require(!Files.isDirectory(path) && protectedPaths.none { sameFile(it, path) }) {

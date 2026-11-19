@@ -245,6 +245,8 @@ internal open class ObfuscateCommand : Callable<Int> {
   var virtualizationRuntimeGroupSize = 8
   @Option(names = ["--classpath"], paramLabel = "PATH", description = ["Dependency JAR or directory; repeatable."])
   var classpath = mutableListOf<Path>()
+  @Option(names = ["--apply-mapping"], paramLabel = "FILE", description = ["Re-apply the renames from a previously obfuscated artifact's mapping so references to it match its shipped names; repeatable. That artifact must also be on --classpath."])
+  var appliedMappings = mutableListOf<Path>()
   @Option(names = ["--recompute-frames"], description = ["Recompute StackMap frames."])
   var recomputeFrames = false
   @Option(names = ["--no-string-encryption"], description = ["Disable string literal encryption."])
@@ -304,7 +306,7 @@ internal open class ObfuscateCommand : Callable<Int> {
       seed = seed, platform = platform, additionalPlatforms = additionalPlatforms.toList(), platformOptions = platformOptions.associate { it.key to it.value }, keep = keep,
       verifyOutput = verifyOutput, dryRun = dryRun,
       stripGenericSignatures = stripGenericSignatures, stripMethodParameters = !keepMethodParameters,
-      classpath = classpath, recomputeFrames = recomputeFrames,
+      classpath = classpath, appliedMappings = appliedMappings, recomputeFrames = recomputeFrames,
       excludeClasses = excludeClasses, excludeResources = excludeResources, excludeRenaming = excludeRenaming,
       targetPackage = targetPackage, flattenPackages = flattenPackages, controlFlow = controlFlow,
       lightweightControlFlow = lightweightControlFlow, callIndirection = callIndirection,
@@ -330,7 +332,7 @@ internal open class ObfuscateCommand : Callable<Int> {
       val sensitive = listOfNotNull(input, out, mapping ?: out.resolveSibling(out.fileName.toString().removeSuffix(".jar") + ".mapping.txt"),
         config.transformationReport, config.virtualizationReport ?: if (config.protectionLevel == ProtectionLevel.STRONG)
           out.resolveSibling(out.fileName.toString().removeSuffix(".jar") + ".virtualization.json") else null,
-        config.integrityPrivateKey, config.integrityPublicKey) + config.classpath + extensionJars
+        config.integrityPrivateKey, config.integrityPublicKey) + config.classpath + config.appliedMappings + extensionJars
       if (Files.isDirectory(summary) || sensitive.any { ArtifactPaths.sameFile(it, summary) }) {
         throw CommandLine.ParameterException(spec.commandLine(), "--report must use a different file from input, output, dependencies, keys and other reports")
       }

@@ -324,7 +324,8 @@ class CliParsingTest {
       "--integrity-private-key", "private.der", "--integrity-public-key", "public.der",
       "--virtualize-method", "example/Calc.*", "--exclude-virtualization", ".*skip.*", "--virtualization-mode", "eligible",
       "--virtualization-analyze-only", "--virtualization-report", "analysis.json", "--virtualization-runtime-group-size", "3",
-      "--classpath", "one.jar", "--classpath", "two", "--recompute-frames", "--no-string-encryption", "--no-number-obfuscation",
+      "--classpath", "one.jar", "--classpath", "two", "--apply-mapping", "api.map", "--apply-mapping", "lib.map",
+      "--recompute-frames", "--no-string-encryption", "--no-number-obfuscation",
       "--no-string-constant-fields", "--no-number-constant-fields", "--no-rename", "--strip-kotlin-metadata",
       "--preserve-kotlin-metadata", "--application-package", "example", "--application-package", "other",
       "--verify-output", "--dry-run", "--strip-generic-signatures", "--keep-method-parameters", "--keep-debug-info")
@@ -364,6 +365,7 @@ class CliParsingTest {
     assertEquals("analysis.json", config.virtualizationReport.toString())
     assertEquals(3, config.virtualizationRuntimeGroupSize)
     assertEquals(listOf("one.jar", "two"), config.classpath.map { it.toString() })
+    assertEquals(listOf("api.map", "lib.map"), config.appliedMappings.map { it.toString() })
     assertTrue(config.recomputeFrames)
     assertFalse(config.stringEncryption)
     assertFalse(config.numberObfuscation)

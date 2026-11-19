@@ -307,22 +307,43 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     }
   }
 
-  /** Parses and merges the applied mapping files into one forward model, accumulating provenance. */
+  /**
+   * Parses and merges the applied mapping files into one forward model. Entries that agree are
+   * merged (a shared upstream mapping may legitimately reach here through more than one applied
+   * file — the diamond-dependency case); an entry that assigns the same original identity a
+   * different name, or a source identifier that carries a different digest, is a conflict and fails.
+   */
   private fun loadAppliedMappings(paths: List<Path>): NameMapping {
     val classes = LinkedHashMap<String, String>()
     val methods = LinkedHashMap<MemberKey, String>()
     val fields = LinkedHashMap<MemberKey, String>()
     val packages = LinkedHashMap<String, String>()
-    val sources = mutableListOf<MappingSource>()
+    val digestByIdentifier = LinkedHashMap<String, String>()
+
+    fun <K> merge(target: MutableMap<K, String>, additions: Map<K, String>, kind: String) {
+      for ((key, value) in additions) {
+        val existing = target.put(key, value)
+        require(existing == null || existing == value) {
+          "apply-mapping: conflicting $kind mapping for '$key' across applied mappings ('$existing' vs '$value')"
+        }
+      }
+    }
+
     for (path in paths) {
       val model = MappingFormat.parse(path.readText())
-      classes.putAll(model.classes)
-      methods.putAll(model.methods)
-      fields.putAll(model.fields)
-      packages.putAll(model.packages)
-      sources += model.sources
+      merge(classes, model.classes, "class")
+      merge(methods, model.methods, "method")
+      merge(fields, model.fields, "field")
+      merge(packages, model.packages, "package")
+      for (source in model.sources) {
+        val existing = digestByIdentifier.put(source.identifier, source.digest)
+        require(existing == null || existing == source.digest) {
+          "apply-mapping: conflicting digests for source '${source.identifier}' across applied mappings " +
+            "('$existing' vs '${source.digest}'): they describe different builds of the same artifact"
+        }
+      }
     }
-    return NameMapping(classes, methods, fields, packages, sources)
+    return NameMapping(classes, methods, fields, packages, digestByIdentifier.map { MappingSource(it.key, it.value) })
   }
 
   // Renders this run's tables (including any applied fixed assignments, so the output is a self-contained

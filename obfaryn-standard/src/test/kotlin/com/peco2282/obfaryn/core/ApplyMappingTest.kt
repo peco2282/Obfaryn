@@ -11,6 +11,7 @@ import java.nio.file.Path
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 import kotlin.io.path.readText
+import kotlin.io.path.writeText
 
 /** Re-applying a separately-obfuscated API's mapping to a later consumer build (apply-mapping). */
 class ApplyMappingTest {
@@ -43,6 +44,21 @@ class ApplyMappingTest {
       visitMethodInsn(INVOKESPECIAL, "api/Greeter", "<init>", "()V", false)
       visitMethodInsn(INVOKEVIRTUAL, "api/Greeter", "greet", "()Ljava/lang/String;", false)
       visitInsn(ARETURN); visitMaxs(2, 0); visitEnd()
+    }
+    cw.visitEnd()
+    return cw.toByteArray()
+  }
+
+  /** app/Solo: a self-contained class, used where the input must not reference anything external. */
+  private fun soloBytes(): ByteArray {
+    val cw = ClassWriter(0)
+    cw.visit(V1_8, ACC_PUBLIC, "app/Solo", null, "java/lang/Object", null)
+    cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null).apply {
+      visitCode(); visitVarInsn(ALOAD, 0); visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+      visitInsn(RETURN); visitMaxs(1, 1); visitEnd()
+    }
+    cw.visitMethod(ACC_PUBLIC or ACC_STATIC, "value", "()Ljava/lang/String;", null, null).apply {
+      visitCode(); visitLdcInsn("x"); visitInsn(ARETURN); visitMaxs(1, 0); visitEnd()
     }
     cw.visitEnd()
     return cw.toByteArray()
@@ -123,6 +139,30 @@ class ApplyMappingTest {
     }
     assertTrue(generateSequence<Throwable>(error) { it.cause }.any { it.message?.contains("stale") == true }) {
       "a mapping applied against a different build of the artifact is rejected: ${error.message}"
+    }
+  }
+
+  @Test fun conflictingAppliedMappingsAreRejectedButIdenticalOnesMerge(@TempDir dir: Path) {
+    val soloJar = jar(dir.resolve("solo.jar"), mapOf("app/Solo.class" to soloBytes()))
+    // No `# source` lines, so digest verification is a no-op and only the body is in play.
+    val m1 = dir.resolve("m1.txt").apply { writeText("api/Greeter -> a/b\n") }
+    val conflicting = dir.resolve("m2.txt").apply { writeText("api/Greeter -> a/c\n") }
+    val identical = dir.resolve("m3.txt").apply { writeText("api/Greeter -> a/b\n") }
+
+    val error = assertThrows(Exception::class.java) {
+      Obfuscator(minimal("app").copy(appliedMappings = listOf(m1, conflicting)))
+        .obfuscate(soloJar, dir.resolve("c-out.jar"), dir.resolve("c.map"))
+    }
+    assertTrue(generateSequence<Throwable>(error) { it.cause }.any { it.message?.contains("conflicting") == true }) {
+      "two applied mappings that disagree on a name are rejected: ${error.message}"
+    }
+
+    // The same assignment arriving through two files (diamond dependency) is merged, not rejected.
+    val okOut = dir.resolve("ok.map")
+    Obfuscator(minimal("app").copy(appliedMappings = listOf(m1, identical)))
+      .obfuscate(jar(dir.resolve("solo2.jar"), mapOf("app/Solo.class" to soloBytes())), dir.resolve("ok-out.jar"), okOut)
+    assertTrue(okOut.readText().lineSequence().any { it == "api/Greeter -> a/b" }) {
+      "identical applied entries merge into one:\n${okOut.readText()}"
     }
   }
 
