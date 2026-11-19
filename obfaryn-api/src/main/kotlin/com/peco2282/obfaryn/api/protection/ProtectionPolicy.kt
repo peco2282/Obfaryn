@@ -80,6 +80,25 @@ data class TransformationBudget @JvmOverloads constructor(
  * the configured list override earlier ones on a per-property basis: a later rule that leaves
  * [controlFlow] at [ControlFlowMode.INHERIT] does not clear an earlier rule's explicit choice.
  *
+ * Put broad defaults first and narrow exceptions last, since the later rule wins where they
+ * overlap. For example, dispatch-obfuscate control flow across a package, but spare one hot method
+ * and give it a latency budget:
+ * ```kotlin
+ * val profile = listOf(
+ *   ProtectionRule("com/example/.*", controlFlow = ControlFlowMode.DISPATCH), // broad default
+ *   ProtectionRule(                                                            // specific: wins on overlap
+ *     methodPattern = "com/example/Engine\\.tick\\(\\)V",
+ *     features = mapOf(BodyFeature.NUMBERS to false),                          // leave numeric literals alone
+ *     controlFlow = ControlFlowMode.NONE,                                      // and no flow flattening
+ *     budget = TransformationBudget.latencySensitive(),
+ *   ),
+ * )
+ * ```
+ * Both rules match `Engine.tick()V`; because the specific rule is later it wins per property, so
+ * `tick` ends up with numbers off and control flow NONE while every other `com/example` method
+ * keeps DISPATCH. A rule only overrides the properties it sets — the broad rule's DISPATCH stands
+ * wherever the specific rule leaves [controlFlow] at [ControlFlowMode.INHERIT].
+ *
  * @property methodPattern Regex matched against the original method identity.
  * @property features Per-[BodyFeature] enable/disable overrides for methods this rule matches.
  * @property controlFlow Explicit control-flow selection for methods this rule matches; see [ControlFlowMode].
