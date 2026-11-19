@@ -1,3 +1,31 @@
+/*
+ * Platform-kit · keep/exclude actions, and the typical provider flow.
+ *
+ * These wrap `PlatformConfiguration.keep*` / `excludeMethodFromVirtualization` so a provider can pass
+ * a real `Class`/`Method`/`Field`/`Constructor` instead of hand-written names (classpath types only).
+ *
+ * A provider's `configure` normally: (1) detects a framework's entrypoints with the detection helpers
+ * in this kit, (2) keeps their names so the framework can still find them, then (3) protects them and
+ * everything they call from body transformation such as virtualization. Putting the pieces together:
+ *
+ * ```kotlin
+ * // inside a PlatformExtension's configure(context, config, options):
+ * val handlers: Set<MemberKey> = context.classes.values.asSequence()
+ *   .filter { context.isSubtypeOf(it.name, "org/bukkit/event/Listener") } // Subtyping.kt
+ *   .flatMap { owner ->
+ *     owner.methods.asSequence()
+ *       .filter { it.isAnnotatedWith("org.bukkit.event.EventHandler") }     // Annotations.kt
+ *       .map { MemberKey.of(owner.name, it.name, it.desc) }                 // Descriptors.kt (MemberKey.of)
+ *   }.toSet()
+ *
+ * handlers.forEach { config.keepMethod(it.owner, it.name, it.desc) }        // keep the callbacks
+ * context.methodCallClosure(handlers).forEach {                            // CallGraph.kt: callbacks + callees
+ *   config.excludeMethodFromVirtualization(it.owner, it.name, it.desc)      // keep hot behavior interpreted-free
+ * }
+ * ```
+ *
+ * The API's `PlatformExtension` / `PlatformConfiguration` define the actual `configure` hooks.
+ */
 package com.peco2282.obfaryn.platformkit
 
 import com.peco2282.obfaryn.api.PlatformConfiguration

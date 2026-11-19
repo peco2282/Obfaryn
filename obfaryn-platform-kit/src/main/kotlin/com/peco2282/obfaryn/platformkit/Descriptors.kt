@@ -1,3 +1,13 @@
+/*
+ * Platform-kit · names and descriptors.
+ *
+ * The one place to turn a reflected `Class`/`Method`/`Field`/`Constructor`, or a class name held as
+ * a string, into the JVM internal name, descriptor or `MemberKey` that the other kit helpers and the
+ * keep API expect. Prefer the reflection-based forms when the type is on the classpath; use the
+ * string helpers (`toInternalName`, `objectDescriptorOf`) for a framework the provider deliberately
+ * does not depend on. Routing every conversion through here avoids hand-written `replace('.', '/')`
+ * or `"L" + name + ";"` passing one name form where another is expected.
+ */
 package com.peco2282.obfaryn.platformkit
 
 import com.peco2282.obfaryn.api.transformer.MemberKey

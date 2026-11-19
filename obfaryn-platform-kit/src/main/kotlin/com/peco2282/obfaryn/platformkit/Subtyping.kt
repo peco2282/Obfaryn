@@ -1,3 +1,12 @@
+/*
+ * Platform-kit · supertype tests.
+ *
+ * `isSubtypeOf` walks the run's class map to tell whether a type is or extends/implements another
+ * (e.g. a Bukkit `Listener`, a Spring base type). Types absent from the run end that branch of the
+ * walk, so results may under-report across the application boundary. A provider uses it to recognise
+ * the classes a framework will load or reflect over, then keeps them. See
+ * `PlatformConfigurationExtensions.kt` for the end-to-end provider flow.
+ */
 package com.peco2282.obfaryn.platformkit
 
 import com.peco2282.obfaryn.api.ObfuscationContext

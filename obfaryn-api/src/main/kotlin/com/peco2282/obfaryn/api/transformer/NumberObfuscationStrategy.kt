@@ -34,6 +34,31 @@ data class NumberObfuscationSite(
  * must be available in the output application; implementations are not bundled.
  * Floating-point defaults reuse integer expressions and preserve raw bits, including NaNs
  * and signed zero. Override them only when a dedicated floating-point expression is needed.
+ *
+ * ### Writing one
+ *
+ * Each `generate*` returns a fresh [InsnList] that computes the original value and leaves exactly
+ * one value of that type on the stack, or `null` to keep the literal. Only [generateInt] and
+ * [generateLong] are required; the float/double defaults route through them via raw bits. A minimal
+ * strategy that hides an int behind one reversible XOR:
+ *
+ * ```kotlin
+ * object XorMaskStrategy : NumberObfuscationStrategy {
+ *   override fun generateInt(value: Int, random: Random): InsnList {
+ *     val mask = random.nextInt() // use the host's random, not Math.random(), so seeded runs repeat
+ *     return InsnList().apply {
+ *       add(LdcInsnNode(value xor mask)) // push the masked value
+ *       add(LdcInsnNode(mask))           // push the mask
+ *       add(InsnNode(Opcodes.IXOR))      // (value ^ mask) ^ mask == value; one int remains
+ *     }
+ *   }
+ *   override fun generateLong(value: Long, random: Random): InsnList? = null // leave longs unchanged
+ *   // generateFloat/generateDouble inherited: they reuse the two above through Float/Double raw bits.
+ * }
+ * ```
+ *
+ * Returning an empty list is rejected — return `null` to decline a constant. To combine several of
+ * these by weight, wrap them in [WeightedNumberObfuscationStrategy].
  */
 interface NumberObfuscationStrategy {
   /**

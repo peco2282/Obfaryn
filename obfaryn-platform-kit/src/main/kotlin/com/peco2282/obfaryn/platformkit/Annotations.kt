@@ -1,3 +1,12 @@
+/*
+ * Platform-kit · annotation detection.
+ *
+ * `isAnnotatedWith` reports whether a class/method/field carries a given annotation — by dotted or
+ * internal name (string form, for a framework the provider deliberately does not depend on) or by a
+ * `Class`/reified type (only when that annotation is on the classpath). A provider calls it while
+ * detecting a framework's entrypoints (e.g. Bukkit `@EventHandler` methods) before keeping or
+ * protecting them. See `PlatformConfigurationExtensions.kt` for the end-to-end provider flow.
+ */
 package com.peco2282.obfaryn.platformkit
 
 import org.objectweb.asm.tree.AnnotationNode

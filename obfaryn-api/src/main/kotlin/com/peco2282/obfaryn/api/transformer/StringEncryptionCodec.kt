@@ -17,6 +17,37 @@ data class StringEncryptionResult(val payload: String, val key: Int)
  * The invariant is `decrypt(encrypt(value, key).payload, encrypt(value, key).key) == value`
  * for one encryption result, including empty strings and Unicode UTF-16 code units.
  * Both payload and key appear in output bytecode; this API does not guarantee cryptographic secrecy.
+ *
+ * ### Writing one
+ *
+ * [encrypt] runs at build time and is ordinary Kotlin; [generateDecryptor] emits the bytecode that
+ * reverses it at run time, so the two must agree exactly. The decoder is easiest to write by first
+ * stating the Java it has to emit, then producing that with ASM:
+ *
+ * ```kotlin
+ * object XorCodec : StringEncryptionCodec {
+ *   override fun encrypt(value: String, key: Int): StringEncryptionResult {
+ *     val mask = key and 0xFFFF
+ *     val scrambled = buildString { value.forEach { append((it.code xor mask).toChar()) } }
+ *     return StringEncryptionResult(scrambled, key) // key unchanged here; return a different one if you derive it
+ *   }
+ *
+ *   // Fill `method`, whose descriptor is (Ljava/lang/String;I)Ljava/lang/String;, with bytecode
+ *   // equivalent to this Java (XOR is its own inverse, so the same transform decodes):
+ *   //   static String decode(String payload, int key) {
+ *   //     char[] out = payload.toCharArray();
+ *   //     int mask = key & 0xFFFF;
+ *   //     for (int i = 0; i < out.length; i++) out[i] = (char) (out[i] ^ mask);
+ *   //     return new String(out);
+ *   //   }
+ *   override fun generateDecryptor(owner: String, method: MethodNode) {
+ *     // Emit the loop above via method.instructions / visit* calls, then set maxStack/maxLocals.
+ *   }
+ * }
+ * ```
+ *
+ * A real codec typically splits [StringEncryptionResult.payload] itself (see its doc) and uses a
+ * run-dependent key; the shape above is what each method must satisfy, not a required algorithm.
  */
 interface StringEncryptionCodec {
   /**

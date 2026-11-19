@@ -1,3 +1,12 @@
+/*
+ * Platform-kit · reachability.
+ *
+ * `methodCallClosure` expands a set of seed methods to everything they transitively call within a
+ * scope. A provider that has identified entry or hot methods (by name, annotation or supertype) uses
+ * it to carry that classification to their helpers — e.g. so the callees of an event handler or tick
+ * callback are excluded from virtualization alongside it. See `PlatformConfigurationExtensions.kt`
+ * for the end-to-end provider flow.
+ */
 package com.peco2282.obfaryn.platformkit
 
 import com.peco2282.obfaryn.api.PlatformContext
