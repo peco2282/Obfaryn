@@ -1047,6 +1047,281 @@
       "translation": "このアノテーションは厳格な要求レベルを適用するため、オプトインせずに対象APIを使用するとコンパイルエラーになります。",
       "status": "reviewed"
     },
+    "a0f2c5e9d35e7b916b2ef52af7fa5028afb9545da9d34b89a7500d8723df53cc": {
+      "source": "Interprets Obfaryn policy annotations directly from ASM nodes without loading annotation classes. Both runtime-visible and runtime-invisible annotations are recognized by descriptor. Queries only inspect their supplied nodes; ZXQOBFARYN0QXZ must be called separately to reject conflicts.",
+      "translation": "アノテーションクラスを読み込まず、ASMノードからObfarynのポリシーアノテーションを直接解釈します。実行時可視と実行時不可視の両方のアノテーションをディスクリプターで認識します。各クエリは渡されたノードだけを検査します。競合を拒否するには、ZXQOBFARYN0QXZを別途呼び出す必要があります。",
+      "status": "reviewed"
+    },
+    "6847b705bddf716295747d860eac6aec0b24dd71a9b131ea6bb7dc2abbba33a3": {
+      "source": "Whether annotation policy suppresses ordinary body transformations for ZXQOBFARYN0QXZ.",
+      "translation": "アノテーションポリシーによって、ZXQOBFARYN0QXZに対する通常のメソッド本体変換が抑止されるかどうかを返します。",
+      "status": "reviewed"
+    },
+    "adf336c2cc8b3366d7f1014f61524d055aa3d327a073cde8cc7bd9f723aaef79": {
+      "source": "Rejects incompatible annotations on each class, method, or field independently.",
+      "translation": "各クラス、メソッド、フィールドについて、互換性のないアノテーションを個別に拒否します。",
+      "status": "reviewed"
+    },
+    "8327ec4dc89b0fb9599b3ac98a787ea4b1b8e0b96e23543b10d51f0ffe54f8b6": {
+      "source": "Class or method ZXQOBFARYN0QXZ, method ZXQOBFARYN1QXZ, and method ZXQOBFARYN2QXZ take precedence. Otherwise a method-level ZXQOBFARYN3QXZ overrides class-level ZXQOBFARYN4QXZ or ZXQOBFARYN5QXZ. ZXQOBFARYN6QXZ does not suppress body changes. This query does not check whether virtualization itself is supported for the method.",
+      "translation": "クラスまたはメソッドのZXQOBFARYN0QXZ、メソッドのZXQOBFARYN1QXZ、メソッドのZXQOBFARYN2QXZが優先されます。それ以外では、メソッドレベルのZXQOBFARYN3QXZがクラスレベルのZXQOBFARYN4QXZまたはZXQOBFARYN5QXZを上書きします。ZXQOBFARYN6QXZはメソッド本体の変更を抑止しません。このクエリは、そのメソッド自体が仮想化をサポートするかどうかを検査しません。",
+      "status": "reviewed"
+    },
+    "b35cd2f04da2076ea6ee40637df8f43e15f7f083279c58485e9f7446224eb5ee": {
+      "source": "ZXQOBFARYN0QXZ cannot coexist with ZXQOBFARYN1QXZ; ZXQOBFARYN2QXZ cannot coexist with ZXQOBFARYN3QXZ, ZXQOBFARYN4QXZ, or ZXQOBFARYN5QXZ on the same node. Owner/member combinations are not conflicts here and are resolved by queries such as ZXQOBFARYN6QXZ.",
+      "translation": "同じノード上でZXQOBFARYN0QXZとZXQOBFARYN1QXZを併用することはできません。また、ZXQOBFARYN2QXZをZXQOBFARYN3QXZ、ZXQOBFARYN4QXZ、ZXQOBFARYN5QXZのいずれかと併用することもできません。所有クラスとメンバーの組み合わせはここでは競合とせず、ZXQOBFARYN6QXZなどのクエリで解決します。",
+      "status": "reviewed"
+    },
+    "7ddfece4ec2d64373b9f833d61acafa0bbc54a3fcbb928b62da398386d026435": {
+      "source": "If a conflicting combination is found.",
+      "translation": "競合する組み合わせが見つかった場合。",
+      "status": "reviewed"
+    },
+    "4eedfb7fa152c0058f03fbaec824d05312a566a255f3a228bd29c4bbf5259ab4": {
+      "source": "the renamed union context.",
+      "translation": "名前変更後の統合コンテキストです。",
+      "status": "reviewed"
+    },
+    "3716e1354029616869e741a0f46fcf8472a3863e90fcb4c5d69b07615bf8c9cf": {
+      "source": "original internal class name to artifact id, from ZXQOBFARYN0QXZ.",
+      "translation": "ZXQOBFARYN0QXZから取得した、元のクラス内部名からアーティファクトIDへの対応です。",
+      "status": "reviewed"
+    },
+    "81c0674567112c5634c10689a242f9d4c1d8f069bb43e2c0ea117d8abd2255a0": {
+      "source": "the renamer's global original-to-new class mapping.",
+      "translation": "名前変更処理が持つ、元のクラス名から新しいクラス名へのグローバルマッピングです。",
+      "status": "reviewed"
+    },
+    "816b21019b36066389e5a0635d3c7a05ec3c2493206ec0a2ecc6346e750016dc": {
+      "source": "the renamer's global original-to-new package mapping.",
+      "translation": "名前変更処理が持つ、元のパッケージ名から新しいパッケージ名へのグローバルマッピングです。",
+      "status": "reviewed"
+    },
+    "078eaec805da0e461a1f19b61c36335c1044a6b43c11ec7c487891dc3dda7629": {
+      "source": "The renamed classes belonging to ZXQOBFARYN0QXZ, keyed by their new internal name.",
+      "translation": "ZXQOBFARYN0QXZに属する名前変更済みクラスを、新しい内部名をキーとして保持します。",
+      "status": "reviewed"
+    },
+    "4d822584bd6d74e9d816f670a4046a89a96bce17b5af63ab3d2500c35a9220c1": {
+      "source": "Splits a renamed ZXQOBFARYN0QXZ back into one output JAR per artifact.",
+      "translation": "名前変更済みのZXQOBFARYN0QXZを、アーティファクトごとに1つの出力JARへ再分割します。",
+      "status": "reviewed"
+    },
+    "1ed1a0db2655f70c807ada5779ec58fde559ea5b618fa7a95b99c23c960cb556": {
+      "source": "After the whole-program rename, every class in ZXQOBFARYN0QXZ carries its new name while ZXQOBFARYN1QXZ still maps it to its pre-rename name. Combined with ZXQOBFARYN2QXZ, that decides which artifact each renamed class belongs to. Each artifact's own resources stay local; only its ZXQOBFARYN3QXZ descriptor is rewritten here, applying the global class and package mappings so its ZXQOBFARYN4QXZ/ZXQOBFARYN5QXZ follow classes that moved.",
+      "translation": "プログラム全体の名前変更後、ZXQOBFARYN0QXZ内の各クラスは新しい名前を持ちますが、ZXQOBFARYN1QXZは引き続きそのクラスを名前変更前の名前へ対応付けます。これをZXQOBFARYN2QXZと組み合わせて、各名前変更済みクラスの所属アーティファクトを決定します。各アーティファクト固有のリソースはそのままローカルに保持されます。ここではZXQOBFARYN3QXZディスクリプターだけを書き換え、グローバルなクラスおよびパッケージのマッピングを適用することで、移動したクラスにZXQOBFARYN4QXZとZXQOBFARYN5QXZを追従させます。",
+      "status": "reviewed"
+    },
+    "2134ef3838e01fbb03affd1d68f3097b5fb13daa6c84a3ce85eb95bd51c86add": {
+      "source": "Writes ZXQOBFARYN0QXZ's output JAR: its renamed classes, its ZXQOBFARYN1QXZ, and its ZXQOBFARYN2QXZ descriptor remapped with the global mappings.",
+      "translation": "ZXQOBFARYN0QXZの出力JARを書き込みます。内容は、その名前変更済みクラス、ZXQOBFARYN1QXZ、およびグローバルマッピングで再マッピングしたZXQOBFARYN2QXZディスクリプターです。",
+      "status": "reviewed"
+    },
+    "37e6952e5f53c7464ab90792665c5b966935578dcf5a03605882463cc00acd88": {
+      "source": "the artifact's original ZXQOBFARYN0QXZ node, or ZXQOBFARYN1QXZ when it has none.",
+      "translation": "アーティファクトの元のZXQOBFARYN0QXZノードです。存在しない場合はZXQOBFARYN1QXZです。",
+      "status": "reviewed"
+    },
+    "f4d8b66116e6ea7d09fea29afdeccfa63c9f42277818cf20c188d751aee57bd7": {
+      "source": "recompute StackMap frames, using ZXQOBFARYN0QXZ to resolve external supertypes; pass ZXQOBFARYN1QXZ when a body pass that needed it ran on this artifact.",
+      "translation": "ZXQOBFARYN0QXZを使用して外部のスーパータイプを解決し、StackMapフレームを再計算します。この処理を必要とするメソッド本体パスを対象アーティファクトで実行した場合は、ZXQOBFARYN1QXZを渡します。",
+      "status": "reviewed"
+    },
+    "45af469d6df7440ccbc76949a5a3de27a60092e1861898d5d451299e17e3e5f2": {
+      "source": "Set-wise destination validation for an assembly.",
+      "translation": "アセンブリの出力先一式を検証します。",
+      "status": "reviewed"
+    },
+    "c0e6fd9f9f445d0125c5c1ef6dbe4dbde3eafe9a2caa1018e872519ca1a468fd": {
+      "source": "A single-artifact run only has to keep its one output off its inputs, classpath and keys. An assembly writes several JARs at once, so every output must additionally differ from every other output and from every artifact's input. This reuses ZXQOBFARYN0QXZ, so hard links, symbolic links, ZXQOBFARYN1QXZ after a link and not-yet-existing destinations are all compared by resolved identity. These are collision checks, not filesystem locking or a multi-artifact transaction.",
+      "translation": "単一アーティファクトの実行では、1つの出力が入力、クラスパス、鍵と重ならないことだけを確認すれば十分です。アセンブリは複数のJARを同時に書き込むため、各出力は他のすべての出力および各アーティファクトの入力とも異なる必要があります。この処理はZXQOBFARYN0QXZを再利用するため、ハードリンク、シンボリックリンク、リンク後のZXQOBFARYN1QXZ、まだ存在しない出力先も、解決済みの同一性に基づいて比較されます。これは衝突チェックであり、ファイルシステムのロックや複数アーティファクトのトランザクションではありません。",
+      "status": "reviewed"
+    },
+    "b016d3510cf70e009e49607e79233d6cfd5af7d7ab2f178ca40e2482216e2934": {
+      "source": "Fails unless every path in ZXQOBFARYN0QXZ is distinct from the others and from each protected path.",
+      "translation": "ZXQOBFARYN0QXZ内のすべてのパスが、互いに異なり、かつ各保護対象パスとも異ならない限り失敗します。",
+      "status": "reviewed"
+    },
+    "fca8413be7fb0cc07cbea40eb4f2c5ed7b6ea72f71841b344094db0cbcb44953": {
+      "source": "the artifacts' destination JARs, labeled for diagnostics (e.g. the artifact id).",
+      "translation": "診断用のラベル（アーティファクトIDなど）が付いた、各アーティファクトの出力先JARです。",
+      "status": "reviewed"
+    },
+    "6fb3cf52afa9e5341d3bf23741da5c85c304937c85c0cebc0d3bd27ca2e890d9": {
+      "source": "inputs, classpath entries and integrity keys that no output may overwrite.",
+      "translation": "どの出力からも上書きしてはならない入力、クラスパスエントリ、整合性鍵です。",
+      "status": "reviewed"
+    },
+    "a29a2319a8774e0c27044e5e63f585e901c46cd5a67bb24469a9497f0cec9fd7": {
+      "source": "on the first collision found, or if an output is a directory.",
+      "translation": "最初の衝突が見つかった場合、または出力先がディレクトリの場合。",
+      "status": "reviewed"
+    },
+    "a4f1a15168e474b8848a76b3a8122535ed6dc7db0f42cfcb694db711eb6b89e8": {
+      "source": "Builds the union of ZXQOBFARYN0QXZ (artifact id to that artifact's post-body context).",
+      "translation": "ZXQOBFARYN0QXZ（アーティファクトIDから、そのアーティファクトのメソッド本体処理後コンテキストへの対応）を統合します。",
+      "status": "reviewed"
+    },
+    "7636f9d7471d0a8f9b04e739f12e4a6b8f499706c6f5b8711d9cd8bf5d2310a5": {
+      "source": "if two artifacts define a class with the same internal name. Body passes can generate helper classes, so this also rejects cross-artifact helper-name collisions; give colliding artifacts disjoint helper namespaces to avoid it.",
+      "translation": "2つのアーティファクトが同じ内部名のクラスを定義している場合。メソッド本体パスはヘルパークラスを生成できるため、アーティファクト間でのヘルパー名の衝突も拒否されます。衝突を避けるには、該当するアーティファクトに互いに重ならないヘルパー名前空間を割り当ててください。",
+      "status": "reviewed"
+    },
+    "d69898d5b07484ebcf0d7b1e9a1e0ed4518455b3661f68db4f9c563fb4b6e682": {
+      "source": "The single naming universe a cross-artifact rename operates on, plus the ledger that routes each renamed class back to the artifact it came from.",
+      "translation": "アーティファクト間の名前変更が対象とする単一の名前空間と、名前変更済みの各クラスを元のアーティファクトへ戻すための台帳です。",
+      "status": "reviewed"
+    },
+    "9500ff7c25a7e2a51fe9a796c885eb5394ad79d2a98500d688f40d422d09bf95": {
+      "source": "ZXQOBFARYN0QXZ presents every artifact's classes as one ZXQOBFARYN1QXZ sharing the original <span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span> instances (never copies), so the renamer sees one program and rewrites references across artifact boundaries. It carries no resources: resource paths collide between artifacts and are kept local to each one. ZXQOBFARYN2QXZ maps every original internal class name to the id of the artifact that defined it, and is the sole basis for splitting the renamed result back out.",
+      "translation": "ZXQOBFARYN0QXZは、すべてのアーティファクトのクラスを1つのZXQOBFARYN1QXZとして提示します。元の<span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span>インスタンスを共有し、コピーは一切行いません。これにより、名前変更処理は全体を1つのプログラムとして認識し、アーティファクト境界をまたぐ参照を書き換えます。リソースは含みません。リソースパスはアーティファクト間で衝突するため、それぞれのアーティファクト内に保持されます。ZXQOBFARYN2QXZは、元の各クラス内部名を、そのクラスを定義したアーティファクトのIDへ対応付けます。これは、名前変更後の結果を再分割するための唯一の根拠です。",
+      "status": "reviewed"
+    },
+    "fab44fab34eefa79da8b26c9596f6ea93854b7f1900ffbb0d3986e0e9531f3d0": {
+      "source": "ZXQOBFARYN0QXZ is excluded from the union: every artifact's module descriptor shares the internal name ZXQOBFARYN1QXZ, so it cannot live in one naming universe. It stays with each artifact and is remapped locally when the result is written.",
+      "translation": "ZXQOBFARYN0QXZは統合対象から除外されます。各アーティファクトのモジュールディスクリプターは同じ内部名ZXQOBFARYN1QXZを持つため、単一の名前空間には共存できません。モジュールディスクリプターは各アーティファクト内に保持され、結果の書き込み時に個別に再マッピングされます。",
+      "status": "reviewed"
+    },
+    "6e2ca2132e52362988e712db166b65ed27cef5865deb5234b7fe7e1cd15cc89b": {
+      "source": "Builds the union of ZXQOBFARYN0QXZ.",
+      "translation": "ZXQOBFARYN0QXZを統合します。",
+      "status": "reviewed"
+    },
+    "10605b62358969141c007fe40e05b1be51070beabc258f2183b7e6d23c79b051": {
+      "source": "Classes keep their original nodes. A class name defined by more than one artifact is a collision the caller must have rejected already; here the first occurrence in iteration order wins, since the view is only an inspection surface. Resource paths are deduplicated the same way (artifacts routinely share paths such as ZXQOBFARYN0QXZ).",
+      "translation": "クラスは元のノードを保持します。複数のアーティファクトで定義された同じクラス名は、呼び出し側が事前に拒否しておくべき衝突です。このビューは検査専用であるため、ここでは反復順で最初の要素を採用します。リソースパスも同じ方法で重複を除去します（アーティファクトはZXQOBFARYN0QXZなどのパスを通常共有します）。",
+      "status": "reviewed"
+    },
+    "fc71fdbecfecf79e532610054198aa7e21b5b9c8670e8abe31b2531cdb9adafe": {
+      "source": "A flat, read-only ZXQOBFARYN0QXZ union over every artifact in an assembly.",
+      "translation": "アセンブリ内の全アーティファクトを統合した、フラットで読み取り専用のZXQOBFARYN0QXZです。",
+      "status": "reviewed"
+    },
+    "177b68517d0206052d60dc72ad1a31bc519a53c1cc88944b9b30b6832c93e08c": {
+      "source": "It is supplied to each artifact's platform so cross-artifact references (entrypoints, call closures) resolve against the whole program during detection and configuration. Class nodes and resource entries are shared with the artifacts' own contexts, not copied, so this view is a reference window and must not be mutated. Its own ZXQOBFARYN0QXZ is ZXQOBFARYN1QXZ.",
+      "translation": "検出および設定時に、アーティファクト間の参照（エントリーポイントや呼び出しクロージャー）をプログラム全体に対して解決できるよう、各アーティファクトのプラットフォームへ渡されます。クラスノードとリソースエントリはコピーされず、各アーティファクト自身のコンテキストと共有されます。そのため、このビューは参照用の窓口であり、変更してはいけません。このビュー自身のZXQOBFARYN0QXZはZXQOBFARYN1QXZです。",
+      "status": "reviewed"
+    },
+    "1f7d9c16f911c95760a0237bef6bc30e6eda6bdfa9d1d815bf6fdb76ab7c0fd3": {
+      "source": "Mutable archive state shared by platform detection and transformation passes.",
+      "translation": "プラットフォーム検出と変換パスで共有する、変更可能なアーカイブ状態です。",
+      "status": "reviewed"
+    },
+    "158244eb59897db3616493e7bb2f18501888d03adcfe43ee95278860627ad523": {
+      "source": "ZXQOBFARYN0QXZ and ZXQOBFARYN1QXZ expose unmodifiable map views; contained ASM nodes remain mutable. Constructor maps are shallow-copied into insertion-ordered maps: later changes to the supplied maps are not reflected, but nodes and resource entries are shared. The exposed views reflect subsequent additions and removals through this context.",
+      "translation": "ZXQOBFARYN0QXZとZXQOBFARYN1QXZは変更不可能なMapビューを公開しますが、格納されたASMノードは変更可能なままです。コンストラクターへ渡したMapは、挿入順を保持するMapへ浅くコピーされます。渡したMapに後から加えた変更は反映されませんが、ノードとリソースエントリは共有されます。公開されたビューには、このコンテキストを通じて後から行った追加と削除が反映されます。",
+      "status": "reviewed"
+    },
+    "c9545ceb39b93f876fd4cdd0604ea775180fc1fe008cc5961ecb58ddd3d182a9": {
+      "source": "Classes are keyed by JVM internal name and resources by archive path. Put operations replace entries with the same key. Changing a node's name directly does not reindex it: remove the old entry and put the renamed node. This mutable context provides no synchronization.",
+      "translation": "クラスはJVM内部名、リソースはアーカイブ内のパスをキーとします。put操作は同じキーのエントリを置き換えます。ノード名を直接変更してもキーは更新されません。古いエントリを削除してから、名前変更済みノードを追加してください。この変更可能なコンテキストは同期機構を提供しません。",
+      "status": "reviewed"
+    },
+    "a11db7e0289c747efc63459b6a5b19fac7ec2f474ddad3a13c8c134a256a313d": {
+      "source": "Evaluates the current annotations on each query; it is not a cached eligibility result.",
+      "translation": "クエリのたびに現在のアノテーションを評価します。適格性の判定結果をキャッシュするものではありません。",
+      "status": "reviewed"
+    },
+    "cfbb40ad5f64d7bbdd0022c1c88660ff7b2500c74b6d16df25e503e7585d0a30": {
+      "source": "The cross-artifact union supplied during a multi-artifact assembly, or ZXQOBFARYN0QXZ for an ordinary single-artifact run. Platforms consult it through ZXQOBFARYN1QXZ to resolve references that may live in a sibling artifact.",
+      "translation": "複数アーティファクトのアセンブリ中に渡されるアーティファクト間の統合ビューです。通常の単一アーティファクト実行ではZXQOBFARYN0QXZです。プラットフォームはZXQOBFARYN1QXZを通じてこのビューを参照し、兄弟アーティファクトに存在する可能性がある参照を解決します。",
+      "status": "reviewed"
+    },
+    "819e9c7d1448b6b621e43c530bf0dc60f947cd838ebb4691720e76558a6e124c": {
+      "source": "File identity for collision checks, including future paths. This does not lock the filesystem.",
+      "translation": "まだ存在しないパスも含め、衝突チェックに使用するファイルの同一性です。ファイルシステムをロックするものではありません。",
+      "status": "reviewed"
+    },
+    "92717f28af03dccf9157f963b67d61a231acbd484d7a29332aa655ad5f337aea": {
+      "source": "Resolves hierarchy from transformed input, dependency archives/directories and JDK class resources.",
+      "translation": "変換済み入力、依存アーカイブまたはディレクトリ、JDKクラスリソースからクラス階層を解決します。",
+      "status": "reviewed"
+    },
+    "8a134bdbc66ff895543ddad233db156ff6617414af1c9565e63ecf762f603d6b": {
+      "source": "Loads a JAR into ASM class nodes and untouched resource bytes.",
+      "translation": "JARをASMクラスノードと未変更のリソースバイト列として読み込みます。",
+      "status": "reviewed"
+    },
+    "d42f489ab0de12e87c7127bccd3a4c9a188c392ad6eb67bbb4721b33999d9da8": {
+      "source": "Multi-release class entries remain resources at their original paths; Obfuscator checks whether those bytes can safely be preserved when application classes are renamed.",
+      "translation": "マルチリリースのクラスエントリは、元のパスにあるリソースとして保持されます。アプリケーションクラスの名前を変更する際に、そのバイト列を安全に保持できるかどうかはObfuscatorが検査します。",
+      "status": "reviewed"
+    },
+    "07630321cf9d02e081f54cb6941dff39730a2afdb9091d02ddc77de5d2766d8c": {
+      "source": "Reads non-directory entries in path order, expanding ASM frames for base class entries. Class keys come from the bytecode's internal name, not the ZIP entry path; two entries defining the same class are rejected. Resource bytes and paths, including manifests and signatures, are retained without interpretation. The archive is closed before returning.",
+      "translation": "ディレクトリ以外のエントリをパス順に読み込み、ベースクラスのエントリではASMフレームを展開します。クラスのキーにはZIPエントリのパスではなく、バイトコード内の内部名を使用します。同じクラスを定義する2つのエントリは拒否されます。マニフェストや署名を含むリソースのバイト列とパスは、解釈せずに保持されます。返却前にアーカイブを閉じます。",
+      "status": "reviewed"
+    },
+    "1bfc3daab2f2076e98bebc0dc3714e310da41cbfae3c99e62a0d880ca692f6e6": {
+      "source": "If duplicate class definitions are encountered.",
+      "translation": "重複するクラス定義が見つかった場合。",
+      "status": "reviewed"
+    },
+    "aeaf544de90854ed44239db5b963e700b7cd509205b5c34f48ae7a1a67159df4": {
+      "source": "Writes transformed classes and resources as a JAR.",
+      "translation": "変換済みのクラスとリソースをJARとして書き込みます。",
+      "status": "reviewed"
+    },
+    "63a8ab65d5c221153340ebe550ff916ad94ccbd12a75233ed95a792e050af437": {
+      "source": "Parent directory entries are emitted before classes and resources so class-loader package resource discovery keeps working. Reproducible mode sorts each group and sets entry timestamps to zero. This does not make randomly transformed class bytes deterministic. Obsolete input JAR signature resources are omitted because transforming bytecode invalidates those signatures.",
+      "translation": "クラスローダーによるパッケージリソースの検出が機能し続けるよう、クラスとリソースより先に親ディレクトリのエントリを出力します。再現可能モードでは各グループを並べ替え、エントリのタイムスタンプを0に設定します。これは、ランダムに変換されるクラスのバイト列まで決定的にするものではありません。バイトコードの変換によって署名が無効になるため、入力JARにあった古い署名リソースは出力しません。",
+      "status": "reviewed"
+    },
+    "fed645ad6513b5fb50369f89e38f591b38dc2a1fa37ff43c307f01305cf84010": {
+      "source": "Emits ZXQOBFARYN0QXZ to ZXQOBFARYN1QXZ.",
+      "translation": "ZXQOBFARYN0QXZをZXQOBFARYN1QXZへ出力します。",
+      "status": "reviewed"
+    },
+    "a176e90eb54c3ff54504a7a4715f2da92deea147a3eedc22b361dd42c3d05235": {
+      "source": "ZXQOBFARYN0QXZ validates generated bytecode with ASM. ZXQOBFARYN1QXZ uses ZXQOBFARYN2QXZ to resolve external supertypes and fails if a required hierarchy cannot be resolved. Maximum stack/local sizes are always computed; existing frames are retained unless recomputation is requested. The classpath is not consulted when recomputation is disabled.",
+      "translation": "ZXQOBFARYN0QXZは生成したバイトコードをASMで検証します。ZXQOBFARYN1QXZはZXQOBFARYN2QXZを使用して外部のスーパータイプを解決し、必要なクラス階層を解決できない場合は失敗します。スタックおよびローカル変数の最大サイズは常に計算されます。再計算を要求しない限り、既存のフレームは保持されます。再計算が無効な場合、クラスパスは参照されません。",
+      "status": "reviewed"
+    },
+    "6c8834911b63e52d7618f3a78c6875422f1279f1100f68a7d71f491d4a27bb99": {
+      "source": "Creates parent directories and truncates an existing output. Writes go directly to ZXQOBFARYN0QXZ, not a temporary archive, so a failure can leave partial output. Class/resource path collisions are not resolved and fail when adding the duplicate entry. Signature resources are omitted from the archive without removing them from ZXQOBFARYN1QXZ.",
+      "translation": "親ディレクトリを作成し、既存の出力を切り詰めます。一時アーカイブではなくZXQOBFARYN0QXZへ直接書き込むため、失敗すると不完全な出力が残る可能性があります。クラスとリソースのパス衝突は解決せず、重複エントリを追加した時点で失敗します。署名リソースはZXQOBFARYN1QXZから削除せず、出力アーカイブからのみ除外します。",
+      "status": "reviewed"
+    },
+    "5865e2bea6056dd4c4ce1b061b909e2fce01c9ee81e6044b4db1a9af7a0876a0": {
+      "source": "Returns every parent directory needed to expose ZXQOBFARYN0QXZ through class-loader resources.",
+      "translation": "ZXQOBFARYN0QXZをクラスローダーのリソースとして公開するために必要な、すべての親ディレクトリを返します。",
+      "status": "reviewed"
+    },
+    "54014e8933765938e9dc2033df181d30772314a919905174cd6124e38a162ee5": {
+      "source": "Live view: rules added by a later recipe also apply to a renamer registered by an earlier one.",
+      "translation": "ライブビューです。後のレシピで追加したルールも、それ以前に登録された名前変更処理へ適用されます。",
+      "status": "reviewed"
+    },
+    "696bb490b44ef27c7010ab7cece4eca5acf63a12d9de460f85df9859a0748ed0": {
+      "source": "Adds an exact class, ZXQOBFARYN0QXZ, ZXQOBFARYN1QXZ, ZXQOBFARYN2QXZ, or ZXQOBFARYN3QXZ rule. Both package suffix forms include subpackages: ZXQOBFARYN4QXZ uses a package-prefix rule and ZXQOBFARYN5QXZ uses a recursive class glob. Method descriptors include the return type, for example ZXQOBFARYN6QXZ. Field rules match the name without a descriptor. This parser does not validate that a named class/member exists or that a descriptor is valid.",
+      "translation": "完全一致するクラス、ZXQOBFARYN0QXZ、ZXQOBFARYN1QXZ、ZXQOBFARYN2QXZ、ZXQOBFARYN3QXZのいずれかのルールを追加します。2種類のパッケージ接尾辞はいずれもサブパッケージを含みます。ZXQOBFARYN4QXZはパッケージ接頭辞ルール、ZXQOBFARYN5QXZは再帰的なクラスglobを使用します。メソッドディスクリプターには戻り値の型を含めます（例: ZXQOBFARYN6QXZ）。フィールドルールはディスクリプターを使わず名前に一致します。このパーサーは、指定したクラスまたはメンバーの存在や、ディスクリプターの妥当性を検証しません。",
+      "status": "reviewed"
+    },
+    "c49c7fea1ef267e8b26349a253ddc491ae65d42feb28e8ded8dc359d32d18727": {
+      "source": "Merges into another ZXQOBFARYN0QXZ; self-application is a no-op and other implementations are rejected.",
+      "translation": "別のZXQOBFARYN0QXZへ統合します。自身への適用は何も行わず、他の実装は拒否します。",
+      "status": "reviewed"
+    },
+    "a9624e104c82992ec8f4f3767af7884832e852d136348c44beae1a87203bb8e8": {
+      "source": "Records an exact method exclusion; the first reason for that identity is retained.",
+      "translation": "完全一致するメソッド除外を記録します。同じ識別子については、最初の理由を保持します。",
+      "status": "reviewed"
+    },
+    "4cbbf978fb86b473262cac71e0e8ca231ab67de62b8c6144c939c9577a45bb20": {
+      "source": "Mutable keep and performance-policy rules for one obfuscation run.",
+      "translation": "1回の難読化実行で使用する、変更可能なkeepルールおよびパフォーマンスポリシールールです。",
+      "status": "reviewed"
+    },
+    "27d9200756ef6d0ffddc6b576ba98c7c3681fdfeac44368a27f355dd4419a503": {
+      "source": "Class-wide rules preserve both the name and members; ZXQOBFARYN0QXZ preserves the class name alone. ZXQOBFARYN1QXZ copies every rule category into another ZXQOBFARYN2QXZ instance. Class and owner names passed to mutators may use dots or JVM slashes and are stored as internal names. Query methods expect internal names; resource paths and JVM descriptors are used verbatim. These rules protect names and members from renaming, not method bodies from transformation.",
+      "translation": "クラス全体のルールは名前とメンバーの両方を保持し、ZXQOBFARYN0QXZはクラス名だけを保持します。ZXQOBFARYN1QXZは、すべてのルール種別を別のZXQOBFARYN2QXZインスタンスへコピーします。変更メソッドへ渡すクラス名と所有クラス名にはドットまたはJVMスラッシュを使用でき、内部名として保存されます。クエリメソッドには内部名を渡す必要があります。リソースパスとJVMディスクリプターはそのまま使用されます。これらのルールが名前変更から保護するのは名前とメンバーであり、メソッド本体を変換から保護するものではありません。",
+      "status": "reviewed"
+    },
+    "ed81408be8c9b4d9446e8f02f181f7b9f4962dd3549ef5a1fb1a16f08d748a54": {
+      "source": "Protects every field with this simple name, regardless of owner or descriptor.",
+      "translation": "所有クラスやディスクリプターに関係なく、この単純名を持つすべてのフィールドを保護します。",
+      "status": "reviewed"
+    },
     "ffed9728e84bebffac47ea45c380f98a239522b190e6ce9d6d6ca90c7d13126e": {
       "source": "An immutable list of configured ZXQOBFARYN0QXZ instances.",
       "translation": "設定済みのZXQOBFARYN0QXZインスタンスを格納する不変リストです。",
