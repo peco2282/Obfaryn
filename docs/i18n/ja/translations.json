@@ -286,6 +286,61 @@
       "source": "Minimum added-instruction allowance for the percentage check; -1 inherits, 0 uses a strict ratio.",
       "translation": "割合チェックで許容する追加命令数の最小値です。-1では継承し、0では厳密な割合を使用します。",
       "status": "reviewed"
+    },
+    "0c48a763da8fee5d1100e230d347bfdaad5f3248c87f9b787b578c8e0e0753c5": {
+      "source": "Runtime storage for cache factories, without globally retaining their classes.",
+      "translation": "キャッシュファクトリーのクラスをグローバルに保持せずに使用する、実行時ストレージです。",
+      "status": "reviewed"
+    },
+    "0d20f21ea0702edb37b7f9e8327214ff8a105c971b97038e3b806ef6daf4ae1c": {
+      "source": "Forge mods declare a ZXQOBFARYN0QXZ-annotated class (ZXQOBFARYN1QXZ) and a ZXQOBFARYN2QXZ descriptor. ZXQOBFARYN3QXZ handlers are kept as plain bytecode. Detection from ZXQOBFARYN4QXZ alone is reported only when the NeoForge descriptor is absent, so a NeoForge archive is not misread as Forge.",
+      "translation": "Forge MODは、ZXQOBFARYN0QXZアノテーションを付けたクラス（ZXQOBFARYN1QXZ）とZXQOBFARYN2QXZ記述子を宣言します。ZXQOBFARYN3QXZハンドラーは通常のバイトコードとして維持されます。ZXQOBFARYN4QXZだけに基づく検出はNeoForge記述子が存在しない場合に限って報告されるため、NeoForgeアーカイブがForgeとして誤認されることはありません。",
+      "status": "reviewed"
+    },
+    "3dfba2cba9155fa607eb37651a0f4a125edf0052708da35df5f57cfab0c49b52": {
+      "source": "Obfuscation support for Spring Boot applications.",
+      "translation": "Spring Bootアプリケーション向けの難読化サポートです。",
+      "status": "reviewed"
+    },
+    "46980cba7a3aee9c3edd41ce4300f91131dc64f9fb5690f96ad52795186e8a86": {
+      "source": "Marks a public concrete ZXQOBFARYN0QXZ with a public no-argument constructor as a cache factory during obfuscation. The marker is consumed and removed by the Paper platform; it is not used at runtime. CLASS retention keeps it available in the input bytecode for build-time validation.",
+      "translation": "publicな引数なしコンストラクターを持つpublicかつ具象のZXQOBFARYN0QXZを、難読化時のキャッシュファクトリーとして指定します。このマーカーはPaperプラットフォームによって消費および削除され、実行時には使用されません。CLASS保持ポリシーにより、ビルド時の検証に使用できる状態で入力バイトコードへ残ります。",
+      "status": "reviewed"
+    },
+    "807ebc5344e15a2ee36be195721b928d9f6158fe8888eca6c5e6b266684448d4": {
+      "source": "Shared behavior for the Minecraft mod-loader platforms (Fabric, Forge, NeoForge).",
+      "translation": "MinecraftのMODローダープラットフォーム（Fabric、Forge、NeoForge）に共通する動作です。",
+      "status": "reviewed"
+    },
+    "ac89044ddac22d4c6b70e997d9ae6967d5107b38212d56f8fcd49d36ab5ee4ad": {
+      "source": "Fabric mods ship a root ZXQOBFARYN0QXZ and implement one of Fabric's initializer interfaces (ZXQOBFARYN1QXZ, ZXQOBFARYN2QXZ, ZXQOBFARYN3QXZ), named in that file. Fabric event callbacks are registered as lambdas rather than annotated, so no method is excluded from virtualization by this platform.",
+      "translation": "Fabric MODはルートにZXQOBFARYN0QXZを含み、そのファイルで指定したFabricの初期化インターフェース（ZXQOBFARYN1QXZ、ZXQOBFARYN2QXZ、ZXQOBFARYN3QXZ）のいずれかを実装します。Fabricのイベントコールバックはアノテーションではなくラムダとして登録されるため、このプラットフォームによって仮想化対象から除外されるメソッドはありません。",
+      "status": "reviewed"
+    },
+    "ca9485438f3f30a4365eb071f1c86e65b2142d0b4f664077ce17c4676fee95cb": {
+      "source": "NeoForge mods declare a ZXQOBFARYN0QXZ-annotated class (ZXQOBFARYN1QXZ) and a ZXQOBFARYN2QXZ descriptor. ZXQOBFARYN3QXZ handlers (NeoForge's own event bus) are kept as plain bytecode. The NeoForge-specific annotation and descriptor keep this distinct from ZXQOBFARYN4QXZ.",
+      "translation": "NeoForge MODは、ZXQOBFARYN0QXZアノテーションを付けたクラス（ZXQOBFARYN1QXZ）とZXQOBFARYN2QXZ記述子を宣言します。ZXQOBFARYN3QXZハンドラー（NeoForge独自のイベントバス）は通常のバイトコードとして維持されます。NeoForge固有のアノテーションと記述子により、ZXQOBFARYN4QXZとは区別されます。",
+      "status": "reviewed"
+    },
+    "ccbaea1fb125afdcc80995057fd0d9e1286340de37238018a00bd2f40fddb051": {
+      "source": "Detection and entrypoint discovery work from the compiled classes and ZXQOBFARYN0QXZ alone, so this platform does not need the actual Spring Boot/Framework jars on the classpath and does not unpack a Spring Boot executable jar's nested ZXQOBFARYN1QXZ/ZXQOBFARYN2QXZ layout; point the host at an already-exploded set of classes, or a plain (non-fat) jar.",
+      "translation": "検出とエントリーポイントの探索は、コンパイル済みクラスとZXQOBFARYN0QXZだけを使用します。そのため、実際のSpring Boot／Framework JARをクラスパスへ追加する必要はありません。また、Spring Boot実行可能JARにネストされたZXQOBFARYN1QXZ／ZXQOBFARYN2QXZ構造は展開しません。展開済みのクラス一式、または通常の（fatではない）JARをホストへ指定してください。",
+      "status": "reviewed"
+    },
+    "d0a62c6dbb83a6216c443cd3c76bfe80c7c37eeebcfc538f1d45646a3b8c8f81": {
+      "source": "Detection and entrypoint discovery work from the compiled classes and the loader's own metadata resource (ZXQOBFARYN0QXZ, ZXQOBFARYN1QXZ, ZXQOBFARYN2QXZ) without the loader jars on the classpath. Each loader resolves its mod/entrypoint classes by the names written in those resources, so ZXQOBFARYN3QXZ keeps the resources verbatim and keeps the entrypoint class names. A loader whose hot callbacks are annotation-driven (Forge/NeoForge's ZXQOBFARYN4QXZ) declares that annotation in ZXQOBFARYN5QXZ; those handlers and the methods they call are kept as plain bytecode. Nothing here infers a hot path from a method name such as ZXQOBFARYN6QXZ.",
+      "translation": "検出とエントリーポイントの探索は、ローダーのJARをクラスパスへ追加せず、コンパイル済みクラスとローダー独自のメタデータリソース（ZXQOBFARYN0QXZ、ZXQOBFARYN1QXZ、ZXQOBFARYN2QXZ）から行います。各ローダーはそれらのリソースに記載された名前でMOD／エントリーポイントクラスを解決するため、ZXQOBFARYN3QXZはリソースをそのまま維持し、エントリーポイントのクラス名も維持します。ホットコールバックがアノテーション駆動であるローダー（Forge／NeoForgeのZXQOBFARYN4QXZ）は、そのアノテーションをZXQOBFARYN5QXZで宣言します。該当するハンドラーと、それらが呼び出すメソッドは通常のバイトコードとして維持されます。ここでは、ZXQOBFARYN6QXZのようなメソッド名からホットパスを推測することはありません。",
+      "status": "reviewed"
+    },
+    "db4a5fc4497f32ea6622e7f1a991b12ca0bb09906fa733ace13ccb6f4c7af892": {
+      "source": "Removes the installed holder. Readers already using it may still return its old result; subsequent readers initialize a new holder.",
+      "translation": "設定済みのホルダーを削除します。すでにそのホルダーを使用中の読み取り処理は以前の結果を返す場合がありますが、後続の読み取り処理は新しいホルダーを初期化します。",
+      "status": "reviewed"
+    },
+    "df3c530835f51cb44bf661a474c23a760b119b149c836722b0db3655c9435822": {
+      "source": "Returns the factory's cached result, including ZXQOBFARYN0QXZ. Construction and computation failures are not cached. Recursive initialization of the same factory on the initializing thread fails with ZXQOBFARYN1QXZ.",
+      "translation": "ZXQOBFARYN0QXZを含む、ファクトリーのキャッシュ済み結果を返します。構築または計算の失敗はキャッシュされません。初期化中のスレッドで同じファクトリーを再帰的に初期化すると、ZXQOBFARYN1QXZで失敗します。",
+      "status": "reviewed"
     }
   }
 }
