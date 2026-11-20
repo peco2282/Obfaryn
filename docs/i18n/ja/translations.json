@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "locale": "ja",
+  "translations": {
+    "071b2a6bd90934d1899d697e2c72d88b9be0fb91e117ed5e09e6abe1312dcef2": {
+      "source": "Represents the execution environment context provided to a ZXQOBFARYN0QXZ.",
+      "translation": "ZXQOBFARYN0QXZに提供される実行環境のコンテキストを表します。",
+      "status": "reviewed"
+    },
+    "2910995935001ad136f8e95a188a93dbc6a7f319502dc5f754d40b06c4335b08": {
+      "source": "Adds platform-specific annotation mappings, for example for third-party framework annotations. Return this extension from ZXQOBFARYN0QXZ; adding policies does not require adding the mapped annotation classes to Obfaryn's own annotation module. Policies are applied after content contributions, including to contributed classes. Both runtime-visible and runtime-invisible annotations are recognized. Field policies support ZXQOBFARYN1QXZ and ZXQOBFARYN2QXZ; method-body and virtualization actions have no field-level effect.",
+      "translation": "サードパーティーフレームワークのアノテーションなど、プラットフォーム固有のアノテーション対応付けを追加します。この拡張はZXQOBFARYN0QXZから返します。ポリシーを追加するために、対応付けるアノテーションクラスをObfaryn自身のアノテーションモジュールへ追加する必要はありません。ポリシーはコンテンツの追加後に、追加されたクラスも含めて適用されます。実行時に可視なアノテーションと不可視なアノテーションの両方が認識されます。フィールドポリシーはZXQOBFARYN1QXZとZXQOBFARYN2QXZをサポートします。メソッド本体および仮想化のアクションはフィールドには作用しません。",
+      "status": "reviewed"
+    },
+    "3e290c96092eb33f5917d695166762c4ab94d4173ed0d57b88cdcc9d7065d8b0": {
+      "source": "A concrete implementation of the ZXQOBFARYN0QXZ interface that utilizes a map to represent a set of platform-specific configurable options.",
+      "translation": "プラットフォーム固有の設定可能なオプション群をマップで表現する、ZXQOBFARYN0QXZインターフェースの具象実装です。",
+      "status": "reviewed"
+    },
+    "39a56451d53fff37d2c7a23d3d75928d68765dcd8d5ca97a722db8db8464c8f8": {
+      "source": "Represents the execution context for obfuscation and transformation operations.",
+      "translation": "難読化および変換処理の実行コンテキストを表します。",
+      "status": "reviewed"
+    },
+    "421b4f8d297ff900222cea797f571663fdee60e69408c6c4a4e481be5f5c0a66": {
+      "source": "Represents a set of configurable platform options used by various platform implementations.",
+      "translation": "各種プラットフォーム実装が使用する、設定可能なプラットフォームオプション群を表します。",
+      "status": "reviewed"
+    },
+    "4ded5d1ca80eef3f91d4b8bd1f7b06c810b4f12fc33b0e88430c75d9d7dc8a5c": {
+      "source": "Contributes complete compiled JVM class files before the transformation pipeline runs. Contributed classes participate in normal renaming, body transformations, frame calculation, and verification; contribution does not implicitly keep their names or bodies.",
+      "translation": "変換パイプラインの実行前に、コンパイル済みの完全なJVMクラスファイルを追加します。追加されたクラスには通常どおりリネーム、メソッド本体の変換、フレーム計算、および検証が行われます。クラスを追加しても、その名前や本体が暗黙に維持されることはありません。",
+      "status": "reviewed"
+    },
+    "4fa83e53fc780cd28e981b2970cf2fe608b2204dce0642756c8ad6a0440f97d1": {
+      "source": "Represents a configurable and extensible platform used for processing target inputs.",
+      "translation": "対象の入力を処理する、設定および拡張可能なプラットフォームを表します。",
+      "status": "reviewed"
+    },
+    "628e99509d42604fa8878819eff0721b955c348fcfb541f79d4e4da1b88d56fc": {
+      "source": "Represents the mechanism for detecting a platform and assessing its suitability.",
+      "translation": "プラットフォームを検出し、その適合性を判定する仕組みを表します。",
+      "status": "reviewed"
+    },
+    "76bf961d35f4b6c8273da67d4ed6d99dde3cc643ac0d8369da1dfe898cba4988": {
+      "source": "Functional interface representing a sink for storing resources.",
+      "translation": "リソースを格納するシンクを表す関数型インターフェースです。",
+      "status": "reviewed"
+    },
+    "7ce932cd77ab4608765b4ee2f3346f5b103fbc973da126fa0bc19fc4970f4fec": {
+      "source": "Contributes non-class archive entries, such as generated configuration or service descriptors. Use ZXQOBFARYN0QXZ for class files and ZXQOBFARYN1QXZ for whole archives. Contributions are applied before the transformation pipeline and are visible to later extensions. A contributor can generate a UTF-8 resource without modifying the context directly:",
+      "translation": "生成した設定ファイルやサービス記述子など、クラス以外のアーカイブエントリーを追加します。クラスファイルにはZXQOBFARYN0QXZを、アーカイブ全体にはZXQOBFARYN1QXZを使用してください。追加内容は変換パイプラインより前に適用され、後続の拡張から参照できます。コンテキストを直接変更せずに、UTF-8リソースを生成できます。",
+      "status": "reviewed"
+    },
+    "85c52e464c1227615400a823cec4fca264f1393b671ee2069dd77ef5a7d11c88": {
+      "source": "Marker for capabilities returned by ZXQOBFARYN0QXZ.",
+      "translation": "ZXQOBFARYN0QXZが返す機能を示すマーカーです。",
+      "status": "reviewed"
+    },
+    "885105678c5240da7ef57e0dd4631bf2da97d96e9f1fcbfa0605f1b358c900e0": {
+      "source": "Provides core functionality and constants for platform APIs.",
+      "translation": "プラットフォームAPIの中核機能と定数を提供します。",
+      "status": "reviewed"
+    },
+    "89e8601d0a2b85780392d0203c6b7f1eb66c9eac0cdc8c4083c3744a29f62bfc": {
+      "source": "Provides an interface for managing platform-specific functionality and metadata.",
+      "translation": "プラットフォーム固有の機能とメタデータを管理するためのインターフェースを提供します。",
+      "status": "reviewed"
+    },
+    "90b6be0c5ea1d678659302568f031906512d07386831e44f34c32b1456b56f0c": {
+      "source": "Represents the default implementation of the ZXQOBFARYN0QXZ interface.",
+      "translation": "ZXQOBFARYN0QXZインターフェースのデフォルト実装です。",
+      "status": "reviewed"
+    },
+    "91653be8aa04ee87911de6c01c2aa80c215d682f8584ac73985f7ed565a14e4a": {
+      "source": "A functional interface for handling JVM class files.",
+      "translation": "JVMクラスファイルを処理するための関数型インターフェースです。",
+      "status": "reviewed"
+    },
+    "9faf754b77003647dd9b8c9d23c8e0e1c86c397af06cba147478d2d67608ccf4": {
+      "source": "Declaration kinds on which a policy's annotation descriptor is recognized. Policies are ignored on declarations outside their ZXQOBFARYN0QXZ.",
+      "translation": "ポリシーのアノテーション記述子を認識する宣言の種類です。ZXQOBFARYN0QXZに含まれない宣言では、そのポリシーは無視されます。",
+      "status": "reviewed"
+    },
+    "a02c26ef91697900570fcdc5213c4d7c6e2f301cdbb2d0e718557b068ce3e524": {
+      "source": "Transformation intent associated with an annotation descriptor by an ZXQOBFARYN0QXZ.",
+      "translation": "ZXQOBFARYN0QXZによってアノテーション記述子に関連付けられる変換方針です。",
+      "status": "reviewed"
+    },
+    "a077a54b6e58878fc34d56f06fda2f850d71ed6d5e4d48b6fc10c5960b73f84a": {
+      "source": "Contributes JAR/ZIP bytes either by merging entries or embedding the archive as a resource. Select the behavior for each emitted archive through ZXQOBFARYN0QXZ. For example, given bytes of an already compiled helper JAR:",
+      "translation": "JAR/ZIPのバイト列を、エントリーのマージまたはリソースとしての埋め込みによって追加します。出力するアーカイブごとの動作はZXQOBFARYN0QXZで選択します。たとえば、コンパイル済みの補助JARのバイト列がある場合は次のようにします。",
+      "status": "reviewed"
+    },
+    "b1cf0aa2bdb4fd8fe99e32a07ba81df756010703ba522f6339f4311cb9afbec4": {
+      "source": "Creates and configures an ZXQOBFARYN0QXZ instance using a builder lambda.",
+      "translation": "ビルダーラムダを使用してZXQOBFARYN0QXZインスタンスを作成し、設定します。",
+      "status": "reviewed"
+    },
+    "c369a3d083b11c8ce305895874eb19eed48fa24ddf1ccd0102459414b1c60b96": {
+      "source": "Maps a binary annotation to Obfaryn transformation intent without depending on its annotation class.",
+      "translation": "アノテーションクラスに依存せず、バイナリアノテーションをObfarynの変換方針へ対応付けます。",
+      "status": "reviewed"
+    },
+    "c758de38ebe88044c06430057177af4758b23c15635dbf3585858d9ffc6f9348": {
+      "source": "Default implementation of the ZXQOBFARYN0QXZ interface.",
+      "translation": "ZXQOBFARYN0QXZインターフェースのデフォルト実装です。",
+      "status": "reviewed"
+    },
+    "d6dadb7f4028427248ee9382837f4d6833088cfc6fd4dd01b713019594130909": {
+      "source": "Implementation of the ZXQOBFARYN0QXZ interface for constructing platform metadata objects.",
+      "translation": "プラットフォームメタデータオブジェクトを構築するZXQOBFARYN0QXZインターフェースの実装です。",
+      "status": "reviewed"
+    },
+    "e9e4637c43bd78feb2b41db66049b9c260396a2cd1a2e28c26db02ac60476efa": {
+      "source": "Determines whether an archive's contents enter the pipeline or remain opaque resource data.",
+      "translation": "アーカイブの内容をパイプラインへ取り込むか、内部を解釈しないリソースデータとして維持するかを決定します。",
+      "status": "reviewed"
+    },
+    "ea3b6a11c707fbcc5c6f616e51fec36793f81593a424c609ff74d9c219d32014": {
+      "source": "Configuration interface for specifying obfuscation exclusion (keep) rules.",
+      "translation": "難読化から除外するkeepルールを指定するための設定インターフェースです。",
+      "status": "reviewed"
+    },
+    "ebb8490601f6096de078130ca01edc4b34e304be837a3fbe9132226331ad9598": {
+      "source": "Represents metadata associated with a platform.",
+      "translation": "プラットフォームに関連付けられたメタデータを表します。",
+      "status": "reviewed"
+    },
+    "f18e17c81213808e7b83a4efe326b777e109078657e81fe2d28564e0785c967f": {
+      "source": "Builder interface for constructing platform metadata objects.",
+      "translation": "プラットフォームメタデータオブジェクトを構築するためのビルダーインターフェースです。",
+      "status": "reviewed"
+    },
+    "f5bc8ec8246485b9ee65fc6ced97fc0cd8d7108b964b7e93a3c81f39064396a8": {
+      "source": "Functional interface representing a sink for adding archives with specified contribution modes.",
+      "translation": "指定した追加モードでアーカイブを追加するシンクを表す関数型インターフェースです。",
+      "status": "reviewed"
+    }
+  }
+}

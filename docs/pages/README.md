@@ -20,15 +20,13 @@ python3 scripts/docs-i18n/docs_i18n.py sync \
   --input build/dokka/html --catalog docs/i18n/ja/catalog.json
 python3 scripts/docs-i18n/docs_i18n.py build \
   --input build/dokka/html --output build/docs-pages \
-  --catalog docs/i18n/ja/catalog.json --locale ja
+  --catalog docs/i18n/ja/catalog.json \
+  --translations docs/i18n/ja/translations.json --locale ja
 python3 scripts/docs-i18n/docs_i18n.py verify \
   --english build/dokka/html --localized build/docs-pages/ja
 ```
 
-Machine translation is a separate, explicit operation. Pages builds only consume
-translations already stored in the catalog, so publishing is deterministic and a
-reviewed translation is never silently replaced.
-
-The spike workflow translates only the representative
-`obfaryn-api/com.peco2282.obfaryn.api/index.html` page. This keeps the initial model
-and translation-quality evaluation separate from a future full-catalog update.
+Pages builds only consume translations already stored in the catalog, so publishing
+is deterministic and a reviewed translation is never silently replaced. Translation
+is performed during an explicit Codex documentation update, never by the publishing
+workflow.

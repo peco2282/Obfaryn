@@ -1,21 +1,27 @@
 # Documentation translations
 
-English KDoc/Javadoc is the sole source of truth. Translation catalogs contain only
-localized natural-language fragments from the generated GitHub Pages site.
+English KDoc/Javadoc is the sole source of truth. `catalog.json` is generated from
+Dokka HTML and records where each English fragment is used. `translations.json` is
+the hand-reviewed translation memory, keyed by the English fragment's SHA-256 hash.
 
 Dokka navigation and programming-language terminology remain in English. Labels
 such as `Types`, `Functions`, `Class`, `Properties`, and `Package-level declarations`
 are not translation targets. Only prose originating in API documentation comments
 is localized.
 
-Each entry records its English source and hash, translation, status, and engine.
+Each translation records its English source, Japanese translation, and review status.
 Supported statuses are:
 
 - `missing`: no translation exists;
-- `machine`: generated translation awaiting review;
+- `machine`: generated translation awaiting review (retained for schema compatibility);
 - `reviewed`: manually checked and protected from automatic replacement;
 - `stale`: the English source changed after translation.
 
-Edit `translation` and set `status` to `reviewed` to correct a translation. Running
-`sync` preserves that edit. If the English text changes, `sync` retains the old
-translation but marks it `stale`; the localized page then falls back to English.
+Edit `translations.json` to correct a translation. Because translations are keyed by
+the English source hash, repeated KDoc is translated once and reused everywhere. If
+the English text changes, the new hash has no translation and the localized page
+falls back to English; the old translation remains available for review or removal.
+
+The repository workflow does not call a translation service. Codex updates the
+catalog in an ordinary documentation branch after reading the relevant code and
+English KDoc/Javadoc context.

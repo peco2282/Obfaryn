@@ -11,10 +11,15 @@ import shutil
 import sys
 from pathlib import Path
 
-from bs4 import BeautifulSoup, NavigableString, Tag
+try:
+  from bs4 import BeautifulSoup, NavigableString, Tag
+except ModuleNotFoundError:
+  BeautifulSoup = None
+  NavigableString = None
+  Tag = object
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 TRANSLATABLE_SELECTOR = "p.paragraph"
 PROTECTED_SELECTOR = "a, code, pre, .symbol"
 TOKEN_PATTERN = re.compile(r"ZXQOBFARYN(\d+)QXZ")
@@ -23,6 +28,13 @@ HIGH_RISK = re.compile(
     r"throws?|exception|security|required|forbidden|unless|only\s+if)\b",
     re.IGNORECASE,
 )
+
+
+def require_html_parser() -> None:
+  if BeautifulSoup is None:
+    raise RuntimeError(
+        "Beautiful Soup is required for HTML processing; install scripts/docs-i18n/requirements.txt"
+    )
 
 
 def read_json(path: Path) -> dict:
@@ -63,6 +75,7 @@ def entry_id(relative: Path, index: int) -> str:
 
 
 def extract(root: Path) -> dict[str, dict]:
+  require_html_parser()
   result: dict[str, dict] = {}
   for page in html_files(root):
     relative = page.relative_to(root)
@@ -88,11 +101,12 @@ def sync(args: argparse.Namespace) -> int:
   for key, current in found.items():
     previous = entries.get(key)
     if previous is None:
-      entries[key] = {**current, "translation": "", "status": "missing", "engine": None}
+      entries[key] = current
       continue
-    if previous.get("sourceHash") != current["sourceHash"]:
-      previous["status"] = "stale" if previous.get("translation") else "missing"
     previous.update(current)
+    previous.pop("translation", None)
+    previous.pop("status", None)
+    previous.pop("engine", None)
   for key in sorted(set(entries) - set(found)):
     entries[key]["orphaned"] = True
   catalog["schemaVersion"] = SCHEMA_VERSION
@@ -105,52 +119,41 @@ def sync(args: argparse.Namespace) -> int:
   return 0
 
 
-def install_argos_model(from_code: str, to_code: str) -> None:
-  import argostranslate.package
-
-  argostranslate.package.update_package_index()
-  packages = argostranslate.package.get_available_packages()
-  package = next((p for p in packages if p.from_code == from_code and p.to_code == to_code), None)
-  if package is None:
-    raise RuntimeError(f"No Argos model is available for {from_code}->{to_code}")
-  argostranslate.package.install_from_path(package.download())
-
-
-def translate(args: argparse.Namespace) -> int:
-  import argostranslate.translate
-
-  if args.install_model:
-    install_argos_model("en", args.locale)
+def normalize(args: argparse.Namespace) -> int:
+  """Normalize a generated catalog after importing it from an Actions artifact."""
   catalog = read_json(args.catalog)
-  changed = 0
-  selected = 0
-  rejected = 0
-  for key, value in catalog.get("entries", {}).items():
-    if args.key_prefix and not key.startswith(args.key_prefix):
-      continue
-    if value.get("status") not in {"missing", "stale"}:
-      continue
-    if value.get("status") == "stale" and not args.include_stale:
-      continue
-    selected += 1
-    source = value["source"]
-    translated = argostranslate.translate.translate(source, "en", args.locale)
-    expected = TOKEN_PATTERN.findall(source)
-    actual = TOKEN_PATTERN.findall(translated)
-    if expected != actual:
-      print(f"Rejected translation that changed protected-node tokens: {key}", file=sys.stderr)
-      rejected += 1
-      continue
-    value["translation"] = translated
-    value["status"] = "machine"
-    value["engine"] = "argos-translate-1.11.0"
-    changed += 1
-    if args.limit and changed >= args.limit:
-      break
+  for value in catalog.get("entries", {}).values():
+    value.pop("translation", None)
+    value.pop("status", None)
+    value.pop("engine", None)
+  catalog["schemaVersion"] = SCHEMA_VERSION
   write_json(args.catalog, catalog)
-  print(f"Selected {selected}; translated {changed}; rejected {rejected} fragments")
-  if args.require_complete and rejected:
+  print(f"Normalized {len(catalog.get('entries', {}))} catalog entries")
+  return 0
+
+
+def validate_translations(args: argparse.Namespace) -> int:
+  catalog = read_json(args.catalog)
+  translations = read_json(args.translations).get("translations", {})
+  known_hashes = {value["sourceHash"] for value in catalog.get("entries", {}).values()}
+  failures: list[str] = []
+  for digest, value in translations.items():
+    source = value.get("source", "")
+    translation = value.get("translation", "")
+    if source_hash(source) != digest:
+      failures.append(f"source hash mismatch: {digest}")
+    if digest not in known_hashes:
+      failures.append(f"translation is not used by the catalog: {digest}")
+    if not translation:
+      failures.append(f"empty translation: {digest}")
+    if TOKEN_PATTERN.findall(source) != TOKEN_PATTERN.findall(translation):
+      failures.append(f"protected-node tokens changed: {digest}")
+    if value.get("status") not in {"machine", "reviewed"}:
+      failures.append(f"invalid translation status: {digest}")
+  if failures:
+    print("\n".join(failures), file=sys.stderr)
     return 1
+  print(f"Validated {len(translations)} translations")
   return 0
 
 
@@ -163,25 +166,30 @@ def restore_fragment(translated: str, protected: list[str]) -> str:
   return translated
 
 
-def apply_catalog(page: Path, relative: Path, catalog: dict) -> None:
+def apply_catalog(page: Path, relative: Path, catalog: dict, translations: dict) -> None:
+  require_html_parser()
   soup = BeautifulSoup(page.read_text(encoding="utf-8"), "html.parser")
   if soup.html:
     soup.html["lang"] = catalog.get("locale", "ja")
   for index, block in enumerate(soup.select(TRANSLATABLE_SELECTOR)):
     value = catalog.get("entries", {}).get(entry_id(relative, index))
-    if not value or value.get("status") not in {"machine", "reviewed"}:
+    if not value:
       continue
-    fragment = restore_fragment(value["translation"], value.get("protectedNodes", []))
+    translated = translations.get("translations", {}).get(value["sourceHash"])
+    if not translated or translated.get("status") not in {"machine", "reviewed"}:
+      continue
+    fragment = restore_fragment(translated["translation"], value.get("protectedNodes", []))
     replacement = BeautifulSoup(fragment, "html.parser")
     block.clear()
     for child in list(replacement.contents):
       block.append(child)
-    if value.get("status") == "machine":
+    if translated.get("status") == "machine":
       block["data-translation-status"] = "machine"
   page.write_text(str(soup), encoding="utf-8")
 
 
 def inject_switch(page: Path, relative: Path, localized: bool) -> None:
+  require_html_parser()
   soup = BeautifulSoup(page.read_text(encoding="utf-8"), "html.parser")
   controls = soup.select_one(".navigation-controls")
   if controls is None or soup.select_one(".docs-language-switch"):
@@ -207,19 +215,21 @@ def build(args: argparse.Namespace) -> int:
   localized = args.output / args.locale
   shutil.copytree(args.input, localized)
   catalog = read_json(args.catalog)
+  translations = read_json(args.translations)
   for english_page in html_files(args.output):
     if localized in english_page.parents:
       continue
     inject_switch(english_page, english_page.relative_to(args.output), localized=False)
   for page in html_files(localized):
     relative = page.relative_to(localized)
-    apply_catalog(page, relative, catalog)
+    apply_catalog(page, relative, catalog, translations)
     inject_switch(page, relative, localized=True)
   print(f"Built English and {args.locale} sites at {args.output}")
   return 0
 
 
 def normalized_structure(path: Path) -> tuple[list[str], list[str], list[str]]:
+  require_html_parser()
   soup = BeautifulSoup(path.read_text(encoding="utf-8"), "html.parser")
   links = [node.get("href", "") for node in soup.select("a[href]") if "docs-language-switch" not in node.get("class", [])]
   symbols = [node.get_text(" ", strip=True) for node in soup.select(".symbol")]
@@ -252,19 +262,18 @@ def parser() -> argparse.ArgumentParser:
   sync_parser.add_argument("--input", type=Path, required=True)
   sync_parser.add_argument("--catalog", type=Path, required=True)
   sync_parser.set_defaults(run=sync)
-  translate_parser = commands.add_parser("translate")
-  translate_parser.add_argument("--catalog", type=Path, required=True)
-  translate_parser.add_argument("--locale", default="ja")
-  translate_parser.add_argument("--install-model", action="store_true")
-  translate_parser.add_argument("--include-stale", action="store_true")
-  translate_parser.add_argument("--limit", type=int)
-  translate_parser.add_argument("--key-prefix")
-  translate_parser.add_argument("--require-complete", action="store_true")
-  translate_parser.set_defaults(run=translate)
+  normalize_parser = commands.add_parser("normalize")
+  normalize_parser.add_argument("--catalog", type=Path, required=True)
+  normalize_parser.set_defaults(run=normalize)
+  validate_parser = commands.add_parser("validate-translations")
+  validate_parser.add_argument("--catalog", type=Path, required=True)
+  validate_parser.add_argument("--translations", type=Path, required=True)
+  validate_parser.set_defaults(run=validate_translations)
   build_parser = commands.add_parser("build")
   build_parser.add_argument("--input", type=Path, required=True)
   build_parser.add_argument("--output", type=Path, required=True)
   build_parser.add_argument("--catalog", type=Path, required=True)
+  build_parser.add_argument("--translations", type=Path, required=True)
   build_parser.add_argument("--locale", default="ja")
   build_parser.set_defaults(run=build)
   verify_parser = commands.add_parser("verify")

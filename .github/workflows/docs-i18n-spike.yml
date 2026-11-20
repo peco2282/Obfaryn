@@ -30,19 +30,17 @@ jobs:
           python scripts/docs-i18n/docs_i18n.py sync
           --input build/dokka/html
           --catalog docs/i18n/ja/catalog.json
-      - name: Translate one representative API package
+      - name: Validate reviewed translations
         run: >-
-          python scripts/docs-i18n/docs_i18n.py translate
+          python scripts/docs-i18n/docs_i18n.py validate-translations
           --catalog docs/i18n/ja/catalog.json
-          --locale ja
-          --install-model
-          --key-prefix obfaryn-api/com.peco2282.obfaryn.api/index.html#
-          --require-complete
+          --translations docs/i18n/ja/translations.json
       - run: >-
           python scripts/docs-i18n/docs_i18n.py build
           --input build/dokka/html
           --output build/docs-pages
           --catalog docs/i18n/ja/catalog.json
+          --translations docs/i18n/ja/translations.json
           --locale ja
       - run: >-
           python scripts/docs-i18n/docs_i18n.py verify
