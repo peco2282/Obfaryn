@@ -1632,6 +1632,106 @@
       "translation": "選択されたものの仮想化できないメソッドが、実行にどのような影響を与えるかを指定します。",
       "status": "reviewed"
     },
+    "64f716cacc323be8890736b0069d00d9ea2c7082f5d0c055020b5314529d6c56": {
+      "source": "Maximum methods sharing one interpreter; must be positive.",
+      "translation": "1つのインタープリターを共有するメソッドの最大数です。正の値でなければなりません。",
+      "status": "reviewed"
+    },
+    "8254b80eb4da97f7024846379aca6672a0710d2e78ce2152e2422b90738f5618": {
+      "source": "Dependencies used when validating bridge access and hierarchy.",
+      "translation": "ブリッジのアクセス可否とクラス階層を検証するときに使用する依存関係です。",
+      "status": "reviewed"
+    },
+    "0d505caf79ebce516f9ad7daff73f61465834d2096b7e6bb0f405d1815500369": {
+      "source": "Platform policy exclusions keyed by original method identity.",
+      "translation": "元のメソッド識別子をキーとする、プラットフォームポリシーによる除外です。",
+      "status": "reviewed"
+    },
+    "700ed85c13e2bf1ae9230704a31dda3256f06b6ec5d3f330aeb6d7e5d22c7060": {
+      "source": "Replaces eligible selected methods with wrappers that execute encoded virtual programs.",
+      "translation": "選択された適格なメソッドを、エンコード済みの仮想プログラムを実行するラッパーへ置き換えます。",
+      "status": "reviewed"
+    },
+    "1c018deb2d491a731438713b6e1111841577e8c43df048826f4291c0e529bff4": {
+      "source": "Each original-package group receives a specialized interpreter and integer-ID bridge methods for operations needing ordinary JVM access. Eligibility is checked before modifying classes; strict mode rejects the entire selected set if any method is unsupported.",
+      "translation": "元のパッケージごとのグループに、専用のインタープリターと、通常のJVMアクセスを必要とする操作向けの整数IDブリッジメソッドを割り当てます。クラスを変更する前に適格性を検査します。strictモードでは、サポートされないメソッドが1つでもあれば、選択対象全体を拒否します。",
+      "status": "reviewed"
+    },
+    "8bd364043456e1ae4267655603c4546de87ea1ddb751ddb36c9063c01c0d8fa6": {
+      "source": "Controls handling of the ZXQOBFARYN0QXZ annotation.",
+      "translation": "ZXQOBFARYN0QXZアノテーションの処理方法を制御します。",
+      "status": "reviewed"
+    },
+    "c2755ea25cc869a2e9c898537911b78919d0f3490dbbab65763ebb52befee378": {
+      "source": "ZXQOBFARYN0QXZ and ZXQOBFARYN1QXZ retain metadata and safely rewrite class names, types, JVM signatures, and Kotlin module maps during renaming or relocation. Eligible member names are rewritten together. ZXQOBFARYN2QXZ requests removal throughout the input JAR; exclusions and annotation policies can still prevent removal. Unsupported metadata fails before output.",
+      "translation": "ZXQOBFARYN0QXZとZXQOBFARYN1QXZはメタデータを保持し、名前変更または移動時にクラス名、型、JVMシグネチャ、Kotlinモジュールマップを安全に書き換えます。対象となるメンバー名も同時に書き換えます。ZXQOBFARYN2QXZは入力JAR全体からの削除を要求しますが、除外設定とアノテーションポリシーによって削除されない場合があります。サポートされないメタデータがある場合は、出力前に失敗します。",
+      "status": "reviewed"
+    },
+    "c061b0dbe73e030496ede9bde57061b0328d74d8130d2555a03cb48c3d5411d5": {
+      "source": "Compatibility follows kotlin-metadata-jvm 2.4.21 readStrict for readable formats from 1.1 onward; formats older than 1.4 are upgraded to 1.4 when written. Unknown formats and opaque plugin payloads are rejected. This does not imply testing every Kotlin compiler version.",
+      "translation": "互換性はkotlin-metadata-jvm 2.4.21のreadStrictに従い、1.1以降の読み取り可能な形式を対象とします。1.4より古い形式は、書き込み時に1.4へ更新されます。不明な形式と、解釈できないプラグインペイロードは拒否されます。これは、すべてのKotlinコンパイラーバージョンをテスト済みであることを意味しません。",
+      "status": "reviewed"
+    },
+    "54ef545d8bef19711ead1358e34a29ab35ed33c3c3cd9a02b6befe5626bc8ba8": {
+      "source": "Keeps runtime body transformations disabled; callers can opt in with copy().",
+      "translation": "実行時のメソッド本体変換を無効のままにします。呼び出し側はcopy()を使用して明示的に有効化できます。",
+      "status": "reviewed"
+    },
+    "b388935eafd4924425de14e839ab8fea4a0ec2ce6ebb73cfb044051063d9e70f": {
+      "source": "Encrypt call linkage after renaming using constant invokedynamic call sites; requires application roots.",
+      "translation": "名前変更後に、定数invokedynamic呼び出しサイトを使用して呼び出しリンケージを暗号化します。アプリケーションルートが必要です。",
+      "status": "reviewed"
+    },
+    "e07c8fb9119ae5899bece3f19d4568db295852eea3033d1084184aa8618b7257": {
+      "source": "Explicit run mode; INHERIT derives the mode from the existing flags and protection level.",
+      "translation": "明示的な実行モードです。INHERITでは、既存のフラグと保護レベルからモードを決定します。",
+      "status": "reviewed"
+    },
+    "02149f3f963baf87a0747c9e5b42c7c5d39bf4db2b37b83d21e2815bb92dc383": {
+      "source": "Final run mode before per-method policy; NONE prevents registration of the control-flow pass.",
+      "translation": "メソッド単位のポリシーを適用する前の最終的な実行モードです。NONEでは制御フロー変換パスを登録しません。",
+      "status": "reviewed"
+    },
+    "153100b225f2eb50aaa8831e5bcb87b0a0d8bcdb6742c9088fcc1dd5a9429d14": {
+      "source": "Options for one ZXQOBFARYN0QXZ invocation.",
+      "translation": "1回のZXQOBFARYN0QXZ呼び出しに対するオプションです。",
+      "status": "reviewed"
+    },
+    "bbabd2db8758992f738bd3f8430c215101c4cfbbe2868bb9661680bbbc163048": {
+      "source": "Defaults enable metadata/debug cleanup and conservative literal and name transformations. Regex lists use full matches against original JVM internal names, resource paths, or ZXQOBFARYN0QXZ identities. Keep rules use the syntax described in the README.",
+      "translation": "デフォルトでは、メタデータとデバッグ情報の整理、および保守的なリテラル変換と名前変更を有効にします。正規表現の一覧は、元のJVM内部名、リソースパス、またはZXQOBFARYN0QXZ識別子に対して完全一致で評価されます。keepルールにはREADMEで説明されている構文を使用します。",
+      "status": "reviewed"
+    },
+    "aeb22c8fe61d0e9c9dee8234f213e8c8469993c895baae2183df83f3c6375572": {
+      "source": "Full-match class regexes hiding classes from ordinary passes and keeping their names and members; the renaming pass still rewrites references inside these classes.",
+      "translation": "通常の変換パスからクラスを隠し、その名前とメンバーを保持する、クラス名への完全一致正規表現です。名前変更パスは、これらのクラス内部にある参照を引き続き書き換えます。",
+      "status": "reviewed"
+    },
+    "5c6e237a6dc1ab58346f65a83491a84180dc056d3e104b922bcea9e577d1c5ac": {
+      "source": "Full-match class regexes suppressing name changes only.",
+      "translation": "名前変更だけを抑止する、クラス名への完全一致正規表現です。",
+      "status": "reviewed"
+    },
+    "7d91682eefd235f6ab6646a2ccc2d0fa349d7e5cad4497ffd37817af90132c63": {
+      "source": "Full-match resource-path regexes suppressing resource transformations.",
+      "translation": "リソース変換を抑止する、リソースパスへの完全一致正規表現です。",
+      "status": "reviewed"
+    },
+    "17c7132669b8646dafb0754ce69e33ffcb61ea1974c15243c85c3bd919ab49c1": {
+      "source": "Full-match method regexes taking priority over selection.",
+      "translation": "選択指定より優先される、メソッド識別子への完全一致正規表現です。",
+      "status": "reviewed"
+    },
+    "c8d08fe334fc2622627bf64d278b59f2ac19fdfe8639065c7b5cf92f45ceb27e": {
+      "source": "Explicit class, package, method, and field keep rules.",
+      "translation": "クラス、パッケージ、メソッド、フィールドに対する明示的なkeepルールです。",
+      "status": "reviewed"
+    },
+    "6b34ce745f6da1532f5f202c9444e498a76f1fb546e46f030a9be30aff7d7538": {
+      "source": "Kotlin metadata retention or removal policy.",
+      "translation": "Kotlinメタデータを保持または削除するポリシーです。",
+      "status": "reviewed"
+    },
     "ffed9728e84bebffac47ea45c380f98a239522b190e6ce9d6d6ca90c7d13126e": {
       "source": "An immutable list of configured ZXQOBFARYN0QXZ instances.",
       "translation": "設定済みのZXQOBFARYN0QXZインスタンスを格納する不変リストです。",
