@@ -1732,6 +1732,146 @@
       "translation": "Kotlinメタデータを保持または削除するポリシーです。",
       "status": "reviewed"
     },
+    "1b17460701dafb4ce17546a483b6de6f9b75f2a75e6e16deca47f08806b7f208": {
+      "source": "X.509 RSA public key embedded in the result.",
+      "translation": "結果へ埋め込むX.509形式のRSA公開鍵です。",
+      "status": "reviewed"
+    },
+    "0578858f077bf244a87055fac56d46a635d6ac380250e738c1871dbf71c0ae45": {
+      "source": "Enable direct-branch block layout changes instead of keyed dispatch.",
+      "translation": "鍵付きディスパッチの代わりに、直接分岐によるブロック配置の変更を有効にします。",
+      "status": "reviewed"
+    },
+    "46782afded59555ad826b401a6e1fc1bba7e06d2064814caeac850a5003f5e21": {
+      "source": "Extract eligible numeric constant fields before obfuscation.",
+      "translation": "難読化前に、対象となる数値定数フィールドを抽出します。",
+      "status": "reviewed"
+    },
+    "6a34d6bf6da1c6b8e36546e8ea7d6d7f34813b2a9b25254023eb188acae6ca1e": {
+      "source": "Transform eligible numeric constants.",
+      "translation": "対象となる数値定数を変換します。",
+      "status": "reviewed"
+    },
+    "2f1c2ea0ef133c0fba48ce17e840b664f372d7757b7aa7d3c33b1633bef576c5": {
+      "source": "Optional number-specific generator; defaults to the run's seeded generator.",
+      "translation": "数値専用の任意のジェネレーターです。デフォルトでは、実行全体のシード付きジェネレーターを使用します。",
+      "status": "reviewed"
+    },
+    "c5b5ed6be04615995eb58e6d73d7f5a32f5af4dfe8069e1c66df9afd0b54ac03": {
+      "source": "Numeric target selection after body policy checks.",
+      "translation": "メソッド本体ポリシーの検査後に、数値変換の対象を選択します。",
+      "status": "reviewed"
+    },
+    "6b46720041a80fb477342cc32c552415280e926efb2015294282ac3bf61b4c55": {
+      "source": "Typed numeric expression generation.",
+      "translation": "型付きの数値式を生成します。",
+      "status": "reviewed"
+    },
+    "a064978d4e4234901b560d1182cb51e990807a83a608c774a343ed051af070af": {
+      "source": "Platform ID, or ZXQOBFARYN0QXZ for detection.",
+      "translation": "プラットフォームIDです。検出を行う場合はZXQOBFARYN0QXZを指定します。",
+      "status": "reviewed"
+    },
+    "9c598ce57b7bfad2ffb55ce4190415df7a0729c15edd6919b1f782b7003ae144": {
+      "source": "Additional keep and virtualization policy rules for this run.",
+      "translation": "この実行に追加するkeepルールおよび仮想化ポリシールールです。",
+      "status": "reviewed"
+    },
+    "c32ea308790b083406cb2aec378b91a2a9be42c33deadbac72fd7a48efa05bd7": {
+      "source": "String options passed to platform contributions, configuration, and entrypoint discovery.",
+      "translation": "プラットフォームのコントリビューション、設定、エントリーポイント検出へ渡す文字列オプションです。",
+      "status": "reviewed"
+    },
+    "42a604a5cda64d2d575f18dc929298f2e14f3fb9928f4d49ece000589349c637": {
+      "source": "STRONG enables control flow and output checks, and writes an eligibility report. Virtualization requires explicit selection regardless of protection level.",
+      "translation": "STRONGは制御フロー変換と出力チェックを有効にし、適格性レポートを書き込みます。保護レベルに関係なく、仮想化には明示的な選択が必要です。",
+      "status": "reviewed"
+    },
+    "fea1ea8561afda6a88a66a158be73f9b86e330c10f83d388bad10678e1da7804": {
+      "source": "Additional package roots for application-only transformations.",
+      "translation": "アプリケーション専用変換の対象に加えるパッケージルートです。",
+      "status": "reviewed"
+    },
+    "57c39e93a0ccdba86fa12c5891e1c08cd265bd6febd7f3fbdb2d454420f355d3": {
+      "source": "Recalculate StackMap frames; also forced by control flow or selected virtualization. Unresolved required types cause failure during output generation.",
+      "translation": "StackMapフレームを再計算します。制御フロー変換または選択された仮想化によっても強制的に有効になります。必要な型を解決できない場合、出力生成中に失敗します。",
+      "status": "reviewed"
+    },
+    "f906178fe6cfb63c5ecacbf346fcfef28ca9ba29b9ed15b81984292dd08ed04d": {
+      "source": "Enable conservative class renaming.",
+      "translation": "保守的なクラス名変更を有効にします。",
+      "status": "reviewed"
+    },
+    "a79c60d70a95fa3b5e3527a4717cc8bd05473cb39d12f3a3baded3d347dd7d7e": {
+      "source": "Enable eligible field renaming.",
+      "translation": "対象となるフィールドの名前変更を有効にします。",
+      "status": "reviewed"
+    },
+    "82089a4f43eafd9f3257150d1c12f45878dde4db704702ff64680422136f818f": {
+      "source": "Enable method-family and private/static method renaming.",
+      "translation": "メソッドファミリー、およびprivateまたはstaticメソッドの名前変更を有効にします。",
+      "status": "reviewed"
+    },
+    "05ca183621efc46d22c1ae3b8d81e2446476bd341a72065dcbd47e14089071e7": {
+      "source": "Write deterministic JAR entry ordering and timestamps.",
+      "translation": "JARエントリを決定的な順序とタイムスタンプで書き込みます。",
+      "status": "reviewed"
+    },
+    "62d3b312ead88aff4edebd3390f6582de394ec3b2797880d381694bee66f93bf": {
+      "source": "Optional random seed; identical input, settings, seed, and tool version are reproducible.",
+      "translation": "任意の乱数シードです。入力、設定、シード、ツールバージョンがすべて同一であれば、結果を再現できます。",
+      "status": "reviewed"
+    },
+    "a9e12262c651f17f516b6231f5c74acaf4290ab3e6be63d6ae9b88293412901a": {
+      "source": "Extract eligible string constant fields before encryption.",
+      "translation": "暗号化前に、対象となる文字列定数フィールドを抽出します。",
+      "status": "reviewed"
+    },
+    "db11477a2d780118bba59a3c79dc3f2246f313a817ef14e0a3fa4a5907b91903": {
+      "source": "Encrypt eligible string literals.",
+      "translation": "対象となる文字列リテラルを暗号化します。",
+      "status": "reviewed"
+    },
+    "8d4e5d2a3d8cf614a098a7fcf2cb9ff4f2e4a80f1e68ab1a26f39b2d0b927638": {
+      "source": "Paired string encryption and runtime decoder generation.",
+      "translation": "対となる文字列暗号化処理と実行時デコーダーを生成します。",
+      "status": "reviewed"
+    },
+    "813ab77a248a9bcb20d3b687c04ce5c89666ded8118996785dc312b8793f56f1": {
+      "source": "Optional string-specific generator; defaults to the run's seeded generator.",
+      "translation": "文字列専用の任意のジェネレーターです。デフォルトでは、実行全体のシード付きジェネレーターを使用します。",
+      "status": "reviewed"
+    },
+    "5ad9de0fa4a876dc44e67501346287c0468c20d590d49cdc542c3916c705740c": {
+      "source": "Remove line numbers, source names, and local variable debug data.",
+      "translation": "行番号、ソース名、ローカル変数のデバッグ情報を削除します。",
+      "status": "reviewed"
+    },
+    "dade60c3133781797c7f51b20f76cf3cd443a52105db5b1df961e16cbe8db77c": {
+      "source": "Remove generic signature attributes.",
+      "translation": "ジェネリックシグネチャ属性を削除します。",
+      "status": "reviewed"
+    },
+    "b2a20dc50901fd9373246fbccb73f6dc64b2082f75f3f1e9f1d1d52165395b9b": {
+      "source": "Remove method parameter-name metadata.",
+      "translation": "メソッドのパラメーター名メタデータを削除します。",
+      "status": "reviewed"
+    },
+    "6e3ee377d761acf5b9634b675c40a7ba4053a18ecb5632525ddc00c0cdbb85a8": {
+      "source": "Validate emitted classes with ASM.",
+      "translation": "出力するクラスをASMで検証します。",
+      "status": "reviewed"
+    },
+    "ee96a91f5099a0c9ad74993ba0f002df45f3e72a45b65ba1e52e88b0b4ccc1e7": {
+      "source": "Produce analysis without writing transformed artifacts.",
+      "translation": "変換済みアーティファクトを書き込まず、解析結果だけを生成します。",
+      "status": "reviewed"
+    },
+    "b94b2dbbb3972636c9064aab2ef321a9818d98fb0b8b14cb83b241b35d3b1542": {
+      "source": "Optional JSON eligibility-report destination.",
+      "translation": "任意のJSON適格性レポート出力先です。",
+      "status": "reviewed"
+    },
     "ffed9728e84bebffac47ea45c380f98a239522b190e6ce9d6d6ca90c7d13126e": {
       "source": "An immutable list of configured ZXQOBFARYN0QXZ instances.",
       "translation": "設定済みのZXQOBFARYN0QXZインスタンスを格納する不変リストです。",
