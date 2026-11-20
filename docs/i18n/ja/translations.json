@@ -136,6 +136,156 @@
       "source": "Functional interface representing a sink for adding archives with specified contribution modes.",
       "translation": "指定した追加モードでアーカイブを追加するシンクを表す関数型インターフェースです。",
       "status": "reviewed"
+    },
+    "055a0e9cc8bf5e880e76fa478b740ae7776f77e1c9f472c4347af3565667b804": {
+      "source": "Explicitly selects the annotated class or method for Obfaryn virtualization.",
+      "translation": "アノテーションを付けたクラスまたはメソッドをObfarynの仮想化対象として明示的に選択します。",
+      "status": "reviewed"
+    },
+    "07b9292ce63be79e0ab8d91c09e48ef302e8b334805b0cc5e2e774d7ae96a836": {
+      "source": "Keeps the annotated declaration's name and body free from Obfaryn transformations. References still follow renames applied to other declarations so the output remains valid.",
+      "translation": "アノテーションを付けた宣言の名前と本体をObfarynの変換対象から除外します。出力の整合性を維持するため、他の宣言に適用されたリネームには、その宣言への参照も追従します。",
+      "status": "reviewed"
+    },
+    "1d2f18a9a6a9dd22f113a6ddad2c5b90c8e1ad06032371a2f6cfcaf416452282": {
+      "source": "Override for the numeric-literal obfuscation pass.",
+      "translation": "数値リテラル難読化パスの上書き設定です。",
+      "status": "reviewed"
+    },
+    "2075168df32f082ef541a07956a1a5390831f61abcf7613f40cc2e77751c3299": {
+      "source": "Interpreter-style dispatch-based control-flow obfuscation.",
+      "translation": "インタープリター形式のディスパッチを使用する制御フロー難読化です。",
+      "status": "reviewed"
+    },
+    "22ce8e329765e6d8e3c02dca400d2018bc82513c6fbf9c7d4de866f1f18bcb4e": {
+      "source": "Per-feature permission, inherited from class to method. Global pass enablement still applies. Existing NoObfuscation, RenameOnly and HotPath restrictions cannot be overridden here. Virtualization selection remains exclusively controlled by Virtualize and explicit selectors.",
+      "translation": "機能ごとの許可設定で、クラスからメソッドへ継承されます。グローバルなパスの有効化設定は引き続き適用されます。既存のNoObfuscation、RenameOnly、およびHotPathによる制限は、ここでは上書きできません。仮想化対象は引き続きVirtualizeと明示的なセレクターだけで選択されます。",
+      "status": "reviewed"
+    },
+    "30febabbc1bf47f8c9fa7554de1889b7c5aa2431be4e0ac54a3187a0e4cfe0de": {
+      "source": "Selection is always annotation- or explicit-pattern-driven; it is never inferred from a method's name and is never expanded through a protection profile on its own.",
+      "translation": "対象は常にアノテーションまたは明示的なパターンによって選択されます。メソッド名から推測されることはなく、保護プロファイルだけによって対象が拡張されることもありません。",
+      "status": "reviewed"
+    },
+    "361350c2ad61eb64da20cc9519da85b9ec89bde31b1e58d74093101791d04fcc": {
+      "source": "-1 inherits the corresponding limit; limits restrict structure, not elapsed execution time.",
+      "translation": "-1の場合は対応する上限を継承します。上限が制限するのは構造であり、実行経過時間ではありません。",
+      "status": "reviewed"
+    },
+    "38c7626cb8e5658c088d24843f4f278f721626c668f0cedb92afbe8800dd45c6": {
+      "source": "Force this feature off for the annotated declaration.",
+      "translation": "アノテーションを付けた宣言では、この機能を強制的に無効にします。",
+      "status": "reviewed"
+    },
+    "3ea2945eeeba364dc8c51908a794ebe77a97f3d227c7e36eb39f67202eb1c15d": {
+      "source": "Override for the string-literal encryption pass.",
+      "translation": "文字列リテラル暗号化パスの上書き設定です。",
+      "status": "reviewed"
+    },
+    "4e765d83ea8ebc5dad89d29a0f8014b3df431119a4b549a18ea8542b887769fb": {
+      "source": "Per-feature enable/disable override for ZXQOBFARYN0QXZ's properties.",
+      "translation": "ZXQOBFARYN0QXZの各プロパティについて、有効または無効を上書きする設定です。",
+      "status": "reviewed"
+    },
+    "504f6e876413836e6a0db7ddf0f7d132bb22b61de431984e7fbfccf3d466a43c": {
+      "source": "Per-method JVM code-length ceiling for this declaration.",
+      "translation": "この宣言に適用する、メソッド単位のJVMコード長上限です。",
+      "status": "reviewed"
+    },
+    "50e303a87df8a015637729047ebbcca1c37cda37267d5926f340a008bdae326b": {
+      "source": "Skip body passes when the original method has more branch instructions than this.",
+      "translation": "元のメソッドの分岐命令数がこの値を超える場合、メソッド本体のパスをスキップします。",
+      "status": "reviewed"
+    },
+    "64488f84678df8e0cef38ec9b8a693471d0d619e717f0a01bb2f2bdb53a6a76d": {
+      "source": "Prevents runtime body obfuscation (strings, numbers, control flow, and virtualization).",
+      "translation": "実行時のメソッド本体の難読化（文字列、数値、制御フロー、および仮想化）を抑止します。",
+      "status": "reviewed"
+    },
+    "6fbd71bcf231b66be87048b3c6c0472d8681cb4796abc9ec6151caaa28a21b0d": {
+      "source": "Allows renaming while keeping the annotated class or method body otherwise unchanged.",
+      "translation": "アノテーションを付けたクラスまたはメソッドの本体をそれ以外は変更せず、リネームだけを許可します。",
+      "status": "reviewed"
+    },
+    "6ff63143ec91dd465b49ef38876cc0e6ecceec75efd7898b912197d1b3af57e6": {
+      "source": "Use this for code whose call frequency makes the interpreter overhead undesirable, such as tick callbacks, entity scans, packet handlers, and other latency-sensitive paths.",
+      "translation": "tickコールバック、エンティティ走査、パケットハンドラーなど、呼び出し頻度が高くインタープリターのオーバーヘッドが望ましくない、レイテンシーに敏感な処理で使用します。",
+      "status": "reviewed"
+    },
+    "7460013c36eb12ed69f74d3dfbcea5b7355e7068e9ae4ac705931ff214fa612b": {
+      "source": "Roll a body pass back when output size exceeds this percentage of input size.",
+      "translation": "出力サイズが入力サイズに対してこの割合を超える場合、メソッド本体のパスをロールバックします。",
+      "status": "reviewed"
+    },
+    "75224f3a309264931332e2474ae7c3146a5652ee7a11e8cab26b8e4143b25be7": {
+      "source": "Override for moving constant fields out of ZXQOBFARYN0QXZ attributes.",
+      "translation": "定数フィールドをZXQOBFARYN0QXZ属性の外へ移動する処理の上書き設定です。",
+      "status": "reviewed"
+    },
+    "765b1eb84bedb69227eb476846230a95c8e59fa051ac843601a55b9f8a1262ff": {
+      "source": "Keeps only the annotated declaration's JVM name while allowing body transformations.",
+      "translation": "メソッド本体の変換を許可しながら、アノテーションを付けた宣言のJVM名だけを維持します。",
+      "status": "reviewed"
+    },
+    "77e5f9e55353c7526caa483e36799bdba2d6ef41fe406e8dfba59f0698ddc3c2": {
+      "source": "Force this feature on for the annotated declaration.",
+      "translation": "アノテーションを付けた宣言では、この機能を強制的に有効にします。",
+      "status": "reviewed"
+    },
+    "8c68bdf0cd73789ccc6eb7ac32ac197fb3e15c758dd6bd69ff43e9a02e724407": {
+      "source": "Disable control-flow protection for the annotated declaration.",
+      "translation": "アノテーションを付けた宣言では、制御フロー保護を無効にします。",
+      "status": "reviewed"
+    },
+    "907a004a3481ebc7c933f381d0f86c1f154e0083c900840d50db01fcdcb1602d": {
+      "source": "Roll a body pass back when it would add more instructions than this.",
+      "translation": "追加される命令数がこの値を超える場合、メソッド本体のパスをロールバックします。",
+      "status": "reviewed"
+    },
+    "910c27f4d8485e2a693a2d744150325eaf2ff2acb1558253450e17308414bbe7": {
+      "source": "Explicit control-flow protection override for ZXQOBFARYN0QXZ.",
+      "translation": "ZXQOBFARYN0QXZの制御フロー保護を明示的に上書きする設定です。",
+      "status": "reviewed"
+    },
+    "9be5caa806a507a1c4d72425ce90557327282d50ce3b97361827f25e5d656de3": {
+      "source": "Skip body passes when the original method has more instructions than this.",
+      "translation": "元のメソッドの命令数がこの値を超える場合、メソッド本体のパスをスキップします。",
+      "status": "reviewed"
+    },
+    "9dc63533b546342ce5121281072fcb115b6c5bb8f615de5661cd8e589a806dee": {
+      "source": "Method annotations override a class-level ZXQOBFARYN0QXZ. Eligibility restrictions still apply.",
+      "translation": "メソッドのアノテーションは、クラスレベルのZXQOBFARYN0QXZを上書きします。適用可能性に関する制限は引き続き適用されます。",
+      "status": "reviewed"
+    },
+    "9fb519fc298526f0183f1c9460b481e9bc27ffa7f5f51f8de6e05a593f6e6400": {
+      "source": "Override for the integer-arithmetic obfuscation pass.",
+      "translation": "整数演算難読化パスの上書き設定です。",
+      "status": "reviewed"
+    },
+    "beefa0df1ced6ff04943c7166b87eac1405debe58fda68f00a28313a562df3f1": {
+      "source": "Override for control-flow protection; see ZXQOBFARYN0QXZ.",
+      "translation": "制御フロー保護の上書き設定です。ZXQOBFARYN0QXZを参照してください。",
+      "status": "reviewed"
+    },
+    "c1b29446e8fd1c02ca90dfcc899823ebe1aff39b1c36a9446c92edb67d1e4d3b": {
+      "source": "Override for call-indirection protection.",
+      "translation": "呼び出し間接化保護の上書き設定です。",
+      "status": "reviewed"
+    },
+    "c3a8cad685cb97b42bba9238dceae8e874e137e450fc73f651b19bb1602884b6": {
+      "source": "Defer to the class annotation, matching rule, or run default.",
+      "translation": "クラスのアノテーション、マッチングルール、または実行時のデフォルト設定に従います。",
+      "status": "reviewed"
+    },
+    "da9d8d2bdc2567e2d19cb25157d03c7bcb44d5aaebd233ac96deaf24237514b2": {
+      "source": "Lightweight flow obfuscation; cheaper than ZXQOBFARYN0QXZ but less thorough.",
+      "translation": "軽量な制御フロー難読化です。ZXQOBFARYN0QXZより低コストですが、難読化の程度も低くなります。",
+      "status": "reviewed"
+    },
+    "e4813ffc5d79b9abfc8408de367806f0818f01bcf39234a7c8e5022d921d65a7": {
+      "source": "Minimum added-instruction allowance for the percentage check; -1 inherits, 0 uses a strict ratio.",
+      "translation": "割合チェックで許容する追加命令数の最小値です。-1では継承し、0では厳密な割合を使用します。",
+      "status": "reviewed"
     }
   }
 }

@@ -28,6 +28,14 @@ HIGH_RISK = re.compile(
     r"throws?|exception|security|required|forbidden|unless|only\s+if)\b",
     re.IGNORECASE,
 )
+GENERATED_DOKKA_TEXT = {
+    "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
+    "This method may be used to iterate over the enum entries.",
+    "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
+    "Returns an array containing the constants of this enum type, in the order they're declared.",
+    "if this enum type has no constant with the specified name",
+    "This method may be used to iterate over the constants.",
+}
 
 
 def require_html_parser() -> None:
@@ -82,14 +90,15 @@ def extract(root: Path) -> dict[str, dict]:
     soup = BeautifulSoup(page.read_text(encoding="utf-8"), "html.parser")
     for index, block in enumerate(soup.select(TRANSLATABLE_SELECTOR)):
       source, protected = protected_source(block)
-      if not source or not BeautifulSoup(source, "html.parser").get_text(strip=True):
+      plain_text = BeautifulSoup(source, "html.parser").get_text(" ", strip=True)
+      if not source or not plain_text or plain_text in GENERATED_DOKKA_TEXT:
         continue
       key = entry_id(relative, index)
       result[key] = {
           "source": source,
           "sourceHash": source_hash(source),
           "protectedNodes": protected,
-          "highRisk": bool(HIGH_RISK.search(BeautifulSoup(source, "html.parser").get_text(" "))),
+          "highRisk": bool(HIGH_RISK.search(plain_text)),
       }
   return result
 
