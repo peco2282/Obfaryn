@@ -682,6 +682,371 @@
       "translation": "インタープリターを使用せず、鍵付きディスパッチまたは直接分岐によるブロック配置の変更を行います。",
       "status": "reviewed"
     },
+    "6f02e9b724a04614c9820e714fff747dbc61374c82ee84e939f243f9e4837d3c": {
+      "source": "Prelink generates an API for explicit preparation; it does not execute preparation automatically.",
+      "translation": "プリリンクは明示的な準備を行うためのAPIを生成します。準備を自動的に実行するものではありません。",
+      "status": "reviewed"
+    },
+    "601b369eec025092b38ba74b2d7ab524aac15cbbdb7dd97164c8c6c4482b8684": {
+      "source": "Run-wide mode; an explicit mode takes precedence over legacy flags and the protection level.",
+      "translation": "実行全体に適用するモードです。明示的に指定したモードは、従来のフラグおよび保護レベルより優先されます。",
+      "status": "reviewed"
+    },
+    "5544e0fe5bafd5bd41f6b9323f6f97512aea6cdbfc3aaf4655624d6652b296d1": {
+      "source": "Metadata options are aliases of the extension's existing flat properties.",
+      "translation": "メタデータオプションは、この拡張機能に既存のフラットなプロパティの別名です。",
+      "status": "reviewed"
+    },
+    "bc8322bca4396d33abcc8cff4259d84bd2187ee31e03095fc36e1f303e5d3af2": {
+      "source": "Null feature properties inherit; these permissions never register a disabled pass.",
+      "translation": "機能プロパティがnullの場合は上位の設定を継承します。これらの許可設定によって、無効なパスが登録されることはありません。",
+      "status": "reviewed"
+    },
+    "ea1e518ceeb8ac11b4700c788a7f693c80a2b92c73b39133b9017aaf4fac4999": {
+      "source": "A rule budget replaces the run budget, just like ProtectionRule.budget.",
+      "translation": "ProtectionRule.budgetと同様に、ルールのバジェットは実行全体のバジェットを置き換えます。",
+      "status": "reviewed"
+    },
+    "608f2e72475b68429a36869ff5d8b29ce41508da4e97d721feca12d910ef9dbe": {
+      "source": "Number options; null ZXQOBFARYN0QXZ uses the shared generator controlled by ZXQOBFARYN1QXZ.",
+      "translation": "数値のオプションです。ZXQOBFARYN0QXZがnullの場合は、ZXQOBFARYN1QXZで制御される共有ジェネレーターを使用します。",
+      "status": "reviewed"
+    },
+    "d8d5de1e1cd6964ed39154e97457a890daea89d5487313f7ef75a26cde78c990": {
+      "source": "Adds a subproject to the assembly. Order does not matter; ids are the project paths.",
+      "translation": "サブプロジェクトをアセンブリに追加します。順序に意味はなく、IDにはプロジェクトパスを使用します。",
+      "status": "reviewed"
+    },
+    "a7cc9131e8935cdb247383fb0ce801ef92e618577a570a3f540a5f6886c93e68": {
+      "source": "Root-level configuration for a cross-artifact assembly (experimental).",
+      "translation": "複数アーティファクトにまたがるアセンブリのルートレベル設定です（実験的機能）。",
+      "status": "reviewed"
+    },
+    "b3685133f3c64c450425361e33aa1fbde282aba83b25efb341abdbce76094b7c": {
+      "source": "Lists the subprojects whose JARs are obfuscated together in one naming universe, and the session-wide renaming decisions (owned by the whole program, not any one artifact). Each listed subproject keeps configuring its own body passes through its own ZXQOBFARYN0QXZ block.",
+      "translation": "単一の名前空間でJARをまとめて難読化するサブプロジェクトと、セッション全体の名前変更方針を列挙します。この方針は特定のアーティファクトではなく、プログラム全体に属します。列挙した各サブプロジェクトは、それぞれのZXQOBFARYN0QXZブロックを通じて独自のメソッド本体パスを引き続き設定します。",
+      "status": "reviewed"
+    },
+    "87a7a8b472cc50c34769bd484559de6fe0584498c90eae8ddbe7e3b11612624a": {
+      "source": "extra package roots treated as application scope by the renamer.",
+      "translation": "名前変更処理でアプリケーションスコープとして扱う追加のパッケージルートです。",
+      "status": "reviewed"
+    },
+    "2c1a71b228dab3459a26d7a4a10fe0601c38d4f4fe386f97102fdc8cbe725f6e": {
+      "source": "extra external dependencies for hierarchy/frame resolution (sibling artifacts are added automatically and must not be listed here).",
+      "translation": "クラス階層およびフレームの解決に使用する追加の外部依存関係です。兄弟アーティファクトは自動的に追加されるため、ここに列挙してはいけません。",
+      "status": "reviewed"
+    },
+    "6745210b3d464df3775abdc6e3bdb4690ee1715da98c269dc772d387095f5a14": {
+      "source": "move eligible renamed classes into ZXQOBFARYN0QXZ across every artifact.",
+      "translation": "すべてのアーティファクトで、対象となる名前変更済みクラスをZXQOBFARYN0QXZへ移動します。",
+      "status": "reviewed"
+    },
+    "0b0ee463ff7191e5d7fd754e9d1fe9de5929f655577dd69a494b0d5ac9049fa7": {
+      "source": "destination for the single cross-artifact mapping; null uses ZXQOBFARYN0QXZ under the root project.",
+      "translation": "アーティファクト間で共有する単一のマッピングの出力先です。nullの場合は、ルートプロジェクト配下のZXQOBFARYN0QXZを使用します。",
+      "status": "reviewed"
+    },
+    "b07bcaa69d26ecafd0e7615a71065b2bf389632c3557af1e812cfda8c38bd060": {
+      "source": "a shared destination directory, or null to write each artifact's JAR next to its own ZXQOBFARYN0QXZ.",
+      "translation": "共有の出力先ディレクトリです。nullの場合は、各アーティファクトのJARをそれぞれのZXQOBFARYN0QXZの隣に書き込みます。",
+      "status": "reviewed"
+    },
+    "58e542a960c519fb652a4f4b4145a3a34b0c50a72e42a693dc68578bc25a312a": {
+      "source": "appended to each artifact's JAR name.",
+      "translation": "各アーティファクトのJAR名に付加する文字列です。",
+      "status": "reviewed"
+    },
+    "8fca96b177597e76654f146386814e68d348853fcf9d1272d893f8cabc72c929": {
+      "source": "class/method/field renaming for the whole program.",
+      "translation": "プログラム全体に対するクラス、メソッド、フィールドの名前変更設定です。",
+      "status": "reviewed"
+    },
+    "3acc3b19e9f8d0814115be7b071c8241f53d58b7873682a7e9913539943f48ac": {
+      "source": "rename seed; body seeds stay per artifact.",
+      "translation": "名前変更に使用するシード値です。メソッド本体のシード値はアーティファクトごとに維持されます。",
+      "status": "reviewed"
+    },
+    "aa5f835a43daf98c9c9da1b08e088df61e565a8c10d7fd0a976717495904a15a": {
+      "source": "Creates a Gradle extension with default configuration values.",
+      "translation": "デフォルトの設定値を持つGradle拡張を作成します。",
+      "status": "reviewed"
+    },
+    "9e7df4e153e6910e0c21d866c3a208b7fa0166bda13e9b1c10cb7a94ba2cddd6": {
+      "source": "Configuration class for the Obfaryn plugin, providing options for code obfuscation.",
+      "translation": "コード難読化のオプションを提供するObfarynプラグインの設定クラスです。",
+      "status": "reviewed"
+    },
+    "9d0e84591aa9a22685bf676ff8e3f272be22c4ffae9f8bf57a4d9dea0c214c50": {
+      "source": "This class allows users to customize various aspects of the obfuscation process, such as renaming of program elements, stripping debug information, applying control flow transformations, and virtualizing methods. The configuration options are exposed as properties that can be modified in the build script.",
+      "translation": "このクラスを使用すると、プログラム要素の名前変更、デバッグ情報の除去、制御フロー変換の適用、メソッドの仮想化など、難読化処理のさまざまな側面をカスタマイズできます。設定項目は、ビルドスクリプトから変更できるプロパティとして公開されます。",
+      "status": "reviewed"
+    },
+    "e8f0a4dcfc05f018f9a91491d0f68896eebeb80a6b9f712ead2a4592675ba625": {
+      "source": "A list of resource files to exclude from the obfuscation process.",
+      "translation": "難読化処理から除外するリソースファイルの一覧です。",
+      "status": "reviewed"
+    },
+    "d5207c7c40e7c8effd0246f1d695071cdba0892672f68dbcd4c13dab554abdf1": {
+      "source": "Move eligible renamed classes into ZXQOBFARYN0QXZ.",
+      "translation": "対象となる名前変更済みクラスをZXQOBFARYN0QXZへ移動します。",
+      "status": "reviewed"
+    },
+    "2f140d8369c8b748995db050d8a5848e03c9242d25473621e7d2e580dca793d7": {
+      "source": "The path to the private key file used for generating integrity checks.",
+      "translation": "整合性チェックの生成に使用する秘密鍵ファイルのパスです。",
+      "status": "reviewed"
+    },
+    "a88de5d977a0113434a7ffac20fc37396945c407e80bdfba56008ea2207b1500": {
+      "source": "The path to the public key file used for verifying integrity checks.",
+      "translation": "整合性チェックの検証に使用する公開鍵ファイルのパスです。",
+      "status": "reviewed"
+    },
+    "fcd74e915274a534af970207a0f57e10168be76335dd26e200e5db3f8d2fdaa0": {
+      "source": "A list of patterns specifying elements to be excluded from obfuscation.",
+      "translation": "難読化から除外する要素を指定するパターンの一覧です。",
+      "status": "reviewed"
+    },
+    "823e2ccfb83c695fdec107510b6da789e7a58c9009b6cf7080b214e88e404709": {
+      "source": "Specifies the mode for handling Kotlin metadata. Defaults to \"auto\".",
+      "translation": "Kotlinメタデータを処理するモードを指定します。デフォルトは「auto」です。",
+      "status": "reviewed"
+    },
+    "3194fcce97f8a339513d3f4aedfc49470230914f30cbdfde8808ff4201b0fd81": {
+      "source": "Restricts control flow to direct-branch block layout changes.",
+      "translation": "制御フロー変換を、直接分岐によるブロック配置の変更に限定します。",
+      "status": "reviewed"
+    },
+    "efd9adf217e633fcfc01dd26bdab661d762fe8dcc57558d214c08b0efccb0ae4": {
+      "source": "Determines whether numeric constants should be obfuscated.",
+      "translation": "数値定数を難読化するかどうかを指定します。",
+      "status": "reviewed"
+    },
+    "6641fb6400530b318ccb9c9d5c2a3d39856fb696905ff7096fc15cfcec8502a0": {
+      "source": "Specifies the suffix to be appended to the output file name. Defaults to \"obfuscated\".",
+      "translation": "出力ファイル名に付加する接尾辞を指定します。デフォルトは「obfuscated」です。",
+      "status": "reviewed"
+    },
+    "4f18077f71da73a19769bcab8ba5ba26aa55ed04aa59f5e6991fb4df478114e3": {
+      "source": "Named providers are loaded from obfarynPlatform; no installed provider runs implicitly.",
+      "translation": "名前を指定したプロバイダーはobfarynPlatformから読み込まれます。インストール済みのプロバイダーが暗黙に実行されることはありません。",
+      "status": "reviewed"
+    },
+    "c858b5dc226d53e26e6aab91ea36bbe71bbd968af16adeb31a1abb9f7dd32ed4": {
+      "source": "Defines the target platform for the obfuscation process. Defaults to \"auto\".",
+      "translation": "難読化処理の対象プラットフォームを指定します。デフォルトは「auto」です。",
+      "status": "reviewed"
+    },
+    "a77efa121dd071177f57c30a1af6a9bc52c0ee7a6b365305d054d8a55a15bd32": {
+      "source": "standard or strong; strong adds application control flow, checks, and reporting; VM selection stays explicit.",
+      "translation": "standardまたはstrongを指定します。strongではアプリケーションの制御フロー変換、チェック、レポート生成が追加されますが、VMの選択は引き続き明示的に行います。",
+      "status": "reviewed"
+    },
+    "44626e464ceee4b4e3fa3c1853cfb71e39bee92de4e78ae4005a6366678fc0bf": {
+      "source": "Recomputes stack frames for the obfuscated bytecode if enabled.",
+      "translation": "有効にすると、難読化したバイトコードのスタックフレームを再計算します。",
+      "status": "reviewed"
+    },
+    "aa4fb42f8873f04f7279d57701eb2b67bdb3e3d43251baf560799865edccafb2": {
+      "source": "Encapsulates options for renaming classes, methods, and fields.",
+      "translation": "クラス、メソッド、フィールドの名前変更オプションをまとめます。",
+      "status": "reviewed"
+    },
+    "faf9a6b5506dfcf172bfc9c8ff51ce4477d2cb913e195a82524bc387dcda9b0d": {
+      "source": "Ensures that the obfuscation process produces consistent outputs for identical inputs.",
+      "translation": "同一の入力に対して難読化処理が一貫した出力を生成するようにします。",
+      "status": "reviewed"
+    },
+    "ccdd6e53d6f9ec8d04f63150ae6500f213195d245d0230cc1491a87261b337ce": {
+      "source": "An optional seed value for initializing the random number generator used in obfuscation.",
+      "translation": "難読化で使用する乱数ジェネレーターを初期化するための任意のシード値です。",
+      "status": "reviewed"
+    },
+    "3256eec5b1b852dc193ec034ab6d5b919fda24dd25194972897ce00c733b6792": {
+      "source": "Determines whether string literals should be encrypted during obfuscation.",
+      "translation": "難読化時に文字列リテラルを暗号化するかどうかを指定します。",
+      "status": "reviewed"
+    },
+    "87fd72ff2db7ad22830252d6bffa6cab624446914b5f76b06312ad2bb54f8b6b": {
+      "source": "Indicates whether debug information, such as line numbers and local variable tables, should be removed from the bytecode.",
+      "translation": "行番号やローカル変数テーブルなどのデバッグ情報をバイトコードから削除するかどうかを指定します。",
+      "status": "reviewed"
+    },
+    "e1e020daa4a2f1e62358e48809ad44da88e8a5a8036b92697819163c4c4a59ac": {
+      "source": "Indicates whether generic type signatures should be stripped from bytecode.",
+      "translation": "ジェネリック型シグネチャをバイトコードから除去するかどうかを指定します。",
+      "status": "reviewed"
+    },
+    "acbf982f87b79d34ff70ea8b166a4309acd07e16823fe554be22f66a6201b414": {
+      "source": "Indicates whether Kotlin-specific metadata annotations should be removed.",
+      "translation": "Kotlin固有のメタデータアノテーションを削除するかどうかを指定します。",
+      "status": "reviewed"
+    },
+    "68792158486e07ebfd66ae6346ce9b5967cbf407236ea3efe6df5f5f77af5479": {
+      "source": "A list of application package prefixes used to identify classes to obfuscate.",
+      "translation": "難読化するクラスの識別に使用するアプリケーションパッケージの接頭辞一覧です。",
+      "status": "reviewed"
+    },
+    "0b4bfb088ef856f02a7c6939a8f9857a999980c81ad96a34d4271876b3f2de44": {
+      "source": "Indicates whether method parameter names should be removed.",
+      "translation": "メソッドのパラメーター名を削除するかどうかを指定します。",
+      "status": "reviewed"
+    },
+    "f99340356c70b34deba8d7117462a164301da31d1da10ebd8f87467856e82d8b": {
+      "source": "Specifies the target package for relocating renamed classes.",
+      "translation": "名前変更したクラスの移動先パッケージを指定します。",
+      "status": "reviewed"
+    },
+    "37dfd78d95e3a6531d57ab4250463053617521b75f57cb2ad44493b7cc2f80a5": {
+      "source": "Enables verification of the output bytecode to ensure correctness.",
+      "translation": "出力バイトコードの正当性を確認する検証を有効にします。",
+      "status": "reviewed"
+    },
+    "f26e27ae87b3b967e58a69a6cd3102ae6cc078d1cdbcc0ac928a3e3bd798036e": {
+      "source": "Configures a fresh registry per execution; create stateful passes inside this block.",
+      "translation": "実行ごとに新しいレジストリを設定します。状態を持つパスは、このブロック内で作成してください。",
+      "status": "reviewed"
+    },
+    "a5075ec5d47d0af7ad4a29e7ecf693c135a074486d893c2b3409f6b4393a73d3": {
+      "source": "Supply an API-only recipe directly from a build or convention plugin.",
+      "translation": "APIのみに依存するレシピを、ビルドまたは規約プラグインから直接指定します。",
+      "status": "reviewed"
+    },
+    "582d7a6da38e233072d3179ec2ef7fc060a5d26f85d3757a1815c9205b036410": {
+      "source": "Mapping files from previously obfuscated artifacts (typically a separately shipped API) whose renames are re-applied, so references to them match their shipped names. Those artifacts must also be on ZXQOBFARYN0QXZ. Paths are resolved against the project directory.",
+      "translation": "以前に難読化したアーティファクト（通常は別途配布するAPI）の名前変更を再適用するためのマッピングファイルです。これにより、それらへの参照が配布時の名前と一致します。対象のアーティファクトはZXQOBFARYN0QXZにも存在する必要があります。パスはプロジェクトディレクトリを基準に解決されます。",
+      "status": "reviewed"
+    },
+    "8501889cc8f583770885364860df585abab8690f3479288f80b6412ebd94bc4a": {
+      "source": "Encodes call linkage using constant invokedynamic sites after renaming.",
+      "translation": "名前変更後に、定数invokedynamicサイトを使用して呼び出しのリンケージをエンコードします。",
+      "status": "reviewed"
+    },
+    "3085cb7b2f8e8956f3986d4b6b5bfdf8014215efad18d532d75a507fefe423ba": {
+      "source": "A list of additional paths to include in the classpath for the obfuscation process.",
+      "translation": "難読化処理のクラスパスに含める追加パスの一覧です。",
+      "status": "reviewed"
+    },
+    "123b3402ddbba115b11f3ef2197402f5e7a4ebddea03de878931f2ba5effa96d": {
+      "source": "Enables keyed switch dispatch with direct-branch fallback.",
+      "translation": "直接分岐へのフォールバックを備えた鍵付きswitchディスパッチを有効にします。",
+      "status": "reviewed"
+    },
+    "1ba36f45c29d39dda46ef4513ccbcf8a280bc119fc62ebba64b73d3607f4ba4e": {
+      "source": "A list of class names to exclude from the obfuscation process.",
+      "translation": "難読化処理から除外するクラス名の一覧です。",
+      "status": "reviewed"
+    },
+    "dab2de869bc53353e941645e6ce055f495534faac24b2596e8120f623d7c64cd": {
+      "source": "A list of patterns specifying elements to be excluded from renaming.",
+      "translation": "名前変更から除外する要素を指定するパターンの一覧です。",
+      "status": "reviewed"
+    },
+    "e05926a60d1d8c49a26370554c73c666339444a50a97793ed81cc57b4ffc5a27": {
+      "source": "Registers the ZXQOBFARYN0QXZ extension and ZXQOBFARYN1QXZ task for Java projects.",
+      "translation": "JavaプロジェクトにZXQOBFARYN0QXZ拡張とZXQOBFARYN1QXZタスクを登録します。",
+      "status": "reviewed"
+    },
+    "177fb8c0854657767f6779f83703069da1325855a0086564c5b2b9aeea370da8": {
+      "source": "Null uses ZXQOBFARYN0QXZ, including a customized Gradle build directory.",
+      "translation": "nullの場合は、カスタマイズされたGradleビルドディレクトリも含めてZXQOBFARYN0QXZを使用します。",
+      "status": "reviewed"
+    },
+    "c899513821aa4b968e87789c3abd2500b48624a3099250a4e760dfbc8e8b37ed": {
+      "source": "Optional JAR name within ZXQOBFARYN0QXZ; defaults to the input name plus outputSuffix.",
+      "translation": "ZXQOBFARYN0QXZ内で使用する任意のJAR名です。デフォルトでは、入力名にoutputSuffixを付加した名前になります。",
+      "status": "reviewed"
+    },
+    "3349f0b712092397a0d2e4bc14dd950843cca49ca99649befa92a24c1cf81f1c": {
+      "source": "Explicit JAR path, taking precedence over ZXQOBFARYN0QXZ and ZXQOBFARYN1QXZ.",
+      "translation": "明示的なJARパスです。ZXQOBFARYN0QXZおよびZXQOBFARYN1QXZより優先されます。",
+      "status": "reviewed"
+    },
+    "5e08f0479641a39b7592556b82d8fc36c05e62c051ec67db114e64e41a4a488d": {
+      "source": "Output paths resolve relative to the project, not the shell's working directory.",
+      "translation": "出力パスはシェルの作業ディレクトリではなく、プロジェクトを基準に解決されます。",
+      "status": "reviewed"
+    },
+    "03db187d7b99e1ea7866eada361fd0dca4255fae58ca60c27e51fc361a00111b": {
+      "source": "Explicit mapping path; null puts the mapping beside the output JAR.",
+      "translation": "明示的なマッピングのパスです。nullの場合は、出力JARと同じ場所にマッピングを配置します。",
+      "status": "reviewed"
+    },
+    "d030c58a3c22dcae4cd35d580d0a4a68e1a2c2f0d8b67ee226e383fe8a603228": {
+      "source": "Structural transformation limits; null instruction/branch limits are unlimited.",
+      "translation": "構造変換の上限です。命令数または分岐数の上限がnullの場合は無制限です。",
+      "status": "reviewed"
+    },
+    "afe29ce74f05536e86f66630e0b25a5eef69338c72a15a25e2707fd260a12cfb": {
+      "source": "Full-match regex over the original owner.method(descriptor); later rules win per feature.",
+      "translation": "元のowner.method(descriptor)に対して完全一致させる正規表現です。機能ごとに、後から指定したルールが優先されます。",
+      "status": "reviewed"
+    },
+    "70b3ac6285a41fe9545be938da6eebec974b9637426db974cd9e630c5ee96527": {
+      "source": "Configuration options for controlling renaming behavior during obfuscation.",
+      "translation": "難読化時の名前変更動作を制御する設定オプションです。",
+      "status": "reviewed"
+    },
+    "e6e20f1f566d40fec6b1608921c5e8a35fa090365be2bbd95ced675c011a0b15": {
+      "source": "This class provides flags to enable or disable renaming for specific types of program elements, such as classes, methods, and fields.",
+      "translation": "このクラスは、クラス、メソッド、フィールドなど、特定の種類のプログラム要素について名前変更を有効または無効にするフラグを提供します。",
+      "status": "reviewed"
+    },
+    "89c8e14da7571b85a2628f2520e8662bd01b36271e1c67cc743611feea51c91a": {
+      "source": "Determines whether classes should be renamed during the obfuscation process.",
+      "translation": "難読化処理でクラス名を変更するかどうかを指定します。",
+      "status": "reviewed"
+    },
+    "43ec562c32f0aeb809987ff72aeb8bcec471956826a5731708e0cc18c73d94c3": {
+      "source": "Determines whether fields should be renamed during the obfuscation process.",
+      "translation": "難読化処理でフィールド名を変更するかどうかを指定します。",
+      "status": "reviewed"
+    },
+    "79d992e375dc7b3c9df4f9021ed0b3b3ff98d737f571e95447662f40bb8ab1ea": {
+      "source": "Determines whether methods should be renamed during the obfuscation process.",
+      "translation": "難読化処理でメソッド名を変更するかどうかを指定します。",
+      "status": "reviewed"
+    },
+    "848626c4026c8ff6048ac254d6f3ff01d9b4945a40e69d9cded8bb6cf790a86d": {
+      "source": "Paths resolve relative to the Gradle project. Null disables an explicitly requested report.",
+      "translation": "パスはGradleプロジェクトを基準に解決されます。nullを指定すると、明示的に要求されたレポートが無効になります。",
+      "status": "reviewed"
+    },
+    "b64cc56730373acf08e989f424093148b02721b487572d06c7fc47ea20227e85": {
+      "source": "String options; ZXQOBFARYN0QXZ shares its value with the legacy extension property.",
+      "translation": "文字列のオプションです。ZXQOBFARYN0QXZの値は、従来の拡張プロパティと共有されます。",
+      "status": "reviewed"
+    },
+    "b00606aa91a3d1796057c6f66b403175b36b9d3f60b8996806a09a7b7369ba20": {
+      "source": "Null uses the shared generator controlled by ZXQOBFARYN0QXZ.",
+      "translation": "nullの場合は、ZXQOBFARYN0QXZで制御される共有ジェネレーターを使用します。",
+      "status": "reviewed"
+    },
+    "92ebafdac0924d6f3a575d9ae5bd1c6c6f93f6a89b44d6fa8fd11c558f50e437": {
+      "source": "Advanced pattern-based virtualization settings; prefer source-level ZXQOBFARYN0QXZ.",
+      "translation": "パターンに基づく高度な仮想化設定です。ソースレベルのZXQOBFARYN0QXZを優先して使用してください。",
+      "status": "reviewed"
+    },
+    "d1631b92ab3958e1369cd053f42e361dbe8d6665b86b4b1160076d72f3af8165": {
+      "source": "ZXQOBFARYN0QXZ and ZXQOBFARYN1QXZ are full-match regexes over original ZXQOBFARYN2QXZ identities. Exclusions win over selections. ZXQOBFARYN3QXZ is ZXQOBFARYN4QXZ or ZXQOBFARYN5QXZ; analysis-only mode writes a report but no JAR.",
+      "translation": "ZXQOBFARYN0QXZとZXQOBFARYN1QXZは、元のZXQOBFARYN2QXZ識別子に対して完全一致させる正規表現です。除外指定は選択指定より優先されます。ZXQOBFARYN3QXZにはZXQOBFARYN4QXZまたはZXQOBFARYN5QXZを指定します。解析専用モードではレポートを書き込みますが、JARは生成しません。",
+      "status": "reviewed"
+    },
+    "f8dfcb1b1589f2cb9a41a694f2a833ae1396e65961b428cfbd242a8000d722aa": {
+      "source": "An annotation used to mark experimental APIs that require explicit opt-in to utilize.",
+      "translation": "使用するために明示的なオプトインが必要な実験的APIを示すアノテーションです。",
+      "status": "reviewed"
+    },
+    "40f15f766bbe0e951210c275acce1943c0982b47b0d163ff066e3fc2c1d9be4b": {
+      "source": "Applying this annotation indicates that the associated API is not yet stable and may be subject to changes or removal in future updates. Users must declare their opt-in explicitly by annotating their code with the specified opt-in annotation.",
+      "translation": "このアノテーションが付与されたAPIはまだ安定しておらず、今後の更新で変更または削除される可能性があります。利用者は、指定されたオプトインアノテーションをコードに付与して、オプトインを明示しなければなりません。",
+      "status": "reviewed"
+    },
+    "e7cbef08c567e8ea8ceb669870d44934ad427cc79bfe37dd93d01b57ec979060": {
+      "source": "This annotation enforces a strict level of requirement, meaning that using the annotated APIs without opting in will result in a compilation error.",
+      "translation": "このアノテーションは厳格な要求レベルを適用するため、オプトインせずに対象APIを使用するとコンパイルエラーになります。",
+      "status": "reviewed"
+    },
     "ffed9728e84bebffac47ea45c380f98a239522b190e6ce9d6d6ca90c7d13126e": {
       "source": "An immutable list of configured ZXQOBFARYN0QXZ instances.",
       "translation": "設定済みのZXQOBFARYN0QXZインスタンスを格納する不変リストです。",
