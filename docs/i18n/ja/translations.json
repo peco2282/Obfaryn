@@ -3901,6 +3901,231 @@
       "source": "The name of the method to keep.",
       "translation": "保持するメソッド名です。",
       "status": "reviewed"
+    },
+    "ccf643e17f352ee62512ed4f66303cd5d36ca2d4154b6708abcdd32439a859d5": {
+      "source": "The JVM bytecode descriptor of the method (e.g., ZXQOBFARYN0QXZ or ZXQOBFARYN1QXZ).",
+      "translation": "メソッドのJVMバイトコードディスクリプター（例: ZXQOBFARYN0QXZ または ZXQOBFARYN1QXZ）。",
+      "status": "reviewed"
+    },
+    "b5e6eee3df253da46c21d09e9f89646c6057cf8ee72c2b410fa1ca69f20ec7cc": {
+      "source": "The package name in dot format (e.g., ZXQOBFARYN0QXZ) or slash format (e.g., ZXQOBFARYN1QXZ).",
+      "translation": "ドット形式（例: ZXQOBFARYN0QXZ）またはスラッシュ形式（例: ZXQOBFARYN1QXZ）のパッケージ名。",
+      "status": "reviewed"
+    },
+    "c9c959fa197b5d973128f7447cbe82def33361801309b24c89a599ffa5234864": {
+      "source": "The path or name of the resource to keep (e.g., ZXQOBFARYN0QXZ).",
+      "translation": "保持するリソースのパスまたは名前（例: ZXQOBFARYN0QXZ）。",
+      "status": "reviewed"
+    },
+    "69a4498250942bdb52a45456b8048a1585825551baaa37eaa85716a91a590495": {
+      "source": "A read-only map of loaded classes keyed by JVM internal name (e.g. ZXQOBFARYN0QXZ). Names do not include a ZXQOBFARYN1QXZ suffix, and values are not defensive copies.",
+      "translation": "JVM内部名（例: ZXQOBFARYN0QXZ）をキーとする、読み取り専用のロード済みクラスマップ。名前に ZXQOBFARYN1QXZ 接尾辞は含まれず、値は防御的コピーではありません。",
+      "status": "reviewed"
+    },
+    "38cd960d075ac154492e6cbdc28727c086534b60601e1f8e94654dd4561afbf1": {
+      "source": "Provides access to all loaded classes and resources, enabling platform implementations to detect target frameworks, extract entrypoints, and configure platform-specific rules. Treat this as an inspection interface: contribute new content through a ZXQOBFARYN0QXZ, ZXQOBFARYN1QXZ, or ZXQOBFARYN2QXZ, and add keep rules through ZXQOBFARYN3QXZ. Read-only maps do not make their ASM nodes or resource byte arrays immutable.",
+      "translation": "ロード済みのすべてのクラスとリソースへアクセスでき、プラットフォーム実装が対象フレームワークの検出、エントリーポイントの抽出、プラットフォーム固有ルールの設定を行えるようにします。これは検査用インターフェースとして扱ってください。新しい内容は ZXQOBFARYN0QXZ、ZXQOBFARYN1QXZ、または ZXQOBFARYN2QXZ を通じて提供し、keepルールは ZXQOBFARYN3QXZ を通じて追加します。マップが読み取り専用でも、そのASMノードやリソースのバイト配列が不変になるわけではありません。",
+      "status": "reviewed"
+    },
+    "6725d676023b7286dd80e1b259b22586f2de5ace4eb9dc0800ffdd153c75fcdf": {
+      "source": "Inspect names using their archive/JVM spelling rather than filesystem paths:",
+      "translation": "名前はファイルシステムのパスではなく、アーカイブ/JVMでの表記を使って調べます。",
+      "status": "reviewed"
+    },
+    "25c142d905f6ac895d454df78f9d596f83c3a9f4a043ba7bf96a5d188b770f70": {
+      "source": "A missing key is normal and should be handled by detection or discovery logic. The interface does not promise that dependency classes are present, nor that the maps are safe to mutate concurrently. Do not retain mutable values for modification after a platform callback.",
+      "translation": "キーが存在しないことは正常であり、検出または探索ロジックで処理する必要があります。このインターフェースは依存クラスの存在も、マップを並行して安全に変更できることも保証しません。プラットフォームのコールバック後に変更する目的で、可変な値を保持しないでください。",
+      "status": "reviewed"
+    },
+    "83d711461b56b30f2cf202e43f2837c94b6a3cba9c2dcb2d31a8638cb217662c": {
+      "source": "A read-only map of non-class resources keyed by archive-relative path (e.g. ZXQOBFARYN0QXZ). Values may contain mutable byte arrays; implementations need not provide snapshots.",
+      "translation": "アーカイブ相対パス（例: ZXQOBFARYN0QXZ）をキーとする、クラス以外のリソースの読み取り専用マップ。値には可変のバイト配列が含まれる場合があり、実装はスナップショットを提供する必要がありません。",
+      "status": "reviewed"
+    },
+    "a96acc028898d2b44cc01b31f43c2cc3232d90927ad4f589a9c86ba6a32f2e8e": {
+      "source": "A view of every artifact taking part in a cross-artifact assembly, or ZXQOBFARYN0QXZ when this context is the whole program on its own (every single-artifact run, where ZXQOBFARYN1QXZ/ZXQOBFARYN2QXZ already describe the entire input).",
+      "translation": "複数アーティファクトにまたがるアセンブリに参加する全アーティファクトのビュー。このコンテキストだけでプログラム全体を表す場合は ZXQOBFARYN0QXZ です（ZXQOBFARYN1QXZ/ZXQOBFARYN2QXZ が入力全体をすでに表す、すべての単一アーティファクト実行が該当します）。",
+      "status": "reviewed"
+    },
+    "1cb27f939d73af685fb98415e003dc0806729c3971b01423fa61726fe5735bb3": {
+      "source": "Use ZXQOBFARYN0QXZ/ZXQOBFARYN1QXZ for the artifact currently being detected or configured, and this view only to resolve references that may live in a sibling artifact — for example an entrypoint or call closure that spans artifacts. The returned view's own ZXQOBFARYN2QXZ is ZXQOBFARYN3QXZ: it is a flat union, not a nesting, and its resources need not be complete across artifacts.",
+      "translation": "現在検出または設定しているアーティファクトには ZXQOBFARYN0QXZ/ZXQOBFARYN1QXZ を使用し、このビューは兄弟アーティファクトに存在し得る参照（たとえば、アーティファクトをまたぐエントリーポイントや呼び出し閉包）の解決にだけ使用してください。返されるビュー自身の ZXQOBFARYN2QXZ は ZXQOBFARYN3QXZ です。これは入れ子ではなく平坦な和集合であり、リソースは全アーティファクトを網羅していない場合があります。",
+      "status": "reviewed"
+    },
+    "2463d33743d879349bd20e44a06c5a7e9d463d727f60cf6b55cd50428dd9ecbc": {
+      "source": "Represents the confidence level for platform detection, expressed as a percentage.",
+      "translation": "パーセントで表した、プラットフォーム検出の信頼度を表します。",
+      "status": "reviewed"
+    },
+    "a806103a8ac5779a83de3877756e4f2533285447451f031d69b25f6b47d7bbfe": {
+      "source": "A value between 0 and 100 (inclusive) that indicates the certainty of a platform's suitability based on the detection process. Higher values indicate greater confidence.",
+      "translation": "検出処理に基づいてプラットフォームが適合する確かさを示す、0以上100以下の値です。値が高いほど信頼度が高いことを示します。",
+      "status": "reviewed"
+    },
+    "e901d6b5f330c1901a0a334446c32065d33a003332538b97c34f0fe64ae6d523": {
+      "source": "A confidence of ZXQOBFARYN0QXZ means no match; any positive value makes ZXQOBFARYN1QXZ true. ZXQOBFARYN2QXZ rejects values outside this range.",
+      "translation": "信頼度 ZXQOBFARYN0QXZ は不一致を意味し、正の値なら ZXQOBFARYN1QXZ は true になります。ZXQOBFARYN2QXZ はこの範囲外の値を拒否します。",
+      "status": "reviewed"
+    },
+    "6a466ff97cd6245a9f488eed8d1a967e866b27ab279b42cbc7f340f012f4e6ca": {
+      "source": "The detection is considered successful if the confidence level exceeds 0, meaning there is some certainty about the platform's suitability based on the detection process.",
+      "translation": "信頼度が0を超える場合、検出は成功とみなされます。これは、検出処理に基づいて、そのプラットフォームが適合する可能性があることを意味します。",
+      "status": "reviewed"
+    },
+    "17b5fd1cddd1d3a770b7d3c9044460c7e750c54b2099c2d4ddb5b1cdd459533a": {
+      "source": "Platform detection typically involves analyzing the execution environment or target input to determine if and how well a specific platform applies.",
+      "translation": "通常、プラットフォーム検出では実行環境または対象入力を分析し、特定のプラットフォームが適用できるか、どの程度適合するかを判断します。",
+      "status": "reviewed"
+    },
+    "efd6373ee1567a1cc298b24c76fb90acefc6c8c29d908cb58a3759c1cb58a7c4": {
+      "source": "Confidence levels and reasoning are used to determine detection certainty.",
+      "translation": "信頼度とその理由は、検出の確実性を判断するために使用されます。",
+      "status": "reviewed"
+    },
+    "657d2e049ff5254e810d4968028a198bbbf1581507a742249a005f9fb88f8e43": {
+      "source": "Represents the list of reasons explaining the assessment of platform suitability.",
+      "translation": "プラットフォーム適合性の評価理由の一覧を表します。",
+      "status": "reviewed"
+    },
+    "70eefc5af0a127b6eddd710ab0dc0dd8a23effac6bec3a47ec96c1ab70d3307d": {
+      "source": "Each reason describes evidence behind ZXQOBFARYN0QXZ, such as the presence of a platform descriptor. An empty list is valid when no explanatory evidence is available.",
+      "translation": "各理由は、プラットフォーム記述子の存在など、ZXQOBFARYN0QXZ の根拠を説明します。説明できる根拠がない場合、空のリストも有効です。",
+      "status": "reviewed"
+    },
+    "28d7638551fdfd2d8cc851ba176ffefd5893678ee7973f959d21073830541032": {
+      "source": "Implement a supported subtype such as ZXQOBFARYN0QXZ, ZXQOBFARYN1QXZ, ZXQOBFARYN2QXZ, or ZXQOBFARYN3QXZ. Extensions supply policy or content; this SPI supports recipes through ZXQOBFARYN4QXZ. Source compilation belongs to the extension implementation.",
+      "translation": "ZXQOBFARYN0QXZ、ZXQOBFARYN1QXZ、ZXQOBFARYN2QXZ、ZXQOBFARYN3QXZ など、サポートされるサブタイプを実装してください。拡張はポリシーまたは内容を提供し、このSPIは ZXQOBFARYN4QXZ を通じてレシピをサポートします。ソースのコンパイルは拡張実装の責務です。",
+      "status": "reviewed"
+    },
+    "72df4f08488c2ae1d3368761ae505ed4035169595625e9252e4ec58cefe8e415": {
+      "source": "Represents the API version associated with the platform metadata being constructed.",
+      "translation": "構築中のプラットフォームメタデータに対応するAPIバージョンを表します。",
+      "status": "reviewed"
+    },
+    "dd5be706dd8c9515af1a176ff349945b58a59c9eb98cadb2d6f8635545e98966": {
+      "source": "This value defines the compatibility level of the platform, typically adhering to a predefined constant value (e.g., ZXQOBFARYN0QXZ). It serves as an indicator of the feature set and functionality supported by the platform implementation.",
+      "translation": "この値はプラットフォームの互換性レベルを定義し、通常は定義済みの定数値（例: ZXQOBFARYN0QXZ）に従います。プラットフォーム実装がサポートする機能群を示す指標になります。",
+      "status": "reviewed"
+    },
+    "21da56c0076f3826bccc474190db2f0fd7fd4bcf8fc130f392f0128c6600cae7": {
+      "source": "The version is expected to influence various operations, including compatibility checks, feature toggling, and metadata validation during platform initialization or transformations.",
+      "translation": "このバージョンは、プラットフォームの初期化または変換時に行う互換性チェック、機能の切り替え、メタデータ検証などの操作へ影響することが想定されます。",
+      "status": "reviewed"
+    },
+    "75f3a452be340b56a9ff73aae3ddc417eed693ad90f1201d6ce85c3405d38819": {
+      "source": "Represents a human-readable description of the platform or metadata being built.",
+      "translation": "構築中のプラットフォームまたはメタデータについて、人が読める説明を表します。",
+      "status": "reviewed"
+    },
+    "3cba8c8403e204154b1be8fc510ed6f91ebab1cb9bc877beb16a8dc3b2d390df": {
+      "source": "Provides additional context or details about the platform, often derived from other properties such as ZXQOBFARYN0QXZ, ZXQOBFARYN1QXZ, ZXQOBFARYN2QXZ, and ZXQOBFARYN3QXZ.",
+      "translation": "プラットフォームについて追加の文脈や詳細を提供します。多くの場合、ZXQOBFARYN0QXZ、ZXQOBFARYN1QXZ、ZXQOBFARYN2QXZ、ZXQOBFARYN3QXZ など、ほかのプロパティから導出されます。",
+      "status": "reviewed"
+    },
+    "a6a8078732eb00cbb32a88d34f2475ce76933f0ca835bd3bd9c48893bae343cb": {
+      "source": "Set a non-blank value when using ZXQOBFARYN0QXZ; that builder does not generate a description automatically.",
+      "translation": "ZXQOBFARYN0QXZ を使用する場合は空白でない値を設定してください。このビルダーは説明を自動生成しません。",
+      "status": "reviewed"
+    },
+    "18eb8e5b984dda1eef95bdd65fb7baaf34f14caeb3c8e8723ea4c581d9a638dd": {
+      "source": "A human-readable name for the platform.",
+      "translation": "人が読めるプラットフォーム名。",
+      "status": "reviewed"
+    },
+    "7429ed28ec5a3664a747f1737d57009d8d7d0d28e8c9579a00192b79421acf8c": {
+      "source": "This property represents a descriptive name for the platform, meant to be easily understood by users or developers. Unlike the platform's unique identifier (ZXQOBFARYN0QXZ), this name is not guaranteed to be unique and may be used for display purposes, logging, or UI presentation. It is typically assigned during the creation or configuration of a platform metadata object.",
+      "translation": "このプロパティは、利用者や開発者が理解しやすいプラットフォームの説明的な名前を表します。プラットフォームの一意な識別子（ZXQOBFARYN0QXZ）とは異なり、この名前の一意性は保証されず、表示、ログ、UIなどに使用できます。通常は、プラットフォームメタデータオブジェクトの作成または設定時に割り当てます。",
+      "status": "reviewed"
+    },
+    "a2546e6ef1dc66cc180c1c7ab1f1bf96f33073afa699216f26d118438fdbf804": {
+      "source": "Used for platform selection and lookup. It may be changed while building metadata; the resulting ZXQOBFARYN0QXZ is read-only. Choose a stable, non-blank value.",
+      "translation": "プラットフォームの選択と検索に使用されます。メタデータの構築中は変更できますが、生成される ZXQOBFARYN0QXZ は読み取り専用です。安定した空白でない値を選んでください。",
+      "status": "reviewed"
+    },
+    "ea441e0257eace91995e838725b38eb82fe4502d670cf03e5ff505946e4dc0b0": {
+      "source": "Represents the implementation version of the platform.",
+      "translation": "プラットフォームの実装バージョンを表します。",
+      "status": "reviewed"
+    },
+    "f96504962a99a9a4be2353a97e5f54353ed8605e22006bac64474eb01f5e98cf": {
+      "source": "This property holds a version string that describes the specific implementation of the platform or software it represents. It is often used to distinguish between different releases or builds of the platform, allowing precise identification of the deployed version.",
+      "translation": "このプロパティは、対象となるプラットフォームまたはソフトウェアの具体的な実装を表すバージョン文字列を保持します。プラットフォームの異なるリリースやビルドを区別し、配備されたバージョンを正確に識別するためによく使用されます。",
+      "status": "reviewed"
+    },
+    "0d643a647120c47930ed1bf44e3960b3afacb792646c961662e4d8f5fbf27da4": {
+      "source": "Typical versioning schemes may include semantic versioning (e.g., \"1.0.0\") or custom version formats defined by the platform's development practices.",
+      "translation": "一般的なバージョン体系には、セマンティックバージョニング（例: \"1.0.0\"）や、プラットフォームの開発方針で定めた独自形式があります。",
+      "status": "reviewed"
+    },
+    "861520f8c8be9ab8164a5294dc3f7a1b9e934d702e713411e0194ae8a805ef14": {
+      "source": "This value can be utilized in logging, debugging, or compatibility checks.",
+      "translation": "この値はログ、デバッグ、互換性チェックに利用できます。",
+      "status": "reviewed"
+    },
+    "e45f9662df48b3f9a15d95b3aae8e1cd4b03988fc7ac0a1575fd86f618253342": {
+      "source": "This interface is intended to be used for creating implementations of platform metadata with configurable properties that describe a platform's characteristics.",
+      "translation": "このインターフェースは、プラットフォームの特性を表す設定可能なプロパティを持つ、プラットフォームメタデータ実装の作成に使用することを想定しています。",
+      "status": "reviewed"
+    },
+    "27a85df65f260bf8ad28a01a3620ff7bafd1513c9362634a1a838f90e10d7d4b": {
+      "source": "Specifies the supported API version for a platform.",
+      "translation": "プラットフォームがサポートするAPIバージョンを指定します。",
+      "status": "reviewed"
+    },
+    "2ccf8a38ddb2879426e47cdee9af2ec5871e43833d43085a084880bd40500e00": {
+      "source": "This property indicates the version of the platform's API that the implementation adheres to. It serves as a compatibility guideline for integrations or extensions that rely on the platform. Platform developers use this to signal compatibility across different API versions.",
+      "translation": "このプロパティは、実装が準拠するプラットフォームAPIのバージョンを示します。プラットフォームに依存する統合や拡張に対する互換性の指針になります。プラットフォーム開発者は、異なるAPIバージョン間の互換性を示すために使用します。",
+      "status": "reviewed"
+    },
+    "3a1e3e07a7d03b2bd43df777216093c86460192992ff5f2214f1c3235ac37e80": {
+      "source": "A detailed description of the platform.",
+      "translation": "プラットフォームの詳細な説明。",
+      "status": "reviewed"
+    },
+    "c60d5180fb83aaa335c487a46c669572ccae9d9814d2cd4ceb3ddf2e52f55879": {
+      "source": "This property provides additional contextual or descriptive information about the platform, often including a summary of its characteristics, purpose, or usage. It may combine information from other properties such as the platform's identifier, display name, implementation version, and supported API version to form a human-readable narrative.",
+      "translation": "このプロパティは、プラットフォームについて追加の文脈や説明を提供し、多くの場合、その特徴、目的、使用方法の概要を含みます。プラットフォームの識別子、表示名、実装バージョン、サポートするAPIバージョンなど、ほかのプロパティの情報を組み合わせ、人が読める説明を構成する場合があります。",
+      "status": "reviewed"
+    },
+    "d0605a13f88df8ac6c8c53080fb0cab5eac6d96512b76a6ddf2359d2e31f974e": {
+      "source": "The human-readable name of the platform.",
+      "translation": "人が読めるプラットフォーム名。",
+      "status": "reviewed"
+    },
+    "83b36f800d30ab58cdcec6f1930d6324ddacc1a17b23745e59dc4dc7b0f1e309": {
+      "source": "This property provides a descriptive name associated with the platform that can be displayed in user interfaces or logs. Unlike the ZXQOBFARYN0QXZ, which is typically a unique identifier, the ZXQOBFARYN1QXZ serves as a more user-friendly label.",
+      "translation": "このプロパティは、UIやログに表示できる、プラットフォームに対応する説明的な名前を提供します。通常は一意な識別子である ZXQOBFARYN0QXZ と異なり、ZXQOBFARYN1QXZ はより利用者に分かりやすいラベルとして機能します。",
+      "status": "reviewed"
+    },
+    "4a1eabb063086042d7986dc871e42362292874fe3319cc1db39913a645313b80": {
+      "source": "A unique identifier representing a specific platform.",
+      "translation": "特定のプラットフォームを表す一意な識別子。",
+      "status": "reviewed"
+    },
+    "2c0602ab260a68ba745f35df5d7929e059de59890a3b95a6989f8f53e2d5e12a": {
+      "source": "The ZXQOBFARYN0QXZ is used to distinguish platforms in a consistent manner, typically following a canonical naming convention. It serves as the primary reference for identifying platform metadata.",
+      "translation": "ZXQOBFARYN0QXZ はプラットフォームを一貫して区別するために使われ、通常は正規の命名規則に従います。プラットフォームメタデータを識別する主要な参照として機能します。",
+      "status": "reviewed"
+    },
+    "0d6fe4012fff6f931599be387b45b79b9cfaf79db294038f492c77a5492c8431": {
+      "source": "Specifies the implementation version of the platform.",
+      "translation": "プラットフォームの実装バージョンを指定します。",
+      "status": "reviewed"
+    },
+    "6c5dc5ad69aea426748cc6eb29b4ab1a7001c8aea0781a186ee72a828477cb5d": {
+      "source": "This property represents the version of the platform's implementation, typically used to identify its build or release version. It complements the ZXQOBFARYN0QXZ by providing a more granular versioning scheme that reflects changes or updates specific to the implementation.",
+      "translation": "このプロパティはプラットフォーム実装のバージョンを表し、通常はビルドまたはリリースの識別に使用されます。ZXQOBFARYN0QXZ を補完し、実装固有の変更や更新を反映した、より細かなバージョン体系を提供します。",
+      "status": "reviewed"
+    },
+    "b2806a0a90978652920e0d78d29a078291ef3ead98cbf00d6808c3d818548055": {
+      "source": "This interface defines essential properties that provide identification, versioning, and descriptive details for a platform. It is intended to be implemented or extended by platform-specific metadata representations.",
+      "translation": "このインターフェースは、プラットフォームの識別、バージョン、説明の詳細を提供する基本プロパティを定義します。プラットフォーム固有のメタデータ表現で実装または拡張することを想定しています。",
+      "status": "reviewed"
+    },
+    "d611eaa50a16922d850b20c3dd415d9f3104f11c0c785a3964d9a86a451e2703": {
+      "source": "The parsed value, or ZXQOBFARYN0QXZ when the option is absent.",
+      "translation": "解析された値。オプションが指定されていない場合は ZXQOBFARYN0QXZ。",
+      "status": "reviewed"
     }
   }
 }
