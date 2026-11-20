@@ -37,6 +37,7 @@ jobs:
           --locale ja
           --install-model
           --key-prefix obfaryn-api/com.peco2282.obfaryn.api/index.html#
+          --require-complete
       - run: >-
           python scripts/docs-i18n/docs_i18n.py build
           --input build/dokka/html

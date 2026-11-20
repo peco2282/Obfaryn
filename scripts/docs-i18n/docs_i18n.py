@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup, NavigableString, Tag
 SCHEMA_VERSION = 1
 TRANSLATABLE_SELECTOR = "p.paragraph"
 PROTECTED_SELECTOR = "a, code, pre, .symbol"
-TOKEN_PATTERN = re.compile(r"__OBFARYN_DOC_NODE_(\d+)__")
+TOKEN_PATTERN = re.compile(r"ZXQOBFARYN(\d+)QXZ")
 HIGH_RISK = re.compile(
     r"\b(must(?:\s+not)?|nullable|non-null|thread-safe|not\s+thread-safe|"
     r"throws?|exception|security|required|forbidden|unless|only\s+if)\b",
@@ -50,7 +50,9 @@ def protected_source(block: Tag) -> tuple[str, list[str]]:
   for node in list(clone.select(PROTECTED_SELECTOR)):
     if node.find_parent(PROTECTED_SELECTOR):
       continue
-    token = f"__OBFARYN_DOC_NODE_{len(protected)}__"
+    # Letter-only sentinels behave as unknown proper names in Argos models. In
+    # contrast, underscore-heavy placeholders are commonly split or rewritten.
+    token = f"ZXQOBFARYN{len(protected)}QXZ"
     protected.append(str(node))
     node.replace_with(NavigableString(token))
   return clone.decode_contents().strip(), protected
@@ -121,6 +123,8 @@ def translate(args: argparse.Namespace) -> int:
     install_argos_model("en", args.locale)
   catalog = read_json(args.catalog)
   changed = 0
+  selected = 0
+  rejected = 0
   for key, value in catalog.get("entries", {}).items():
     if args.key_prefix and not key.startswith(args.key_prefix):
       continue
@@ -128,12 +132,14 @@ def translate(args: argparse.Namespace) -> int:
       continue
     if value.get("status") == "stale" and not args.include_stale:
       continue
+    selected += 1
     source = value["source"]
     translated = argostranslate.translate.translate(source, "en", args.locale)
     expected = TOKEN_PATTERN.findall(source)
     actual = TOKEN_PATTERN.findall(translated)
     if expected != actual:
-      print("Rejected translation that changed protected-node tokens", file=sys.stderr)
+      print(f"Rejected translation that changed protected-node tokens: {key}", file=sys.stderr)
+      rejected += 1
       continue
     value["translation"] = translated
     value["status"] = "machine"
@@ -142,7 +148,9 @@ def translate(args: argparse.Namespace) -> int:
     if args.limit and changed >= args.limit:
       break
   write_json(args.catalog, catalog)
-  print(f"Translated {changed} fragments")
+  print(f"Selected {selected}; translated {changed}; rejected {rejected} fragments")
+  if args.require_complete and rejected:
+    return 1
   return 0
 
 
@@ -151,7 +159,7 @@ def restore_fragment(translated: str, protected: list[str]) -> str:
   if TOKEN_PATTERN.findall(translated) != expected:
     raise ValueError("translation does not preserve protected-node tokens")
   for index, html in enumerate(protected):
-    translated = translated.replace(f"__OBFARYN_DOC_NODE_{index}__", html)
+    translated = translated.replace(f"ZXQOBFARYN{index}QXZ", html)
   return translated
 
 
@@ -251,6 +259,7 @@ def parser() -> argparse.ArgumentParser:
   translate_parser.add_argument("--include-stale", action="store_true")
   translate_parser.add_argument("--limit", type=int)
   translate_parser.add_argument("--key-prefix")
+  translate_parser.add_argument("--require-complete", action="store_true")
   translate_parser.set_defaults(run=translate)
   build_parser = commands.add_parser("build")
   build_parser.add_argument("--input", type=Path, required=True)
