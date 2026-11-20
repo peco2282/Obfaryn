@@ -3676,6 +3676,231 @@
       "source": "Removes a resource with the given ZXQOBFARYN0QXZ from the context.",
       "translation": "指定されたZXQOBFARYN0QXZを持つリソースをコンテキストから削除します。",
       "status": "reviewed"
+    },
+    "cc952d6d3e778c807c092943b413e022046eb29173878ed07f84c94a76a7a329": {
+      "source": "The maps are read-only interfaces, not deep immutable snapshots. Their <span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span> values and resource byte arrays remain mutable. Use the mutation methods to add, replace, or remove entries, and consult ZXQOBFARYN0QXZ before modifying method bodies.",
+      "translation": "Mapは読み取り専用インターフェースですが、深い不変スナップショットではありません。値の<span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span>とリソースのバイト配列は変更可能なままです。エントリの追加、置換、削除には変更メソッドを使用し、メソッド本体を変更する前にZXQOBFARYN0QXZを参照してください。",
+      "status": "reviewed"
+    },
+    "002f2a30da1449942c131a2e0b066a46a5a980f640886653f93093ddbd5af55c": {
+      "source": "Shared name-preservation requirements; custom renamers must consult them before mapping.",
+      "translation": "共有される名前保持要件です。独自の名前変更処理は、マッピング前にこれらを参照しなければなりません。",
+      "status": "reviewed"
+    },
+    "09b08e01a1733759e66d83bb0d94d57dc8ca5cd891cacf6acea335333f372f3d": {
+      "source": "A read-only map of non-class resources keyed by archive-relative path. Resource byte arrays are mutable; this interface does not guarantee a snapshot of the map.",
+      "translation": "アーカイブ相対パスをキーとする、クラス以外のリソースの読み取り専用Mapです。リソースのバイト配列は変更可能です。このインターフェースはMapがスナップショットであることを保証しません。",
+      "status": "reviewed"
+    },
+    "6762b3aa12a46a8a9ce7570632c6296d536dd37f9afcd84531351baccc1322a1": {
+      "source": "Scope and analysis for this execution; unavailable scope defaults to no application classes.",
+      "translation": "この実行のスコープと解析情報です。スコープを利用できない場合、デフォルトではアプリケーションクラスなしとして扱います。",
+      "status": "reviewed"
+    },
+    "4b3eb2a143367b6a3854f614465ab2ef7bae70cbbbcf12cd6edac8435da9ecdb": {
+      "source": "Permission check for method-body changes, including changes made by custom transformers.",
+      "translation": "独自Transformerによる変更を含む、メソッド本体変更の許可チェックです。",
+      "status": "reviewed"
+    },
+    "09208525919a0be852caa1447aa71469cdd8da0edfbb64eb44a7b177d3a1c405": {
+      "source": "The class is stored using its <span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode/name/#/PointingToDeclaration/\">ClassNode.name</span> as the lookup key. An existing entry at that key is replaced. Changing a node's name does not itself remove an entry under its old key; use ZXQOBFARYN0QXZ when reindexing a renamed class.",
+      "translation": "クラスは<span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode/name/#/PointingToDeclaration/\">ClassNode.name</span>を検索キーとして保存されます。そのキーに既存のエントリがあれば置き換えます。ノード名を変更しても、古いキーのエントリは自動的には削除されません。名前変更済みクラスのキーを更新する場合はZXQOBFARYN0QXZを使用してください。",
+      "status": "reviewed"
+    },
+    "8ca02cd050aa587c6bfa4ab43189c0747494b68c443a2311aba5f7f3887a9ebc": {
+      "source": "The <span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span> to add or replace.",
+      "translation": "追加または置換する<span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span>です。",
+      "status": "reviewed"
+    },
+    "a61ee0ff65347daa72e32e3cdd61b55d77da566a5c6ff846ecfc8b85055f1fb4": {
+      "source": "The resource is stored using its ZXQOBFARYN0QXZ as the lookup key. An existing entry at that key is replaced. Use ZXQOBFARYN1QXZ to remove a previous path when moving a resource to a different name.",
+      "translation": "リソースはZXQOBFARYN0QXZを検索キーとして保存されます。そのキーに既存のエントリがあれば置き換えます。リソースを別の名前へ移動するときは、ZXQOBFARYN1QXZを使用して以前のパスを削除してください。",
+      "status": "reviewed"
+    },
+    "e7680341121f996da40b9b63c1c0611b42d6b0c95af9b3168a4e06926e312c7d": {
+      "source": "The ZXQOBFARYN0QXZ to add or replace.",
+      "translation": "追加または置換するZXQOBFARYN0QXZです。",
+      "status": "reviewed"
+    },
+    "6c9cf1f4619994e53fe98a5793a65ca3f6d4b36b6e00dbcd45553c69bd2ab582": {
+      "source": "The removed <span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span>, or ZXQOBFARYN0QXZ if no class with that name was present.",
+      "translation": "削除された<span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span>です。その名前のクラスが存在しなかった場合はZXQOBFARYN0QXZです。",
+      "status": "reviewed"
+    },
+    "6c417e3266697da166189bd901b1c38191d81499bc22c8c68804882c8ffbfdc2": {
+      "source": "The internal name of the class to remove.",
+      "translation": "削除するクラスの内部名です。",
+      "status": "reviewed"
+    },
+    "92bfc57fbfe1b4e6502def4489e0bfb2f4087f5abf0542d1fff50e3c78fc9ad5": {
+      "source": "The removed ZXQOBFARYN0QXZ, or ZXQOBFARYN1QXZ if no resource with that name was present.",
+      "translation": "削除されたZXQOBFARYN0QXZです。その名前のリソースが存在しなかった場合はZXQOBFARYN1QXZです。",
+      "status": "reviewed"
+    },
+    "956d65ad623713d7a87807272db2d1ed3824327c2ddb3e21ef818682cf456f97": {
+      "source": "The relative path or identifier of the resource to remove.",
+      "translation": "削除するリソースの相対パスまたは識別子です。",
+      "status": "reviewed"
+    },
+    "2d780f129a6938bebef42bdb6b278f40de18b5730632963dbbe792c2393711bc": {
+      "source": "Defaults to ZXQOBFARYN0QXZ. The context does not automatically intercept mutations of ASM nodes; each transformer is responsible for consulting this policy.",
+      "translation": "デフォルトはZXQOBFARYN0QXZです。コンテキストはASMノードへの変更を自動的に捕捉しません。各Transformerがこのポリシーを参照する責任を負います。",
+      "status": "reviewed"
+    },
+    "3554a7f5873ce3ac59a5d8ef1277d2f64d87d45a56071d6d72354b8e8639181f": {
+      "source": "Defines the current API version used across the platform.",
+      "translation": "プラットフォーム全体で使用する現在のAPIバージョンを定義します。",
+      "status": "reviewed"
+    },
+    "159dc67e273bc2d0f83784c1eab4243493688a20b92aebaea110dc797aeb7d2f": {
+      "source": "This value is utilized as a reference for compatibility checks, ensuring that different components within the platform interact using a consistent API version. It serves both as a default for versioning in various platform constructs and as a baseline for runtime validation.",
+      "translation": "互換性チェックの基準として使用され、プラットフォーム内の各コンポーネントが一貫したAPIバージョンで連携することを保証します。さまざまなプラットフォーム構造におけるバージョンのデフォルト値と、実行時検証の基準値の両方として機能します。",
+      "status": "reviewed"
+    },
+    "5a5d027daa14acce995ee5cabc2d7f46317ade5c9fe16ea3686c6154366a7486": {
+      "source": "Changes to this value should be made cautiously to preserve backward compatibility and avoid breaking existing integrations.",
+      "translation": "後方互換性を維持し、既存の連携を壊さないよう、この値は慎重に変更してください。",
+      "status": "reviewed"
+    },
+    "85d4023f29bf097c720486baa48bf8df9e858cb18d4451c81b0d7f3a4417cd27": {
+      "source": "This object serves as a centralized configuration for platform-specific logic and properties used in the API ecosystem. For example, it defines the API version compatibility to ensure consistency across implementations and extensions.",
+      "translation": "APIエコシステムで使用するプラットフォーム固有のロジックとプロパティを集約した設定です。たとえば、実装と拡張全体の一貫性を保つため、APIバージョンの互換性を定義します。",
+      "status": "reviewed"
+    },
+    "a85490092e07711d633dd45bbe219572d9f1bc1ee76a56cd6f993c8b8647c899": {
+      "source": "Constants and definitions within this object are typically referenced by platform metadata implementations, extensions, and core systems to maintain alignment with API standards.",
+      "translation": "このオブジェクト内の定数と定義は通常、プラットフォームメタデータ実装、拡張、coreシステムから参照され、API標準との整合性を維持します。",
+      "status": "reviewed"
+    },
+    "8089c0dbfe7627bbb897dcc8a1026dfecf6c4d3a09ccffdead9494baa7e0e218": {
+      "source": "Applies the keep rules defined in this configuration to the specified ZXQOBFARYN0QXZ configuration. This is a transfer into the target, not a replacement of this configuration with the target. Implementations define how rules are stored and combined; callers should not assume that the two instances share mutable rule collections afterward.",
+      "translation": "この設定で定義されたkeepルールを、指定されたZXQOBFARYN0QXZ設定へ適用します。これは対象への転送であり、この設定を対象で置き換えるものではありません。ルールの保存と結合方法は実装が定義します。呼び出し側は、その後2つのインスタンスが変更可能なルールコレクションを共有すると仮定してはいけません。",
+      "status": "reviewed"
+    },
+    "015b7b346761659fcdfc5a60722a455934114a1072b3dea27141d050cdf7e952": {
+      "source": "The destination configuration to copy the keep rules into.",
+      "translation": "keepルールのコピー先となる設定です。",
+      "status": "reviewed"
+    },
+    "6f48639f85f5fdf65959578bc4d97f80401c46e345bb2278b284358ed00b44fd": {
+      "source": "Keeps a method as normal JVM bytecode while allowing all other enabled obfuscation passes. Platforms use this for latency-sensitive callbacks that should not pay interpreter overhead.",
+      "translation": "他の有効な難読化パスをすべて許可しながら、メソッドを通常のJVMバイトコードとして維持します。プラットフォームは、インタープリターのオーバーヘッドを避ける必要がある、レイテンシー重視のコールバックに使用します。",
+      "status": "reviewed"
+    },
+    "fef737e1374ba1bb3023de1f1cc881587cf6b9c48a8bcd0866a4ae977d15ca83": {
+      "source": "The default implementation is a no-op for configurations that do not support virtualization policy. This rule does not preserve the method's name or exclude other body transformations. In the core implementation, an explicit virtualization annotation can override this platform exclusion; user-configured virtualization exclusion patterns still take precedence.",
+      "translation": "仮想化ポリシーをサポートしない設定では、デフォルト実装は何も行いません。このルールはメソッド名を保持せず、他のメソッド本体変換も除外しません。core実装では、明示的な仮想化アノテーションがこのプラットフォーム除外を上書きできます。利用者が設定した仮想化除外パターンは引き続き優先されます。",
+      "status": "reviewed"
+    },
+    "656da16612596a6c2b1c80798e37babdc04699f16530b64618343058de8078d5": {
+      "source": "This configuration instance for method chaining.",
+      "translation": "メソッドチェーン用のこの設定インスタンスです。",
+      "status": "reviewed"
+    },
+    "9c0321b5575ad135cf553ff77cc172cb59e89026d5f7fd2bd8c9dfbd64183141": {
+      "source": "The declaring class name in dotted or JVM internal form.",
+      "translation": "ドット形式またはJVM内部形式の宣言クラス名です。",
+      "status": "reviewed"
+    },
+    "0526a0da0a56fd5ac0028e89e04244e64c2bdbd1579869618d31be739deb145b": {
+      "source": "The exact method name, without a descriptor.",
+      "translation": "ディスクリプターを含まない、正確なメソッド名です。",
+      "status": "reviewed"
+    },
+    "276321c9d5e502b2267e8dd311033bdea5cc76998ba00ca9107c44b4c5a46bb6": {
+      "source": "The JVM method descriptor, such as ZXQOBFARYN0QXZ, identifying the overload.",
+      "translation": "オーバーロードを識別する、ZXQOBFARYN0QXZなどのJVMメソッドディスクリプターです。",
+      "status": "reviewed"
+    },
+    "b26fd392cf0cb6ab53dcbc0ccf5c9f5f065fc3a0ce71fe417b8c35a8fd8ebe22": {
+      "source": "Human-readable explanation for diagnostics; defaults to a platform performance policy.",
+      "translation": "診断用の人が読める説明です。デフォルトはプラットフォームのパフォーマンスポリシーです。",
+      "status": "reviewed"
+    },
+    "29ec2b27223dc27720950c34892616d01dd11c4fb1e5cf7e3e4f24ae73f3229f": {
+      "source": "ZXQOBFARYN0QXZ provides a fluent API for platforms and plugins to define which classes, members (methods and fields), packages, and resources should be preserved from obfuscation. Class and owner names may use dotted or JVM internal form; method descriptors must use JVM descriptor syntax. Keep rules describe preservation requirements, not byte-for-byte output guarantees: references may still need updating when other declarations are renamed. In the core implementation, keep rules preserve names but do not disable method-body passes or virtualization. Keeping fields also prevents their constant values from being moved into class initialization. Use ZXQOBFARYN1QXZ for virtualization-specific exclusions.",
+      "translation": "ZXQOBFARYN0QXZは、プラットフォームとプラグインが、難読化から保持するクラス、メンバー（メソッドとフィールド）、パッケージ、リソースを定義するためのfluent APIです。クラス名と所有クラス名にはドット形式またはJVM内部形式を使用でき、メソッドディスクリプターにはJVMディスクリプター構文が必要です。keepルールは保持要件を表しますが、バイト単位の出力保持を保証しません。他の宣言の名前変更時に、参照の更新が必要になる場合があります。core実装では、keepルールは名前を保持しますが、メソッド本体パスや仮想化を無効にしません。フィールドを保持すると、その定数値がクラス初期化へ移動されることも防ぎます。仮想化固有の除外にはZXQOBFARYN1QXZを使用してください。",
+      "status": "reviewed"
+    },
+    "c3bbeac05c0ba51f0fcc0c4f63c57ba2d511e47e842e044c358fd48ed8c4f716": {
+      "source": "Preserves the name of a specific method, identified by owner, name, and descriptor. This does not automatically preserve the owner class name or suppress body transformations.",
+      "translation": "所有クラス、名前、ディスクリプターで識別される特定のメソッド名を保持します。所有クラス名を自動的に保持したり、メソッド本体変換を抑止したりはしません。",
+      "status": "reviewed"
+    },
+    "b0bd526477ff7f95cc1f62bdefc9e9be5141606c976fabc6ea5f29e06811d354": {
+      "source": "Preserves class and member names within the specified package. The core implementation includes subpackages as well as the named package itself.",
+      "translation": "指定されたパッケージ内のクラス名とメンバー名を保持します。core実装では、指定パッケージ自体に加えてサブパッケージも含みます。",
+      "status": "reviewed"
+    },
+    "b02b515053eaadaea9a37d9eb79222824176d0daa4394da511cb842b73d0acec": {
+      "source": "Preserves the specified resource file from being obfuscated or renamed. Use an archive-relative path with ZXQOBFARYN0QXZ separators, not a filesystem path or class name. This rule does not create the resource, rewrite references in its contents, or preserve classes named inside it; add the corresponding class or member rules separately.",
+      "translation": "指定されたリソースファイルを難読化または名前変更から保護します。ファイルシステムパスやクラス名ではなく、ZXQOBFARYN0QXZ区切りのアーカイブ相対パスを使用してください。このルールはリソースを作成せず、内容中の参照を書き換えず、内部で名前が挙げられたクラスも保持しません。対応するクラスまたはメンバーのルールを別途追加してください。",
+      "status": "reviewed"
+    },
+    "8b5aba0d8fa79377295b9a2612f2ef75ac385d34f5e32548969eea5b8231a0fd": {
+      "source": "For a framework that reflects on a class name and one callback, configure both explicitly:",
+      "translation": "クラス名と1つのコールバックをリフレクションで参照するフレームワークでは、両方を明示的に設定します。",
+      "status": "reviewed"
+    },
+    "124e11d889fce2875d6fef387bb8134770cb1a147109db1dc4747150529a5c95": {
+      "source": "The method descriptor distinguishes overloads; the field rule identifies a field by name. These APIs do not define wildcard matching. Use ZXQOBFARYN0QXZ for package-wide preservation rather than passing patterns such as ZXQOBFARYN1QXZ as class names.",
+      "translation": "メソッドディスクリプターはオーバーロードを区別し、フィールドルールは名前でフィールドを識別します。これらのAPIはワイルドカード一致を定義しません。パッケージ全体の保持にはZXQOBFARYN0QXZを使用し、ZXQOBFARYN1QXZのようなパターンをクラス名として渡さないでください。",
+      "status": "reviewed"
+    },
+    "2b02c2982d5a6eb2416310f4d321f21602ec6ad8cd34d4ae1ed544072f8713fa": {
+      "source": "Preserves the name of the specified class and the names of all its methods and fields.",
+      "translation": "指定されたクラス名と、そのすべてのメソッドおよびフィールド名を保持します。",
+      "status": "reviewed"
+    },
+    "b1a188a58ab439009b308b8f91f1128d0cc14251c19093424a38681663e57a15": {
+      "source": "Preserves the class name and the names of its public methods and fields.",
+      "translation": "クラス名と、そのpublicメソッドおよびフィールド名を保持します。",
+      "status": "reviewed"
+    },
+    "7a16220ee8db09520cfc1d7cf78c71d9bda9e6b6960902714a1db300b1c483bf": {
+      "source": "Preserves only the class name from obfuscation, allowing its members to be obfuscated.",
+      "translation": "クラス名だけを難読化から保護し、そのメンバーの難読化は許可します。",
+      "status": "reviewed"
+    },
+    "7d5d80dc2033cdf1d20845726b8e224fd849d04428f6028e9bce29c55a5e1bd9": {
+      "source": "Preserves a specific field's name without automatically preserving its owner class name.",
+      "translation": "所有クラス名を自動的に保持せず、特定のフィールド名を保持します。",
+      "status": "reviewed"
+    },
+    "f08cc1401506d0d63c3526acebdac7ffe712cc034aa60dbc69e6673fce2ec1e8": {
+      "source": "Framework integrations use this for JavaBean-style types whose public property names are an external contract while private implementation members may still be renamed. The default delegates to ZXQOBFARYN0QXZ for compatibility with older implementations.",
+      "translation": "フレームワーク連携では、publicなプロパティ名が外部契約であり、privateな実装メンバーは引き続き名前変更できるJavaBean形式の型に使用します。古い実装との互換性のため、デフォルトではZXQOBFARYN0QXZへ委譲します。",
+      "status": "reviewed"
+    },
+    "d21cf05148f28ee7e510bccadfc48648890bb7d8ff3f257bf1ce785feadc367d": {
+      "source": "Default implementation delegates to ZXQOBFARYN0QXZ. Implementations must override this method to provide name-only preservation; otherwise members receive the broader protection of ZXQOBFARYN1QXZ as a compatibility fallback.",
+      "translation": "デフォルト実装はZXQOBFARYN0QXZへ委譲します。名前だけの保持を提供するには、実装でこのメソッドを上書きしなければなりません。上書きしない場合、互換性のためのフォールバックとして、メンバーはZXQOBFARYN1QXZのより広い保護を受けます。",
+      "status": "reviewed"
+    },
+    "517ced9d3b50148cae465db9dd9a59db97db767d4963326d23e49745f2d9966c": {
+      "source": "The fully qualified class name in dot format (e.g., ZXQOBFARYN0QXZ)              or internal binary format (e.g., ZXQOBFARYN1QXZ).",
+      "translation": "ドット形式の完全修飾クラス名（例: ZXQOBFARYN0QXZ）または内部バイナリ形式（例: ZXQOBFARYN1QXZ）です。",
+      "status": "reviewed"
+    },
+    "c70da98d1c562c119146e520c2daecba6c9e2e7f4e308433fa3ae26a15458288": {
+      "source": "The internal binary or dot-separated name of the class that declares the field.",
+      "translation": "フィールドを宣言するクラスの、内部バイナリ形式またはドット区切りの名前です。",
+      "status": "reviewed"
+    },
+    "5791745c9d841f43e9ee1244fe3028ffbd17ef4049da12acf901ea5faf7088f8": {
+      "source": "The name of the field to keep.",
+      "translation": "保持するフィールド名です。",
+      "status": "reviewed"
+    },
+    "d55f4bae9ff4566a4070523247024c1077ed208b6f11422f565ce250081fbfc9": {
+      "source": "The internal binary or dot-separated name of the class that declares the method.",
+      "translation": "メソッドを宣言するクラスの、内部バイナリ形式またはドット区切りの名前です。",
+      "status": "reviewed"
+    },
+    "85fbb4e3ce388d57f1a3e986762d768e532ffaf7b49c46affc6b98430bf77ac2": {
+      "source": "The name of the method to keep.",
+      "translation": "保持するメソッド名です。",
+      "status": "reviewed"
     }
   }
 }
