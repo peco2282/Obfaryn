@@ -1462,6 +1462,176 @@
       "translation": "拡張JARを走査するすべてのホストエントリーポイント（CLIのZXQOBFARYN0QXZ/ZXQOBFARYN1QXZ、GradleのZXQOBFARYN2QXZ/ZXQOBFARYN3QXZ）で共有され、クラスローダーを切り替える契約を1か所に集約します。",
       "status": "reviewed"
     },
+    "4e3810e4e457c93672f230995c9ced104be09b2f84c5721bb4341186dd7bbb3a": {
+      "source": "Adds self-contained integrity checks and signs the final JAR entry manifest.",
+      "translation": "自己完結型の整合性チェックを追加し、最終的なJARエントリマニフェストへ署名します。",
+      "status": "reviewed"
+    },
+    "9ae381c2d45d547ae1cb3cb13ddce80f9243ddc5765a152fa483fe2017462e4b": {
+      "source": "ZXQOBFARYN0QXZ inserts a verifier call at eligible class initialization points. ZXQOBFARYN1QXZ hashes the finished archive and signs its entry list with SHA256withRSA; the private key is never embedded. This detects changes to the file-backed JAR when verification runs, but does not protect a replaced verifier or continuously monitor the process.",
+      "translation": "ZXQOBFARYN0QXZは、対象となるクラス初期化位置に検証処理の呼び出しを挿入します。ZXQOBFARYN1QXZは完成したアーカイブをハッシュ化し、そのエントリ一覧へSHA256withRSAで署名します。秘密鍵が埋め込まれることはありません。検証実行時にファイルとして存在するJARへの変更を検出しますが、検証処理自体の置き換えを防止したり、プロセスを継続的に監視したりするものではありません。",
+      "status": "reviewed"
+    },
+    "ab262e14e68467b9750296ebce72444ef8cd09c85a7c739905e0692af7b8fb22": {
+      "source": "Adds verification calls and a public-key-only runtime helper before archive writing.",
+      "translation": "アーカイブの書き込み前に、検証処理の呼び出しと、公開鍵だけを持つランタイムヘルパーを追加します。",
+      "status": "reviewed"
+    },
+    "cd30a698e100853105d42bc5192b343050d04b260e57b8b202032818424cbcfb": {
+      "source": "Signs sorted, non-directory JAR entries and appends integrity metadata to ZXQOBFARYN0QXZ.",
+      "translation": "並べ替えたディレクトリ以外のJARエントリへ署名し、整合性メタデータをZXQOBFARYN0QXZへ追加します。",
+      "status": "reviewed"
+    },
+    "ea91dac583a6ebe0c8e197785d3e45eda1ed81517deb8e8c86cb691fee62aa22": {
+      "source": "Provides runtime integrity verification of JAR files based on a manifest and signature mechanism. The integrity verification ensures the authenticity and consistency of the application JAR contents, including its associated integrity metadata. This class is final and cannot be instantiated.",
+      "translation": "マニフェストと署名の仕組みに基づき、JARファイルの実行時整合性検証を提供します。整合性検証では、関連する整合性メタデータを含め、アプリケーションJARの内容が真正かつ一貫していることを確認します。このクラスはfinalであり、インスタンス化できません。",
+      "status": "reviewed"
+    },
+    "666a2ca35df6dae6985f9ce3335f32aed30ffdfd504c20fd5ba2720d23168d65": {
+      "source": "A renamed member with its original internal ZXQOBFARYN0QXZ, ZXQOBFARYN1QXZ, and JVM ZXQOBFARYN2QXZ.",
+      "translation": "元の内部ZXQOBFARYN0QXZ、ZXQOBFARYN1QXZ、JVMのZXQOBFARYN2QXZを持つ名前変更済みメンバーです。",
+      "status": "reviewed"
+    },
+    "b5ea431c3bd2aaf0f2be3838ab60a2ec75b240d1b4d40c26320a4a714ccc7c54": {
+      "source": "Content digest of an artifact, recorded in a mapping's provenance (as a ZXQOBFARYN0QXZ entry) and recomputed when that mapping is re-applied, so a consumer built against a different build of the artifact than the mapping describes fails instead of silently diverging.",
+      "translation": "アーティファクト内容のダイジェストです。マッピングの来歴にZXQOBFARYN0QXZエントリとして記録され、マッピングを再適用するときに再計算されます。これにより、マッピングが示すものとは異なるビルドのアーティファクトを参照してコンシューマーをビルドした場合、暗黙に不一致が生じるのではなく処理が失敗します。",
+      "status": "reviewed"
+    },
+    "2ace4565adca03ef86a5969c859ba5f5d5999dc8723e266690ed162b322101b5": {
+      "source": "SHA-256 of the whole file, rendered as ZXQOBFARYN0QXZ.",
+      "translation": "ファイル全体のSHA-256をZXQOBFARYN0QXZとして表現した値です。",
+      "status": "reviewed"
+    },
+    "3372ea68fbc1e0c379422720a953673f120ccca37a603e6674f3b04ee9fb7b73": {
+      "source": "Parses mapping text via ZXQOBFARYN0QXZ (the shared format authority) and builds the reverse-lookup view used for de-obfuscation. Package and provenance entries are accepted and ignored here, since stack-frame recovery uses only class and member names.",
+      "translation": "共有のフォーマット定義であるZXQOBFARYN0QXZを使用してマッピングテキストを解析し、難読化解除に使用する逆引きビューを構築します。スタックフレームの復元ではクラス名とメンバー名だけを使用するため、パッケージと来歴のエントリは受け入れますが、ここでは使用しません。",
+      "status": "reviewed"
+    },
+    "43a8458c0c557cca5300deed75df9627d10526b79fe25dc4bb639b60161ee414": {
+      "source": "Reads UTF-8 mapping text from ZXQOBFARYN0QXZ and delegates to ZXQOBFARYN1QXZ.",
+      "translation": "ZXQOBFARYN0QXZからUTF-8のマッピングテキストを読み込み、ZXQOBFARYN1QXZへ委譲します。",
+      "status": "reviewed"
+    },
+    "5f755e38aab264098385835f7b08ae34a6842b9df2c93f0b161a8b318719b633": {
+      "source": "If a line lacks the required mapping structure.",
+      "translation": "行に必要なマッピング構造がない場合。",
+      "status": "reviewed"
+    },
+    "d9c713f58f0cb14506e839c4d762ea616a12c85db573d6b211e38f14e7a07ac1": {
+      "source": "Rewrites recognized ZXQOBFARYN0QXZ frames, rendering class names with dots. Locations, line numbers, and surrounding text are preserved; stripped debug information cannot be reconstructed. Frames outside the recognized pattern are left untouched.",
+      "translation": "認識できるZXQOBFARYN0QXZフレームを書き換え、クラス名をドット区切りで出力します。位置、行番号、周囲のテキストは保持されます。削除済みのデバッグ情報は復元できません。認識対象のパターンに当てはまらないフレームは変更しません。",
+      "status": "reviewed"
+    },
+    "722e07f8e1d467e920a079e02efc832cc2a7066cb833ecef3a27414c6f58203d": {
+      "source": "Parsed class and descriptor-aware member mappings emitted by the built-in renamer. Class keys and values use JVM internal names. Member descriptors and owners describe the original program; only ZXQOBFARYN0QXZ records the replacement member name. Reverse stack-frame lookup uses class/method names only, not source locations or descriptors.",
+      "translation": "組み込みの名前変更処理が出力した、解析済みのクラスマッピングおよびディスクリプターを考慮するメンバーマッピングです。クラスのキーと値にはJVM内部名を使用します。メンバーのディスクリプターと所有クラスは元のプログラムを表し、置換後のメンバー名を記録するのはZXQOBFARYN0QXZだけです。スタックフレームの逆引きではクラス名とメソッド名だけを使用し、ソース位置やディスクリプターは使用しません。",
+      "status": "reviewed"
+    },
+    "d2413e24ee77aa1646b72c6c6bae0aed9779fd88a78c73fbdbb2cf9ed316536e": {
+      "source": "Looks up an internal class name, returning ZXQOBFARYN0QXZ unchanged if it is not mapped.",
+      "translation": "クラス内部名を検索し、マッピングされていない場合はZXQOBFARYN0QXZを変更せずに返します。",
+      "status": "reviewed"
+    },
+    "fce5fbf8fda913791aa0609aa497f3a93de33b67bfab7994b26f3045e56128d6": {
+      "source": "Accepts a dotted or internal class name. A stack frame lacks a descriptor, so lookup succeeds only if all matching entries agree on one original method name; otherwise the input is retained.",
+      "translation": "ドット区切りまたは内部形式のクラス名を受け取ります。スタックフレームにはディスクリプターがないため、一致するすべてのエントリが同じ元のメソッド名を示す場合にだけ検索が成功します。それ以外では入力をそのまま保持します。",
+      "status": "reviewed"
+    },
+    "159590f4a150d8de732eed00c812752e7e8f97c2fb3d94d59cf1b17ae446688a": {
+      "source": "Validates reading and writing without mutating inputs; throws with the offending path on failure.",
+      "translation": "入力を変更せずに読み書きを検証します。失敗時には、問題のあるパスを含む例外をスローします。",
+      "status": "reviewed"
+    },
+    "6b6cae731591995d3a9c3f1c36e404bbb4aa88369bdd0a15f35a057d881e2a65": {
+      "source": "Strict metadata rewriting coordinated with JVM class and member mappings. Call ZXQOBFARYN0QXZ before modifying any classes.",
+      "translation": "JVMのクラスおよびメンバーマッピングと連携して、メタデータを厳密に書き換えます。クラスを変更する前にZXQOBFARYN0QXZを呼び出してください。",
+      "status": "reviewed"
+    },
+    "b054ea0d9331bb5506acbbcd74fa165f1723668ed35c0ce600a9231b95bcd658": {
+      "source": "Rewrites only the Metadata annotation. Accepts either an original or an ASM-remapped node.",
+      "translation": "Metadataアノテーションだけを書き換えます。元のノードとASMで再マッピング済みのノードのどちらも受け取れます。",
+      "status": "reviewed"
+    },
+    "6d08f74c578e3744fd6ddef19d1b9986455130eb0709e70e7bd582f5b5b88752": {
+      "source": "Returns replacement bytes for kotlin_module resources only; resource paths remain unchanged.",
+      "translation": "kotlin_moduleリソースだけに対する置換後のバイト列を返します。リソースパスは変更されません。",
+      "status": "reviewed"
+    },
+    "2b1a4b9287fefe82f442b24593b22585e489c706e428c5e1ff3f726657415ad2": {
+      "source": "Original member identity used for mapping and reference rewriting.",
+      "translation": "マッピングと参照の書き換えに使用する、元のメンバー識別子です。",
+      "status": "reviewed"
+    },
+    "122621bb3fcdcf1dd2edccc8ebf19e8ec40fc347f085efcd9baf731989fcb856": {
+      "source": "Plans and applies class, method, and field renames while honoring keep and hierarchy rules.",
+      "translation": "keepルールとクラス階層ルールを尊重しながら、クラス、メソッド、フィールドの名前変更を計画して適用します。",
+      "status": "reviewed"
+    },
+    "3fe8eae2b28ac03d1d544ed7ea695fda736607f887f5d5c5807dbfbec767668d": {
+      "source": "Virtual methods are planned as override families; external API overrides and unresolved families are retained. Package flattening pins packages whose access or relative resource behavior cannot safely survive relocation. Mapping tables retain original identities.",
+      "translation": "仮想メソッドはオーバーライドファミリー単位で計画されます。外部APIをオーバーライドするメソッドと、解決できないファミリーは保持されます。パッケージのフラット化では、アクセス制御や相対リソースの動作を移動後も安全に維持できないパッケージを固定します。マッピングテーブルには元の識別子を保持します。",
+      "status": "reviewed"
+    },
+    "f5b484eb03d6e26cb75c42ab9ffe9179ea939fd47928c3cc6582a789e7760691": {
+      "source": "A method's original JVM identity, using an internal owner name and a JVM descriptor.",
+      "translation": "所有クラスの内部名とJVMディスクリプターを使用した、メソッドの元のJVM識別子です。",
+      "status": "reviewed"
+    },
+    "713d6a79c7ec4141c5512043539926d4c2b7fcfce1ca6546aee26f2f0cca7d6d": {
+      "source": "Deterministic schema-2 summary of method selection and eligibility.",
+      "translation": "メソッドの選択と適格性をまとめた、決定的なschema-2形式の情報です。",
+      "status": "reviewed"
+    },
+    "fdc2d398d1157e039c0ca9ad3b8d396f2154339d9c82080891dd70100afc9235": {
+      "source": "ZXQOBFARYN0QXZ counts selected methods with at least one rejection; ZXQOBFARYN1QXZ counts performance-policy exclusions. The report contains original names and should be handled as build information.",
+      "translation": "ZXQOBFARYN0QXZは、少なくとも1つの拒否理由がある選択済みメソッドを数えます。ZXQOBFARYN1QXZは、パフォーマンスポリシーによる除外を数えます。レポートには元の名前が含まれるため、ビルド情報として取り扱ってください。",
+      "status": "reviewed"
+    },
+    "1961b1a897a3fbcabbaa6f6b3db155872034e6237aad582ec9f7f5460cae1b54": {
+      "source": "Enforces ZXQOBFARYN0QXZ and returns human-readable warnings.",
+      "translation": "ZXQOBFARYN0QXZを適用し、人が読める警告を返します。",
+      "status": "reviewed"
+    },
+    "6cf8396ca8af96fe7e7a6ddb327e2a006b4465eecfd039943dd1b96dd12ec2e2": {
+      "source": "Serializes this report with stable field and method ordering.",
+      "translation": "フィールドとメソッドを安定した順序にして、このレポートをシリアライズします。",
+      "status": "reviewed"
+    },
+    "e00229e794ca9829c2c7f72c5cec574f18c48a8c3f8af237de1990991bbb3d18": {
+      "source": "ZXQOBFARYN0QXZ throws for every ineligible selected method; ZXQOBFARYN1QXZ reports skipped methods; analysis-only does not fail.",
+      "translation": "ZXQOBFARYN0QXZは、選択された不適格なメソッドが1つでもあると例外をスローします。ZXQOBFARYN1QXZはスキップしたメソッドを報告します。解析専用モードは失敗しません。",
+      "status": "reviewed"
+    },
+    "f5f3dc5e350a982ccb8d61738591e732b7f831069511ce7f8ecefb7edad8ba4b": {
+      "source": "Inspects selection, policy exclusions, and opcode eligibility without mutating class nodes.",
+      "translation": "クラスノードを変更せずに、選択結果、ポリシーによる除外、オペコードの適格性を検査します。",
+      "status": "reviewed"
+    },
+    "9dc6e136cc84030330e9cb60d9ef0fc6c2c4906a6ec56a9aefab59d0edefa9b5": {
+      "source": "Selectors and exclusions are full-match regexes against original ZXQOBFARYN0QXZ identities. <span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/VirtualizationAnalyzer//#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.String,kotlin.String]/PointingToCallableParameters(2)/\">exactExclusions</span> carries platform performance-policy reasons.",
+      "translation": "選択パターンと除外パターンは、元のZXQOBFARYN0QXZ識別子に対して完全一致させる正規表現です。<span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/VirtualizationAnalyzer//#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.String,kotlin.String]/PointingToCallableParameters(2)/\">exactExclusions</span>には、プラットフォームのパフォーマンスポリシーによる理由が格納されます。",
+      "status": "reviewed"
+    },
+    "b0451c2e69b150c1eb86639157fc1a510dbf9edbe069be5003659bc805aa33a1": {
+      "source": "Read-only eligibility result for one original method.",
+      "translation": "元の1メソッドに対する、読み取り専用の適格性判定結果です。",
+      "status": "reviewed"
+    },
+    "761d831bec53ea53c7f23961224e7e89874ac52d8293d31f109e6d0f7749052d": {
+      "source": "<span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/VirtualizationMethodAnalysis//#kotlin.String#kotlin.Boolean#kotlin.String?#kotlin.collections.List[kotlin.String]#com.peco2282.obfaryn.core.transformer.MethodIdentity?#kotlin.collections.List[com.peco2282.obfaryn.core.transformer.VirtualizationRejection]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.Int,kotlin.Int]#kotlin.collections.List[kotlin.String]#kotlin.Int#kotlin.Int#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.String#kotlin.Boolean#kotlin.Boolean/PointingToCallableParameters(1)/\">selected</span> is false when no selector matched or a performance policy excluded the method. <span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/VirtualizationMethodAnalysis//#kotlin.String#kotlin.Boolean#kotlin.String?#kotlin.collections.List[kotlin.String]#com.peco2282.obfaryn.core.transformer.MethodIdentity?#kotlin.collections.List[com.peco2282.obfaryn.core.transformer.VirtualizationRejection]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.Int,kotlin.Int]#kotlin.collections.List[kotlin.String]#kotlin.Int#kotlin.Int#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.String#kotlin.Boolean#kotlin.Boolean/PointingToCallableParameters(5)/\">rejections</span> records unsupported instructions and their locations for selected methods. Counts ignore labels, frames, and line-number nodes.",
+      "translation": "選択パターンが1つも一致しない場合、またはパフォーマンスポリシーでメソッドが除外された場合、<span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/VirtualizationMethodAnalysis//#kotlin.String#kotlin.Boolean#kotlin.String?#kotlin.collections.List[kotlin.String]#com.peco2282.obfaryn.core.transformer.MethodIdentity?#kotlin.collections.List[com.peco2282.obfaryn.core.transformer.VirtualizationRejection]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.Int,kotlin.Int]#kotlin.collections.List[kotlin.String]#kotlin.Int#kotlin.Int#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.String#kotlin.Boolean#kotlin.Boolean/PointingToCallableParameters(1)/\">selected</span>はfalseになります。<span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/VirtualizationMethodAnalysis//#kotlin.String#kotlin.Boolean#kotlin.String?#kotlin.collections.List[kotlin.String]#com.peco2282.obfaryn.core.transformer.MethodIdentity?#kotlin.collections.List[com.peco2282.obfaryn.core.transformer.VirtualizationRejection]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.Int,kotlin.Int]#kotlin.collections.List[kotlin.String]#kotlin.Int#kotlin.Int#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.String#kotlin.Boolean#kotlin.Boolean/PointingToCallableParameters(5)/\">rejections</span>には、選択されたメソッドでサポートされない命令とその位置が記録されます。件数にはラベル、フレーム、行番号ノードを含めません。",
+      "status": "reviewed"
+    },
+    "2377df1b9a2254ac487eb216f5364ad55f04491abaa5c26bac2d44841551525c": {
+      "source": "The ZXQOBFARYN0QXZ class provides an environment for executing a virtual instruction set. It operates on a program encoded as a Base64 string and executes instructions defined by a custom virtual machine. The class is primarily designed to interpret and execute sequences of operations on an operand stack and a local variable array.",
+      "translation": "ZXQOBFARYN0QXZクラスは、仮想命令セットを実行する環境を提供します。Base64文字列としてエンコードされたプログラムを処理し、独自の仮想マシンで定義された命令を実行します。主に、オペランドスタックとローカル変数配列に対する一連の操作を解釈して実行するよう設計されています。",
+      "status": "reviewed"
+    },
+    "d5abbc43e7cdb351588bb1f47a83e479016e1f7ec2455537ab6e3bb00c268f6d": {
+      "source": "How selected methods that cannot be virtualized affect the run.",
+      "translation": "選択されたものの仮想化できないメソッドが、実行にどのような影響を与えるかを指定します。",
+      "status": "reviewed"
+    },
     "ffed9728e84bebffac47ea45c380f98a239522b190e6ce9d6d6ca90c7d13126e": {
       "source": "An immutable list of configured ZXQOBFARYN0QXZ instances.",
       "translation": "設定済みのZXQOBFARYN0QXZインスタンスを格納する不変リストです。",
