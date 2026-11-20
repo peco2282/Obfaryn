@@ -441,6 +441,251 @@
       "source": "Typical use: start from methods identified as performance-sensitive by name/annotation, then propagate that classification to whatever they call, so a hot callback's helpers are not virtualized out from under it.",
       "translation": "一般的な用途では、名前またはアノテーションによって性能に敏感だと特定したメソッドを起点に、その分類を呼び出し先へ伝播させます。これにより、ホットコールバックが使用する補助メソッドだけが仮想化されることを防ぎます。",
       "status": "reviewed"
+    },
+    "03194345d9e0523b0db3a32bf76376f2eb4d0fb3d410695065a535c5df849bee": {
+      "source": "Creates a ZXQOBFARYN0QXZ configured with the specified metadata stripping options.",
+      "translation": "指定されたメタデータ除去オプションで設定したZXQOBFARYN0QXZを作成します。",
+      "status": "reviewed"
+    },
+    "2a3803cb14cb4b059be0e490e99e5260704a32621f23f233006967bb9e4c2d76": {
+      "source": "Whether to extract static final constant fields into ZXQOBFARYN0QXZ for string encryption.",
+      "translation": "文字列暗号化のためにstatic final定数フィールドをZXQOBFARYN0QXZへ抽出するかどうかです。",
+      "status": "reviewed"
+    },
+    "31a22538cfa9c75ac37d0738b34e051d3d987ca80253de5ea083777b90fb94b0": {
+      "source": "Whether to strip generic signatures from classes, methods, and fields.",
+      "translation": "クラス、メソッド、およびフィールドからジェネリックシグネチャを除去するかどうかです。",
+      "status": "reviewed"
+    },
+    "461d0762c85d554f9e89aabd21bc6deb42560b01ab52751576af7031cb441237": {
+      "source": "Configuration builder interface for class metadata and debug information stripping.",
+      "translation": "クラスメタデータおよびデバッグ情報の除去を設定するビルダーインターフェースです。",
+      "status": "reviewed"
+    },
+    "51a2f7b93228ca9ec8de46fd2dcfdbd620e149e027dd300abd4d2083e9b763c0": {
+      "source": "Modular JVM int/long identities. Never changes floating point, division, shifts or evaluation order.",
+      "translation": "JVMのint／longに対する剰余環上の恒等変換です。浮動小数点演算、除算、シフト、または評価順序を変更することはありません。",
+      "status": "reviewed"
+    },
+    "621d1cb5bb63791102af2c0b5231d78f30a4df84d57b2c98157338015a62190a": {
+      "source": "Whether to strip debug information including line numbers and local variable tables.",
+      "translation": "行番号やローカル変数テーブルを含むデバッグ情報を除去するかどうかです。",
+      "status": "reviewed"
+    },
+    "641a474e44dcfa790a05c3ac96186ceac90501f964ad452e5b558327734876d1": {
+      "source": "Target selection, including annotations or random sampling. Runs before expression generation.",
+      "translation": "アノテーションやランダムサンプリングを含む対象選択です。式の生成より前に実行されます。",
+      "status": "reviewed"
+    },
+    "691c1380419a59fb106fc4ce664ab4f74147d83af3644432d10dc40e13d4f6bd": {
+      "source": "The random number generator used for numeric transformations.",
+      "translation": "数値変換に使用する乱数生成器です。",
+      "status": "reviewed"
+    },
+    "6aa1bee81e7ae6c95e573187e042c2ec2b2ab0121eef92710803ac3fadeb350b": {
+      "source": "Typed expression generation; null results skip a constant.",
+      "translation": "型付きの式を生成します。結果がnullの場合、その定数はスキップされます。",
+      "status": "reviewed"
+    },
+    "715d74e216260bfc42e5ff8f204cdefb60eeefab2fc1ab5b9b6a0817967fea11": {
+      "source": "Paired build-time encryption and runtime decoder generation. Defaults to XOR.",
+      "translation": "ビルド時の暗号化と、それに対応する実行時デコーダーの生成を行います。デフォルトはXORです。",
+      "status": "reviewed"
+    },
+    "82da23ddf8545e5d996842e02f24cb27031fe79c7e3a946d65c425d9f9b26d3f": {
+      "source": "Configuration builder interface for number obfuscation.",
+      "translation": "数値難読化を設定するビルダーインターフェースです。",
+      "status": "reviewed"
+    },
+    "91f06ec5f0ab510665c01cf7ef94586ca2c215f84c9161a6a958deab4e4c4ad1": {
+      "source": "The transformer to add.",
+      "translation": "追加するTransformerです。",
+      "status": "reviewed"
+    },
+    "a7365c31bc0f558cbec9ecc0e9d5b018988d365eff47eb8f845815d45038e029": {
+      "source": "Adds an existing ZXQOBFARYN0QXZ instance to the pipeline.",
+      "translation": "既存のZXQOBFARYN0QXZインスタンスをパイプラインへ追加します。",
+      "status": "reviewed"
+    },
+    "ae809b73b07be85dc053543447b29ecbcd2f2964128bf73ffc3d961762747882": {
+      "source": "Whether to extract static final constant fields into ZXQOBFARYN0QXZ for number obfuscation.",
+      "translation": "数値難読化のためにstatic final定数フィールドをZXQOBFARYN0QXZへ抽出するかどうかです。",
+      "status": "reviewed"
+    },
+    "aef7bacc86d2a3f4724ae489d69e55f0939ad11029f55f85c5856992e9ec7262": {
+      "source": "Whether to strip parameter name metadata from methods.",
+      "translation": "メソッドからパラメーター名のメタデータを除去するかどうかです。",
+      "status": "reviewed"
+    },
+    "bb8fdde06df0f2c891206609493453dd525cd6d2f276674ce72708e314d3e44c": {
+      "source": "Whether to strip Kotlin ZXQOBFARYN0QXZ annotations.",
+      "translation": "KotlinのZXQOBFARYN0QXZアノテーションを除去するかどうかです。",
+      "status": "reviewed"
+    },
+    "beb927bf7ac007202b2abd7fa5594565768a498c4e74c5fa3bb6e17698befa22": {
+      "source": "This builder instance for chaining.",
+      "translation": "連続して設定を呼び出すための、このビルダーインスタンスです。",
+      "status": "reviewed"
+    },
+    "e6f4ffb610cf49ea36c19680198743797f7b171f7c24b47d66a0fdb6636b2cc0": {
+      "source": "The random number generator used for key generation.",
+      "translation": "鍵の生成に使用する乱数生成器です。",
+      "status": "reviewed"
+    },
+    "ef41e9375c0bfdbfb0747094c98678205aee39077d0e7a1c72a1e4d1d8e44e29": {
+      "source": "Configuration builder interface for string encryption.",
+      "translation": "文字列暗号化を設定するビルダーインターフェースです。",
+      "status": "reviewed"
+    },
+    "f0a3e631a85fe97101e95acd8ecbf4d44e0827c036ae6299e750a9611d71355d": {
+      "source": "A configured metadata strip transformer.",
+      "translation": "設定済みのメタデータ除去Transformerです。",
+      "status": "reviewed"
+    },
+    "00cf1e51e3a3af9ba25c4c4d55bfd86741acb46ba8d73aed672f6c97ade93cec": {
+      "source": "If ZXQOBFARYN0QXZ was manually added while automatic inclusion is enabled.",
+      "translation": "自動追加が有効な状態でZXQOBFARYN0QXZが手動追加されていた場合に発生します。",
+      "status": "reviewed"
+    },
+    "12797283e6f251e9bb4e00adfe5d4c7d462b9fc9f80ada68afe44e293a23787c": {
+      "source": "Final-name linkage conversion; default scope is the host's application classes.",
+      "translation": "確定後の名前を使用したリンケージ変換です。デフォルトの対象範囲はホストのアプリケーションクラスです。",
+      "status": "reviewed"
+    },
+    "28858de07b3a487ea8dac5fc372db15674ed9acfefb079a8ff979c4fe7d2dc23": {
+      "source": "If constant field handling is enabled for string encryption or number obfuscation, a ZXQOBFARYN0QXZ is automatically inserted ahead of dependent transformers.",
+      "translation": "文字列暗号化または数値難読化で定数フィールドの処理が有効な場合、依存するTransformerより前にZXQOBFARYN0QXZが自動的に挿入されます。",
+      "status": "reviewed"
+    },
+    "3a359c536b055e0616ac7bb4bd4a767b712af4c8cf43b6fc293aff6290ecce91": {
+      "source": "Bounded modular integer expressions; application scope comes from the execution context.",
+      "translation": "上限付きの剰余整数式です。適用範囲は実行コンテキストから取得します。",
+      "status": "reviewed"
+    },
+    "6246dfa0f4162ed67da9bdd0377a78f32032247e2e784b03c45a702666e158a3": {
+      "source": "Provides builder functions for standard transformations such as string encryption, number obfuscation, and metadata stripping, with support for automatic constant field extraction when enabled.",
+      "translation": "文字列暗号化、数値難読化、メタデータ除去などの標準変換を構成するビルダー関数を提供します。有効にした場合は、定数フィールドの自動抽出もサポートします。",
+      "status": "reviewed"
+    },
+    "8e05fa2ebe8022bb447c97765a178a4985806acd6c3fbe7e9457b644174e2e7b": {
+      "source": "Configures and adds a string encryption transformer to the pipeline.",
+      "translation": "文字列暗号化Transformerを設定し、パイプラインへ追加します。",
+      "status": "reviewed"
+    },
+    "9482a34b83a35f16b6344f5604333b105cbfc3f615647e71a357d4e190061400": {
+      "source": "Appends a ZXQOBFARYN0QXZ instance to the pipeline.",
+      "translation": "ZXQOBFARYN0QXZインスタンスをパイプラインの末尾へ追加します。",
+      "status": "reviewed"
+    },
+    "9c8991795a9a0a1a2430ea20d56955c4a7b45e064b68ede7355866490ac72e9d": {
+      "source": "Removes a ZXQOBFARYN0QXZ instance from the pipeline.",
+      "translation": "ZXQOBFARYN0QXZインスタンスをパイプラインから削除します。",
+      "status": "reviewed"
+    },
+    "b295d59610d99095aeb1b53adc6ecb24e0b97134a0d82740be0c810d32519155": {
+      "source": "Configures and adds a metadata stripping transformer to the pipeline.",
+      "translation": "メタデータ除去Transformerを設定し、パイプラインへ追加します。",
+      "status": "reviewed"
+    },
+    "b4bcbcde7a217efe7fabbfb6c7c928579d87f4b28862d9386f9164f32b74f343": {
+      "source": "The constructed list of transformers.",
+      "translation": "構築されたTransformerのリストです。",
+      "status": "reviewed"
+    },
+    "bdce9d4b5eed163f443d28a83135165784c50db2e40668551904c75e6b9bb053": {
+      "source": "Configuration block for ZXQOBFARYN0QXZ options.",
+      "translation": "ZXQOBFARYN0QXZのオプションを指定する設定ブロックです。",
+      "status": "reviewed"
+    },
+    "bf1fe68b5ab08ff4580f5d1def3668460db40a5315da29eb1db6b0522c8a16c1": {
+      "source": "Builds and returns the configured list of ZXQOBFARYN0QXZ instances.",
+      "translation": "設定済みのZXQOBFARYN0QXZインスタンスのリストを構築して返します。",
+      "status": "reviewed"
+    },
+    "cbf335480da54946cb280edeaea8c44bb691c4250ff647dfef486aa8b5bfb047": {
+      "source": "The transformer to remove.",
+      "translation": "削除するTransformerです。",
+      "status": "reviewed"
+    },
+    "eac4616eda289b20c2d43d2e60b488f6f22cb31a880dffe8e805a47dc5094e2c": {
+      "source": "Configures and adds a number obfuscation transformer to the pipeline.",
+      "translation": "数値難読化Transformerを設定し、パイプラインへ追加します。",
+      "status": "reviewed"
+    },
+    "f20b75769f34a54ddfbdd5589fca4433ce51cccb63d5edb3b2ba343dd4368eea": {
+      "source": "DSL builder for configuring and assembling a pipeline of bytecode ZXQOBFARYN0QXZ instances.",
+      "translation": "バイトコードZXQOBFARYN0QXZインスタンスのパイプラインを設定および構築するDSLビルダーです。",
+      "status": "reviewed"
+    },
+    "0e1b8d466605387ed2e277d50f0fa44bb72844bec91f3f494020e6dd01d6dbd3": {
+      "source": "Small integer constants are frequent in control flow and expanding them adds little value.",
+      "translation": "小さい整数定数は制御フローで頻繁に使用されるため、それらを展開しても得られる効果はわずかです。",
+      "status": "reviewed"
+    },
+    "1fea31de03a7374a6ef21ab6c54cf647cf2ec84045ee044d364073c65e826ebc": {
+      "source": "Hides ordinary call references behind encrypted linkage metadata and constant JVM call sites. Must run after renaming: encrypted names are deliberately opaque to ASM remappers. ZXQOBFARYN0QXZ receives final internal names and should restrict fat JARs to application code.",
+      "translation": "通常の呼び出し参照を、暗号化されたリンケージメタデータと定数JVMコールサイトの背後へ隠します。暗号化された名前は意図的にASMリマッパーから認識できないため、リネーム後に実行しなければなりません。ZXQOBFARYN0QXZには確定後の内部名が渡されます。fat JARでは対象をアプリケーションコードに限定してください。",
+      "status": "reviewed"
+    },
+    "242af4be3a8590dc4db77027ab74a079fff9207552b5fc17b0891bbf9965e531": {
+      "source": "Moves application ConstantValue attributes into code for the string/number transformers.",
+      "translation": "文字列／数値Transformerで処理できるよう、アプリケーションのConstantValue属性をコードへ移動します。",
+      "status": "reviewed"
+    },
+    "277c676c3065c9555e550a85e75604c00d4a5bed8cfe1caeeb6345d88edfd5f9": {
+      "source": "Per-literal keyed masking with ciphertext feedback; obfuscation, not cryptographic secrecy.",
+      "translation": "暗号文フィードバックを使用したリテラル単位の鍵付きマスキングです。暗号学的な秘匿ではなく、難読化を目的とします。",
+      "status": "reviewed"
+    },
+    "3fd312a8d4280a9e1b8e3439461498183d4c5dd7b02bc7824ec3fedd8858d716": {
+      "source": "If a number obfuscation transformer is already configured.",
+      "translation": "数値難読化Transformerがすでに設定されている場合に発生します。",
+      "status": "reviewed"
+    },
+    "5ca8df6118fe45bb4003d5535c35a73348b4e2e197bdc8d82e73263eb68c9958": {
+      "source": "If a string encryption transformer is already configured.",
+      "translation": "文字列暗号化Transformerがすでに設定されている場合に発生します。",
+      "status": "reviewed"
+    },
+    "6edfee17b2c962ab79257ee91b98695dceeb78b9ce511b22f98a3879c2714e57": {
+      "source": "The standard three integer expressions; floating-point values use the API's raw-bit defaults.",
+      "translation": "標準の3種類の整数式です。浮動小数点値にはAPIのraw-bitデフォルト実装を使用します。",
+      "status": "reviewed"
+    },
+    "81c9c27a31bd7429f5bbfe5b52a40628041dd9d3b7b060c0cec13d25b4d6ab06": {
+      "source": "A lambda configuring the ZXQOBFARYN0QXZ.",
+      "translation": "ZXQOBFARYN0QXZを設定するラムダです。",
+      "status": "reviewed"
+    },
+    "88d282bb13f77e9ba5641746b91941f74eecc8dadaabb5cd7c6474e40b63651f": {
+      "source": "Only one string encryption transformer can be configured per builder.",
+      "translation": "1つのビルダーに設定できる文字列暗号化Transformerは1つだけです。",
+      "status": "reviewed"
+    },
+    "9912e89ecbd1b5ea5530a693c9e2540ec72d3c4d2d426c82a604b305a5d523cf": {
+      "source": "Only one number obfuscation transformer can be configured per builder.",
+      "translation": "1つのビルダーに設定できる数値難読化Transformerは1つだけです。",
+      "status": "reviewed"
+    },
+    "bd927e8770f2a0be46850cac7ead4410590ac3c5213c6abcc4f613923f14d5d9": {
+      "source": "Builds a list of ZXQOBFARYN0QXZ instances using a DSL configuration block.",
+      "translation": "DSL設定ブロックを使用してZXQOBFARYN0QXZインスタンスのリストを構築します。",
+      "status": "reviewed"
+    },
+    "de011a36b5828a7f14656b72cc5d19aed51306c6de07d56b5a163a575fd91b67": {
+      "source": "Ensures the explicit prelink API exists even if every application class was excluded.",
+      "translation": "すべてのアプリケーションクラスが除外された場合でも、明示的なプリリンクAPIが存在することを保証します。",
+      "status": "reviewed"
+    },
+    "e932a0ad73db76831d2690857198c1906ea7e1cb47f318cbab91d88f80a3b44c": {
+      "source": "Uses keyed dispatch or direct-branch block layout changes without an interpreter.",
+      "translation": "インタープリターを使用せず、鍵付きディスパッチまたは直接分岐によるブロック配置の変更を行います。",
+      "status": "reviewed"
+    },
+    "ffed9728e84bebffac47ea45c380f98a239522b190e6ce9d6d6ca90c7d13126e": {
+      "source": "An immutable list of configured ZXQOBFARYN0QXZ instances.",
+      "translation": "設定済みのZXQOBFARYN0QXZインスタンスを格納する不変リストです。",
+      "status": "reviewed"
     }
   }
 }
