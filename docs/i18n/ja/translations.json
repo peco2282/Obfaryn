@@ -2326,6 +2326,231 @@
       "source": "Independent ordinary body passes. Enabling one never selects interpreter conversion.",
       "translation": "互いに独立した通常のメソッド本体パスです。いずれかを有効にしても、インタープリター変換が選択されることはありません。",
       "status": "reviewed"
+    },
+    "5c1f1d3ff1f9385655234a158ae90465ab2ec962d2c4c9e3de192b8f37aa5466": {
+      "source": "Defer to whatever the enclosing scope (class annotation, matching rule, or run default) selects.",
+      "translation": "包含するスコープ（クラスアノテーション、一致ルール、実行時デフォルト）の選択に従います。",
+      "status": "reviewed"
+    },
+    "4f7c88e7c79fac3680bc612e695dce65c2c68d5aaef229eea927adf357c5217a": {
+      "source": "Disable registration of the control-flow pass for this method, overriding any broader default.",
+      "translation": "より広い範囲のデフォルトを上書きし、このメソッドに対する制御フロー変換パスの登録を無効にします。",
+      "status": "reviewed"
+    },
+    "43df9d4b3ca1bf7490b28166cdbc0afb480ab64d16824bf75aa80088b5bc8058": {
+      "source": "Explicit control-flow protection selection for one method.",
+      "translation": "1つのメソッドに対する明示的な制御フロー保護の選択です。",
+      "status": "reviewed"
+    },
+    "21684b91e33886538e19f0f00727d3cdd33745b77a451b77bf2cc5bf059841a2": {
+      "source": "Selection is always annotation- or explicit-pattern-driven; it is never inferred from a method's name (such as ZXQOBFARYN0QXZ/ZXQOBFARYN1QXZ) and is never expanded through a protection profile on its own.",
+      "translation": "選択は常にアノテーションまたは明示的なパターンによって行われます。メソッド名（ZXQOBFARYN0QXZやZXQOBFARYN1QXZなど）から推測されることはなく、保護プロファイルだけを理由に対象が拡張されることもありません。",
+      "status": "reviewed"
+    },
+    "4769125dd5abaedf7a465d6e5b35cf6fd407210d13efe02ad030cac61ad0bf37": {
+      "source": "A pass decision for one method. Counts exclude labels, line numbers and stack-map frames. Code-byte counts are conservative ASM upper estimates, not measured native/JIT code sizes.",
+      "translation": "1つのメソッドに対する変換パスの判断結果です。件数にはラベル、行番号、StackMapフレームを含みません。コードのバイト数はASMによる保守的な上限見積もりであり、計測したネイティブコードやJITコードのサイズではありません。",
+      "status": "reviewed"
+    },
+    "4cca08805c8775a2469a02b0d486905897bc3509f1f916d7598a74dde90bf294": {
+      "source": "The structural budget actually in effect for this method when the pass ran, or ZXQOBFARYN0QXZ for a pass that is not body-budgeted. The rejection ZXQOBFARYN1QXZ names whichever of these limits was exceeded; this exposes the limits themselves so a report consumer need not reconstruct them.",
+      "translation": "変換パスの実行時に、このメソッドへ実際に適用された構造バジェットです。メソッド本体バジェットの対象ではない変換パスではZXQOBFARYN0QXZです。拒否理由ZXQOBFARYN1QXZには、これらの上限のうち超過したものが記録されます。上限そのものを公開するため、レポートの利用側で再構築する必要はありません。",
+      "status": "reviewed"
+    },
+    "c4da7952c655ae5a0beead1346dcf4738bd75e52d4d3e4698f5eb1c9e19275fe": {
+      "source": "Human-readable explanation for ZXQOBFARYN0QXZ, such as which budget was exceeded.",
+      "translation": "超過したバジェットなど、ZXQOBFARYN0QXZについて人が読める形式で説明します。",
+      "status": "reviewed"
+    },
+    "3473e1faf77401f618b5b491d52823b3a6167be3e19e295d7652a4e96b3fee47": {
+      "source": "Outcome of the pass, such as whether it committed or was rejected/rolled back.",
+      "translation": "コミットされたか、拒否またはロールバックされたかなど、変換パスの結果です。",
+      "status": "reviewed"
+    },
+    "b5335d82643dc32c302c1a977121b27677b7e42ff2d540df91e081a60aa6ea53": {
+      "source": "Output instructions as a percentage of input instructions (ZXQOBFARYN0QXZ), or ZXQOBFARYN1QXZ when there is no input body to grow from (a generated helper or initializer).",
+      "translation": "入力命令数に対する出力命令数の割合（ZXQOBFARYN0QXZ）です。生成されたヘルパーや初期化子のように、増加率の基準となる入力本体がない場合はZXQOBFARYN1QXZです。",
+      "status": "reviewed"
+    },
+    "c30eb677c51282e4aa85b4ea2a184cdf2c484e575bfbac8e7ec3241cbf950474": {
+      "source": "Branch instruction count of the original method body.",
+      "translation": "元のメソッド本体に含まれる分岐命令数です。",
+      "status": "reviewed"
+    },
+    "b861179be5abe60ca5bef34e10d079f1f25e724b7ecdef471500d03114d3731a": {
+      "source": "Estimated JVM code length of the original method body.",
+      "translation": "元のメソッド本体の推定JVMコード長です。",
+      "status": "reviewed"
+    },
+    "c0ca120a864967dcf97512f41ba03d101209513214286148e38a39a6136c709e": {
+      "source": "Instruction count of the original method body.",
+      "translation": "元のメソッド本体の命令数です。",
+      "status": "reviewed"
+    },
+    "47fa4526f136ab95d1a51588dc7bb5729d949b33009dd967f8606feae01cbb3a": {
+      "source": "The original (pre-transformation) method identity this report describes.",
+      "translation": "このレポートが表す、変換前の元のメソッド識別子です。",
+      "status": "reviewed"
+    },
+    "e236c7a6fe03210d3f3d78ebf2b96262b124ba7bfad1136223d038fc89972e35": {
+      "source": "Branch instruction count after the pass.",
+      "translation": "変換パス適用後の分岐命令数です。",
+      "status": "reviewed"
+    },
+    "4eff6dee9649e805e3fd888eacd887466982204296ded59604b383425956e422": {
+      "source": "Estimated JVM code length after the pass; 0 for a rejected new method.",
+      "translation": "変換パス適用後の推定JVMコード長です。拒否された新規メソッドでは0です。",
+      "status": "reviewed"
+    },
+    "c2c76103c526f44e8b0b6250d479b8cb8a9a3890bb078e95bd510129a944d6eb": {
+      "source": "Instruction count after the pass, or equal to ZXQOBFARYN0QXZ when rolled back.",
+      "translation": "変換パス適用後の命令数です。ロールバックされた場合はZXQOBFARYN0QXZと同じ値です。",
+      "status": "reviewed"
+    },
+    "0c3c5751ba13972abd4b19bc9f16a22a76e78b51ec22e6ca4d97751b0c5ca7b2": {
+      "source": "One matching rule in a run's protection profile.",
+      "translation": "実行の保護プロファイルに含まれる1つの一致ルールです。",
+      "status": "reviewed"
+    },
+    "53ba477226a9d123427fc6db81f18da9a25779b01aca07e16c1383239ba67a7a": {
+      "source": "ZXQOBFARYN0QXZ is a full-match regex over the ORIGINAL ZXQOBFARYN1QXZ identity (never the renamed/obfuscated one). When several rules match the same method, later rules in the configured list override earlier ones on a per-property basis: a later rule that leaves ZXQOBFARYN2QXZ at ZXQOBFARYN3QXZ does not clear an earlier rule's explicit choice.",
+      "translation": "ZXQOBFARYN0QXZは、元のZXQOBFARYN1QXZ識別子（名前変更または難読化後の識別子ではありません）に対する完全一致正規表現です。複数のルールが同じメソッドに一致する場合、設定リスト内で後にあるルールが、プロパティごとに先のルールを上書きします。後のルールでZXQOBFARYN2QXZがZXQOBFARYN3QXZのままであれば、先のルールによる明示的な選択は解除されません。",
+      "status": "reviewed"
+    },
+    "4478ca3e583e0d3dbe8f0607f4ec6939f1b222aa105185b26a3ce2d0d8f08aa2": {
+      "source": "Put broad defaults first and narrow exceptions last, since the later rule wins where they overlap. For example, dispatch-obfuscate control flow across a package, but spare one hot method and give it a latency budget:",
+      "translation": "重複する範囲では後のルールが優先されるため、広いデフォルトを先に、狭い例外を後に配置してください。たとえば、パッケージ全体にはディスパッチ難読化による制御フロー変換を適用しつつ、負荷の高い1メソッドを除外してレイテンシーバジェットを設定できます。",
+      "status": "reviewed"
+    },
+    "635205133ae9809d2f02fb9ed0dffd7e32b0a0d590a0132b78b4691718e4b0ac": {
+      "source": "Both rules match ZXQOBFARYN0QXZ; because the specific rule is later it wins per property, so ZXQOBFARYN1QXZ ends up with numbers off and control flow NONE while every other ZXQOBFARYN2QXZ method keeps DISPATCH. A rule only overrides the properties it sets — the broad rule's DISPATCH stands wherever the specific rule leaves ZXQOBFARYN3QXZ at ZXQOBFARYN4QXZ.",
+      "translation": "両方のルールがZXQOBFARYN0QXZに一致します。具体的なルールの方が後にあるため、プロパティごとにそのルールが優先されます。その結果、ZXQOBFARYN1QXZでは数値変換が無効、制御フローがNONEとなり、それ以外のZXQOBFARYN2QXZメソッドではDISPATCHが維持されます。ルールが上書きするのは、設定したプロパティだけです。具体的なルールでZXQOBFARYN3QXZがZXQOBFARYN4QXZのままの場所では、広いルールのDISPATCHが維持されます。",
+      "status": "reviewed"
+    },
+    "9e4bbe3e964c15b321dda5eaef0dd2778004abd46c2d0563facf57844d707859": {
+      "source": "Transformation budget override for methods this rule matches, or null to inherit.",
+      "translation": "このルールに一致するメソッドに対する変換バジェットの上書きです。nullの場合は継承します。",
+      "status": "reviewed"
+    },
+    "c77ea7e8e421895914f59d78edb058f663a0287dcc092983a342dbb8ab538502": {
+      "source": "Explicit control-flow selection for methods this rule matches; see ZXQOBFARYN0QXZ.",
+      "translation": "このルールに一致するメソッドの明示的な制御フロー選択です。ZXQOBFARYN0QXZを参照してください。",
+      "status": "reviewed"
+    },
+    "f30bf958cd2e57d07bf153c2c16689563bcae2506a2837c64fa2b86ba13f306c": {
+      "source": "Per-ZXQOBFARYN0QXZ enable/disable overrides for methods this rule matches.",
+      "translation": "このルールに一致するメソッドについて、ZXQOBFARYN0QXZごとに有効または無効を上書きします。",
+      "status": "reviewed"
+    },
+    "85545b4ccca99b5376da31cc5747cb2660a833061a625a8461813c4c40637a22": {
+      "source": "Regex matched against the original method identity.",
+      "translation": "元のメソッド識別子に対して照合する正規表現です。",
+      "status": "reviewed"
+    },
+    "673bca7e4b3cfbdbb87d9f8056aa75d4d4b65df49b373b5dbcd17349ba7b8e2b": {
+      "source": "Conservative starting point; benchmark the actual workload.",
+      "translation": "保守的な初期値です。実際のワークロードをベンチマークしてください。",
+      "status": "reviewed"
+    },
+    "af36f98bba79d4741d511c7cf11ced66fd3b8984dc17603cc1fd0442e72c8fd2": {
+      "source": "Minimum cumulative added-instruction allowance for the percentage check; 0 restores a strict ratio.",
+      "translation": "割合チェックにおける累積追加命令数の最低許容量です。0にすると厳密な比率へ戻ります。",
+      "status": "reviewed"
+    },
+    "3653bd4f3eeb9a6bbed010628668020af66ea57f6ee384e038d7c96a201cc7e9": {
+      "source": "Structural limits on a body pass, not a prediction or guarantee of execution time. Null means unlimited for that limit.",
+      "translation": "メソッド本体パスに対する構造上の上限であり、実行時間の予測や保証ではありません。各上限でnullは無制限を意味します。",
+      "status": "reviewed"
+    },
+    "493a5d6b17c92aa8d7756cab73e234de35dbd28c946915d000a2b3fb1476a8ce": {
+      "source": "Roll the pass back when it would add more instructions than this.",
+      "translation": "この値を超える命令が追加される場合、変換パスをロールバックします。",
+      "status": "reviewed"
+    },
+    "de23d332c1a1d5ee8b08950622291232f5eeeec9beb8308fd6d0dadc34d41145": {
+      "source": "Roll the pass back when output size exceeds this percentage of input size (100 means no growth allowed beyond ZXQOBFARYN0QXZ); must be at least 100 when set.",
+      "translation": "出力サイズが入力サイズに対するこの割合を超える場合、変換パスをロールバックします。100はZXQOBFARYN0QXZを超える増加を許可しないことを意味します。設定する場合は100以上でなければなりません。",
+      "status": "reviewed"
+    },
+    "127a17169d044c42440a86b0a97a4cf4e72d65d85d46974ad180f8e2272bd547": {
+      "source": "Skip the pass when the original method has more branch instructions than this.",
+      "translation": "元のメソッドの分岐命令数がこの値を超える場合、変換パスをスキップします。",
+      "status": "reviewed"
+    },
+    "a6bae9eefe34cb5e96be5a1c81a989845fa95b8ba47785cb820332a4820f02e0": {
+      "source": "Skip the pass when the original method has more instructions than this.",
+      "translation": "元のメソッドの命令数がこの値を超える場合、変換パスをスキップします。",
+      "status": "reviewed"
+    },
+    "511e7d297f38ef134eee55fdb3511586dcb86e13cf23a2b40311b90ec1370df8": {
+      "source": "Per-method JVM code-length ceiling; must stay within the class-file limit of 65535 bytes.",
+      "translation": "メソッドごとのJVMコード長の上限です。クラスファイルの上限である65535バイト以内でなければなりません。",
+      "status": "reviewed"
+    },
+    "e67a0f9da328619a0f857aa82c6f75ab0e6bbfb37afdb61d0d6924223ff675c0": {
+      "source": "Current on-disk format revision, emitted only once provenance or other header data is present.",
+      "translation": "現在のディスク上の形式リビジョンです。来歴またはその他のヘッダー情報が存在する場合にだけ、一度出力されます。",
+      "status": "reviewed"
+    },
+    "284e6754c1d3ef605dc2e1be57c39e8d9f381e241c26bb0e0144fd23b1bcc4b5": {
+      "source": "The single reader/writer for the textual mapping format, so no caller re-implements the syntax.",
+      "translation": "テキストマッピング形式を読み書きする唯一の実装です。これにより、呼び出し側が構文を再実装する必要はありません。",
+      "status": "reviewed"
+    },
+    "d4f87b92fc4bd2c2c7ea50ab259dea2ec4e63e1d309453d36a12de248fb3d82e": {
+      "source": "Lines: a class is ZXQOBFARYN0QXZ at the left margin; a method is an indented ZXQOBFARYN1QXZ; a field is an indented ZXQOBFARYN2QXZ; a relocated package is ZXQOBFARYN3QXZ at the left margin. Blank lines are ignored. Comment lines begin with ZXQOBFARYN4QXZ; a ZXQOBFARYN5QXZ comment records one ZXQOBFARYN6QXZ, and other comments are ignored, so a header stays forward-compatible. ZXQOBFARYN7QXZ and ZXQOBFARYN8QXZ round-trip.",
+      "translation": "行の形式は次のとおりです。クラスは左端のZXQOBFARYN0QXZ、メソッドはインデントされたZXQOBFARYN1QXZ、フィールドはインデントされたZXQOBFARYN2QXZ、移動したパッケージは左端のZXQOBFARYN3QXZです。空行は無視されます。コメント行はZXQOBFARYN4QXZで始まります。ZXQOBFARYN5QXZコメントは1つのZXQOBFARYN6QXZを記録し、その他のコメントは無視されるため、ヘッダーは前方互換性を維持できます。ZXQOBFARYN7QXZとZXQOBFARYN8QXZは往復変換されます。",
+      "status": "reviewed"
+    },
+    "f31ae9da632a969297a1d7ecba0bfe8fb5120e4b545ef8d25d1aaea01a411dcf": {
+      "source": "Parses mapping text. Repeated class/package keys keep the last value; member and source entries are retained in input order. Descriptor correctness is not validated.",
+      "translation": "マッピングテキストを解析します。クラスまたはパッケージのキーが重複する場合は最後の値を保持し、メンバーとソースのエントリは入力順を維持します。ディスクリプターの正当性は検証しません。",
+      "status": "reviewed"
+    },
+    "9e515db18e225d8487885abc116f00fef149fe6b1dbf3c923043d7c3c8bf2632": {
+      "source": "Renders the given forward tables; returns ZXQOBFARYN0QXZ when every table and the provenance are empty.",
+      "translation": "指定された順方向テーブルを出力します。すべてのテーブルと来歴が空の場合はZXQOBFARYN0QXZを返します。",
+      "status": "reviewed"
+    },
+    "e0c6a4521b47f89ba66343eb79e828f6dd52c3795cc780be09765bab388a8f60": {
+      "source": "if a non-comment line lacks the required mapping structure.",
+      "translation": "コメント以外の行に必要なマッピング構造がない場合。",
+      "status": "reviewed"
+    },
+    "43b75a4fd1bc7d5f4635313e726052968f4e22b3329edeedc177b288e4401402": {
+      "source": "One prior artifact whose renames a mapping re-applies, recorded so a chained apply-mapping run (A → B → C) can verify each contributing artifact is unchanged.",
+      "translation": "マッピングによって名前変更を再適用する以前の1アーティファクトです。連鎖したapply-mapping実行（A → B → C）で、関与する各アーティファクトが変更されていないことを検証できるよう記録されます。",
+      "status": "reviewed"
+    },
+    "b58bce5a7532c14cb3d0b17213139a41f5dee9ace03633993b86d6c81fe37d8f": {
+      "source": "Content hash of that artifact, matched against the artifact actually present when the mapping is re-applied; a mismatch is a stale-mapping error.",
+      "translation": "そのアーティファクトの内容ハッシュです。マッピングの再適用時に実際に存在するアーティファクトと照合され、不一致の場合は古いマッピングとしてエラーになります。",
+      "status": "reviewed"
+    },
+    "0aec057be97848d6a0db43f0fb170db31071937ab073a26858bc4111e5b355b3": {
+      "source": "Locates the contributing artifact on the apply-time classpath (JAR file name or coordinate); the exact form is chosen where provenance is produced, not by this contract.",
+      "translation": "適用時のクラスパス上で、関与するアーティファクトを特定します（JARファイル名または座標）。正確な形式はこの契約ではなく、来歴を生成する側で決定されます。",
+      "status": "reviewed"
+    },
+    "a8116935013895d323d250b53ccce89bd481a029e09a4a8446d7a7cbf2d1634c": {
+      "source": "Builds a key with ZXQOBFARYN0QXZ normalized to JVM internal form (dots to slashes), so a caller holding a class name in dotted form (ZXQOBFARYN1QXZ) still produces a key equal to one built from bytecode-level internal names (ZXQOBFARYN2QXZ). ZXQOBFARYN3QXZ and ZXQOBFARYN4QXZ are taken verbatim; ZXQOBFARYN5QXZ must already be a JVM descriptor. Prefer this over the raw constructor whenever ZXQOBFARYN6QXZ comes from an external or hand-written source rather than straight from a ZXQOBFARYN7QXZ/instruction, which are already internal.",
+      "translation": "ZXQOBFARYN0QXZをJVM内部形式（ドットをスラッシュへ変換）に正規化してキーを構築します。そのため、ドット形式のクラス名（ZXQOBFARYN1QXZ）を持つ呼び出し側でも、バイトコードレベルの内部名（ZXQOBFARYN2QXZ）から構築したキーと等しいキーを生成できます。ZXQOBFARYN3QXZとZXQOBFARYN4QXZはそのまま使用され、ZXQOBFARYN5QXZはあらかじめJVMディスクリプターでなければなりません。ZXQOBFARYN6QXZが、すでに内部形式であるZXQOBFARYN7QXZまたは命令から直接取得したものではなく、外部または手書きのソースから来る場合は、生のコンストラクターよりこちらを使用してください。",
+      "status": "reviewed"
+    },
+    "73b949972455f14550760b4c21239f7852aad8457d29cc8db915932746bc470d": {
+      "source": "Member identities always describe the input to the renaming pass.",
+      "translation": "メンバー識別子は常に、名前変更パスへの入力を表します。",
+      "status": "reviewed"
+    },
+    "c8c62eda55c4e84b14add07f43ada31f84dae6fffcf4814b6a1130cf735d7d80": {
+      "source": "JVM descriptor of the member (method descriptor, or field type descriptor).",
+      "translation": "メンバーのJVMディスクリプターです。メソッドではメソッドディスクリプター、フィールドではフィールド型ディスクリプターです。",
+      "status": "reviewed"
+    },
+    "bdccc14b9ab77ff360487538a40aadf4cd5aee187742d2fdf2f162d6dcdf5267": {
+      "source": "Original member name, before renaming.",
+      "translation": "名前変更前の元のメンバー名です。",
+      "status": "reviewed"
     }
   }
 }
