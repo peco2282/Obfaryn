@@ -1322,6 +1322,146 @@
       "translation": "所有クラスやディスクリプターに関係なく、この単純名を持つすべてのフィールドを保護します。",
       "status": "reviewed"
     },
+    "d0da185d7bb4adb32caa17144eb4944f222e94b187deae8f63bc9528a1d3ab56": {
+      "source": "Protects every method with this simple name, regardless of owner or descriptor.",
+      "translation": "所有クラスやディスクリプターに関係なく、この単純名を持つすべてのメソッドを保護します。",
+      "status": "reviewed"
+    },
+    "87975c4aceb5660404ff8f611a36e77a0b378a9d6431d3a195776be05c271abb": {
+      "source": "Returns a snapshot keyed by ZXQOBFARYN0QXZ followed immediately by the JVM method descriptor.",
+      "translation": "ZXQOBFARYN0QXZの直後にJVMメソッドディスクリプターを連結した値をキーとするスナップショットを返します。",
+      "status": "reviewed"
+    },
+    "60a40d64d0c3c571d88732964d7c2368f78a16223069c5043651b88d36f889ee": {
+      "source": "Removes only synthesized policy annotations, in reverse insertion order, when cleaned up.",
+      "translation": "クリーンアップ時に、生成したポリシーアノテーションだけを追加時と逆の順序で削除します。",
+      "status": "reviewed"
+    },
+    "1b2226a0b11db977a73477741e501bda76f52e41c9d4a830196e415143324e0a": {
+      "source": "Explicit composition: contributions and keep rules run in list order; duplicate parts are errors.",
+      "translation": "明示的に合成します。コントリビューションとkeepルールはリスト順に実行され、同じ構成要素が重複するとエラーになります。",
+      "status": "reviewed"
+    },
+    "2690e678c4d10fb2464e47f9331703d7f28f85ec10258c6a84b906fc5cabacd1": {
+      "source": "Built-in fallback platform reporting confidence 1 without inspecting the archive.",
+      "translation": "アーカイブを検査せずに信頼度1を報告する、組み込みのフォールバックプラットフォームです。",
+      "status": "reviewed"
+    },
+    "5aace44fbcadfdd9a9a0a075abef88e8bb753753f3fe77c7a0a1e1f0da092af8": {
+      "source": "Mutates ZXQOBFARYN0QXZ in extension order, rejecting existing class/resource keys rather than overwriting them. Contributions already applied are not rolled back if a later one fails. Resource bytes are copied; class contributions are parsed into fresh ASM nodes.",
+      "translation": "拡張の順序に従ってZXQOBFARYN0QXZを変更し、既存のクラスまたはリソースのキーは上書きせず拒否します。後のコントリビューションが失敗しても、すでに適用済みのコントリビューションはロールバックされません。リソースのバイト列はコピーされ、クラスのコントリビューションは新しいASMノードとして解析されます。",
+      "status": "reviewed"
+    },
+    "811cb0654078ea494b2ae8dbf62c832da242dec35353d7e290350543919520e5": {
+      "source": "Merged archives cannot contain modules, versioned entries, or signature files, and their manifests are not contributed. Embedded archives remain uninterpreted resource bytes. Policy providers run after contributions so contributed classes are also covered. Their aliases add temporary invisible Obfaryn annotations; the returned cleanup removes only those additions, preserving original annotations and contributed content.",
+      "translation": "統合するアーカイブには、モジュール、バージョン付きエントリ、署名ファイルを含めることができず、そのマニフェストも追加されません。埋め込みアーカイブは解釈されないリソースのバイト列として保持されます。ポリシープロバイダーはコントリビューションの後に実行されるため、追加されたクラスも対象になります。プロバイダーの別名は一時的な実行時不可視のObfarynアノテーションを追加し、返されるクリーンアップ処理はその追加分だけを削除して、元のアノテーションと追加済みコンテンツを保持します。",
+      "status": "reviewed"
+    },
+    "4204c256bec0683e04c4ab2278228c9b714b748f23b4274a47e70eaa6bd334b6": {
+      "source": "Applies platform content contributions before translating platform annotation policies.",
+      "translation": "プラットフォームのアノテーションポリシーを変換する前に、プラットフォームのコンテンツコントリビューションを適用します。",
+      "status": "reviewed"
+    },
+    "b2a35dbfe992f2de91246cd7bfe26c632cfec3aded03abc5b79a702fc206538e": {
+      "source": "Creates platforms from ZXQOBFARYN0QXZ providers and appends ZXQOBFARYN1QXZ. Results are not cached. Provider API versions and provider/implementation IDs are validated; duplicate or reserved IDs are checked during ZXQOBFARYN2QXZ.",
+      "translation": "ZXQOBFARYN0QXZプロバイダーからプラットフォームを作成し、ZXQOBFARYN1QXZを追加します。結果はキャッシュされません。プロバイダーのAPIバージョンと、プロバイダーおよび実装のIDを検証します。重複IDまたは予約済みIDはZXQOBFARYN2QXZの実行中に検査されます。",
+      "status": "reviewed"
+    },
+    "38dfe47666a0dce577dc288eb0dea31905e374f5c1113330327463d43089c7dd": {
+      "source": "Discovers platform providers and resolves explicit or confidence-based platform selection.",
+      "translation": "プラットフォームプロバイダーを検出し、明示指定または信頼度に基づくプラットフォーム選択を解決します。",
+      "status": "reviewed"
+    },
+    "d146890fcc7c13b0d8a540f36604dbb5098b29540a77001fe5608e731536c611": {
+      "source": "Selects an exact, case-sensitive ZXQOBFARYN0QXZ, or detects every platform when ZXQOBFARYN1QXZ is ZXQOBFARYN2QXZ. Automatic selection requires a unique highest confidence among detected platforms; ties fail rather than depending on service-loading order. Explicit selection does not call detect. All discovered platforms are validated even when a specific ID is requested.",
+      "translation": "大文字と小文字を区別してZXQOBFARYN0QXZと完全一致するプラットフォームを選択します。ZXQOBFARYN1QXZがZXQOBFARYN2QXZの場合は、すべてのプラットフォームを検出します。自動選択では、検出したプラットフォームのうち最高の信頼度を持つものが一意でなければなりません。同率の場合はサービスの読み込み順に依存せず失敗します。明示的な選択ではdetectを呼び出しません。特定のIDを要求した場合でも、検出したすべてのプラットフォームを検証します。",
+      "status": "reviewed"
+    },
+    "4d32876889fc5e29dd0f3f5e8ec4145aba0235aaef6cd5727340a1da6330e175": {
+      "source": "Resolves original-name rules, class defaults and method overrides beneath legacy restrictions.",
+      "translation": "従来の制限を前提として、元の名前に対するルール、クラスのデフォルト値、メソッドの上書き設定を解決します。",
+      "status": "reviewed"
+    },
+    "458edf65e5342a6ab2470e854e233d75255ee0fde2dae3aef6f48676f1898e71": {
+      "source": "Streaming, atomically replaced JSON; no serializer dependency in processed applications.",
+      "translation": "ストリーミング形式で書き込み、アトミックに置き換えるJSONです。処理対象アプリケーションにシリアライザー依存関係は不要です。",
+      "status": "reviewed"
+    },
+    "09c9a6143179cacf59da747839c2a6a8424a6fa775c2becfca2bbe0e99e7afec": {
+      "source": "Pass-facing view hiding excluded entries from class/resource enumeration.",
+      "translation": "クラスおよびリソースの列挙から除外対象エントリを隠す、変換パス向けのビューです。",
+      "status": "reviewed"
+    },
+    "5576c13007c077ab419bf0bc965e8e6129887f56ee72178856c5e9a41e10a890": {
+      "source": "Enumerated maps are filtered snapshots, but their nodes and entries still belong to <span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/FilteredContext//#com.peco2282.obfaryn.api.ObfuscationContext#kotlin.collections.Set[kotlin.String]#kotlin.collections.Set[kotlin.String]/PointingToCallableParameters(0)/\">delegate</span>. Direct lookup, existence checks, and transformation policy are delegated without filtering, allowing a pass to resolve excluded dependencies. Replacing an excluded key is rejected and removing one returns null; other mutations write through. This is a cooperative filtering boundary, not isolation from mutable excluded nodes returned by direct lookup.",
+      "translation": "列挙されるMapはフィルタリング済みのスナップショットですが、そのノードとエントリは引き続き<span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/FilteredContext//#com.peco2282.obfaryn.api.ObfuscationContext#kotlin.collections.Set[kotlin.String]#kotlin.collections.Set[kotlin.String]/PointingToCallableParameters(0)/\">delegate</span>に属します。直接参照、存在確認、変換ポリシーはフィルタリングせず委譲されるため、変換パスは除外された依存関係を解決できます。除外対象キーの置き換えは拒否され、削除するとnullを返します。それ以外の変更は委譲先へ反映されます。これは協調的なフィルタリング境界であり、直接参照で返される変更可能な除外対象ノードを隔離するものではありません。",
+      "status": "reviewed"
+    },
+    "5cea6823502fff9222a54c136a7a8245f839f23345778b3ce2cbc17298a8e5bb": {
+      "source": "Execution settings contain no standard algorithm switches. An empty package list runs no passes.",
+      "translation": "実行設定には標準アルゴリズムの切り替え項目を含みません。パッケージ一覧が空の場合、変換パスは実行されません。",
+      "status": "reviewed"
+    },
+    "74fce96e4510fe64b43a0ed80f25a6d246b84f1e9db89134a6d8e5faf9684043": {
+      "source": "Human-readable listing of every platform and transformation-package provider the host's ServiceLoader currently sees. Call this from inside ZXQOBFARYN0QXZ (or any other classloader scanning a given set of extension JARs) so the listing reflects that classloader's providers; this does not itself load or construct a classloader.",
+      "translation": "ホストのServiceLoaderから現在見えている、すべてのプラットフォームおよび変換パッケージプロバイダーを、人が読める形式で列挙します。ZXQOBFARYN0QXZ（または指定した拡張JAR一式を走査する別のクラスローダー）の内部から呼び出すと、そのクラスローダーから見えるプロバイダーが一覧に反映されます。この処理自体はクラスローダーを読み込んだり構築したりしません。",
+      "status": "reviewed"
+    },
+    "6cb577de95bbbad1bbf2e7ec77d933825b391f43a2bc825cc861bb56a2271864": {
+      "source": "Shared by every host discovery entry point (CLI ZXQOBFARYN0QXZ, Gradle ZXQOBFARYN1QXZ) so both sections stay in sync as a single implementation.",
+      "translation": "すべてのホスト検出エントリーポイント（CLIのZXQOBFARYN0QXZ、GradleのZXQOBFARYN1QXZ）で共有され、両方のセクションを単一の実装として同期させます。",
+      "status": "reviewed"
+    },
+    "cb43e1b7ac27d44477afe7130df452a3e5d433eb27f5bd6639e605e50e1fa2c6": {
+      "source": "Executes any registered parts with the same budgeting, identity tracking and reporting.",
+      "translation": "登録されたすべての構成要素を、同一のバジェット管理、同一性追跡、レポート生成を用いて実行します。",
+      "status": "reviewed"
+    },
+    "fefe1946310dce58c9bc27cf17412c77c768aa9368cecfcad1373cc9b37b6270": {
+      "source": "Standard-free JAR host. Recipes, platform tools and user callbacks share one registry per run.",
+      "translation": "standardモジュールに依存しないJARホストです。レシピ、プラットフォームツール、ユーザーコールバックは、実行ごとに1つのレジストリを共有します。",
+      "status": "reviewed"
+    },
+    "06ac2c157738f46ce12fd97b9cb3bb9a31f24e6342f516fd6fbef1dd7a1be344": {
+      "source": "Explicit package selection from providers installed on the host's context classloader.",
+      "translation": "ホストのコンテキストクラスローダーにインストールされたプロバイダーから、パッケージを明示的に選択します。",
+      "status": "reviewed"
+    },
+    "6b809bd464b9da09ea651995565adfa7e77b3a3cb105038dd48966fcdc7872a4": {
+      "source": "Registers ZXQOBFARYN0QXZ without replacing an existing pass with the same ID.",
+      "translation": "同じIDを持つ既存の変換パスを置き換えずに、ZXQOBFARYN0QXZを登録します。",
+      "status": "reviewed"
+    },
+    "11895df7a2b490ef4b538413bbe4a56f987c9a1053cba1d858919e7fd3e78655": {
+      "source": "Removes ZXQOBFARYN0QXZ; a later ZXQOBFARYN1QXZ may register that ID again.",
+      "translation": "ZXQOBFARYN0QXZを削除します。後のZXQOBFARYN1QXZで同じIDを再登録できます。",
+      "status": "reviewed"
+    },
+    "bd159e0d15ad53fd270af6ebcda20d43798481a053399b1486cedc8ee27969a5": {
+      "source": "Mutable, ID-keyed registry used to configure the passes for one invocation.",
+      "translation": "1回の呼び出しで使用する変換パスを設定する、IDをキーとした変更可能なレジストリです。",
+      "status": "reviewed"
+    },
+    "f44e3e7df93274ccb55ad1ec319768abb79702a20673fe2a0092b24b00cd913c": {
+      "source": "IDs must be non-blank and unique. Disabling or replacing an absent ID fails immediately; dependency existence and cycles are checked only after all configuration callbacks finish. Execution repeatedly selects the first dependency-ready pass from ascending ZXQOBFARYN0QXZ and then ID order. Dependencies therefore take precedence over numeric order, and registration order does not break ties. Disabling a pass does not automatically disable its dependants.",
+      "translation": "IDは空白以外で一意でなければなりません。存在しないIDを無効化または置換しようとすると、直ちに失敗します。依存関係の存在と循環は、すべての設定コールバックが完了した後にのみ検査されます。実行時は、依存関係を満たした変換パスのうち、ZXQOBFARYN0QXZの昇順、続いてID順で最初のものを繰り返し選択します。したがって、依存関係は数値順より優先され、登録順は同順位の決定に使用されません。変換パスを無効化しても、それに依存する変換パスは自動的には無効化されません。",
+      "status": "reviewed"
+    },
+    "75f8f4085812f84c4cc91724a58c2dcbd45b9ed756f6ee061ed27d6823db204a": {
+      "source": "Replacement retains the module ID; its order and requirements belong to the replacement.",
+      "translation": "置換後もモジュールIDは維持されます。実行順と依存要件には置換後のものを使用します。",
+      "status": "reviewed"
+    },
+    "8a67b1e934a43b9ca0f134739e42e7ad7984eae2116debb099e1449073398f1a": {
+      "source": "Runs ZXQOBFARYN0QXZ with a fresh ZXQOBFARYN1QXZ over ZXQOBFARYN2QXZ installed as the current thread's context classloader, so ServiceLoader-based discovery (Platforms, ZXQOBFARYN3QXZ) sees providers packaged in those JARs. The previous context classloader is restored afterward, even if ZXQOBFARYN4QXZ throws; the created loader is closed when this call returns.",
+      "translation": "ZXQOBFARYN0QXZを実行する際に、新しいZXQOBFARYN1QXZを作成してZXQOBFARYN2QXZを読み込ませ、現在のスレッドのコンテキストクラスローダーとして設定します。これにより、ServiceLoaderに基づく検出（Platforms、ZXQOBFARYN3QXZ）から、それらのJARに含まれるプロバイダーが見えるようになります。ZXQOBFARYN4QXZが例外をスローした場合でも、以前のコンテキストクラスローダーはその後に復元されます。作成したローダーは、この呼び出しから戻るときに閉じられます。",
+      "status": "reviewed"
+    },
+    "567c350aeca4b1579a0b659cbe32a8c7bad4b1b8f717546aa818bcbfcf90551b": {
+      "source": "Shared by every host entry point that scans extension JARs (CLI ZXQOBFARYN0QXZ/ZXQOBFARYN1QXZ, Gradle ZXQOBFARYN2QXZ/ZXQOBFARYN3QXZ) so the classloader-swap contract stays in one place.",
+      "translation": "拡張JARを走査するすべてのホストエントリーポイント（CLIのZXQOBFARYN0QXZ/ZXQOBFARYN1QXZ、GradleのZXQOBFARYN2QXZ/ZXQOBFARYN3QXZ）で共有され、クラスローダーを切り替える契約を1か所に集約します。",
+      "status": "reviewed"
+    },
     "ffed9728e84bebffac47ea45c380f98a239522b190e6ce9d6d6ca90c7d13126e": {
       "source": "An immutable list of configured ZXQOBFARYN0QXZ instances.",
       "translation": "設定済みのZXQOBFARYN0QXZインスタンスを格納する不変リストです。",
