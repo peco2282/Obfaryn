@@ -2551,6 +2551,231 @@
       "source": "Original member name, before renaming.",
       "translation": "名前変更前の元のメンバー名です。",
       "status": "reviewed"
+    },
+    "a16f5a1f1d2d54da792e0883305834ee87d3da50bb5ada9c1afca1c726e30060": {
+      "source": "Original internal class name declaring the member.",
+      "translation": "メンバーを宣言している元のクラス内部名です。",
+      "status": "reviewed"
+    },
+    "69b81f119a5ba2981df59f36c7d0480e35987dcbc5d645189de191d6a2a7bb53": {
+      "source": "The full content of a name mapping in the forward (original → obfuscated) direction: class, method, field and package tables plus the provenance of any prior artifacts whose renames it carries. Member tables are keyed by the member's original ZXQOBFARYN0QXZ identity, so overloads stay distinct — the identity a mapping must preserve to be re-applied, not just read for de-obfuscation.",
+      "translation": "名前マッピングの順方向（元の名前 → 難読化後の名前）の全内容です。クラス、メソッド、フィールド、パッケージの各テーブルと、名前変更を引き継ぐ以前のアーティファクトの来歴を含みます。メンバーテーブルはメンバーの元のZXQOBFARYN0QXZ識別子をキーとするため、オーバーロードは区別されます。これは難読化解除用に読み取るだけではなく、マッピングを再適用するために保持しなければならない識別子です。",
+      "status": "reviewed"
+    },
+    "687d7f710b51a69ecfc4132689034387aa203dbf867a65345b841ee57d24944d": {
+      "source": "A preservation rule that keeps nothing; use when a caller has no keep requirements of its own.",
+      "translation": "何も保持しない保持ルールです。呼び出し側に独自のkeep要件がない場合に使用します。",
+      "status": "reviewed"
+    },
+    "04ae1eaa0ef5e8828a280d5260159e6dc2be963a305c645fcffdef8cb368a41e": {
+      "source": "Shared keep rules and annotation intent for API-only renamers. This is a minimum, not a proof that other names are safe to rename; hierarchy, reflection and framework contracts still matter.",
+      "translation": "APIのみに依存する名前変更処理で共有するkeepルールとアノテーション方針です。これは最低限の条件であり、他の名前を安全に変更できることの証明ではありません。クラス階層、リフレクション、フレームワークの契約も考慮する必要があります。",
+      "status": "reviewed"
+    },
+    "f6bd2ff3e563878306c701e64aab314ce1d0b5edbb9a1e4f6ce08c9e9ec02a26": {
+      "source": "True if ZXQOBFARYN0QXZ's own class name must not be renamed. Defaults to false (no opinion).",
+      "translation": "ZXQOBFARYN0QXZ自身のクラス名を変更してはならない場合はtrueです。デフォルトはfalse（指定なし）です。",
+      "status": "reviewed"
+    },
+    "84cba9e68e91dd54195b98043fa4db26c76397328a370dc111826dcdcc4a5f3c": {
+      "source": "True if ZXQOBFARYN0QXZ on ZXQOBFARYN1QXZ must keep its original name. Defaults to false (no opinion).",
+      "translation": "ZXQOBFARYN0QXZがZXQOBFARYN1QXZ上で元の名前を保持しなければならない場合はtrueです。デフォルトはfalse（指定なし）です。",
+      "status": "reviewed"
+    },
+    "abacaff941bbc4426674b67f04510033918799d55c4fb4234e506442db51eaa2": {
+      "source": "True if the resource entry at ZXQOBFARYN0QXZ must keep its original archive path. Defaults to false (no opinion).",
+      "translation": "ZXQOBFARYN0QXZにあるリソースエントリが元のアーカイブパスを保持しなければならない場合はtrueです。デフォルトはfalse（指定なし）です。",
+      "status": "reviewed"
+    },
+    "29d74f67983402d2043a10a28d813ecf4d59df206be49f5575972d7779c7cc10": {
+      "source": "Seeded sampling. Rates 0 and 1 consume no randomness.",
+      "translation": "シード付きサンプリングです。割合が0または1の場合、乱数を消費しません。",
+      "status": "reviewed"
+    },
+    "1d3fd3443a4afdc02ec67eb566882d344933f64885f5b8471419110d12066b2c": {
+      "source": "Combines selectors with short-circuit evaluation, preserving their random source.",
+      "translation": "短絡評価を使用してセレクターを組み合わせ、各セレクターの乱数源を維持します。",
+      "status": "reviewed"
+    },
+    "13ba214df46b747da304f843f750096f09d5f2b433b68688f50fa5bd24b90036": {
+      "source": "Called only after the host's body transformation policy allows a method.",
+      "translation": "ホストのメソッド本体変換ポリシーでメソッドが許可された後にだけ呼び出されます。",
+      "status": "reviewed"
+    },
+    "38ee377941d7fb6d381df7c452781eb84fc32731a71d07b8c3bc83f5ed643335": {
+      "source": "Selects an eligible literal without changing ZXQOBFARYN0QXZ's nodes.",
+      "translation": "ZXQOBFARYN0QXZのノードを変更せず、対象となるリテラルを選択します。",
+      "status": "reviewed"
+    },
+    "6477b802209c94e4a6af3aa9989b52f47d43bcce5a6bc15248e75cea3af3a747": {
+      "source": "ZXQOBFARYN0QXZ to request strategy generation; the strategy may still return ZXQOBFARYN1QXZ.",
+      "translation": "ZXQOBFARYN0QXZでストラテジーによる生成を要求します。ストラテジーがZXQOBFARYN1QXZを返す場合もあります。",
+      "status": "reviewed"
+    },
+    "885b759e733acf2bf84da3e100fceac793ce11a9ffe72f316e81e5e51cd8cfbb": {
+      "source": "Host-supplied random source, usable for reproducible sampling.",
+      "translation": "ホストから提供される乱数源です。再現可能なサンプリングに使用できます。",
+      "status": "reviewed"
+    },
+    "adb02e2415ef21ffb3060539ed5d94d830815ff38029aafb3bd6891931c4f235": {
+      "source": "Selection-only input. Inspect annotations on ZXQOBFARYN0QXZ and ZXQOBFARYN1QXZ; do not mutate ASM nodes.",
+      "translation": "選択専用の入力です。ZXQOBFARYN0QXZとZXQOBFARYN1QXZのアノテーションを検査し、ASMノードは変更しないでください。",
+      "status": "reviewed"
+    },
+    "5763a8b667e9720f07bfdb776e5c2c1da04efbfd72f54e23d773a9a8a60e4fa6": {
+      "source": "Current execution context, including scope and transformation policy.",
+      "translation": "スコープと変換ポリシーを含む、現在の実行コンテキストです。",
+      "status": "reviewed"
+    },
+    "ec5ffccd72bb3fe568a7f717f0143a5305c1239b542403cd3ee42b610b47e240": {
+      "source": "Original numeric constant instruction, still owned by the method's list.",
+      "translation": "元の数値定数命令です。引き続きメソッドの命令リストに属しています。",
+      "status": "reviewed"
+    },
+    "8b89942d4c064bad639ee693b4606eb81db7eda07ea8658bb688d13b61e7b8a0": {
+      "source": "Method containing the candidate instruction.",
+      "translation": "候補命令を含むメソッドです。",
+      "status": "reviewed"
+    },
+    "a346efe15107a3fea95b786a6e7a98f8b46114eac599bd1f535b16192b0ed68a": {
+      "source": "Class containing the candidate instruction.",
+      "translation": "候補命令を含むクラスです。",
+      "status": "reviewed"
+    },
+    "78a12775f13bcd4d9de207aa91bb76d0ff4579321bfe673e460e1e26b11956ca": {
+      "source": "Decoded constant, represented as Int, Long, Float, or Double.",
+      "translation": "デコード済みの定数です。Int、Long、Float、Doubleのいずれかで表現されます。",
+      "status": "reviewed"
+    },
+    "179f183661462bf51ada71da4cf4f1fd365838917d8253283dc59705827ae706": {
+      "source": "Produces one JVM double. By default, delegates raw bits to ZXQOBFARYN0QXZ and appends ZXQOBFARYN1QXZ; ZXQOBFARYN2QXZ propagates and an empty expression is rejected.",
+      "translation": "JVMのdouble値を1つ生成します。デフォルトではraw bitsをZXQOBFARYN0QXZへ委譲し、ZXQOBFARYN1QXZを追加します。ZXQOBFARYN2QXZはそのまま伝播し、空の式は拒否されます。",
+      "status": "reviewed"
+    },
+    "eb7b23249d9b9fe964ffac07c8ed94f0474e76addc615fd18abb067234910403": {
+      "source": "If the delegated expression is empty.",
+      "translation": "委譲先の式が空の場合。",
+      "status": "reviewed"
+    },
+    "b884f7498512af0f20ad415eaeaac370dbb004ab145ac85e799668d012edb42c": {
+      "source": "Produces one JVM float. By default, delegates raw bits to ZXQOBFARYN0QXZ and appends ZXQOBFARYN1QXZ; ZXQOBFARYN2QXZ propagates and an empty expression is rejected.",
+      "translation": "JVMのfloat値を1つ生成します。デフォルトではraw bitsをZXQOBFARYN0QXZへ委譲し、ZXQOBFARYN1QXZを追加します。ZXQOBFARYN2QXZはそのまま伝播し、空の式は拒否されます。",
+      "status": "reviewed"
+    },
+    "372e787e0fe949b7c476329e4a3e910a7ca42ed5963c830969335aba926b64ba": {
+      "source": "Produces an expression leaving ZXQOBFARYN0QXZ as one JVM int (one stack slot).",
+      "translation": "ZXQOBFARYN0QXZをJVMのint値1つ（スタックスロット1つ）としてスタックに残す式を生成します。",
+      "status": "reviewed"
+    },
+    "5e853747398ffa5401996e42f06e2f987e9ee3145778d64c2bcbc8684267929f": {
+      "source": "Fresh instructions owned by no other list, or ZXQOBFARYN0QXZ to retain the literal.",
+      "translation": "他のリストに属していない新しい命令を返します。リテラルを維持する場合はZXQOBFARYN0QXZです。",
+      "status": "reviewed"
+    },
+    "403c4caae2bf529ffb7cf9991e3a3fa11dad071ea6de6e23a7eb2981564d799a": {
+      "source": "Host-supplied random source; use this rather than global randomness for seeded runs.",
+      "translation": "ホストから提供される乱数源です。シード付き実行ではグローバルな乱数ではなく、これを使用してください。",
+      "status": "reviewed"
+    },
+    "60485415ef67842e4529e0c49e57c0da1fd45d2b6d53eb5de0fbd8424ae42925": {
+      "source": "Produces an expression leaving ZXQOBFARYN0QXZ as one JVM long (two stack slots).",
+      "translation": "ZXQOBFARYN0QXZをJVMのlong値1つ（スタックスロット2つ）としてスタックに残す式を生成します。",
+      "status": "reviewed"
+    },
+    "c3f9a1a09a50a2294e6aea9a70fa65874b7decde9c389fbe993e7679511e7ad6": {
+      "source": "Host-supplied random source for reproducible expression generation.",
+      "translation": "再現可能な式生成のためにホストから提供される乱数源です。",
+      "status": "reviewed"
+    },
+    "fe2d51ccf1d338b8b442f063d2e0e92adac964a02e8becd0d9f6f62597e12be3": {
+      "source": "Generates expressions, independently of constant discovery and target selection. Return fresh, non-empty instructions, or null to leave a constant unchanged. The expression must preserve the existing stack and locals, leave exactly one value of the original JVM type, and provide valid frames for any branches. Runtime dependencies must be available in the output application; implementations are not bundled. Floating-point defaults reuse integer expressions and preserve raw bits, including NaNs and signed zero. Override them only when a dedicated floating-point expression is needed.",
+      "translation": "定数の検出および対象選択とは独立して式を生成します。新しく作成した空でない命令を返すか、定数を変更しない場合はnullを返してください。式は既存のスタックとローカル変数を維持し、元のJVM型の値を正確に1つだけ残し、分岐がある場合は有効なフレームを提供しなければなりません。実行時依存関係は出力アプリケーションから利用できる必要があり、実装は同梱されません。浮動小数点のデフォルト実装は整数式を再利用し、NaNと符号付きゼロを含むraw bitsを保持します。浮動小数点専用の式が必要な場合にだけ上書きしてください。",
+      "status": "reviewed"
+    },
+    "74f9843650c18fe4b3518cad2e8a52303b5eb1abf511080e109d3bbe4d6675cb": {
+      "source": "Each ZXQOBFARYN0QXZ returns a fresh <span data-unresolved-link=\"org.objectweb.asm.tree/InsnList///PointingToDeclaration/\">InsnList</span> that computes the original value and leaves exactly one value of that type on the stack, or ZXQOBFARYN1QXZ to keep the literal. Only ZXQOBFARYN2QXZ and ZXQOBFARYN3QXZ are required; the float/double defaults route through them via raw bits. A minimal strategy that hides an int behind one reversible XOR:",
+      "translation": "各ZXQOBFARYN0QXZは、元の値を計算してその型の値を正確に1つだけスタックへ残す、新しい<span data-unresolved-link=\"org.objectweb.asm.tree/InsnList///PointingToDeclaration/\">InsnList</span>を返します。リテラルを維持する場合はZXQOBFARYN1QXZを返します。実装が必要なのはZXQOBFARYN2QXZとZXQOBFARYN3QXZだけです。floatとdoubleのデフォルト実装は、raw bitsを介してこれらへ処理を渡します。次は、可逆なXORを1つ使用してintを隠す最小限のストラテジーです。",
+      "status": "reviewed"
+    },
+    "1b8c4d26e28bd32d02f3cdf6b984d98c8ea41e392edad230641362125229db5b": {
+      "source": "Returning an empty list is rejected — return ZXQOBFARYN0QXZ to decline a constant. To combine several of these by weight, wrap them in ZXQOBFARYN1QXZ.",
+      "translation": "空のリストを返すと拒否されます。定数を変換しない場合はZXQOBFARYN0QXZを返してください。複数のストラテジーを重み付きで組み合わせるには、ZXQOBFARYN1QXZでラップします。",
+      "status": "reviewed"
+    },
+    "0d6e6dd461dff9961ded6dee2d4f8b9ac07c302471486c5cff97cb52ce1a427e": {
+      "source": "Factory for Kotlin receiver-style pipeline configuration.",
+      "translation": "Kotlinのレシーバー形式でパイプラインを設定するためのファクトリーです。",
+      "status": "reviewed"
+    },
+    "5ace6ddaf64dd08f4767d0d1a306c769e08fcb005eee3a55e39614b067b3eb8e": {
+      "source": "Wraps a receiver-style registry configuration without exposing the execution engine.",
+      "translation": "実行エンジンを公開せず、レシーバー形式のレジストリ設定をラップします。",
+      "status": "reviewed"
+    },
+    "1056d3f6a938b99db70e4d9a5d4071b0f71287129556f9b572c2a5d7bc64b39e": {
+      "source": "For example, ZXQOBFARYN0QXZ constructs a new pass whenever the callback is applied, provided construction stays inside the block.",
+      "translation": "たとえばZXQOBFARYN0QXZは、構築処理をブロック内に置くことで、コールバックが適用されるたびに新しい変換パスを作成します。",
+      "status": "reviewed"
+    },
+    "1a796edc0d3928a156e9a933c8fe733d876760c79f329ce7642a9195ad5da572": {
+      "source": "A callback that applies ZXQOBFARYN0QXZ when the host configures a pipeline.",
+      "translation": "ホストがパイプラインを設定するときにZXQOBFARYN0QXZを適用するコールバックです。",
+      "status": "reviewed"
+    },
+    "700710dc28d63475dd96eb641ea246678fed407396187c6294ba5cbd981def4d": {
+      "source": "Block applied to each run's fresh registry.",
+      "translation": "各実行の新しいレジストリへ適用するブロックです。",
+      "status": "reviewed"
+    },
+    "b2d60d5e460ee28884b0720b7e71881f4f8cf88205d172a97a2337db36600d7b": {
+      "source": "Adds, disables, or replaces passes in ZXQOBFARYN0QXZ before dependency validation and execution. This callback configures a run; it is not a transformation and receives no loaded class context.",
+      "translation": "依存関係の検証と実行の前に、ZXQOBFARYN0QXZ内の変換パスを追加、無効化、または置換します。このコールバックは実行を設定するものであり、変換処理ではありません。読み込み済みクラスのコンテキストは渡されません。",
+      "status": "reviewed"
+    },
+    "59a3f7b4c8a90288232ed443f65dfbd8ba0015544d6a9518aa166010a69e15ff": {
+      "source": "Fresh host registry, potentially already containing selected standard passes.",
+      "translation": "ホストの新しいレジストリです。選択された標準変換パスがすでに含まれている場合があります。",
+      "status": "reviewed"
+    },
+    "d3dcdbe7e9494ec939358a335f0b7306ef9e0474f9f6a84402d899e7773236e8": {
+      "source": "Customizes a fresh transformer registry for each obfuscation run.",
+      "translation": "難読化の実行ごとに、新しいTransformerレジストリをカスタマイズします。",
+      "status": "reviewed"
+    },
+    "7520d9c7eec66a28672915f402ec4e760055c3763aba8edc75ff2f45be24bc59": {
+      "source": "Create stateful transformers inside ZXQOBFARYN0QXZ, rather than sharing an instance across runs. The configuration callback may be reused even though each registry is new. The core host registers its selected initial passes before invoking configuration callbacks, so they can be inspected, disabled, or replaced. Earlier callbacks' changes are visible to later ones.",
+      "translation": "状態を持つTransformerは、実行をまたいでインスタンスを共有せず、ZXQOBFARYN0QXZ内で作成してください。各レジストリは新しく作成されますが、設定コールバック自体は再利用される場合があります。coreホストは、設定コールバックを呼び出す前に選択済みの初期変換パスを登録するため、それらを検査、無効化、置換できます。先のコールバックによる変更は後のコールバックから見えます。",
+      "status": "reviewed"
+    },
+    "b073050c77f0797d07db38cb7d978a52be591413d24202d5dc6402e444129fd6": {
+      "source": "Original-to-new internal class name, for every class this renamer renamed.",
+      "translation": "この名前変更処理が名前を変更した全クラスについて、元の内部クラス名から新しい内部クラス名への対応です。",
+      "status": "reviewed"
+    },
+    "1729548de7495300f058750e39fb267802c58d92a66fef15e12735c1dc3bbb1a": {
+      "source": "Original-to-new field name, keyed by the field's original identity.",
+      "translation": "フィールドの元の識別子をキーとする、元のフィールド名から新しいフィールド名への対応です。",
+      "status": "reviewed"
+    },
+    "495467be43077362bb7813ea81f54d1189a05effbfcd422c76e7bc9edacc03d5": {
+      "source": "A renamer must rewrite all affected bytecode/resource references itself and publish its changes.",
+      "translation": "名前変更処理は、影響を受けるすべてのバイトコードおよびリソース参照を自身で書き換え、変更内容を公開しなければなりません。",
+      "status": "reviewed"
+    },
+    "ab8390a58c863fdd2a7c803036e58ad7f4e2dde4bfc2c7dddc66e8485dd77afb": {
+      "source": "Run after these passes when they are registered. Missing IDs are ignored.",
+      "translation": "これらの変換パスが登録されている場合、その後に実行します。存在しないIDは無視されます。",
+      "status": "reviewed"
+    },
+    "fd1b61613104f72b19a644f83616b68fcd7c7cbe67ac470f46cc01ab4f051347": {
+      "source": "IDs of transformers that must be registered and execute before this pass.",
+      "translation": "この変換パスより前に登録、実行されなければならないTransformerのIDです。",
+      "status": "reviewed"
+    },
+    "aeefee18b8ad74482de1dee76ca510da0f8ca174aa0d457b42cbf70da04c5c67": {
+      "source": "Request host frame recomputation for generated branches or changed control flow.",
+      "translation": "生成した分岐または変更した制御フローのために、ホストへフレームの再計算を要求します。",
+      "status": "reviewed"
     }
   }
 }
