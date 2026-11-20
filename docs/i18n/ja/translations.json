@@ -341,6 +341,106 @@
       "source": "Returns the factory's cached result, including ZXQOBFARYN0QXZ. Construction and computation failures are not cached. Recursive initialization of the same factory on the initializing thread fails with ZXQOBFARYN1QXZ.",
       "translation": "ZXQOBFARYN0QXZを含む、ファクトリーのキャッシュ済み結果を返します。構築または計算の失敗はキャッシュされません。初期化中のスレッドで同じファクトリーを再帰的に初期化すると、ZXQOBFARYN1QXZで失敗します。",
       "status": "reviewed"
+    },
+    "005d60130d5906a015e1842bc2783ec0ac9a9495d13612be75ea95252e947c12": {
+      "source": "ZXQOBFARYN0QXZ for the real class instead of a hand-written name. Only usable when ZXQOBFARYN1QXZ is actually on the current classpath.",
+      "translation": "手書きの名前ではなく、実際のクラスに対応するZXQOBFARYN0QXZです。ZXQOBFARYN1QXZが現在のクラスパス上に実際に存在する場合にのみ使用できます。",
+      "status": "reviewed"
+    },
+    "0f4e18cd4c117aa07a0a711d7f45841b47397329d2be1a0b302b74ccd9e2477c": {
+      "source": "JVM type descriptor for this class (e.g. ZXQOBFARYN0QXZ, ZXQOBFARYN1QXZ, ZXQOBFARYN2QXZ), computed from the real ZXQOBFARYN3QXZ object instead of hand-written. Only usable when the class is actually loadable on the current classpath — a target framework's type that a platform provider deliberately does not depend on (to avoid pulling in that framework's jar) still needs the string-based ZXQOBFARYN4QXZ and ZXQOBFARYN5QXZ overloads instead.",
+      "translation": "このクラスのJVM型記述子（例: ZXQOBFARYN0QXZ、ZXQOBFARYN1QXZ、ZXQOBFARYN2QXZ）です。手書きではなく、実際のZXQOBFARYN3QXZオブジェクトから計算されます。クラスを現在のクラスパスから実際にロードできる場合にのみ使用できます。フレームワークのJARを取り込まないためにプラットフォームプロバイダーが意図的に依存していない対象フレームワークの型には、代わりに文字列ベースのZXQOBFARYN4QXZおよびZXQOBFARYN5QXZオーバーロードを使用する必要があります。",
+      "status": "reviewed"
+    },
+    "156aa8d052802c6cd3c97c1ae77872e37becfaac61c393ac2ba4fce4d436c2e7": {
+      "source": "JVM internal name for this class (e.g. ZXQOBFARYN0QXZ), computed instead of hand-written.",
+      "translation": "手書きではなく計算された、このクラスのJVM内部名（例: ZXQOBFARYN0QXZ）です。",
+      "status": "reviewed"
+    },
+    "1a1816d73488882a2a6a841bbd0439949852f4519c1ab2074a305c447bcfd376": {
+      "source": "This constructor's identity as a ZXQOBFARYN0QXZ, using the JVM's own name (ZXQOBFARYN1QXZ) for it.",
+      "translation": "このコンストラクターのZXQOBFARYN0QXZとしての識別情報です。名前にはJVM固有のZXQOBFARYN1QXZを使用します。",
+      "status": "reviewed"
+    },
+    "377ec6b32248e44eed0a895480a72478cabc926d4e92da248677abbb7ee45f46": {
+      "source": "ZXQOBFARYN0QXZ; see the ZXQOBFARYN1QXZ-based overload above.",
+      "translation": "ZXQOBFARYN0QXZです。上記のZXQOBFARYN1QXZベースのオーバーロードを参照してください。",
+      "status": "reviewed"
+    },
+    "3f41cb64e2b9a146a87fd5cbbbe0fc60cebc88389554d3e45c45b6c3617e7ea0": {
+      "source": "JVM method descriptor matching this reflected constructor's actual parameter types.",
+      "translation": "リフレクションで取得したこのコンストラクターの実際のパラメーター型に一致するJVMメソッド記述子です。",
+      "status": "reviewed"
+    },
+    "53d24d6ef34a8ee9872cdbbababdc29252b7503c9ae186dc8a66bc8656d9a8a8": {
+      "source": "True if any annotation on this method is ZXQOBFARYN0QXZ, computed from the real class instead of a hand-written descriptor string. Only usable when ZXQOBFARYN1QXZ is actually on the current classpath; a target framework's annotation that a platform provider deliberately does not depend on still needs the string-based ZXQOBFARYN2QXZ overload above.",
+      "translation": "このメソッドに付いたアノテーションのいずれかがZXQOBFARYN0QXZであればtrueです。手書きの記述子文字列ではなく、実際のクラスから計算されます。ZXQOBFARYN1QXZが現在のクラスパス上に実際に存在する場合にのみ使用できます。プラットフォームプロバイダーが意図的に依存していない対象フレームワークのアノテーションには、上記の文字列ベースのZXQOBFARYN2QXZオーバーロードを使用する必要があります。",
+      "status": "reviewed"
+    },
+    "5aefef746207b02b77da7d0c2968100344ea1fe09cc13d2eb8a64e81e0cf9587": {
+      "source": "This field's identity as a ZXQOBFARYN0QXZ (owner, name, its type's descriptor).",
+      "translation": "このフィールドのZXQOBFARYN0QXZとしての識別情報（所有クラス、名前、および型記述子）です。",
+      "status": "reviewed"
+    },
+    "6a2b90b202db561d918976843ed3b5bf9bf98a5fa40d67456a6268893feb6d75": {
+      "source": "JVM object type descriptor (ZXQOBFARYN0QXZ) for a class named in dotted or internal form. For a reflected ZXQOBFARYN1QXZ, prefer ZXQOBFARYN2QXZ; use this only for a name held as a plain string.",
+      "translation": "ドット区切りまたは内部形式で指定されたクラス名のJVMオブジェクト型記述子（ZXQOBFARYN0QXZ）です。リフレクションで取得したZXQOBFARYN1QXZにはZXQOBFARYN2QXZを優先し、単なる文字列として保持している名前にだけ使用してください。",
+      "status": "reviewed"
+    },
+    "74ee240339b456ed3c6c61c991b2f567ef7812bbbe728324b967be902c3ae7c8": {
+      "source": "ZXQOBFARYN0QXZ for the real field instead of hand-writing its owner and name.",
+      "translation": "所有クラスと名前を手書きする代わりに使用する、実際のフィールドに対応したZXQOBFARYN0QXZです。",
+      "status": "reviewed"
+    },
+    "828415c5b2dc2f3ea6bddcaf1ecc6dcc45058eaa062dba845c114c427ff26e62": {
+      "source": "JVM method descriptor matching this reflected method's actual parameter and return types (e.g. ZXQOBFARYN0QXZ), instead of hand-written.",
+      "translation": "リフレクションで取得したこのメソッドの実際のパラメーター型と戻り値型に一致するJVMメソッド記述子（例: ZXQOBFARYN0QXZ）です。手書きする必要はありません。",
+      "status": "reviewed"
+    },
+    "9e04becb64c4d5ded5929bc63ffa47c84de0587a92c34ae2a02c854bb22fcf94": {
+      "source": "ZXQOBFARYN0QXZ plus every method reachable from them by following ZXQOBFARYN1QXZ instructions, restricted to methods on a class accepted by ZXQOBFARYN2QXZ. Constructors and static initializers are traversed but never added as targets in their own right, matching how callers usually only care about reachable <i>behavior</i>, not initialization. A seed outside ZXQOBFARYN3QXZ or missing from this context is dropped silently rather than failing the whole call.",
+      "translation": "ZXQOBFARYN0QXZと、ZXQOBFARYN1QXZ命令をたどって到達できるすべてのメソッドを返します。対象はZXQOBFARYN2QXZが受け入れるクラス上のメソッドに限定されます。コンストラクターとstatic初期化子も探索されますが、それ自体が対象として追加されることはありません。これは通常、呼び出し側が初期化ではなく、到達可能な<i>動作</i>だけを必要とするためです。ZXQOBFARYN3QXZの外にある、またはこのコンテキストに存在しない起点は、呼び出し全体を失敗させずに黙って除外されます。",
+      "status": "reviewed"
+    },
+    "b89502f4b8233ca0bebf0a4713253782ba28667f52412f7c71f10ad2cbe0a7da": {
+      "source": "Converts a dotted class name (ZXQOBFARYN0QXZ) to JVM internal form (ZXQOBFARYN1QXZ). An internal name passes through unchanged. Do not pass a descriptor (ZXQOBFARYN2QXZ) here.",
+      "translation": "ドット区切りのクラス名（ZXQOBFARYN0QXZ）をJVM内部形式（ZXQOBFARYN1QXZ）へ変換します。内部名は変更せずそのまま返します。記述子（ZXQOBFARYN2QXZ）を渡してはいけません。",
+      "status": "reviewed"
+    },
+    "bf296e98028881d05fd0d27888332f008131669157310db9306447d769feebbb": {
+      "source": "ZXQOBFARYN0QXZ for the real method instead of hand-writing its owner, name and descriptor.",
+      "translation": "所有クラス、名前、および記述子を手書きする代わりに使用する、実際のメソッドに対応したZXQOBFARYN0QXZです。",
+      "status": "reviewed"
+    },
+    "c0dcfb33d516c60815a0971818f1a78632302cb411ee690fd557b66cdd6247e7": {
+      "source": "True if ZXQOBFARYN0QXZ is or extends/implements ZXQOBFARYN1QXZ, walking superclasses and interfaces through this map. Both names may use dotted or JVM internal form. A class absent from this map (a dependency not loaded into the run) ends that branch of the walk rather than failing it, so a hierarchy that crosses outside the application scope may under-report.",
+      "translation": "このマップを使用してスーパークラスとインターフェースをたどり、ZXQOBFARYN0QXZがZXQOBFARYN1QXZそのものであるか、それを継承または実装していればtrueです。どちらの名前もドット区切りまたはJVM内部形式で指定できます。このマップに存在しないクラス（実行時に読み込まれていない依存関係）へ到達した場合は、失敗せずその探索分岐を終了します。そのため、アプリケーションの範囲外へまたがる型階層では結果が過少になる場合があります。",
+      "status": "reviewed"
+    },
+    "dc5dccfb04e71b45f573b21ba22aee93acf387d714662cd545d3a82fb295de6f": {
+      "source": "ZXQOBFARYN0QXZ for the real method instead of hand-writing its owner, name and descriptor. Only usable when the declaring class is actually on the current classpath.",
+      "translation": "所有クラス、名前、および記述子を手書きする代わりに使用する、実際のメソッドに対応したZXQOBFARYN0QXZです。宣言クラスが現在のクラスパス上に実際に存在する場合にのみ使用できます。",
+      "status": "reviewed"
+    },
+    "e884ae1626ae9bce6dc8fdb1b5781d02af5a1e168b914cf0e3f10376af407a62": {
+      "source": "True if any annotation on this method, visible or invisible at runtime, is ZXQOBFARYN0QXZ (dotted or internal form, e.g. ZXQOBFARYN1QXZ). Retention is not distinguished; ZXQOBFARYN2QXZ-retained annotations are absent from both lists because the compiler already dropped them.",
+      "translation": "このメソッドに付いた、実行時に可視または不可視なアノテーションのいずれかがZXQOBFARYN0QXZ（ドット区切りまたは内部形式。例: ZXQOBFARYN1QXZ）であればtrueです。保持ポリシーは区別しません。ZXQOBFARYN2QXZで保持されるアノテーションはコンパイラーによってすでに破棄されているため、どちらの一覧にも存在しません。",
+      "status": "reviewed"
+    },
+    "e9f0ba453338404ca6946b3d69981783d65d27b30f4639338274d44d0b688a96": {
+      "source": "This method's identity as a ZXQOBFARYN0QXZ (owner, name, descriptor), instead of writing all three by hand. Only usable when the declaring class is actually on the current classpath; see ZXQOBFARYN1QXZ and ZXQOBFARYN2QXZ for matching a target framework's own methods by name alone.",
+      "translation": "このメソッドのZXQOBFARYN0QXZとしての識別情報（所有クラス、名前、記述子）です。3つを個別に手書きする必要はありません。宣言クラスが現在のクラスパス上に実際に存在する場合にのみ使用できます。対象フレームワーク自身のメソッドを名前だけで照合する場合は、ZXQOBFARYN1QXZおよびZXQOBFARYN2QXZを参照してください。",
+      "status": "reviewed"
+    },
+    "f424ac276623d8e0e4ee4af6842fe6376a4782aff9a9686976380693782887ef": {
+      "source": "True if ZXQOBFARYN0QXZ is or extends/implements ZXQOBFARYN1QXZ, computed from the real class instead of a hand-written name. Only usable when ZXQOBFARYN2QXZ is actually on the current classpath; a target framework's type that a platform provider deliberately does not depend on still needs the string-based ZXQOBFARYN3QXZ overload above.",
+      "translation": "ZXQOBFARYN0QXZがZXQOBFARYN1QXZそのものであるか、それを継承または実装していればtrueです。手書きの名前ではなく、実際のクラスから計算されます。ZXQOBFARYN2QXZが現在のクラスパス上に実際に存在する場合にのみ使用できます。プラットフォームプロバイダーが意図的に依存していない対象フレームワークの型には、上記の文字列ベースのZXQOBFARYN3QXZオーバーロードを使用する必要があります。",
+      "status": "reviewed"
+    },
+    "fe99f1d37cb17801992b1167fca199ca6dec76606f18d39c594edcab22a9be9d": {
+      "source": "Typical use: start from methods identified as performance-sensitive by name/annotation, then propagate that classification to whatever they call, so a hot callback's helpers are not virtualized out from under it.",
+      "translation": "一般的な用途では、名前またはアノテーションによって性能に敏感だと特定したメソッドを起点に、その分類を呼び出し先へ伝播させます。これにより、ホットコールバックが使用する補助メソッドだけが仮想化されることを防ぎます。",
+      "status": "reviewed"
     }
   }
 }
