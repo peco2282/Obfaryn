@@ -121,7 +121,9 @@ def translate(args: argparse.Namespace) -> int:
     install_argos_model("en", args.locale)
   catalog = read_json(args.catalog)
   changed = 0
-  for value in catalog.get("entries", {}).values():
+  for key, value in catalog.get("entries", {}).items():
+    if args.key_prefix and not key.startswith(args.key_prefix):
+      continue
     if value.get("status") not in {"missing", "stale"}:
       continue
     if value.get("status") == "stale" and not args.include_stale:
@@ -248,6 +250,7 @@ def parser() -> argparse.ArgumentParser:
   translate_parser.add_argument("--install-model", action="store_true")
   translate_parser.add_argument("--include-stale", action="store_true")
   translate_parser.add_argument("--limit", type=int)
+  translate_parser.add_argument("--key-prefix")
   translate_parser.set_defaults(run=translate)
   build_parser = commands.add_parser("build")
   build_parser.add_argument("--input", type=Path, required=True)

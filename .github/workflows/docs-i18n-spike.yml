@@ -30,6 +30,13 @@ jobs:
           python scripts/docs-i18n/docs_i18n.py sync
           --input build/dokka/html
           --catalog docs/i18n/ja/catalog.json
+      - name: Translate one representative API package
+        run: >-
+          python scripts/docs-i18n/docs_i18n.py translate
+          --catalog docs/i18n/ja/catalog.json
+          --locale ja
+          --install-model
+          --key-prefix obfaryn-api/com.peco2282.obfaryn.api/index.html#
       - run: >-
           python scripts/docs-i18n/docs_i18n.py build
           --input build/dokka/html

@@ -28,3 +28,7 @@ python3 scripts/docs-i18n/docs_i18n.py verify \
 Machine translation is a separate, explicit operation. Pages builds only consume
 translations already stored in the catalog, so publishing is deterministic and a
 reviewed translation is never silently replaced.
+
+The spike workflow translates only the representative
+`obfaryn-api/com.peco2282.obfaryn.api/index.html` page. This keeps the initial model
+and translation-quality evaluation separate from a future full-catalog update.
