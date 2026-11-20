@@ -3226,6 +3226,231 @@
       "source": "Recognizes annotations on method declarations, including constructors in bytecode.",
       "translation": "バイトコード上のコンストラクターを含め、メソッド宣言上のアノテーションを認識します。",
       "status": "reviewed"
+    },
+    "f92f5c03e118a4df42b720681d9315ac6d7608e6981c3084a6fbc950ef68528d": {
+      "source": "Transformation intent associated with matching annotations.",
+      "translation": "一致するアノテーションに関連付けられた変換方針です。",
+      "status": "reviewed"
+    },
+    "714e77c7a1f2d5eeb4e7376f52db05a584210d2671ca957a38445346bdb7668e": {
+      "source": "JVM annotation descriptor, for example ZXQOBFARYN0QXZ.",
+      "translation": "ZXQOBFARYN0QXZなどのJVMアノテーションディスクリプターです。",
+      "status": "reviewed"
+    },
+    "dadd844e81aa0806540902e543c630efa82c9a04346637f3bbe57793ad75607e": {
+      "source": "Annotation descriptors use JVM syntax, not dotted class names. The annotation must be present in the input bytecode: source-retained annotations cannot be detected by this policy.",
+      "translation": "アノテーションディスクリプターには、ドット区切りのクラス名ではなくJVM構文を使用します。アノテーションは入力バイトコード内に存在する必要があります。ソースだけに保持されるアノテーションは、このポリシーでは検出できません。",
+      "status": "reviewed"
+    },
+    "ec33ae75974419170e14eab294cb1206d2d3aa5da7f264acce583f8cc2b7729b": {
+      "source": "Human-readable explanation included in policy diagnostics.",
+      "translation": "ポリシーの診断情報に含める、人が読める説明です。",
+      "status": "reviewed"
+    },
+    "f693f51a61ec80ed4b2ac436df41cc638f7094ec1f4799c5ee36c6086fb7cdec": {
+      "source": "Declaration kinds on which ZXQOBFARYN0QXZ should be recognized.",
+      "translation": "ZXQOBFARYN0QXZを認識する宣言の種類です。",
+      "status": "reviewed"
+    },
+    "2dec180056bc9faa1e637203721f3bf4c9d8a6c938e9c02ea2488033338ac97a": {
+      "source": "Stores opaque bytes at the supplied resource path; nested classes are not transformed.",
+      "translation": "指定されたリソースパスへ不透明なバイト列として保存します。内部のクラスは変換されません。",
+      "status": "reviewed"
+    },
+    "b22dc5c87d4ce1dbe16dd248d9e4280a1262b673c029977278aa0c5a9367ff59": {
+      "source": "Imports archive entries for normal transformation; no resource path is required.",
+      "translation": "通常の変換対象としてアーカイブエントリを取り込みます。リソースパスは不要です。",
+      "status": "reviewed"
+    },
+    "6e6e34d7d5b6774f6d16a88f6ff4cacaefb5faa793e13444725c1c2287d3a014": {
+      "source": "ZXQOBFARYN0QXZ imports classes and non-class entries into the input context. ZXQOBFARYN1QXZ stores the archive itself at an explicit path without transforming its nested contents. The core merge rejects duplicate class/resource keys, ZXQOBFARYN2QXZ, multi-release entries, and JAR signature files; manifests are not imported. Embedded content is not parsed as an archive.",
+      "translation": "ZXQOBFARYN0QXZはクラスとクラス以外のエントリを入力コンテキストへ取り込みます。ZXQOBFARYN1QXZはアーカイブ自体を明示的なパスに保存し、内部の内容を変換しません。coreのmerge処理は、重複するクラスまたはリソースのキー、ZXQOBFARYN2QXZ、マルチリリースエントリ、JAR署名ファイルを拒否します。マニフェストは取り込みません。埋め込みコンテンツはアーカイブとして解析されません。",
+      "status": "reviewed"
+    },
+    "9c631964a7a9db041bda7c96bd1ce5ab8ada478c7b89609be9c7cda9b8b0a105": {
+      "source": "Contributes archive data to the specified platform context using the provided options and archive sink. This method defines the behavior for generating and adding archives to the platform, enabling further processing or distribution.",
+      "translation": "指定されたオプションとアーカイブシンクを使用して、対象のプラットフォームコンテキストへアーカイブデータを追加します。このメソッドは、アーカイブを生成してプラットフォームへ追加する動作を定義し、後続の処理または配布を可能にします。",
+      "status": "reviewed"
+    },
+    "06033e96aebbf4774c93b1e89177ea09745ab82959d6a14d24c5332b5128fb36": {
+      "source": "The platform context that provides access to loaded classes, resources,                 and other relevant platform-specific information.",
+      "translation": "読み込み済みのクラス、リソース、その他の関連するプラットフォーム固有情報へのアクセスを提供するプラットフォームコンテキストです。",
+      "status": "reviewed"
+    },
+    "c713bee2ede952fffee6a343b9e59cd22c9c686c98668d698f702919016a4ed2": {
+      "source": "The platform options that define configurable parameters and settings                 used in the archive contribution process.",
+      "translation": "アーカイブの追加処理で使用する、設定可能なパラメーターと設定を定義するプラットフォームオプションです。",
+      "status": "reviewed"
+    },
+    "890265b650497def1e0201d52e7bdd3f43d364c3e6f5a4def83234b8806cdf60": {
+      "source": "The archive sink that receives the generated archive data along with                 its contribution mode and optional path.",
+      "translation": "生成されたアーカイブデータを、その追加モードおよび任意のパスとともに受け取るアーカイブシンクです。",
+      "status": "reviewed"
+    },
+    "d9986dea98864abf6ecdc2268ff25f6064fba00348346a72eac687c67aa2fb66": {
+      "source": "To ship the same bytes without transforming them, instead call ZXQOBFARYN0QXZ. Embedding does not add the nested JAR to the application's runtime classpath.",
+      "translation": "同じバイト列を変換せずに同梱するには、代わりにZXQOBFARYN0QXZを呼び出してください。埋め込んでも、内部のJARがアプリケーションの実行時クラスパスへ追加されることはありません。",
+      "status": "reviewed"
+    },
+    "e5f09b6a07e21885d3049f960b45c15cd1698d454d13017495f4ba5d69bc84ef": {
+      "source": "Adds an archive to the sink with the specified contribution mode and optional path.",
+      "translation": "指定した追加モードと任意のパスを使用して、アーカイブをシンクへ追加します。",
+      "status": "reviewed"
+    },
+    "3f721d2d0427d0dcd0b5a682ae2134900bdf2a2db555e52ba4a78bcef70a4dd8": {
+      "source": "In the core sink, merged entries follow ZXQOBFARYN0QXZ and ZXQOBFARYN1QXZ validation. Embedded bytes follow resource validation and copying without inspection of the archive contents. Earlier contributions are not rolled back if processing this archive fails.",
+      "translation": "coreシンクでは、mergeされたエントリはZXQOBFARYN0QXZとZXQOBFARYN1QXZの検証に従います。埋め込まれたバイト列はリソース検証に従い、アーカイブ内容を検査せずにコピーされます。このアーカイブの処理が失敗しても、それ以前のコントリビューションはロールバックされません。",
+      "status": "reviewed"
+    },
+    "d69b7df042a2941127baa4b7ea38dfd3b362262fdd2188137216e4dfa02fa894": {
+      "source": "The archive data to be added, represented as a byte array.",
+      "translation": "追加するアーカイブデータを表すバイト配列です。",
+      "status": "reviewed"
+    },
+    "5b33deb3068ad50f3e752839ebf2ad0282846d6251d01e5045f3d15d4633f147": {
+      "source": "The mode of contribution, defining how the archive is incorporated (e.g., merged or embedded as a resource).",
+      "translation": "アーカイブを取り込む方法（merge、独立したリソースとしての埋め込みなど）を定義する追加モードです。",
+      "status": "reviewed"
+    },
+    "95989cb9ec244d46d8419d1ffa9a55f26c42bed12932bc118b22edcc100ca516": {
+      "source": "Required resource path for ZXQOBFARYN0QXZ; ignored for ZXQOBFARYN1QXZ.",
+      "translation": "ZXQOBFARYN0QXZでは必須のリソースパスです。ZXQOBFARYN1QXZでは無視されます。",
+      "status": "reviewed"
+    },
+    "1bf58d3464bd4cf82a8df6affbc57cef0c8def0f96ad3ce8ea221239859b94c6": {
+      "source": "In the core sink, if the embedding path is absent or invalid, an entry conflicts with existing content, or a merged entry is forbidden.",
+      "translation": "coreシンクで、埋め込み先のパスがないか不正、エントリが既存の内容と衝突、またはmergeするエントリが禁止されている場合。",
+      "status": "reviewed"
+    },
+    "fd6de490eecbc3967be079cd6cbe2c93ace59a4fc6e06bccd5630e6619967490": {
+      "source": "Adds an archive to the sink with the specified contribution mode. Delegates with a ZXQOBFARYN0QXZ path, so use this overload for ZXQOBFARYN1QXZ. ZXQOBFARYN2QXZ requires the overload with an explicit path.",
+      "translation": "指定した追加モードでアーカイブをシンクへ追加します。ZXQOBFARYN0QXZパスを渡して委譲するため、このオーバーロードはZXQOBFARYN1QXZに使用してください。ZXQOBFARYN2QXZには明示的なパスを受け取るオーバーロードが必要です。",
+      "status": "reviewed"
+    },
+    "81f9bdb63fa2ed6120d85113e1750b6c4cbf8fe8e0141305b30ca240f281966f": {
+      "source": "This interface enables handling archives by defining how they should be incorporated into a larger structure or system, such as merging them or embedding them as distinct resources.",
+      "translation": "アーカイブをmergeする、独立したリソースとして埋め込むなど、より大きな構造またはシステムへ取り込む方法を定義することで、アーカイブを処理できるようにするインターフェースです。",
+      "status": "reviewed"
+    },
+    "57f3cab8f7e6fa0b6441cb079f3ef7028927c77ac18bd0e2eff0e6dbd465c353": {
+      "source": "Contributes additional JVM class files to the platform during its execution based on the provided execution context, platform options, and a sink for adding generated classes.",
+      "translation": "指定された実行コンテキスト、プラットフォームオプション、生成クラス追加用シンクに基づき、実行中のプラットフォームへ追加のJVMクラスファイルを提供します。",
+      "status": "reviewed"
+    },
+    "4af1cb3dfc9de7d98343780386a546390b506213479e53c5152d69360a8f42e7": {
+      "source": "The execution environment context, providing access to loaded classes and resources.",
+      "translation": "読み込み済みのクラスとリソースへのアクセスを提供する実行環境コンテキストです。",
+      "status": "reviewed"
+    },
+    "deb8164bd1739b6ca4d9552a3f0c71efbc5c9f4d0c6064cc7af8013e05628077": {
+      "source": "The configurable platform options used to determine contribution behavior.",
+      "translation": "追加動作を決定するために使用する、設定可能なプラットフォームオプションです。",
+      "status": "reviewed"
+    },
+    "03f8ccbece133c63ac34a0019fe4198758d5eada8f6f02265f3dbb30941742d3": {
+      "source": "The sink used for emitting additional JVM class files.",
+      "translation": "追加のJVMクラスファイルを出力するためのシンクです。",
+      "status": "reviewed"
+    },
+    "130b1c13ab5924906d27510ca3a9333aea6838f91fd112649e18acd48e588467": {
+      "source": "Adds a JVM class file represented as a byte array for processing.",
+      "translation": "バイト配列で表されたJVMクラスファイルを処理対象として追加します。",
+      "status": "reviewed"
+    },
+    "0e322427122651689870c0ead89ba04364c68e143feccc45d95c17a1e3a9d10b": {
+      "source": "The core sink parses a fresh ASM node and identifies it by the class file's internal name, not by a caller-supplied archive path. A class with that name must not already exist.",
+      "translation": "coreシンクは新しいASMノードとして解析し、呼び出し側が指定したアーカイブパスではなく、クラスファイル内の内部名で識別します。同じ名前のクラスがすでに存在していてはいけません。",
+      "status": "reviewed"
+    },
+    "cba355d229f1f252f50f31664fc87dfd0f3092cbf2206f9f541689b15660f2d3": {
+      "source": "the byte array representing the JVM class file",
+      "translation": "JVMクラスファイルを表すバイト配列です。",
+      "status": "reviewed"
+    },
+    "197dfcbfa0da9a06b9e01ea91bb660caf8a3d7eb6343cef0132a2dc83fe5bcbd": {
+      "source": "In the core sink, if the class name is already present or the class reader cannot be constructed from ZXQOBFARYN0QXZ.",
+      "translation": "coreシンクでクラス名がすでに存在する、またはZXQOBFARYN0QXZからクラスリーダーを構築できない場合。",
+      "status": "reviewed"
+    },
+    "1536fcde659e9baff1a766d10c67405a4c7b84a6f51d779a4bea575c4ca150e2": {
+      "source": "Implementations of this interface are designed to process or consume complete JVM class files represented as byte arrays. The internal name of the class file is read and validated by the core processing logic.",
+      "translation": "このインターフェースの実装は、バイト配列で表された完全なJVMクラスファイルを処理または受け取ります。クラスファイルの内部名はcoreの処理ロジックが読み取って検証します。",
+      "status": "reviewed"
+    },
+    "9f22f8ccb69b36ccbfa400de8cc3b0edae9c3c367bef4bb3e70c8f9f9392485a": {
+      "source": "Explanations copied into a list when this instance is constructed.",
+      "translation": "このインスタンスの構築時にリストへコピーされる説明です。",
+      "status": "reviewed"
+    },
+    "a41953cec69a65c6447bcad4f7496e43c044c1a8ba5aee29e913eae32392b6df": {
+      "source": "This class is responsible for defining the detection of a platform and determining both the confidence level and the reasons supporting the detection. The confidence is represented as an integer percentage between 0 and 100, while the reasons are provided as a list of descriptive strings.",
+      "translation": "プラットフォームの検出と、信頼度および検出を裏付ける理由を定義します。信頼度は0から100までの整数パーセントで表され、理由は説明文字列のリストとして提供されます。",
+      "status": "reviewed"
+    },
+    "7171f24d844eb103ea0951d86e7aef521634246dfa497b5c53f0d33ca4270bd6": {
+      "source": "If ZXQOBFARYN0QXZ is outside ZXQOBFARYN1QXZ.",
+      "translation": "ZXQOBFARYN0QXZがZXQOBFARYN1QXZの範囲外の場合。",
+      "status": "reviewed"
+    },
+    "7303eeefac9791906fbad159b22b056e77d6c40e52b28741255bc6a9d4c0ea09": {
+      "source": "Confidence level for the platform detection, expressed as a percentage. The value must be between 0 and 100 inclusive, where higher values indicate greater certainty. An exception is thrown if the specified value does not fall within the valid range.",
+      "translation": "プラットフォーム検出の信頼度をパーセントで表します。値は0以上100以下でなければならず、大きいほど確実性が高いことを示します。指定した値が有効範囲外の場合は例外がスローされます。",
+      "status": "reviewed"
+    },
+    "25543188f64ae5832c69db60a2fab8d5fe39257a98752ef57ef9fef9647adaff": {
+      "source": "Indicates whether a platform has been detected with a non-zero confidence level.",
+      "translation": "0より大きい信頼度でプラットフォームが検出されたかどうかを示します。",
+      "status": "reviewed"
+    },
+    "80e3abe118178c7f97bcc56f285102f7648bd1b1dc71755beaf076dc8ae025e3": {
+      "source": "Construction-time copy of the supplied explanations; later iterable changes are not reflected.",
+      "translation": "指定された説明を構築時にコピーしたものです。後からIterableを変更しても反映されません。",
+      "status": "reviewed"
+    },
+    "c3aa63fe58f6f5786ae55ff896ef95a7539049d839c2ea51509ab7ec81f8356c": {
+      "source": "Creates an instance of ZXQOBFARYN0QXZ with specified metadata properties. Secondary constructors allow initialization using either a preconfigured ZXQOBFARYN1QXZ or by providing specific values for required properties. Direct constructors do not validate the values. Use ZXQOBFARYN2QXZ when non-blank strings and a positive API version must be enforced during construction.",
+      "translation": "指定したメタデータプロパティでZXQOBFARYN0QXZのインスタンスを作成します。セカンダリコンストラクターでは、設定済みのZXQOBFARYN1QXZを使用するか、必要なプロパティの値を個別に指定して初期化できます。直接コンストラクターは値を検証しません。空白ではない文字列と正のAPIバージョンを構築時に強制する場合はZXQOBFARYN2QXZを使用してください。",
+      "status": "reviewed"
+    },
+    "dcc249fc7810bed93b009d36e2cc1ecf87a72da236876e2fe09880d95eddaf99": {
+      "source": "These are ordinary implementation objects, not data classes; callers needing value comparison should compare the metadata properties rather than relying on structural equality.",
+      "translation": "これらは通常の実装オブジェクトであり、data classではありません。値の比較が必要な呼び出し側は、構造的等価性に依存せず、メタデータプロパティを比較してください。",
+      "status": "reviewed"
+    },
+    "55a8df010fcc452d180596585930a8beebd0368bc3f001cd5c70f230927c2924": {
+      "source": "Secondary constructor for ZXQOBFARYN0QXZ.",
+      "translation": "ZXQOBFARYN0QXZのセカンダリコンストラクターです。",
+      "status": "reviewed"
+    },
+    "c58ab7c37eeb8dbc31bd679991b586bc0179bfbab5e73f8a54099a5bd0ab3967": {
+      "source": "This constructor initializes a ZXQOBFARYN0QXZ instance using the provided platform metadata properties. The description is automatically generated based on the given ZXQOBFARYN1QXZ, ZXQOBFARYN2QXZ, ZXQOBFARYN3QXZ, and ZXQOBFARYN4QXZ, in the format: ZXQOBFARYN5QXZ",
+      "translation": "指定されたプラットフォームメタデータプロパティを使用してZXQOBFARYN0QXZインスタンスを初期化します。説明は、指定されたZXQOBFARYN1QXZ、ZXQOBFARYN2QXZ、ZXQOBFARYN3QXZ、ZXQOBFARYN4QXZに基づき、ZXQOBFARYN5QXZ形式で自動生成されます。",
+      "status": "reviewed"
+    },
+    "57044cb793298345f767414bb3f38a915d91453d681a2fec313e25a5e0fe33cd": {
+      "source": "A unique identifier for the platform.",
+      "translation": "プラットフォームの一意な識別子です。",
+      "status": "reviewed"
+    },
+    "0df66ba7ddc55da208a25692c682b73e0b87de9986e1530a65648b6fe16cdb34": {
+      "source": "A human-readable name of the platform.",
+      "translation": "人が読めるプラットフォーム名です。",
+      "status": "reviewed"
+    },
+    "9aefe29c54e93efeb5777a0f9406077b03e964cec14c44b4b581bc70afef6348": {
+      "source": "The version of the platform's implementation.",
+      "translation": "プラットフォーム実装のバージョンです。",
+      "status": "reviewed"
+    },
+    "b7f96606eecf0b7bf2bb8902e2ea8f310488cafcb822c644a8efe0e0a15bda0d": {
+      "source": "The version of the supported platform API. Defaults to the constant ZXQOBFARYN0QXZ.",
+      "translation": "サポートするプラットフォームAPIのバージョンです。デフォルトは定数ZXQOBFARYN0QXZです。",
+      "status": "reviewed"
+    },
+    "cf7dde8cfebcce25f72a17bae128543fa2e5c85f1510a649e0e32662c4419f44": {
+      "source": "This class provides a standard way to encapsulate metadata details pertaining to a specific platform. It includes properties such as a unique identifier, display name, implementation version, API version, and a descriptive summary, adhering to the contract defined by the ZXQOBFARYN0QXZ interface.",
+      "translation": "特定のプラットフォームに関するメタデータの詳細をまとめる標準的な方法を提供します。ZXQOBFARYN0QXZインターフェースが定義する契約に従い、一意な識別子、表示名、実装バージョン、APIバージョン、概要説明などのプロパティを含みます。",
+      "status": "reviewed"
     }
   }
 }
