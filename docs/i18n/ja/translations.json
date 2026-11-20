@@ -1872,6 +1872,176 @@
       "translation": "任意のJSON適格性レポート出力先です。",
       "status": "reviewed"
     },
+    "32aa390fe6dd7ed7e10c4573d92a2da0b7dc932800ffd0822a8e2c058ae430aa": {
+      "source": "Maximum methods per same-package runtime group; must be positive.",
+      "translation": "同一パッケージのランタイムグループごとの最大メソッド数です。正の値でなければなりません。",
+      "status": "reviewed"
+    },
+    "83e7fc5145752351f8a1597fead9fc7c188df07d5f876828e7cf8eadaf64458a": {
+      "source": "Strict failure, eligible-only conversion, or analysis-only mode.",
+      "translation": "厳格な失敗、適格なメソッドだけの変換、解析専用のいずれかのモードです。",
+      "status": "reviewed"
+    },
+    "5f3981030b27a8563eae7d69a2ce53d5201a9ee1c5c636160e1eeae7f9194c11": {
+      "source": "Full-match method regexes selecting interpreter conversion.",
+      "translation": "インタープリター変換の対象を選択する、メソッド識別子への完全一致正規表現です。",
+      "status": "reviewed"
+    },
+    "787c3ec282e777a45dea5e3261fbd47da06ded2b4f576daf519bfcdace5b0172": {
+      "source": "External JARs or directories needed for hierarchy and frame resolution.",
+      "translation": "クラス階層とフレームの解決に必要な外部JARまたはディレクトリです。",
+      "status": "reviewed"
+    },
+    "a3d462ff4728c3138c0d69e7272b9cdc818b612f30eebfb198f76fc0fda8e823": {
+      "source": "Apply keyed dispatch with direct-branch fallback for incompatible methods.",
+      "translation": "互換性のないメソッドには直接分岐へフォールバックしながら、鍵付きディスパッチを適用します。",
+      "status": "reviewed"
+    },
+    "3ec4fb736213b035cc0ef8e835b8d168e791168e4df46b8b7f48913cb06ac465": {
+      "source": "Analyze and transform in memory without writing a JAR or mapping.",
+      "translation": "JARやマッピングを書き込まず、メモリ上で解析と変換を行います。",
+      "status": "reviewed"
+    },
+    "5b534c5b7ddaa0f1054907291ede5e29d78ed252f3c444b28c0538cb4441772f": {
+      "source": "Summary returned by ZXQOBFARYN0QXZ.",
+      "translation": "ZXQOBFARYN0QXZが返す概要です。",
+      "status": "reviewed"
+    },
+    "02a14d43146f7c1576b1a1dcc250dbb9d6410c810735a17d3a29e14edb2b4dac": {
+      "source": "Class count immediately after reading the input, before platform contributions.",
+      "translation": "入力を読み込んだ直後、プラットフォームのコントリビューションを適用する前のクラス数です。",
+      "status": "reviewed"
+    },
+    "8089de2ee56eed3731dbe3838d53fb0d95d4fbcf7a72da66899766522822f70c": {
+      "source": "Resource count immediately after reading the input, including versioned classes.",
+      "translation": "入力を読み込んだ直後のリソース数です。バージョン付きクラスを含みます。",
+      "status": "reviewed"
+    },
+    "b81ae55c09a523c95e98c33793715f7a54d19a2e220f784f8591cd7c17b600e9": {
+      "source": "Reports from executed passes in execution order; absent in analysis-only mode.",
+      "translation": "実行した変換パスのレポートを実行順に保持します。解析専用モードでは存在しません。",
+      "status": "reviewed"
+    },
+    "22555180fd409a11d7bb6bae7b9e649764a04500f695775bf8c3aa84f4dbc4c1": {
+      "source": "Eligibility details, including rejected methods and reasons.",
+      "translation": "拒否されたメソッドと理由を含む、適格性の詳細です。",
+      "status": "reviewed"
+    },
+    "02060676f502bb0a0cd30f2b0c5e6500339337d1ce0f101950f8fd4c59fc436e": {
+      "source": "Compatibility, skipped-transformation, and policy diagnostics.",
+      "translation": "互換性、スキップした変換、ポリシーに関する診断情報です。",
+      "status": "reviewed"
+    },
+    "7664b6fd636dd4c07941b7e564db57d2e81fe92debae300e29c7f58a82864bdf": {
+      "source": "Uses a custom transformer pipeline instead of the built-in transformation passes. Platform selection, keep-policy setup, JAR output, and reporting still use default settings.",
+      "translation": "組み込みの変換パスの代わりに、独自のTransformerパイプラインを使用します。プラットフォームの選択、keepポリシーの設定、JARの出力、レポート生成には引き続きデフォルト設定を使用します。",
+      "status": "reviewed"
+    },
+    "1148791f7c6c0898f39331670ce85c47566d7fb6f9401f34b526f9c2dfe095cb": {
+      "source": "The pipeline resolves platform and keep policies, analyzes virtualization eligibility, transforms classes in dependency-aware ZXQOBFARYN0QXZ order, writes and optionally seals the output, then writes the mapping. Each call reads a fresh archive context.",
+      "translation": "パイプラインはプラットフォームとkeepポリシーを解決し、仮想化の適格性を解析して、依存関係を考慮したZXQOBFARYN0QXZ順にクラスを変換します。その後、出力を書き込み、必要に応じて封印してからマッピングを書き込みます。呼び出しごとに新しいアーカイブコンテキストを読み込みます。",
+      "status": "reviewed"
+    },
+    "7da4c7fcd337a475012c7ef3a4447443cadb0bff2be267857dd27a9d2be74d31": {
+      "source": "Obfuscates ZXQOBFARYN0QXZ into ZXQOBFARYN1QXZ and optionally writes a mapping to ZXQOBFARYN2QXZ.",
+      "translation": "ZXQOBFARYN0QXZを難読化してZXQOBFARYN1QXZへ出力し、必要に応じてマッピングをZXQOBFARYN2QXZへ書き込みます。",
+      "status": "reviewed"
+    },
+    "e13741604f2a6b0e27067e0bba7722ed7f648795e3b15912e55d4e73d1989318": {
+      "source": "Input and output must be different paths. Invalid regexes, unsupported selected methods in strict mode, unsafe multi-release references, and missing required keys fail before writing the output. With dry-run or analysis-only settings, the result is returned without a JAR or mapping. A virtualization report may still be written when configured.",
+      "translation": "入力と出力は異なるパスでなければなりません。不正な正規表現、strictモードで選択された未対応メソッド、安全でないマルチリリース参照、必要な鍵の欠如がある場合、出力を書き込む前に失敗します。dry-runまたは解析専用の設定では、JARやマッピングを書き込まずに結果を返します。設定されている場合は、仮想化レポートだけを書き込むことがあります。",
+      "status": "reviewed"
+    },
+    "ea833ef966b25118dc4eff78b211ee95bf313e54d7962237dd5ca578ee628bb8": {
+      "source": "A dry run still executes transformations and integrity injection in memory; analysis-only mode returns before those steps and before pipeline configuration callbacks. Loaded counts exclude classes and resources subsequently contributed by the platform.",
+      "translation": "dry runでも、変換と整合性検証の注入はメモリ上で実行されます。解析専用モードは、それらの処理およびパイプライン設定コールバックの前に結果を返します。読み込み件数には、後からプラットフォームによって追加されたクラスとリソースを含みません。",
+      "status": "reviewed"
+    },
+    "3327f9e03dae48e538bde993a3ad2432e2854e54e1213adce7fe12ca9002ef0f": {
+      "source": "If ZXQOBFARYN0QXZ is omitted, a sibling ZXQOBFARYN1QXZ is written only when the built-in renamer ran and produced changes. An explicit mapping destination is written even when its contents are empty. Output, integrity sealing, and mapping writes are not a single atomic operation: a failure can leave a partial JAR or a JAR without its mapping.",
+      "translation": "ZXQOBFARYN0QXZを省略した場合、組み込みの名前変更処理が実行され、実際に変更を生成したときだけ、同じ場所にZXQOBFARYN1QXZを書き込みます。マッピングの出力先を明示した場合は、内容が空でも書き込みます。出力、整合性の封印、マッピングの書き込みは単一のアトミック操作ではありません。失敗すると、不完全なJARまたはマッピングのないJARが残る可能性があります。",
+      "status": "reviewed"
+    },
+    "ce875d7ca46dc48520382be8064111d16bd68d519c96b835c10a3ffb34c30676": {
+      "source": "Counts, diagnostics, paths, and optional virtualization analysis.",
+      "translation": "件数、診断情報、パス、任意の仮想化解析結果です。",
+      "status": "reviewed"
+    },
+    "333c8a96f7d6281fcf561a47171032a8932661b509cec32817faf30b5899deb4": {
+      "source": "If path, configuration, or policy validation fails.",
+      "translation": "パス、設定、またはポリシーの検証に失敗した場合。",
+      "status": "reviewed"
+    },
+    "4b9b790ad0bac43b8baa0f1f60fe65a07b53aff4ba789adad063cdeaf1d1996b": {
+      "source": "If a transformation pass fails, with its ID and original cause.",
+      "translation": "変換パスが失敗した場合。そのIDと元の原因を含みます。",
+      "status": "reviewed"
+    },
+    "3a05393de1717aab0b2059a78494714fdeb0ea7ab73232899eb699a3274d623d": {
+      "source": "STRONG defaults to application-scoped control flow and adds output checks and a virtualization report.",
+      "translation": "STRONGはデフォルトでアプリケーションスコープの制御フロー変換を使用し、出力チェックと仮想化レポートを追加します。",
+      "status": "reviewed"
+    },
+    "67f84e5dda1956c861906dce803ec4925cf741b379ca67757bf2e322faf0d109": {
+      "source": "One artifact of a cross-artifact assembly: its paths, its stable id, and its own body-pass ZXQOBFARYN0QXZ (platform selection, string/number/control-flow choices, flags, body seed).",
+      "translation": "複数アーティファクトにまたがるアセンブリの1アーティファクトを表します。そのパス、安定したID、独自のメソッド本体パス用ZXQOBFARYN0QXZ（プラットフォーム選択、文字列・数値・制御フローの選択、フラグ、メソッド本体用シード）を保持します。",
+      "status": "reviewed"
+    },
+    "2f1d91fe792cde7cb48dbc043069c9b3820b22c63ffe821f7e5b1bffe7e5bd79": {
+      "source": "The config's renaming switches are not used here — renaming is decided once for the whole program by ZXQOBFARYN0QXZ, not per artifact. Per-artifact ZXQOBFARYN1QXZ/ZXQOBFARYN2QXZ are rejected, because those passes must run after renaming and renaming is global (see §8.3).",
+      "translation": "ここではconfigの名前変更スイッチを使用しません。名前変更はアーティファクトごとではなく、ZXQOBFARYN0QXZによってプログラム全体について一度だけ決定されます。ZXQOBFARYN1QXZ/ZXQOBFARYN2QXZをアーティファクトごとに指定することは拒否されます。これらの変換パスは名前変更後に実行する必要があり、名前変更はグローバルだからです（§8.3参照）。",
+      "status": "reviewed"
+    },
+    "e864f039df8c3365922505a0d817668a3f23e00d30c392e4927d219c5c910c0a": {
+      "source": "the artifacts to assemble, in any order; ids must be unique and non-blank.",
+      "translation": "アセンブルするアーティファクトです。順序は任意ですが、IDは空白以外で一意でなければなりません。",
+      "status": "reviewed"
+    },
+    "a20877a5378a7a2bfe5cbbcd47c4372d7b71c79520dd5bc818383995b96b75c4": {
+      "source": "the session-wide rename settings (class/method/field renaming, package flattening and target, rename seed, application-package roots) and the external classpath for hierarchy and frame resolution. Sibling artifacts must not appear on this classpath: they are in the union already.",
+      "translation": "セッション全体の名前変更設定（クラス・メソッド・フィールドの名前変更、パッケージのフラット化と移動先、名前変更シード、アプリケーションパッケージルート）と、クラス階層およびフレーム解決用の外部クラスパスです。兄弟アーティファクトはすでに統合対象に含まれるため、このクラスパスに含めてはいけません。",
+      "status": "reviewed"
+    },
+    "c03666a426f8ef8e8a4d0cbbe6c23034ea7fc2160081e2a712c65b2291db6cbb": {
+      "source": "Obfuscates several artifacts in a single naming universe so cross-artifact references survive.",
+      "translation": "複数のアーティファクトを単一の名前空間で難読化し、アーティファクト間の参照を維持します。",
+      "status": "reviewed"
+    },
+    "e0416cf07c0c9548bb36cba8bfa4e05b5c36d65099459ca3863c01cc421beddf": {
+      "source": "Names are global and owned by the session: one keep set, one hierarchy, one rename, one mapping. Bodies, resources and I/O are local to each artifact. The run has three phases over a shared ZXQOBFARYN0QXZ:",
+      "translation": "名前はグローバルであり、セッションに属します。keepルール一式、クラス階層、名前変更、マッピングをそれぞれ1つだけ使用します。メソッド本体、リソース、I/Oは各アーティファクトに属します。実行は、共有のZXQOBFARYN0QXZを対象とする3つのフェーズで構成されます。",
+      "status": "reviewed"
+    },
+    "fc7958227bd94449211585d87d923c621d10860f4cceba7f904d0eeaafa45921": {
+      "source": "<strong>Phase A (per artifact):</strong> read the JAR, run platform detection/configuration against the whole-program view, collect manifest/service/platform keep rules, and run every body pass <i>except</i> renaming.",
+      "translation": "<strong>フェーズA（アーティファクトごと）:</strong> JARを読み込み、プログラム全体のビューに対してプラットフォームの検出と設定を行い、マニフェスト、サービス、プラットフォームのkeepルールを収集し、名前変更を<i>除く</i>すべてのメソッド本体パスを実行します。",
+      "status": "reviewed"
+    },
+    "7326413e09c8d0402500327f1897adbc866137865df234d1f581844b1599d166": {
+      "source": "<strong>Phase B (once):</strong> union every artifact's classes into one ZXQOBFARYN0QXZ and run a single ZXQOBFARYN1QXZ over it, producing the global mapping.",
+      "translation": "<strong>フェーズB（1回）:</strong> すべてのアーティファクトのクラスを1つのZXQOBFARYN0QXZへ統合し、それを対象に1つのZXQOBFARYN1QXZを実行してグローバルマッピングを生成します。",
+      "status": "reviewed"
+    },
+    "5aaf06bb4e82c77b5c00b6dabc802aaff60165340dc5f237abb23146ee7947fc": {
+      "source": "<strong>Phase C (per artifact):</strong> split the renamed union back out by origin, remap each artifact's ZXQOBFARYN0QXZ, and write its JAR.",
+      "translation": "<strong>フェーズC（アーティファクトごと）:</strong> 名前変更済みの統合結果を元の所属ごとに再分割し、各アーティファクトのZXQOBFARYN0QXZを再マッピングしてJARを書き込みます。",
+      "status": "reviewed"
+    },
+    "5a7f0ce7b3144c5236897af32728b47bbfa025396ec772bc79b75d3c66686f7b": {
+      "source": "Writing the JARs is not atomic: a mid-run failure can leave only some of them written. This is not the distribution model where an obfuscated API is shipped and rebuilt later; it requires every artifact to be present at assembly time.",
+      "translation": "JARの書き込みはアトミックではありません。実行途中で失敗すると、一部のJARだけが書き込まれた状態になる可能性があります。これは、難読化したAPIを配布して後から再ビルドする配布モデルではありません。アセンブリ時にすべてのアーティファクトが存在する必要があります。",
+      "status": "reviewed"
+    },
+    "108e2f25d1e20f923fec8a174fc3d9dba7bf90c1200d87f9e01e98437ae89052": {
+      "source": "Discovered only when explicitly selected by name. Default frontend configuration is supplied separately.",
+      "translation": "名前で明示的に選択した場合にだけ検出されます。デフォルトのフロントエンド設定は別途提供されます。",
+      "status": "reviewed"
+    },
+    "86f5132a556c28eee2d2c0cc250f8198dda65ab473bd277dba2a1d34dca36e5a": {
+      "source": "Optional standard recipe; users may replace it entirely with their own API-only recipe.",
+      "translation": "任意で使用できる標準レシピです。利用者は、APIのみに依存する独自レシピで完全に置き換えることができます。",
+      "status": "reviewed"
+    },
     "ffed9728e84bebffac47ea45c380f98a239522b190e6ce9d6d6ca90c7d13126e": {
       "source": "An immutable list of configured ZXQOBFARYN0QXZ instances.",
       "translation": "設定済みのZXQOBFARYN0QXZインスタンスを格納する不変リストです。",
