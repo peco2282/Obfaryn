@@ -3451,6 +3451,231 @@
       "source": "This class provides a standard way to encapsulate metadata details pertaining to a specific platform. It includes properties such as a unique identifier, display name, implementation version, API version, and a descriptive summary, adhering to the contract defined by the ZXQOBFARYN0QXZ interface.",
       "translation": "特定のプラットフォームに関するメタデータの詳細をまとめる標準的な方法を提供します。ZXQOBFARYN0QXZインターフェースが定義する契約に従い、一意な識別子、表示名、実装バージョン、APIバージョン、概要説明などのプロパティを含みます。",
       "status": "reviewed"
+    },
+    "96ef5d7b4aeab99c6be304d493b84dde58267e615ef7e6e94b07f351d37cd0fe": {
+      "source": "The API version supported by the platform, defaulting to the predefined platform constant.",
+      "translation": "プラットフォームがサポートするAPIバージョンです。デフォルトは定義済みのプラットフォーム定数です。",
+      "status": "reviewed"
+    },
+    "879cc675749f166775090ff666f1ac7c7164415ae8f1f32bcd82fef28e08811c": {
+      "source": "A caller-supplied description; the four-argument constructor generates one.",
+      "translation": "呼び出し側が指定する説明です。4引数のコンストラクターでは自動生成されます。",
+      "status": "reviewed"
+    },
+    "bd39c8077a702c01adaaa20e4a7ae89344efe45de3289bc561ca9b5667d54771": {
+      "source": "A human-readable name of the platform for display purposes.",
+      "translation": "表示に使用する、人が読めるプラットフォーム名です。",
+      "status": "reviewed"
+    },
+    "fcbd32f9ad03cdc2951d8d0c046d6ffc1d28fb38c81b9b8aff1fedf637c696d5": {
+      "source": "A unique identifier for the platform, typically a string in a canonical format.",
+      "translation": "プラットフォームの一意な識別子です。通常は正規形式の文字列です。",
+      "status": "reviewed"
+    },
+    "c01bb090f3735a344e8866db28b4f548623443dbd2a1f193132daca9a857b84b": {
+      "source": "The implementation-specific version of the platform.",
+      "translation": "プラットフォーム固有の実装バージョンです。",
+      "status": "reviewed"
+    },
+    "03ab4d40147783ae6737f65b947589dc78219672c7c1f4a9cc64cc00570e8dda": {
+      "source": "Creates a new instance of ZXQOBFARYN0QXZ with the specified map of option keys and values. If no map is provided, an empty map is used by default.",
+      "translation": "指定されたオプションのキーと値のMapを持つ、新しいZXQOBFARYN0QXZインスタンスを作成します。Mapを指定しない場合、デフォルトで空のMapを使用します。",
+      "status": "reviewed"
+    },
+    "cafaeab871746e0593b7ac8ce103665589c3472aecb6197619dd7a3e01f200fe": {
+      "source": "A map representing the platform options, where the key is the option name and the value is its corresponding string value.",
+      "translation": "プラットフォームオプションを表すMapです。キーはオプション名、値は対応する文字列値です。",
+      "status": "reviewed"
+    },
+    "4ea41fe6dc728df0ec690105c253868e79d41554e634b44d61dd4c358e76c397": {
+      "source": "Returns the exact stored string, or ZXQOBFARYN0QXZ for an absent, case-sensitive key.",
+      "translation": "大文字と小文字を区別するキーが存在する場合は保存された文字列をそのまま返し、存在しない場合はZXQOBFARYN0QXZを返します。",
+      "status": "reviewed"
+    },
+    "a78d1d325292cede4a1bd8122eec25b67a8704ba536132fb054dce7d29bbf18c": {
+      "source": "This class allows retrieval of key-value option pairs, where the keys are option names and the values are their corresponding string representations. The supplied map is copied at construction, so later changes to it do not affect these options. Keys are looked up exactly as supplied; values are neither trimmed nor otherwise normalized.",
+      "translation": "オプション名をキー、対応する文字列表現を値として、キーと値の組を取得できます。指定されたMapは構築時にコピーされるため、その後の変更はこれらのオプションに影響しません。キーは指定されたとおり正確に検索され、値の前後空白の除去やその他の正規化は行われません。",
+      "status": "reviewed"
+    },
+    "0835b3240799d52b55094c23b66103e29cc82b16a235794964a5e963c50e3fe1": {
+      "source": "Copying does not validate values. Parsing and missing-required-option errors occur when the corresponding ZXQOBFARYN0QXZ helper is called, not when this object is constructed.",
+      "translation": "コピー時には値を検証しません。解析エラーと必須オプション欠落エラーは、このオブジェクトの構築時ではなく、対応するZXQOBFARYN0QXZヘルパーの呼び出し時に発生します。",
+      "status": "reviewed"
+    },
+    "166b992187b017a31b12e32ba28cc95096c2da52323751cafefa44fd2d8104de": {
+      "source": "Keys supplied at construction, including keys unknown to the consuming platform.",
+      "translation": "構築時に指定されたキーです。利用するプラットフォームが認識しないキーも含みます。",
+      "status": "reviewed"
+    },
+    "dcffc1e9a72539a39384dd086f1cac57e21c859b820252961eb0588546e64c44": {
+      "source": "Retrieves a boolean option, using ZXQOBFARYN0QXZ only when the option is absent. Values must be ZXQOBFARYN1QXZ or ZXQOBFARYN2QXZ, ignoring case; whitespace is not trimmed.",
+      "translation": "booleanオプションを取得します。オプションが存在しない場合にだけZXQOBFARYN0QXZを使用します。値は大文字と小文字を無視してZXQOBFARYN1QXZまたはZXQOBFARYN2QXZでなければなりません。空白は除去されません。",
+      "status": "reviewed"
+    },
+    "5d4e0643ec7f26f31075d1265ff02194e6be0b50d492b0dd3a2cda8eb54d1011": {
+      "source": "Retrieves a decimal integer option, using ZXQOBFARYN0QXZ only when the option is absent.",
+      "translation": "10進整数オプションを取得します。オプションが存在しない場合にだけZXQOBFARYN0QXZを使用します。",
+      "status": "reviewed"
+    },
+    "2525047d2ed740a6e7537ee40bdae79b51fb7b704fc03a97f53147dd3011dbd4": {
+      "source": "Retrieves the value of the specified option, enforcing that the option must exist. If the option is missing, an error is thrown with a message indicating the missing option. An empty string is considered present and is returned unchanged.",
+      "translation": "指定されたオプションの値を取得し、そのオプションが必ず存在することを強制します。存在しない場合は、欠落したオプションを示すメッセージ付きのエラーをスローします。空文字列は存在するものと見なし、変更せず返します。",
+      "status": "reviewed"
+    },
+    "0917ca0f5c7b19123fc9ff2d93622fe3542d25e39ea216f68644ac5db4431820": {
+      "source": "The API version associated with the platform metadata being constructed.",
+      "translation": "構築中のプラットフォームメタデータに関連付けるAPIバージョンです。",
+      "status": "reviewed"
+    },
+    "361b434649dfe5c8f5ca29393507abc77cdedf11cc50db5cdbf66cd189df9683": {
+      "source": "This property specifies the version of the API that the platform metadata conforms to. It is mutable, allowing the version to be configured during the platform metadata construction process. By default, it is initialized to the value defined by ZXQOBFARYN0QXZ.",
+      "translation": "プラットフォームメタデータが準拠するAPIのバージョンを指定します。変更可能であり、プラットフォームメタデータの構築中に設定できます。デフォルトではZXQOBFARYN0QXZが定義する値で初期化されます。",
+      "status": "reviewed"
+    },
+    "2ace10f6b21757ae1f85fe41a137da1cee689ce7c7c792dc7248d7beb41dcfbf": {
+      "source": "Validates the current fields and creates metadata independent of subsequent builder changes.",
+      "translation": "現在のフィールドを検証し、その後のビルダー変更から独立したメタデータを作成します。",
+      "status": "reviewed"
+    },
+    "0b354c39b8be2daf15dd5feb8cfbb6aa2d78b08c256002463e6fd20c4891a42a": {
+      "source": "A new ZXQOBFARYN0QXZ containing the current property values.",
+      "translation": "現在のプロパティ値を格納した新しいZXQOBFARYN0QXZです。",
+      "status": "reviewed"
+    },
+    "50636d24f065b45531c8a727aae6d196d850049a1c78b471bcd7c5316f4c6d0d": {
+      "source": "If any string property is blank or ZXQOBFARYN0QXZ is not positive.",
+      "translation": "いずれかの文字列プロパティが空白、またはZXQOBFARYN0QXZが正の値でない場合。",
+      "status": "reviewed"
+    },
+    "d6250cbb518c4b2e7dba85239b4cab88b61921d7a53b8b608ddeddbbb4c599b9": {
+      "source": "A detailed textual explanation or summary associated with the metadata being built. This property can be modified to provide additional context or clarification related to the metadata object being constructed.",
+      "translation": "構築中のメタデータに関連付ける詳細な説明または概要です。変更することで、構築対象のメタデータオブジェクトに関する追加の文脈や説明を提供できます。",
+      "status": "reviewed"
+    },
+    "4a7788ceff66ba75bbb74a3a0bac017e56725a601d022cc3840189a57b813d94": {
+      "source": "The human-readable name representing the platform metadata.",
+      "translation": "プラットフォームメタデータを表す、人が読める名前です。",
+      "status": "reviewed"
+    },
+    "feec3a7e3850c93fe9f47f228f7dde5eaf0785648b1d81d33a501af42837f267": {
+      "source": "This property allows specifying a descriptive display name for the platform metadata being constructed. It is intended to provide a user-friendly identifier for the platform details being configured.",
+      "translation": "構築中のプラットフォームメタデータに、説明的な表示名を指定できます。設定対象のプラットフォーム詳細に対して、利用者が理解しやすい識別子を提供するためのものです。",
+      "status": "reviewed"
+    },
+    "9ab3d3f6c72e1679a8c1333cfaa1b57127d3294a3b920a8487f1791339f861f4": {
+      "source": "A unique identifier for the platform metadata being constructed.",
+      "translation": "構築中のプラットフォームメタデータの一意な識別子です。",
+      "status": "reviewed"
+    },
+    "caf316aacdeef119e14ed5a1eb8a975344c2c11294417e82a7c8f13f28ce7e4e": {
+      "source": "This property represents a mutable string used to specify the unique identifier associated with a particular platform metadata instance. It is designed to be set during the metadata creation process and used as part of the metadata representation.",
+      "translation": "特定のプラットフォームメタデータインスタンスに関連付ける一意な識別子を指定する、変更可能な文字列です。メタデータの作成中に設定し、メタデータ表現の一部として使用します。",
+      "status": "reviewed"
+    },
+    "478de52b15b2436bf36949f0579a8340f3433c5277be7d80e18a7ad29e777035": {
+      "source": "The implementation version of the platform metadata being constructed.",
+      "translation": "構築中のプラットフォームメタデータの実装バージョンです。",
+      "status": "reviewed"
+    },
+    "528312224b93a103306c303387574e4a9fa6275019370b8c7ed5e34d4ca173f4": {
+      "source": "This property represents a mutable string used to specify the version of the implementation associated with the platform metadata. It is intended to provide versioning details for the constructed platform metadata instance.",
+      "translation": "プラットフォームメタデータに関連付ける実装バージョンを指定する、変更可能な文字列です。構築されたプラットフォームメタデータインスタンスへバージョン情報を提供するためのものです。",
+      "status": "reviewed"
+    },
+    "9d7cef58dd4501f75c273f4c6d06bcdabd2096f259ecfa46f8fdf556620631cf": {
+      "source": "This class facilitates the creation of ZXQOBFARYN0QXZ instances by providing mutable properties for platform identification, versioning, and descriptive details. It serves as a concrete builder for the platform metadata configuration, adhering to the contract defined by the ZXQOBFARYN1QXZ interface. All string properties initially contain an empty string, including ZXQOBFARYN2QXZ. Assign each before ZXQOBFARYN3QXZ; unlike the four-argument ZXQOBFARYN4QXZ constructor, this builder does not derive a description from the other properties.",
+      "translation": "プラットフォームの識別、バージョン、説明に関する変更可能なプロパティを提供し、ZXQOBFARYN0QXZインスタンスの作成を支援します。ZXQOBFARYN1QXZインターフェースが定義する契約に従う、プラットフォームメタデータ設定の具象ビルダーです。ZXQOBFARYN2QXZを含むすべての文字列プロパティは、初期状態では空文字列です。ZXQOBFARYN3QXZを呼び出す前に、それぞれを設定してください。4引数のZXQOBFARYN4QXZコンストラクターとは異なり、このビルダーは他のプロパティから説明を導出しません。",
+      "status": "reviewed"
+    },
+    "821f1016b03ab4c2023a2d3da641043fa7fdacb02275c7e0ccdd9dc9da417f48": {
+      "source": "A read-only map of loaded classes keyed by internal name (e.g. ZXQOBFARYN0QXZ). The nodes are mutable; this interface does not guarantee a snapshot of the map.",
+      "translation": "内部名（例: ZXQOBFARYN0QXZ）をキーとする、読み込み済みクラスの読み取り専用Mapです。ノード自体は変更可能です。このインターフェースはMapがスナップショットであることを保証しません。",
+      "status": "reviewed"
+    },
+    "4e48a3f3af4a0e57eb95f55867754e6a5015304aac74b01cea1f9622ff274045": {
+      "source": "Retrieves the <span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span> corresponding to the given class ZXQOBFARYN0QXZ.",
+      "translation": "指定されたクラスZXQOBFARYN0QXZに対応する<span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span>を取得します。",
+      "status": "reviewed"
+    },
+    "6dc5917b589a5acdd0418db6397f01af7a396999f2065659ac725c669d2fdfcb": {
+      "source": "The <span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span> if found, or ZXQOBFARYN0QXZ if no class exists with that name.",
+      "translation": "見つかった場合は<span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span>、その名前のクラスが存在しない場合はZXQOBFARYN0QXZです。",
+      "status": "reviewed"
+    },
+    "b643eb61234ee3ff7d470fa61c866e17010cde87b45fa302f02d39bafb7b4b4b": {
+      "source": "The internal name of the class (e.g. ZXQOBFARYN0QXZ).",
+      "translation": "クラスの内部名（例: ZXQOBFARYN0QXZ）です。",
+      "status": "reviewed"
+    },
+    "41fb74c3225daae3aa7200e89d2c966543152e3dd3b7f693339c4fa61981db45": {
+      "source": "Retrieves the ZXQOBFARYN0QXZ corresponding to the given resource ZXQOBFARYN1QXZ.",
+      "translation": "ZXQOBFARYN0QXZを取得します。これは指定されたリソースZXQOBFARYN1QXZに対応します。",
+      "status": "reviewed"
+    },
+    "32dc97a69c9298fe8ffb2a2f99ac6daa3206dc3f2bf894313c8029e46125d1bf": {
+      "source": "The ZXQOBFARYN0QXZ if found, or ZXQOBFARYN1QXZ if no resource exists with that name.",
+      "translation": "見つかった場合はZXQOBFARYN0QXZ、その名前のリソースが存在しない場合はZXQOBFARYN1QXZです。",
+      "status": "reviewed"
+    },
+    "a8bb5afdfbcaea3bc7116ce7e3738bab2556d4d9384fb7b0b2232c577b851d8a": {
+      "source": "The relative path or identifier of the resource.",
+      "translation": "リソースの相対パスまたは識別子です。",
+      "status": "reviewed"
+    },
+    "032c6961d22c509aa6d3cc725796a30cb977cdea511a8cedd2434c15b44c508b": {
+      "source": "Checks whether a class with the given ZXQOBFARYN0QXZ exists in the context.",
+      "translation": "指定されたZXQOBFARYN0QXZを持つクラスがコンテキスト内に存在するかどうかを確認します。",
+      "status": "reviewed"
+    },
+    "dbe4c88570b5ec59d99aa14d853aff480653a308ea00af977fb65922b677fa6e": {
+      "source": "ZXQOBFARYN0QXZ if the class is present in the context, ZXQOBFARYN1QXZ otherwise.",
+      "translation": "クラスがコンテキスト内に存在する場合はZXQOBFARYN0QXZ、それ以外はZXQOBFARYN1QXZです。",
+      "status": "reviewed"
+    },
+    "8acb9d4bbd093a17949e58f5835b1d0558f16efc9c6f98de64f535aa8d7b9342": {
+      "source": "Checks whether a resource with the given ZXQOBFARYN0QXZ exists in the context.",
+      "translation": "指定されたZXQOBFARYN0QXZを持つリソースがコンテキスト内に存在するかどうかを確認します。",
+      "status": "reviewed"
+    },
+    "a994852c42fb940ad3de97b751e262a60fdf1400a52d479d85486e208e50d907": {
+      "source": "ZXQOBFARYN0QXZ if the resource is present in the context, ZXQOBFARYN1QXZ otherwise.",
+      "translation": "リソースがコンテキスト内に存在する場合はZXQOBFARYN0QXZ、それ以外はZXQOBFARYN1QXZです。",
+      "status": "reviewed"
+    },
+    "8c3592a66180b62cf77cfacc516d8ee348f765b7f9a28744ea6b2b183b1d4285": {
+      "source": "Provides access to all classes and non-class resources within the target archive or project, allowing transformers to inspect, insert, update, or remove bytecode definitions and resource files. Class names use JVM internal form (ZXQOBFARYN0QXZ, without ZXQOBFARYN1QXZ); resource names use archive-relative paths (ZXQOBFARYN2QXZ).",
+      "translation": "対象アーカイブまたはプロジェクト内のすべてのクラスとクラス以外のリソースへのアクセスを提供し、Transformerがバイトコード定義とリソースファイルを検査、挿入、更新、削除できるようにします。クラス名にはJVM内部形式（ZXQOBFARYN0QXZ、ZXQOBFARYN1QXZなし）を使用し、リソース名にはアーカイブ相対パス（ZXQOBFARYN2QXZ）を使用します。",
+      "status": "reviewed"
+    },
+    "edd124c06ce775b4fb39e204ad4e817f1441a87a8edff5bee64f2331fb027fcc": {
+      "source": "Adds or replaces ZXQOBFARYN0QXZ through ZXQOBFARYN1QXZ; ZXQOBFARYN2QXZ uses its archive path.",
+      "translation": "ZXQOBFARYN0QXZをZXQOBFARYN1QXZを通じて追加または置換します。ZXQOBFARYN2QXZでは自身のアーカイブパスを使用します。",
+      "status": "reviewed"
+    },
+    "aa1bbc9f6a2ec570e3e5a08154e144776b3b45aec165ddfc0c5cb56207832fc9": {
+      "source": "Adds or replaces ZXQOBFARYN0QXZ through ZXQOBFARYN1QXZ; ZXQOBFARYN2QXZ uses the node's current name.",
+      "translation": "ZXQOBFARYN0QXZをZXQOBFARYN1QXZを通じて追加または置換します。ZXQOBFARYN2QXZではノードの現在の名前を使用します。",
+      "status": "reviewed"
+    },
+    "7f7f235c3f960bbe6d0fa3d51cea20bc4a17dd335b6bb81e2ab01e675bb87bf3": {
+      "source": "Adds or updates a class in the context.",
+      "translation": "コンテキストへクラスを追加または更新します。",
+      "status": "reviewed"
+    },
+    "4dd3ab1f4d7591b842d71e07766137cbabfa2354a13b2caa3d221f42eab31542": {
+      "source": "Adds or updates a non-class resource in the context.",
+      "translation": "コンテキストへクラス以外のリソースを追加または更新します。",
+      "status": "reviewed"
+    },
+    "c786a5cff5651214d3a43835d8b3f4ddda89c915a22b273204ec1f561cd7f003": {
+      "source": "Removes a class with the given ZXQOBFARYN0QXZ from the context.",
+      "translation": "指定されたZXQOBFARYN0QXZを持つクラスをコンテキストから削除します。",
+      "status": "reviewed"
+    },
+    "e5baabc777e7f01640fa0022940af9750cc406c554ce9de4ddc05f3ef59d1d95": {
+      "source": "Removes a resource with the given ZXQOBFARYN0QXZ from the context.",
+      "translation": "指定されたZXQOBFARYN0QXZを持つリソースをコンテキストから削除します。",
+      "status": "reviewed"
     }
   }
 }
