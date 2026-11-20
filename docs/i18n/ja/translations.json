@@ -4226,6 +4226,226 @@
       "source": "A lambda function used to configure the platform metadata.                 The builder provides mutable properties for setting                 the platform's identifier, display name, versioning details,                 and description.",
       "translation": "プラットフォームメタデータの設定に使用するラムダ関数。ビルダーは、プラットフォームの識別子、表示名、バージョン情報、説明を設定するための可変プロパティを提供します。",
       "status": "reviewed"
+    },
+    "dea8cf0656315f0d1a3e70665353b164acd4c6bc707e0a6e00433aa1f1a49e3b": {
+      "source": "If a required string is blank or the API version is not positive.",
+      "translation": "必須の文字列が空白、またはAPIバージョンが正の値でない場合。",
+      "status": "reviewed"
+    },
+    "4e654c4efa2728b75c1c2bb5ebd67d2a8ad5e0354d9efbc62f56aa2ea914b3cc": {
+      "source": "Creates and returns a new instance of the platform.",
+      "translation": "プラットフォームの新しいインスタンスを作成して返します。",
+      "status": "reviewed"
+    },
+    "9b0d6d187f4d7d46909931dba8320d4df7a856c9d6201315661137bb913e6f48": {
+      "source": "This method serves as a factory for creating platforms that conform to the ZXQOBFARYN0QXZ interface. It utilizes the metadata and configuration specified in the implementing class to produce a fully initialized platform instance. The returned platform can later facilitate environment detection, entrypoint discovery, configuration, and extension retrieval.",
+      "translation": "このメソッドは、ZXQOBFARYN0QXZ インターフェースに準拠するプラットフォームを作成するファクトリーとして機能します。実装クラスで指定されたメタデータと設定を使用し、完全に初期化されたプラットフォームインスタンスを生成します。返されたプラットフォームは、後で環境検出、エントリーポイント探索、設定、拡張の取得に使用できます。",
+      "status": "reviewed"
+    },
+    "5bfe0ef396bb9779c1688e23245c8a38aff83540a05f4d26f0c802c2513dfde1": {
+      "source": "A new ZXQOBFARYN0QXZ instance that is ready to be used for platform-specific operations.",
+      "translation": "プラットフォーム固有の操作に使用できる、新しい ZXQOBFARYN0QXZ インスタンス。",
+      "status": "reviewed"
+    },
+    "aefc874c01a0a85b3e29707c3a964db1e5f29035437690bdef7a2dd443184d19": {
+      "source": "The ZXQOBFARYN0QXZ is responsible for instantiating platforms and exposing metadata that describes the platform's identity, versioning, and compatibility. It serves as a factory and metadata accessor for platform-related operations. Keep ZXQOBFARYN1QXZ consistent with the metadata exposed by the platform returned from ZXQOBFARYN2QXZ. For a platform class named ZXQOBFARYN3QXZ, a provider can be implemented as follows:",
+      "translation": "ZXQOBFARYN0QXZ は、プラットフォームのインスタンス化と、その識別情報、バージョン、互換性を表すメタデータの公開を担います。プラットフォーム関連操作のファクトリー兼メタデータアクセサーとして機能します。ZXQOBFARYN1QXZ は、ZXQOBFARYN2QXZ が返すプラットフォームのメタデータと一致させてください。ZXQOBFARYN3QXZ というプラットフォームクラスのプロバイダーは、次のように実装できます。",
+      "status": "reviewed"
+    },
+    "8e7151037fe1d1dddba32eb029024b040f43bbd69f5107f61fdfc2ec6e93ae5b": {
+      "source": "A factory implementation alone does not register the provider with a host; distribution must also supply the discovery or registration mechanism expected by that host.",
+      "translation": "ファクトリーを実装しただけでは、プロバイダーはホストへ登録されません。配布物には、そのホストが要求する探索または登録の仕組みも含める必要があります。",
+      "status": "reviewed"
+    },
+    "6301cd60f6c2aee0bf1e55689832fd4a5e6b5aef064b16551df20b9dca2d748e": {
+      "source": "Represents metadata associated with the platform managed by the implementation.",
+      "translation": "実装が管理するプラットフォームに関連するメタデータを表します。",
+      "status": "reviewed"
+    },
+    "78f8f249514cefa605c1efcd9ef9c56b7598f0e9984acb5cb0865a439c351a36": {
+      "source": "Provides platform-specific details such as its unique identifier, display name, implementation version, API compatibility, and a human-readable description. This metadata is integral to identifying and describing the platform in a consistent, user-friendly, and version-aware manner across various implementations.",
+      "translation": "一意な識別子、表示名、実装バージョン、API互換性、人が読める説明など、プラットフォーム固有の詳細を提供します。このメタデータは、さまざまな実装でプラットフォームを一貫し、利用者に分かりやすく、バージョンを考慮した形で識別・説明するために不可欠です。",
+      "status": "reviewed"
+    },
+    "134c01055c5809dcdfdd413936af0f67c952ba108a45a0a94c82b39d89d9e33f": {
+      "source": "Configures the platform-specific rules and settings based on the provided context and options.",
+      "translation": "指定されたコンテキストとオプションに基づいて、プラットフォーム固有のルールと設定を構成します。",
+      "status": "reviewed"
+    },
+    "9bda6a0215ddc10f76b3782077af57f82a4ea754ae9a8cfc64639b252a2a389c": {
+      "source": "This method customizes the ZXQOBFARYN0QXZ for the target platform, using details from the execution environment and additional configuration options. The default implementation leaves ZXQOBFARYN1QXZ unchanged. Add rules through ZXQOBFARYN2QXZ rather than modifying the class nodes exposed by ZXQOBFARYN3QXZ.",
+      "translation": "このメソッドは、実行環境の詳細と追加の設定オプションを使用して、対象プラットフォーム向けに ZXQOBFARYN0QXZ を調整します。デフォルト実装は ZXQOBFARYN1QXZ を変更しません。ルールは ZXQOBFARYN2QXZ を通じて追加し、ZXQOBFARYN3QXZ が公開するクラスノードを変更しないでください。",
+      "status": "reviewed"
+    },
+    "5368532a2e4b36e84e7bcd9ce5c8a532e5f534c93bbddc157b15963b170e1a91": {
+      "source": "The execution environment context containing all loaded classes and resources.",
+      "translation": "ロード済みのすべてのクラスとリソースを含む実行環境コンテキスト。",
+      "status": "reviewed"
+    },
+    "498e52ba17f5ee3b524a083d13107180a67bb40fd3f24a70a7c828a275fe3928": {
+      "source": "The platform options providing additional parameters or configurations.",
+      "translation": "追加のパラメーターまたは設定を提供するプラットフォームオプション。",
+      "status": "reviewed"
+    },
+    "f3fc3f29fe4c3b4ffd21aa33796e57a4c739cb0c7a4a720ec03255cd27c8c90d": {
+      "source": "The configuration to be modified with platform-specific rules and exclusions.",
+      "translation": "プラットフォーム固有のルールと除外対象を追加する設定。",
+      "status": "reviewed"
+    },
+    "2af5dfa6b2e1246ecf401dced8d49bdae9715922087834cd89e0ef05b6062390": {
+      "source": "Detects the platform environment based on the provided execution context.",
+      "translation": "指定された実行コンテキストに基づいてプラットフォーム環境を検出します。",
+      "status": "reviewed"
+    },
+    "655986b6e9475f0f70b1ffe9ca07d3f1fe8995103897268ffe08be941f3cc038": {
+      "source": "This method analyzes the given ZXQOBFARYN0QXZ to determine the suitability of the platform, returning a detection result that includes confidence and reasons for the match.",
+      "translation": "このメソッドは、指定された ZXQOBFARYN0QXZ を分析してプラットフォームの適合性を判断し、一致の信頼度と理由を含む検出結果を返します。",
+      "status": "reviewed"
+    },
+    "68c7c7de22de051bc638709857f99a335f400f641724d4e2693dfe22769762de": {
+      "source": "A ZXQOBFARYN0QXZ instance containing the detection confidence level and rationale.",
+      "translation": "検出の信頼度と根拠を含む ZXQOBFARYN0QXZ インスタンス。",
+      "status": "reviewed"
+    },
+    "cbe99d54b659e26a7777bbfbd2c00256b3065280a0667879dcab45383edca5d8": {
+      "source": "Extracts the set of entrypoints from the provided platform context and options.",
+      "translation": "指定されたプラットフォームコンテキストとオプションからエントリーポイントの集合を抽出します。",
+      "status": "reviewed"
+    },
+    "b2e15bbd5b0044b5c675039a229e40c5519635cb90d4228aa2257177474d8288": {
+      "source": "This method identifies the key entrypoints in the execution environment, which can serve as starting points for further analysis or platform-specific processing.",
+      "translation": "このメソッドは、実行環境内の主要なエントリーポイントを特定します。これらは、以後の分析やプラットフォーム固有処理の開始点として使用できます。",
+      "status": "reviewed"
+    },
+    "ceb4f4c4627edec53366aa955f93a5aad14690aeb28670f027d00edccd92ac9c": {
+      "source": "Entrypoint class names used to identify application code, or an empty set if none are found. Prefer JVM internal names such as ZXQOBFARYN0QXZ, not method names or class descriptors.",
+      "translation": "アプリケーションコードの識別に使用するエントリーポイントのクラス名。見つからない場合は空の集合です。メソッド名やクラスディスクリプターではなく、ZXQOBFARYN0QXZ のようなJVM内部名を使用してください。",
+      "status": "reviewed"
+    },
+    "71c46b9310b565f9d383e59200748a0c311ebbc8e3d2ec66df5f28dba276514f": {
+      "source": "Retrieves a collection of platform extensions associated with the platform.",
+      "translation": "プラットフォームに関連付けられたプラットフォーム拡張のコレクションを取得します。",
+      "status": "reviewed"
+    },
+    "d5de9bf77668733b3f57d0d995f0c08eb0cdbb5b1d7515e27fe8f0b97f64458d": {
+      "source": "Platform extensions provide additional functionalities or behaviors that can be integrated into the platform for specific customization or enhancement. Return implementations of the supported extension interfaces, such as ZXQOBFARYN0QXZ or ZXQOBFARYN1QXZ; implementing the marker ZXQOBFARYN2QXZ alone adds no behavior.",
+      "translation": "プラットフォーム拡張は、特定のカスタマイズや機能強化のためにプラットフォームへ統合できる追加機能や動作を提供します。ZXQOBFARYN0QXZ や ZXQOBFARYN1QXZ など、サポートされる拡張インターフェースの実装を返してください。マーカーである ZXQOBFARYN2QXZ だけを実装しても動作は追加されません。",
+      "status": "reviewed"
+    },
+    "31d312436acea670bbcdc9477ec0bc8642fe3df44b98935094b75805099f7879": {
+      "source": "A collection of ZXQOBFARYN0QXZ instances, or an empty collection if no extensions are present.",
+      "translation": "ZXQOBFARYN0QXZ インスタンスのコレクション。拡張がない場合は空のコレクション。",
+      "status": "reviewed"
+    },
+    "0503efff7d0458311f68cd9c79b5738b58d985d81d69ec3ec5e0d8f3c460c7b0": {
+      "source": "The unique identifier for the platform.",
+      "translation": "プラットフォームの一意な識別子。",
+      "status": "reviewed"
+    },
+    "f999499bc55350dc70a019d2f8f2c3d6718b72327d9256def86516a14a256594": {
+      "source": "This value is derived from the metadata of the platform and uniquely distinguishes it from other platforms. It serves as a reference for identifying and working with the platform in various configurations and operations.",
+      "translation": "この値はプラットフォームのメタデータから導出され、ほかのプラットフォームと一意に区別します。さまざまな設定や操作でプラットフォームを識別し、扱うための参照として機能します。",
+      "status": "reviewed"
+    },
+    "e2590e8a823f56226743ece847b5297b15952386ff08855b0ca312628d35393e": {
+      "source": "The ZXQOBFARYN0QXZ interface provides the structure for detecting platform-specific inputs, discovering entrypoints, and applying configuration rules for obfuscation or transformation. It operates within a given context, utilizes platform options, and outputs configurations tailored to its detected environment.",
+      "translation": "ZXQOBFARYN0QXZ インターフェースは、プラットフォーム固有の入力の検出、エントリーポイントの探索、難読化または変換用の設定ルール適用の構造を提供します。指定されたコンテキスト内で動作し、プラットフォームオプションを使用して、検出した環境向けの設定を出力します。",
+      "status": "reviewed"
+    },
+    "4b7ff80473ffcd62d4a4de119819b93e1ffb2646f1f1b855e182ad2914097fb5": {
+      "source": "Implement ZXQOBFARYN0QXZ to expose a platform to the host. Use ZXQOBFARYN1QXZ for keep rules and ZXQOBFARYN2QXZ for annotation policies or generated classes, resources, and archives.",
+      "translation": "プラットフォームをホストへ公開するには ZXQOBFARYN0QXZ を実装します。keepルールには ZXQOBFARYN1QXZ を、アノテーションポリシーまたは生成したクラス、リソース、アーカイブには ZXQOBFARYN2QXZ を使用してください。",
+      "status": "reviewed"
+    },
+    "5692873a77f23c3a2e2fa6ec8178c8ac69fa6ad357a4778e130a5769d3f9bc2c": {
+      "source": "A minimal descriptor-based implementation can keep a reflectively loaded entrypoint:",
+      "translation": "記述子に基づく最小限の実装では、リフレクションでロードされるエントリーポイントを保持できます。",
+      "status": "reviewed"
+    },
+    "2bb6eee97bbabf0b293ae5dfd7ba66efd55adb89f5bf64bddda83c71e3ae3835": {
+      "source": "This example requires the caller to supply ZXQOBFARYN0QXZ; detecting a descriptor does not automatically parse it or populate options. Detection confidence is evidence, not a keep rule.",
+      "translation": "この例では、呼び出し側が ZXQOBFARYN0QXZ を指定する必要があります。記述子を検出しても、自動的には解析されず、オプションも設定されません。検出の信頼度は根拠であり、keepルールではありません。",
+      "status": "reviewed"
+    },
+    "f8198f4524f1bd91db868dce895bc346119e6068113bfdce804f7ec9fb09179e": {
+      "source": "Metadata providing identity and compatibility information for a platform.",
+      "translation": "プラットフォームの識別情報と互換性情報を提供するメタデータ。",
+      "status": "reviewed"
+    },
+    "6ed829b50c7d567e9cf3b2f6b027ef6771bc6a7f6b94bd5aa3f7e7ed362fb3c6": {
+      "source": "This includes details such as the platform's unique identifier, display name, implementation version, API version, and a description of the platform. The metadata is used to provide context about the platform before it is fully instantiated and facilitates configuration and compatibility validation.",
+      "translation": "これには、プラットフォームの一意な識別子、表示名、実装バージョン、APIバージョン、説明などの詳細が含まれます。メタデータは、プラットフォームが完全にインスタンス化される前にその情報を提供し、設定と互換性検証を容易にします。",
+      "status": "reviewed"
+    },
+    "4bc6669bd909577a0f02aa42f7e6e4adf2902f5a36b4a150312301fbe4a00a0e": {
+      "source": "Contributes resources to a platform execution process by utilizing the provided context, configurable platform options, and an output sink for resource storage.",
+      "translation": "指定されたコンテキスト、設定可能なプラットフォームオプション、リソース保存用の出力先を使用して、プラットフォームの実行処理へリソースを提供します。",
+      "status": "reviewed"
+    },
+    "28239cf7ba387fad8ecc858180c583ec62678e513cd802debe352c5727ce386e": {
+      "source": "The configurable platform options, enabling retrieval and enforcement of option values.",
+      "translation": "オプション値の取得と必須指定を可能にする、設定可能なプラットフォームオプション。",
+      "status": "reviewed"
+    },
+    "ba240cb69748991970c2a811ab4729df28f72faeb20260d0f897871aeaf0c001": {
+      "source": "The resource sink used for adding or storing generated resources during the contribution process.",
+      "translation": "提供処理中に生成したリソースを追加または保存するためのリソース出力先。",
+      "status": "reviewed"
+    },
+    "33067c177113986f6b9824d4e642e537529380d3b20845b1e7dd227d7e41ed77": {
+      "source": "Return the contributor from ZXQOBFARYN0QXZ and choose a path absent from the input. Adding text that contains a class name does not itself register a keep rule for that class.",
+      "translation": "ZXQOBFARYN0QXZ からコントリビューターを返し、入力に存在しないパスを選んでください。クラス名を含むテキストを追加しても、そのクラスのkeepルールは自動的には登録されません。",
+      "status": "reviewed"
+    },
+    "8b6ba4d736586dde85d9a0a1ed5bf39f5739d6c3818f24abb0655b73452a8730": {
+      "source": "Adds a resource to the sink, identified by a specified path and represented as binary content.",
+      "translation": "指定されたパスで識別されるバイナリ内容のリソースを出力先へ追加します。",
+      "status": "reviewed"
+    },
+    "2114d3358c5fff6c4e3493b355c951c1c864fb0c380da61dcfd072595c534d70": {
+      "source": "The core sink copies ZXQOBFARYN0QXZ and rejects duplicate resource paths instead of replacing them. Paths must be non-blank and relative, must not start with ZXQOBFARYN1QXZ or ZXQOBFARYN2QXZ, and must not contain empty, ZXQOBFARYN3QXZ or ZXQOBFARYN4QXZ slash-separated segments. Paths ending in ZXQOBFARYN5QXZ must use ZXQOBFARYN6QXZ.",
+      "translation": "コアの出力先は ZXQOBFARYN0QXZ をコピーし、重複するリソースパスを置換せず拒否します。パスは空白でない相対パスで、ZXQOBFARYN1QXZ または ZXQOBFARYN2QXZ から始まってはならず、スラッシュで区切ったセグメントに空要素、ZXQOBFARYN3QXZ、ZXQOBFARYN4QXZ を含めてはなりません。ZXQOBFARYN5QXZ で終わるパスには ZXQOBFARYN6QXZ を使用する必要があります。",
+      "status": "reviewed"
+    },
+    "f543479d74b5675f5f9381c1e3808d691eeab661bbcf151f9c80ae8b197221fd": {
+      "source": "The path used to identify the resource to be added.",
+      "translation": "追加するリソースの識別に使用するパス。",
+      "status": "reviewed"
+    },
+    "a59366b13519ccfb300cd44f0b4051f1bb39387cf18968eb75fc71750059a3a6": {
+      "source": "The binary content of the resource to be stored.",
+      "translation": "保存するリソースのバイナリ内容。",
+      "status": "reviewed"
+    },
+    "cbf55d81e38484de472fd83fe7cfb13612d34e9c5eefebe008906c41b5e2a194": {
+      "source": "In the core sink, if the path is invalid, denotes a class, or is already present in the resource map.",
+      "translation": "コアの出力先で、パスが不正、クラスを示す、またはリソースマップにすでに存在する場合。",
+      "status": "reviewed"
+    },
+    "d05f7cf18ca392ef2912b07d076b7e9575ff3e2b2bade1ddbc09520657cf7411": {
+      "source": "Implementers of this interface define how resources, identified by a path and provided as binary content, are processed or stored.",
+      "translation": "このインターフェースの実装者は、パスで識別され、バイナリ内容として渡されるリソースを処理または保存する方法を定義します。",
+      "status": "reviewed"
+    },
+    "d211e230d007150e6b63562addc0d657ebfd3ba8b51b80754df173cdcd08b83b": {
+      "source": "This utility streamlines policy construction by applying the provided ZXQOBFARYN0QXZ block to a fresh ZXQOBFARYN1QXZ and returning the built policy. It eliminates manual instantiation boilerplate and ensures clean, readable policy declarations when implementing an ZXQOBFARYN2QXZ.",
+      "translation": "このユーティリティは、指定された ZXQOBFARYN0QXZ ブロックを新しい ZXQOBFARYN1QXZ に適用し、構築したポリシーを返すことで、ポリシー構築を簡潔にします。ZXQOBFARYN2QXZ を実装するときの手動インスタンス化の定型処理をなくし、明快で読みやすいポリシー宣言を実現します。",
+      "status": "reviewed"
+    },
+    "21eddf0bab8eb72f66078a107da27d93c6221bf506374c84a693bb4b5f15983c": {
+      "source": "Example usage:",
+      "translation": "使用例:",
+      "status": "reviewed"
+    },
+    "1f3afaf8872d33b5e563b81fa663cf80a1eafde175cb9f9debc91d39dd18033e": {
+      "source": "A fully initialized, immutable ZXQOBFARYN0QXZ.",
+      "translation": "完全に初期化された不変の ZXQOBFARYN0QXZ。",
+      "status": "reviewed"
+    },
+    "73324dfa188ff490596d65deebef2ceb646959843eeac278f028d68233859955": {
+      "source": "Lambda configuring the ZXQOBFARYN0QXZ properties.",
+      "translation": "ZXQOBFARYN0QXZ のプロパティを設定するラムダ。",
+      "status": "reviewed"
     }
   }
 }
