@@ -3001,6 +3001,231 @@
       "source": "Whether a metadata pass may edit this class's metadata.",
       "translation": "メタデータ変換パスがこのクラスのメタデータを編集できるかどうかを示します。",
       "status": "reviewed"
+    },
+    "63f3745f0e9538704568d10e7a91fffc7632fbc054b4ce68d91e9019677cb66a": {
+      "source": "Defines a policy for determining whether specific bytecode elements may be transformed.",
+      "translation": "特定のバイトコード要素を変換できるかどうかを判定するポリシーを定義します。",
+      "status": "reviewed"
+    },
+    "c98380968d76d3f38a110910a0e5942b17c79dd4d56eb82dd84ff3a4effdf525": {
+      "source": "Obfuscation and optimization passes consult this policy prior to mutating method bodies, ensuring exclusions, annotations, and filtering rules are consistently respected across all transformers. This is a permission check, not a transformation or an automatic guard around ASM mutations. Name preservation and virtualization selection are separate concerns.",
+      "translation": "難読化および最適化パスはメソッド本体を変更する前にこのポリシーを参照し、除外設定、アノテーション、フィルタリングルールをすべてのTransformerで一貫して尊重します。これは許可チェックであり、変換処理でも、ASM変更を自動的に保護する仕組みでもありません。名前の保持と仮想化の選択は別の要素です。",
+      "status": "reviewed"
+    },
+    "475583a7e9d3f6035a0f4a386f9e2f1f13209615e05e57268ad31629fc0d7798": {
+      "source": "Registers ZXQOBFARYN0QXZ under its ID, which must not already belong to a registered pass.",
+      "translation": "ZXQOBFARYN0QXZをそのIDで登録します。そのIDは登録済みの別の変換パスに使用されていてはいけません。",
+      "status": "reviewed"
+    },
+    "5ace7ef851739b62b0dd99b06e4415f7bf0ad7376a3fdadee0f8cd1212c1dbf7": {
+      "source": "In the core registry, if the ID is blank or already registered.",
+      "translation": "coreレジストリでIDが空白、またはすでに登録されている場合。",
+      "status": "reviewed"
+    },
+    "4fc31a6acc3e4a1def2f945982d2373f5355af7e690a5e38a504202cba79fead": {
+      "source": "Removes the pass identified by ZXQOBFARYN0QXZ; the ID may be registered again later. Dependent passes are not automatically disabled.",
+      "translation": "ZXQOBFARYN0QXZで識別される変換パスを削除します。そのIDは後から再登録できます。依存する変換パスは自動的には無効化されません。",
+      "status": "reviewed"
+    },
+    "08c0635da3bfbf2ed966b293a7b0496ecdb3ac6f72893b7586d1e19924be50ae": {
+      "source": "In the core registry, if ZXQOBFARYN0QXZ is unknown or already disabled.",
+      "translation": "coreレジストリでZXQOBFARYN0QXZが不明、またはすでに無効化されている場合。",
+      "status": "reviewed"
+    },
+    "1f944b52480c2098ea494e12bafb42c037225496a9c522390bde92728d80a4cd": {
+      "source": "Returns the currently registered pass with ZXQOBFARYN0QXZ, or ZXQOBFARYN1QXZ if absent or disabled. Use this to guard edits to optional standard passes, e.g. ZXQOBFARYN2QXZ.",
+      "translation": "現在登録されているZXQOBFARYN0QXZを持つ変換パスを返します。存在しないか無効な場合はZXQOBFARYN1QXZです。ZXQOBFARYN2QXZのような任意の標準変換パスを編集する際のガードに使用してください。",
+      "status": "reviewed"
+    },
+    "3eed672a96c0091877217102b1ccf497051698f5b82db7ae44722e4652232050": {
+      "source": "Mutable pipeline registration window exposed to a ZXQOBFARYN0QXZ.",
+      "translation": "ZXQOBFARYN0QXZへ公開される、変更可能なパイプライン登録期間です。",
+      "status": "reviewed"
+    },
+    "06df6e6dcc0f4978470ce78780b6a214fff929fc1e8bff8c65f2040b3c398cd4": {
+      "source": "IDs are non-blank and unique, and replacements must retain the ID of the pass they replace. Registration configures which passes run; it does not execute them. Dependencies in ZXQOBFARYN0QXZ must still be satisfied after all additions, replacements, and disabling operations.",
+      "translation": "IDは空白以外で一意でなければならず、置換後の変換パスは置換対象と同じIDを維持しなければなりません。登録では実行する変換パスを設定しますが、実行はしません。すべての追加、置換、無効化操作の後も、ZXQOBFARYN0QXZ内の依存関係を満たす必要があります。",
+      "status": "reviewed"
+    },
+    "711563bc2a0acaa99686bef40f938c0a446af7e5f2a2e56941e9f2a5b083cc48": {
+      "source": "Equivalent to ZXQOBFARYN0QXZ, for use in receiver-style configuration blocks.",
+      "translation": "レシーバー形式の設定ブロックで使用する、ZXQOBFARYN0QXZと同等の処理です。",
+      "status": "reviewed"
+    },
+    "f1475bc5a4bb35dd7816d674335b8ba9f97dace1bae5db700d1aad035bb10b96": {
+      "source": "Replaces an existing pass at ZXQOBFARYN0QXZ; ZXQOBFARYN1QXZ must have the same ID.",
+      "translation": "ZXQOBFARYN0QXZにある既存の変換パスを置き換えます。ZXQOBFARYN1QXZは同じIDを持たなければなりません。",
+      "status": "reviewed"
+    },
+    "964cac6ad1289ea04c30470b160f5b1409f9f8232f40f35d95725c023fc5ff79": {
+      "source": "In the core registry, if ZXQOBFARYN0QXZ is absent or the replacement ID differs.",
+      "translation": "coreレジストリにZXQOBFARYN0QXZが存在しない、または置換後のIDが異なる場合。",
+      "status": "reviewed"
+    },
+    "2d36fe3f074e82b76f192b81c55ad27e2317a138ff23a746ea0186e0925126ed": {
+      "source": "Diagnostics produced by a transformer for one invocation.",
+      "translation": "1回の呼び出しについてTransformerが生成した診断情報です。",
+      "status": "reviewed"
+    },
+    "c2f2f0f52824e61ebf3909f3a1ced66518038bb75d64e440588b0a22ce94bad2": {
+      "source": "Metric names and warning text are defined by the reporting pass, not by a shared schema. Collections are retained as supplied, so provide snapshots if they may later be mutated.",
+      "translation": "メトリクス名と警告テキストは共有スキーマではなく、レポートを生成する変換パスが定義します。コレクションは渡されたまま保持されるため、後から変更される可能性がある場合はスナップショットを渡してください。",
+      "status": "reviewed"
+    },
+    "545aa6b2a8f7d314fd99cb2733bf4b870e4b1d36d4cb9abd7a4fd6e6acf3f42a": {
+      "source": "ID of the transformer that produced this report.",
+      "translation": "このレポートを生成したTransformerのIDです。",
+      "status": "reviewed"
+    },
+    "4a2b8e97f92ec81efd81031fd73e121d46d66030e009da4819688c995a0c9341": {
+      "source": "Named counters or measurements; empty when no metrics are reported.",
+      "translation": "名前付きのカウンターまたは測定値です。メトリクスを報告しない場合は空です。",
+      "status": "reviewed"
+    },
+    "497e0e6d77c10714315cdd3c7700c1e68e02b5a0a00c9603f334bce8b91fad2b": {
+      "source": "Human-readable diagnostics that do not themselves signal a failed transformation.",
+      "translation": "変換失敗を直接示すものではない、人が読める診断情報です。",
+      "status": "reviewed"
+    },
+    "05734f19b707bd66070979ae7e9f42779fce624d88e148d51535df3b22d340c7": {
+      "source": "Used by ZXQOBFARYN0QXZ, ZXQOBFARYN1QXZ, and ZXQOBFARYN2QXZ to identify the pass. Choose a stable ID that does not collide with another registered transformer.",
+      "translation": "ZXQOBFARYN0QXZ、ZXQOBFARYN1QXZ、ZXQOBFARYN2QXZが変換パスを識別するために使用します。登録済みの別のTransformerと衝突しない、安定したIDを選択してください。",
+      "status": "reviewed"
+    },
+    "a845fcca8d0036e11b1ed50d647aeec2b9ba8e12f4099271bfb3531ad8394bb7": {
+      "source": "Represents a bytecode transformation step in the obfuscation pipeline.",
+      "translation": "難読化パイプライン内の1つのバイトコード変換ステップを表します。",
+      "status": "reviewed"
+    },
+    "b966d4bebddda5b89d3fdf3656d32043c8b5f67532a2d6700034c9a2c9a52852": {
+      "source": "Implementations of this interface inspect, modify, or rewrite class nodes and resources present in the provided ZXQOBFARYN0QXZ. Body-changing passes must consult ZXQOBFARYN1QXZ before editing a method. Use ZXQOBFARYN2QXZ to register custom passes without depending on the core engine.",
+      "translation": "このインターフェースの実装は、指定されたZXQOBFARYN0QXZ内にあるクラスノードとリソースを検査、変更、または書き換えます。メソッド本体を変更する変換パスは、メソッドを編集する前にZXQOBFARYN1QXZを参照しなければなりません。coreエンジンへ依存せずに独自の変換パスを登録するにはZXQOBFARYN2QXZを使用してください。",
+      "status": "reviewed"
+    },
+    "4b5b17002b5d36281bd5a984cac0e2d502c824982d8d31c9a404b474d584c291": {
+      "source": "A minimal inspection pass can be registered as follows (no core dependency is needed here):",
+      "translation": "最小限の検査パスは次のように登録できます（ここではcoreへの依存は不要です）。",
+      "status": "reviewed"
+    },
+    "e9d100bd5a95fa5122c8b3d47e23faefbd21085b863c5f113a980fc83bfe1745": {
+      "source": "Pass the resulting configurer to the execution host; creating it alone does not execute a pass. A bare ZXQOBFARYN0QXZ implementation is not automatically discovered through ServiceLoader. Wrap it in a ZXQOBFARYN1QXZ inside a ZXQOBFARYN2QXZ and expose that through ZXQOBFARYN3QXZ to make it ServiceLoader-discoverable and explicitly selectable by ID from a host-loaded extension JAR; the package's ZXQOBFARYN4QXZ parameter can simply be ignored when a pass only needs the registry.",
+      "translation": "生成されたconfigurerを実行ホストへ渡してください。作成しただけでは変換パスは実行されません。単独のZXQOBFARYN0QXZ実装はServiceLoaderから自動検出されません。ホストが読み込む拡張JARからServiceLoaderで検出可能にし、IDで明示的に選択できるようにするには、ZXQOBFARYN1QXZでラップしてZXQOBFARYN2QXZ内に置き、それをZXQOBFARYN3QXZ経由で公開します。変換パスがレジストリだけを必要とする場合、パッケージのZXQOBFARYN4QXZ引数は無視できます。",
+      "status": "reviewed"
+    },
+    "85efc9b99038ec345628ca7d538e980bdbc2aa1fb01c030ea7f2c3639d661047": {
+      "source": "Transformers with lower order values are executed before transformers with higher values when dependencies allow it. ZXQOBFARYN0QXZ takes precedence over this numeric preference. The core pipeline breaks equal-order ties by ZXQOBFARYN1QXZ, not registration order. Defaults to ZXQOBFARYN2QXZ.",
+      "translation": "依存関係が許す場合、order値が小さいTransformerは大きいTransformerより先に実行されます。ZXQOBFARYN0QXZはこの数値による優先より優先されます。coreパイプラインはorderが同じ場合、登録順ではなくZXQOBFARYN1QXZで順序を決定します。デフォルトはZXQOBFARYN2QXZです。",
+      "status": "reviewed"
+    },
+    "b7b6b75cb6fbbe0d20e9508afa280c5603ce9d3691a6d0b37e4a955777934cff": {
+      "source": "The default report contains this pass's ZXQOBFARYN0QXZ with no metrics or warnings. Stateful passes should reset invocation-specific diagnostics when they run so reports do not accumulate stale data.",
+      "translation": "デフォルトのレポートには、この変換パスのZXQOBFARYN0QXZだけが含まれ、メトリクスや警告はありません。状態を持つ変換パスは、レポートに古いデータが蓄積しないよう、実行時に呼び出し固有の診断情報をリセットしてください。",
+      "status": "reviewed"
+    },
+    "c0f1a2d75456d2ac7a63690ce93e1ddaa3c6aed464aafc1d44a1d1d7b1339c71": {
+      "source": "The default is no dependencies. Missing dependencies and dependency cycles are rejected before any pass executes; disabling a required pass does not remove this requirement.",
+      "translation": "デフォルトでは依存関係はありません。存在しない依存関係と依存関係の循環は、変換パスが1つも実行される前に拒否されます。必要な変換パスを無効化しても、この依存要件は削除されません。",
+      "status": "reviewed"
+    },
+    "75618c96faad8712df0f1be023734888f09120c1bf5f95e518e213d11bb55ff7": {
+      "source": "Changes are made in place and are visible to subsequent passes. Register newly generated classes or resources through the context's mutation methods rather than casting its maps. Snapshot a collection before adding/removing its entries during traversal. The API does not recompute frames or repair references for arbitrary edits; the pass and host must coordinate valid output. Throw on an unrecoverable error rather than reporting success with invalid nodes.",
+      "translation": "変更はその場で行われ、後続の変換パスから見えます。新しく生成したクラスまたはリソースは、コンテキストのMapをキャストせず、変更メソッドを通じて登録してください。走査中にエントリを追加または削除する場合は、事前にコレクションのスナップショットを作成してください。このAPIは任意の編集についてフレームを再計算したり参照を修復したりしません。変換パスとホストが連携して有効な出力を生成する必要があります。回復不能なエラーでは、無効なノードのまま成功を報告せず、例外をスローしてください。",
+      "status": "reviewed"
+    },
+    "926c09d5521b71caf81079f07e285e361bfa619c70b84f4f18e2ed343d63701d": {
+      "source": "The obfuscation context containing the target classes and resources.",
+      "translation": "対象のクラスとリソースを含む難読化コンテキストです。",
+      "status": "reviewed"
+    },
+    "f2e421adc68d33fef1b3436759598a24eb4e7fa7918ab5367f64947474bc47f0": {
+      "source": "Selects one strategy per constant using the host random source, including float/double overrides. A selected strategy returning null skips that constant; no fallback is attempted. Entries are snapshotted. Strategies must obey the usual fresh-instruction contract.",
+      "translation": "floatとdoubleの上書きも含め、ホストの乱数源を使用して定数ごとに1つのストラテジーを選択します。選択されたストラテジーがnullを返した場合、その定数をスキップし、フォールバックは試行しません。エントリはスナップショット化されます。ストラテジーは通常の新規命令に関する契約を守らなければなりません。",
+      "status": "reviewed"
+    },
+    "363836c7a6faae4cfab09d2cdfa2f5bec08a66c3b1add5aefd53b8f2f5935ddd": {
+      "source": "A positive relative selection weight.",
+      "translation": "正の相対選択重みです。",
+      "status": "reviewed"
+    },
+    "dd9bc9103d81eb7fb3c06d43ea1836ccda91f07201464ff5944d518e1e0eacce": {
+      "source": "Visits a snapshot of classes and methods allowed by the host's body policy. Newly added methods are not visited. This checks permission, not bytecode eligibility; callers must still check constructors, abstract/native methods and supported instructions.",
+      "translation": "ホストのメソッド本体ポリシーで許可されたクラスとメソッドのスナップショットを走査します。新しく追加されたメソッドは走査されません。これは許可を検査するもので、バイトコードの適格性を検査するものではありません。呼び出し側は、コンストラクター、abstractまたはnativeメソッド、サポート対象命令を引き続き検査する必要があります。",
+      "status": "reviewed"
+    },
+    "0f289a3d41da08927c063b2c6650c7a09d260ad8c842552c44f2801c0afb0798": {
+      "source": "Feature-aware variant; legacy policy restrictions always remain in force.",
+      "translation": "機能を考慮するバリアントです。従来のポリシー制限は常に有効なままです。",
+      "status": "reviewed"
+    },
+    "7c943d965be90f231a0a2b269720b5f6474e55b8ae744de307e61968cfe24fd9": {
+      "source": "Finds an unused method name, conservatively avoiding every existing overload.",
+      "translation": "既存のすべてのオーバーロードを保守的に避け、未使用のメソッド名を検索します。",
+      "status": "reviewed"
+    },
+    "10dadd92a6972d69a00c77ccfef90a890d745b43ab74f8a8a61013ce58bd2a48": {
+      "source": "Suppresses ordinary method-body transformations, including virtualization, for latency-sensitive code. Renaming remains allowed. A method-level ZXQOBFARYN0QXZ may override a class-level hot-path default.",
+      "translation": "レイテンシーが重要なコードについて、仮想化を含む通常のメソッド本体変換を抑止します。名前変更は引き続き許可されます。メソッドレベルのZXQOBFARYN0QXZは、クラスレベルのホットパス用デフォルトを上書きできます。",
+      "status": "reviewed"
+    },
+    "0c45e036ca3b7db4138ba12e3bbe74a1aaee136b7605b5cbf4ab256077e49460": {
+      "source": "Preserves the annotated declaration's name while allowing body transformations. Keeping a class name does not automatically preserve the names of all its members.",
+      "translation": "メソッド本体変換を許可したまま、アノテーションを付与した宣言の名前を保持します。クラス名を保持しても、そのすべてのメンバー名が自動的に保持されるわけではありません。",
+      "status": "reviewed"
+    },
+    "dd7c9cf2504cb9268dd6b100a8c9d8fa0d44f65de94705d0c5b9236352a15969": {
+      "source": "Preserves names and suppresses method-body obfuscation for the annotated declaration. A class-level policy also protects its members and cannot be overridden by a method policy. References may still be remapped when other declarations are renamed; this is not a byte-for-byte preservation guarantee.",
+      "translation": "アノテーションを付与した宣言について、名前を保持し、メソッド本体の難読化を抑止します。クラスレベルのポリシーはそのメンバーも保護し、メソッドポリシーでは上書きできません。他の宣言の名前変更時に参照が再マッピングされる可能性は残るため、バイト単位の保持を保証するものではありません。",
+      "status": "reviewed"
+    },
+    "4e814b9af944910e9cf6b7c2281926625bf2d485a5b5b1bc8ac2ea70d20c75a2": {
+      "source": "Allows renaming but suppresses method-body obfuscation, including virtualization. Renaming remains subject to other keep rules and safety checks; it is not forced.",
+      "translation": "名前変更を許可したまま、仮想化を含むメソッド本体の難読化を抑止します。名前変更は他のkeepルールと安全性検査にも従い、強制されるものではありません。",
+      "status": "reviewed"
+    },
+    "c1e016ec82f972400d83e2417a1fe7c05aab1fbbbe72b379a9dd5f700c39cc56": {
+      "source": "Selects methods for virtualization, subject to exclusions and bytecode eligibility checks. A class policy supplies a default for its methods; it does not make unsupported bytecode eligible.",
+      "translation": "除外設定とバイトコード適格性検査に従って、仮想化するメソッドを選択します。クラスのポリシーはそのメソッドのデフォルトを提供しますが、サポートされないバイトコードを適格にするものではありません。",
+      "status": "reviewed"
+    },
+    "5017e6e5a9956b7f32c7ac1ebf0ef90379eb7e2a023dc69e69de7fa12c37b821": {
+      "source": "Name preservation, body transformation permission, and virtualization selection are separate concerns. Selecting virtualization does not guarantee bytecode eligibility, and keeping a name does not by itself suppress body transformations. Method policies may override class-level ZXQOBFARYN0QXZ, ZXQOBFARYN1QXZ, or ZXQOBFARYN2QXZ intent, but not class-level ZXQOBFARYN3QXZ. Conflicting actions on the same declaration are rejected.",
+      "translation": "名前の保持、メソッド本体変換の許可、仮想化の選択はそれぞれ別の要素です。仮想化を選択してもバイトコードの適格性は保証されず、名前を保持するだけではメソッド本体変換は抑止されません。メソッドポリシーはクラスレベルのZXQOBFARYN0QXZ、ZXQOBFARYN1QXZ、ZXQOBFARYN2QXZの方針を上書きできますが、クラスレベルのZXQOBFARYN3QXZは上書きできません。同じ宣言に競合するアクションがある場合は拒否されます。",
+      "status": "reviewed"
+    },
+    "2f3818faf23388e98ff1299bed563349cf173c5139bc797da369aa17c9b54d3b": {
+      "source": "For a binary-retained annotation already present in the input:",
+      "translation": "入力にすでに存在する、バイナリに保持されるアノテーションの場合。",
+      "status": "reviewed"
+    },
+    "a21beba2055e9bd735f4e8325db66f2ad3ba1af18994fd17f3803c7773cab37b": {
+      "source": "Return ZXQOBFARYN0QXZ from ZXQOBFARYN1QXZ. The policy maps an existing annotation; it does not inject that annotation or make a source-retained annotation visible in bytecode.",
+      "translation": "ZXQOBFARYN0QXZをZXQOBFARYN1QXZから返します。ポリシーは既存のアノテーションを対応付けるものであり、そのアノテーションを注入したり、ソースだけに保持されるアノテーションをバイトコードから見えるようにしたりはしません。",
+      "status": "reviewed"
+    },
+    "12801b1ec29067caf7d4b2ff7066d92ba6a188138006762a4c6cc1074c5c5e19": {
+      "source": "Returns the annotation mappings contributed by this extension. All policies for a given descriptor must agree on the action, even with different target sets.",
+      "translation": "この拡張が提供するアノテーションマッピングを返します。同じディスクリプターに対するすべてのポリシーは、対象集合が異なる場合でも同じアクションを指定しなければなりません。",
+      "status": "reviewed"
+    },
+    "7e2ec4648d89dc1f35244575de93ed282891e56fb675cef44896bbfab26d3e66": {
+      "source": "Policies using JVM descriptors and explicit target kinds, or an empty collection.",
+      "translation": "JVMディスクリプターと明示的な対象種別を使用するポリシー、または空のコレクションです。",
+      "status": "reviewed"
+    },
+    "63ed91b293e8958dba2c0722295b130b5d1924922afc99bcd6999159718e2de4": {
+      "source": "Recognizes annotations on the class declaration, not on its individual members.",
+      "translation": "個々のメンバーではなく、クラス宣言上のアノテーションを認識します。",
+      "status": "reviewed"
+    },
+    "768fa6227b4b24eba2b131d8b04dc4e28e03d2bd3c1ed55e11850b7bc3a6231c": {
+      "source": "Recognizes annotations on field declarations; body-only actions have no field effect.",
+      "translation": "フィールド宣言上のアノテーションを認識します。メソッド本体だけを対象とするアクションはフィールドに影響しません。",
+      "status": "reviewed"
+    },
+    "0cc25b5ee5e8b2292f9bb7cfb99d2c9630fa83ee2eaa85a1b954ede15b4c7261": {
+      "source": "Recognizes annotations on method declarations, including constructors in bytecode.",
+      "translation": "バイトコード上のコンストラクターを含め、メソッド宣言上のアノテーションを認識します。",
+      "status": "reviewed"
     }
   }
 }
