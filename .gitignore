@@ -3,6 +3,8 @@
 .gradle-user/
 .kotlin/
 **/build/
+__pycache__/
+*.py[cod]
 
 # IDEs and local editor settings
 .idea/
