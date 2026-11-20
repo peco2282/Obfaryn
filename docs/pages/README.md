@@ -7,6 +7,9 @@ The localization prototype deliberately runs after Dokka generation. It does not
 change source KDoc/Javadoc or any `dokkaGeneratePublicationJavadoc`/`dokkaJavadocJar`
 task used for Maven publications.
 
+Only natural-language API documentation is localized. Dokka navigation and Kotlin
+or Java terminology remain in English.
+
 Generated sites belong under `build/docs-pages` and are never committed.
 
 ## Prototype commands

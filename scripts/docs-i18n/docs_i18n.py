@@ -153,7 +153,7 @@ def restore_fragment(translated: str, protected: list[str]) -> str:
   return translated
 
 
-def apply_catalog(page: Path, relative: Path, catalog: dict, ui: dict) -> None:
+def apply_catalog(page: Path, relative: Path, catalog: dict) -> None:
   soup = BeautifulSoup(page.read_text(encoding="utf-8"), "html.parser")
   if soup.html:
     soup.html["lang"] = catalog.get("locale", "ja")
@@ -168,10 +168,6 @@ def apply_catalog(page: Path, relative: Path, catalog: dict, ui: dict) -> None:
       block.append(child)
     if value.get("status") == "machine":
       block["data-translation-status"] = "machine"
-  for text in list(soup.find_all(string=True)):
-    normalized = " ".join(text.split())
-    if normalized in ui and not text.find_parent(["code", "pre", "script", "style"]):
-      text.replace_with(ui[normalized])
   page.write_text(str(soup), encoding="utf-8")
 
 
@@ -201,15 +197,13 @@ def build(args: argparse.Namespace) -> int:
   localized = args.output / args.locale
   shutil.copytree(args.input, localized)
   catalog = read_json(args.catalog)
-  ui_path = args.catalog.with_name("ui.json")
-  ui = read_json(ui_path) if ui_path.exists() else {}
   for english_page in html_files(args.output):
     if localized in english_page.parents:
       continue
     inject_switch(english_page, english_page.relative_to(args.output), localized=False)
   for page in html_files(localized):
     relative = page.relative_to(localized)
-    apply_catalog(page, relative, catalog, ui)
+    apply_catalog(page, relative, catalog)
     inject_switch(page, relative, localized=True)
   print(f"Built English and {args.locale} sites at {args.output}")
   return 0

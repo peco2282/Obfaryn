@@ -3,6 +3,11 @@
 English KDoc/Javadoc is the sole source of truth. Translation catalogs contain only
 localized natural-language fragments from the generated GitHub Pages site.
 
+Dokka navigation and programming-language terminology remain in English. Labels
+such as `Types`, `Functions`, `Class`, `Properties`, and `Package-level declarations`
+are not translation targets. Only prose originating in API documentation comments
+is localized.
+
 Each entry records its English source and hash, translation, status, and engine.
 Supported statuses are:
 
