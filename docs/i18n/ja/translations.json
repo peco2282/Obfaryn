@@ -4126,6 +4126,106 @@
       "source": "The parsed value, or ZXQOBFARYN0QXZ when the option is absent.",
       "translation": "解析された値。オプションが指定されていない場合は ZXQOBFARYN0QXZ。",
       "status": "reviewed"
+    },
+    "471fc0fc203e8553a850a36b613bb3e626c65cbceb68c96032c52adc7b368f27": {
+      "source": "The name of the option to retrieve.",
+      "translation": "取得するオプションの名前。",
+      "status": "reviewed"
+    },
+    "eeb9bb794335ab325b897e2236e2d87a7a1bb52e1ec496fd900d8cd8fa7b45a6": {
+      "source": "The default boolean value to return if the option is not present.",
+      "translation": "オプションが存在しない場合に返すデフォルトの真偽値。",
+      "status": "reviewed"
+    },
+    "dc2f6efe13bfdd8dd1dacbc0cb7275d430fd8bb6f2c7d8cf8e5650f44da4f54a": {
+      "source": "If the option value is not \"true\", \"false\", or null.",
+      "translation": "オプション値が \"true\"、\"false\"、または null のいずれでもない場合。",
+      "status": "reviewed"
+    },
+    "dafc0bb4097e9ecc26e3722a1f845d7953017a88e2f36249ab225224d414f775": {
+      "source": "Retrieves the value associated with the specified option name.",
+      "translation": "指定したオプション名に対応する値を取得します。",
+      "status": "reviewed"
+    },
+    "ecac29ad69d003f19a66ecb804f79a3fd76f3097c8c3e299bf2465b997873984": {
+      "source": "The value of the option if it exists, or ZXQOBFARYN0QXZ if the option is not present.",
+      "translation": "存在する場合はオプションの値、存在しない場合は ZXQOBFARYN0QXZ。",
+      "status": "reviewed"
+    },
+    "10c419c38bfeae7d6cd6fa92255fa64c1877550b6ccd76a379bb26c2117f2d47": {
+      "source": "This interface provides methods for retrieving option values, enforcing required options, and handling boolean options with support for default values. Options are strings; the consuming platform must validate domain-specific constraints:",
+      "translation": "このインターフェースは、オプション値の取得、必須オプションの強制、デフォルト値をサポートする真偽値オプションの処理を行うメソッドを提供します。オプションは文字列であり、利用するプラットフォームがドメイン固有の制約を検証する必要があります。",
+      "status": "reviewed"
+    },
+    "a39221af4c6ba9b17370b7c4a7ab67414532a38f4aff8ab791ed7c8d26da7b00": {
+      "source": "Defaults handle absent keys, not malformed supplied values. Unknown keys are not rejected by this interface; use ZXQOBFARYN0QXZ if the platform needs to validate its supported option set.",
+      "translation": "デフォルト値が処理するのはキーが存在しない場合であり、不正な値が指定された場合ではありません。このインターフェースは未知のキーを拒否しません。プラットフォームがサポート対象のオプション集合を検証する必要がある場合は ZXQOBFARYN0QXZ を使用してください。",
+      "status": "reviewed"
+    },
+    "304d0823a3fe5427ffe28581844f13d2f88ad31294e52c95fa106776ef99e711": {
+      "source": "Represents the set of option names available in the platform options.",
+      "translation": "プラットフォームオプションで利用可能なオプション名の集合を表します。",
+      "status": "reviewed"
+    },
+    "d20fbfc5d399131d93f56e0053a6aa00fcd3260b8425d3eb926fc2a4c658c142": {
+      "source": "Parsing follows ZXQOBFARYN0QXZ: an optional sign is accepted, but whitespace, non-decimal values, and values outside the ZXQOBFARYN1QXZ range are rejected. No platform-specific bounds are checked.",
+      "translation": "解析は ZXQOBFARYN0QXZ に従います。符号は省略可能ですが、空白、10進数以外の値、ZXQOBFARYN1QXZ の範囲外の値は拒否されます。プラットフォーム固有の範囲は検証しません。",
+      "status": "reviewed"
+    },
+    "922d0e81db44fafb4aba1ac5b4c06d6ed4df20aabd6c4ddc9cd043d57c04a9ba": {
+      "source": "The option name to look up.",
+      "translation": "検索するオプション名。",
+      "status": "reviewed"
+    },
+    "0619f00eb1296d7e81ec9c508194f7e601c1eb92bf976460c76efcfdf6843780": {
+      "source": "The value returned when no option with ZXQOBFARYN0QXZ exists.",
+      "translation": "ZXQOBFARYN0QXZ に該当するオプションが存在しない場合に返す値。",
+      "status": "reviewed"
+    },
+    "f5b0b1bda5770d04e78ebc0e7421290f9454d9ee950d5e7bcc47569acfd204b1": {
+      "source": "If a supplied value cannot be parsed as an ZXQOBFARYN0QXZ.",
+      "translation": "指定された値を ZXQOBFARYN0QXZ として解析できない場合。",
+      "status": "reviewed"
+    },
+    "cdeb9dd2681b449010cdb33be15717ec53260ddbf0c996cc68646112954c9192": {
+      "source": "Lists supplied keys, not necessarily every key supported by a platform implementation. Option names and their interpretation are defined by the consuming platform.",
+      "translation": "指定されたキーを列挙しますが、プラットフォーム実装がサポートするすべてのキーとは限りません。オプション名とその解釈は、利用するプラットフォームが定義します。",
+      "status": "reviewed"
+    },
+    "2ae9fbcfb4c260107caeca76e622034865bb422ba0f3d39d4d96a18549220ef0": {
+      "source": "The value of the required option as a string.",
+      "translation": "必須オプションの文字列値。",
+      "status": "reviewed"
+    },
+    "3eee4941c9664bb4f3a18e99d85fb6cf92959e1f5c46583060f9427ec0999b9d": {
+      "source": "The name of the required option.",
+      "translation": "必須オプションの名前。",
+      "status": "reviewed"
+    },
+    "b4edac68cbfcae90f4362eac4d3cd1a4655ff74ba0e5a652726ac498b4bf1f39": {
+      "source": "If the option with the specified name is not present.",
+      "translation": "指定した名前のオプションが存在しない場合。",
+      "status": "reviewed"
+    },
+    "5d8bd6b73e76f2863a91aa75c5fff43fc4237a2a892c50ff68f6438a19f10e84": {
+      "source": "Constructs a new instance of platform metadata using the provided builder configuration.",
+      "translation": "指定したビルダー設定を使用して、プラットフォームメタデータの新しいインスタンスを構築します。",
+      "status": "reviewed"
+    },
+    "d5d780bf1421b551ae82dbb68d13c84986c6380cc45ef02d7ee41ca2b5f61206": {
+      "source": "This function allows the caller to define platform metadata properties such as the identifier, display name, implementation version, API version, and description using a lambda configuration block. The resulting metadata can be used to describe platform-specific characteristics and compatibility details. Set ZXQOBFARYN0QXZ, ZXQOBFARYN1QXZ, ZXQOBFARYN2QXZ, and ZXQOBFARYN3QXZ to non-blank strings. ZXQOBFARYN4QXZ defaults to ZXQOBFARYN5QXZ and must be positive.",
+      "translation": "この関数では、ラムダ設定ブロックを使って、識別子、表示名、実装バージョン、APIバージョン、説明などのプラットフォームメタデータプロパティを定義できます。生成されたメタデータは、プラットフォーム固有の特性と互換性の詳細を表すために使用できます。ZXQOBFARYN0QXZ、ZXQOBFARYN1QXZ、ZXQOBFARYN2QXZ、ZXQOBFARYN3QXZ には空白でない文字列を設定してください。ZXQOBFARYN4QXZ のデフォルトは ZXQOBFARYN5QXZ であり、正の値でなければなりません。",
+      "status": "reviewed"
+    },
+    "d123f7a13ef8b886f5f6497eb9103aedcd28210205ace91548f12702e75d428b": {
+      "source": "A new instance of ZXQOBFARYN0QXZ containing the configured values.",
+      "translation": "設定した値を含む ZXQOBFARYN0QXZ の新しいインスタンス。",
+      "status": "reviewed"
+    },
+    "f4645538692918ee9bc19f87d4184818e0f88d01cd68f6027f92df4ccc3f97e3": {
+      "source": "A lambda function used to configure the platform metadata.                 The builder provides mutable properties for setting                 the platform's identifier, display name, versioning details,                 and description.",
+      "translation": "プラットフォームメタデータの設定に使用するラムダ関数。ビルダーは、プラットフォームの識別子、表示名、バージョン情報、説明を設定するための可変プロパティを提供します。",
+      "status": "reviewed"
     }
   }
 }
