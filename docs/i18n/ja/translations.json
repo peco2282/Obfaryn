@@ -2776,6 +2776,231 @@
       "source": "Request host frame recomputation for generated branches or changed control flow.",
       "translation": "生成した分岐または変更した制御フローのために、ホストへフレームの再計算を要求します。",
       "status": "reviewed"
+    },
+    "d9c2cfb32ad3164075c7fd911bfd3c102b3e1d1c7042aa7dcc96f02434f03536": {
+      "source": "Count for the most recent invocation, including a class-local budget candidate.",
+      "translation": "直近の呼び出しに対する件数です。クラスローカルバジェットの候補を含みます。",
+      "status": "reviewed"
+    },
+    "13c0162697072a4e3385a53db30ff79f87b35b9531310a817f1e8ad0949f36f7": {
+      "source": "Renders this renamer's ZXQOBFARYN0QXZ/ZXQOBFARYN1QXZ/ZXQOBFARYN2QXZ/ZXQOBFARYN3QXZ as the canonical textual mapping via ZXQOBFARYN4QXZ, the single authority for the on-disk format.",
+      "translation": "この名前変更処理のZXQOBFARYN0QXZ/ZXQOBFARYN1QXZ/ZXQOBFARYN2QXZ/ZXQOBFARYN3QXZを、ディスク上の形式を一元管理するZXQOBFARYN4QXZを通じて、正規のテキストマッピングとして出力します。",
+      "status": "reviewed"
+    },
+    "f01e30c04ca8bbe358e045fec7d93d70d91b76316e7b8ac1e0271e37488dce24": {
+      "source": "Returns diagnostics for the most recent ZXQOBFARYN0QXZ invocation.",
+      "translation": "直近のZXQOBFARYN0QXZ呼び出しに対する診断情報を返します。",
+      "status": "reviewed"
+    },
+    "1b79e73c01157586e3326fa70a590fa723b80150453230b45062a19f01502bc1": {
+      "source": "Best-effort explanation for an unchanged method, without consuming randomness or mutating it.",
+      "translation": "乱数を消費したりメソッドを変更したりせず、変更されなかった理由を可能な範囲で説明します。",
+      "status": "reviewed"
+    },
+    "973a41fb957a26e32de8ffac6a3358c2e68f2608825073a7d04927fba5758754": {
+      "source": "Executes the transformation on the provided ZXQOBFARYN0QXZ.",
+      "translation": "指定されたZXQOBFARYN0QXZに変換を適用します。",
+      "status": "reviewed"
+    },
+    "e515a8e5a64e234b72ba96ed17872929814a3ba9526e7b116d8743ab547097c3": {
+      "source": "Run before these passes when they are registered. Missing IDs are ignored.",
+      "translation": "これらの変換パスが登録されている場合、その前に実行します。存在しないIDは無視されます。",
+      "status": "reviewed"
+    },
+    "c871a13d814bf04b00512684675004274080ba4e945d265ad2e5b404b65b463f": {
+      "source": "The unique identifier for this transformer.",
+      "translation": "このTransformerの一意な識別子です。",
+      "status": "reviewed"
+    },
+    "9fea95b9b3805088cc25c07d1d083467301ab1d82ea60e44f943306df2fa93bb": {
+      "source": "Opts into class-atomic body budgeting and diagnostics. The host supplies one candidate class in classes, full read-only dependency lookup, and buffered class injection. Resource mutation and class removal are forbidden. Leave null for global/custom passes that need other semantics.",
+      "translation": "クラス単位でアトミックなメソッド本体バジェット管理と診断を有効にします。ホストはclassesに候補クラスを1つ、依存関係全体への読み取り専用参照、バッファーされたクラス注入機能を提供します。リソースの変更とクラスの削除は禁止されます。異なる動作を必要とするグローバルまたは独自の変換パスではnullのままにしてください。",
+      "status": "reviewed"
+    },
+    "062f16794d1c5864f6be6ad9878c22d27d209f9c810197c674b0990651edf83e": {
+      "source": "Original-to-new method name, keyed by the method's original identity.",
+      "translation": "メソッドの元の識別子をキーとする、元のメソッド名から新しいメソッド名への対応です。",
+      "status": "reviewed"
+    },
+    "e285557c2ea83b890dd6beaa197947c78814e9721a97dfc0ae65aaffdf12441a": {
+      "source": "The execution order/priority of this transformer in the pipeline.",
+      "translation": "パイプライン内でのこのTransformerの実行順または優先度です。",
+      "status": "reviewed"
+    },
+    "0ecbe5501e16b87ec3afe4ac923c1e063bc1534b3e7a08550b0358f7c9b842be": {
+      "source": "Original-to-new internal package name (ZXQOBFARYN0QXZ-separated, no trailing ZXQOBFARYN1QXZ), for a renamer that relocates whole packages (e.g. package flattening). Empty by default. A ZXQOBFARYN2QXZ descriptor's ZXQOBFARYN3QXZ/ZXQOBFARYN4QXZ directives are rewritten from this map by host renaming infrastructure; a package absent from this map is reported unchanged, so a renamer should only publish an entry when it moved every class originally in that package — never a partial/best-effort guess.",
+      "translation": "パッケージ全体を移動する名前変更処理（パッケージのフラット化など）における、元の内部パッケージ名から新しい内部パッケージ名への対応です。名前はZXQOBFARYN0QXZ区切りで、末尾にZXQOBFARYN1QXZを付けません。デフォルトは空です。ZXQOBFARYN2QXZディスクリプターのZXQOBFARYN3QXZ/ZXQOBFARYN4QXZディレクティブは、ホストの名前変更基盤によってこのマップから書き換えられます。このマップにないパッケージは未変更として報告されます。そのため、元々そのパッケージにあった全クラスを移動した場合にだけエントリを公開し、部分的または推測によるエントリを公開してはいけません。",
+      "status": "reviewed"
+    },
+    "971ea807aced960359a3fce8c8087d75ba65fcd99d9f4dc0388868714f4f808c": {
+      "source": "Encodes one literal at build time without modifying application bytecode.",
+      "translation": "アプリケーションのバイトコードを変更せず、ビルド時に1つのリテラルをエンコードします。",
+      "status": "reviewed"
+    },
+    "e75345fb3f6ba88065a989dfb6bcc0fbc80a2794a8465828ec8a7bbbbe616ecd": {
+      "source": "Arguments understood by the body emitted by ZXQOBFARYN0QXZ.",
+      "translation": "ZXQOBFARYN0QXZが生成するメソッド本体で解釈される引数です。",
+      "status": "reviewed"
+    },
+    "07bb03049cb31c865e1307920808053f0c93cb41c30d0931207217796ec8c30f": {
+      "source": "Original JVM string, including any surrogate code units.",
+      "translation": "サロゲートコード単位も含む、元のJVM文字列です。",
+      "status": "reviewed"
+    },
+    "9dbf866755fbbc3405c4875b51134dda7c56289a09239ea4d195b0e73dcc16b1": {
+      "source": "Host-selected key; use it or return a different effective key explicitly.",
+      "translation": "ホストが選択した鍵です。この鍵を使用するか、異なる有効な鍵を明示的に返してください。",
+      "status": "reviewed"
+    },
+    "7fecdc03f7e6ed9827e3f8db5ef2c2749f2ac8e0d8d1e0ff800ddc6696705b8b": {
+      "source": "Fills a fresh static method with descriptor ZXQOBFARYN0QXZ. Local slots 0 and 1 contain the payload and effective key returned by ZXQOBFARYN1QXZ. Preserve the supplied name, descriptor and access flags; emit a body returning the original string with ARETURN and set maxStack/maxLocals. Supply valid stack map frames for branches unless the host explicitly enables frame recomputation. The method belongs to ZXQOBFARYN2QXZ, which can also be an interface. It is generated once per class with encrypted strings. The host caches and interns decoded literals in fixed per-class slots. Concurrent first calls may decode the same slot more than once, so generated decoding must be deterministic and safe for concurrent invocation. Referenced runtime code must exist in the output or on its runtime classpath; the codec implementation itself is not bundled.",
+      "translation": "ディスクリプターZXQOBFARYN0QXZを持つ新しいstaticメソッドの本体を設定します。ローカルスロット0と1には、ZXQOBFARYN1QXZが返したペイロードと有効な鍵が格納されています。指定された名前、ディスクリプター、アクセスフラグを保持してください。元の文字列をARETURNで返す本体を出力し、maxStackとmaxLocalsを設定します。ホストがフレーム再計算を明示的に有効にしていない限り、分岐には有効なStackMapフレームを提供してください。メソッドはZXQOBFARYN2QXZに属し、これはinterfaceの場合もあります。暗号化文字列を持つクラスごとに一度生成されます。ホストはデコード済みリテラルを固定されたクラス単位のスロットでキャッシュし、internします。並行する初回呼び出しで同じスロットが複数回デコードされる可能性があるため、生成するデコード処理は決定的で、並行呼び出しに対して安全でなければなりません。参照するランタイムコードは出力内または実行時クラスパス上に存在する必要があります。Codec実装自体は同梱されません。",
+      "status": "reviewed"
+    },
+    "a3ad3a8cba33163566d8b5c38f4a436d7c1caee8d258fda5cd933fd94805caaa": {
+      "source": "JVM internal name of the class receiving the generated method.",
+      "translation": "生成メソッドを受け取るクラスのJVM内部名です。",
+      "status": "reviewed"
+    },
+    "232c6e72ef16337a711c851803b27efa62e43be60f55c4e7e4fec10d12950246": {
+      "source": "Fresh method whose body and stack/local limits must be populated.",
+      "translation": "メソッド本体とスタックおよびローカル変数の上限を設定する必要がある、新しいメソッドです。",
+      "status": "reviewed"
+    },
+    "5defe87d228b88313708a35e3f205791fb2b7f86c0af1b05665e34b90368718a": {
+      "source": "Couples build-time string encryption with runtime decryption bytecode generation. Implementations need only depend on obfaryn-api, not on the standard transformers. The invariant is ZXQOBFARYN0QXZ for one encryption result, including empty strings and Unicode UTF-16 code units. Both payload and key appear in output bytecode; this API does not guarantee cryptographic secrecy.",
+      "translation": "ビルド時の文字列暗号化と、実行時の復号バイトコード生成を組み合わせます。実装は標準Transformerではなく、obfaryn-apiだけに依存すれば十分です。空文字列とUnicode UTF-16コード単位を含め、1回の暗号化結果に対する不変条件はZXQOBFARYN0QXZです。ペイロードと鍵はどちらも出力バイトコードに現れます。このAPIは暗号学的な機密性を保証しません。",
+      "status": "reviewed"
+    },
+    "0f9e098b28acac028e0dc3341967f09815a3d37bada83d05073e20c73d9b60d7": {
+      "source": "ZXQOBFARYN0QXZ runs at build time and is ordinary Kotlin; ZXQOBFARYN1QXZ emits the bytecode that reverses it at run time, so the two must agree exactly. The decoder is easiest to write by first stating the Java it has to emit, then producing that with ASM:",
+      "translation": "ZXQOBFARYN0QXZはビルド時に通常のKotlinコードとして実行されます。ZXQOBFARYN1QXZは実行時にその処理を逆転するバイトコードを出力するため、両者は正確に一致しなければなりません。デコーダーは、まず出力すべきJavaコードを記述し、次にASMでそのコードを生成すると実装しやすくなります。",
+      "status": "reviewed"
+    },
+    "0d95ff09b0daf6e1b69ce7c977b1fe28ed6f02c52f31089886ccc332c6af05e0": {
+      "source": "A real codec typically splits ZXQOBFARYN0QXZ itself (see its doc) and uses a run-dependent key; the shape above is what each method must satisfy, not a required algorithm.",
+      "translation": "実際のCodecでは通常、ZXQOBFARYN0QXZ自体を分割し（そのドキュメントを参照）、実行ごとの鍵を使用します。上記の形は各メソッドが満たすべき条件であり、必須のアルゴリズムではありません。",
+      "status": "reviewed"
+    },
+    "a6d973bc1d5881d22984f25ba3df0bd7324163ae46af41cb405ed780bb032c7a": {
+      "source": "Constants passed to the generated decryptor, including the effective key.",
+      "translation": "有効な鍵を含む、生成済み復号処理へ渡す定数です。",
+      "status": "reviewed"
+    },
+    "e3e7b2979ee911062aa1180dd2fbf4510a96bf4490f1885d078e722c96dc2492": {
+      "source": "Actual key supplied to the runtime decryptor; it may differ from the requested key.",
+      "translation": "実行時の復号処理へ実際に渡す鍵です。要求された鍵と異なる場合があります。",
+      "status": "reviewed"
+    },
+    "f670508110e22f85b531eaf321e3b73ad8a8baa31002c3fda1b765301bdda219": {
+      "source": "Encoded string passed to the generated decoder. The standard transformer splits oversized payloads into legal constant-pool chunks and assembles them on first use.",
+      "translation": "生成済みデコーダーへ渡すエンコード済み文字列です。標準Transformerは、大きすぎるペイロードを定数プールの制限内のチャンクへ分割し、初回使用時に組み立てます。",
+      "status": "reviewed"
+    },
+    "306070503ad267db4a8a90dd4e077319727e6fac995f90f70a2a097887e535fe": {
+      "source": "Unknown application scope must not broaden constant conversion to library classes.",
+      "translation": "アプリケーションスコープが不明な場合、定数変換の対象をライブラリクラスまで広げてはいけません。",
+      "status": "reviewed"
+    },
+    "3b399c17bce775018dd894ec3241bc075271d836b0086ab7d5f6d8bf2cbfc492": {
+      "source": "Default analysis for hosts that cannot supply run-specific information.",
+      "translation": "実行固有の情報を提供できないホスト向けのデフォルト解析です。",
+      "status": "reviewed"
+    },
+    "59bc74660633b2a33f432e441bccbed09b047dad2ec97f4022f4708e33cb0d74": {
+      "source": "Run-specific scope, preservation rules and analysis supplied by the execution host.",
+      "translation": "実行ホストが提供する、実行固有のスコープ、保持ルール、解析情報です。",
+      "status": "reviewed"
+    },
+    "d4c854c6d3a6ffa0f67957cbb5b6b516c634e32bf87712096215dcd8573687f2": {
+      "source": "Consume this through ZXQOBFARYN0QXZ rather than caching decisions between runs. Names are JVM internal names (ZXQOBFARYN1QXZ), not resource paths or descriptors. These analysis decisions do not replace the permission checks in ZXQOBFARYN2QXZ.",
+      "translation": "実行間で判断をキャッシュせず、ZXQOBFARYN0QXZを通じてこれを利用してください。名前はJVM内部名（ZXQOBFARYN1QXZ）であり、リソースパスやディスクリプターではありません。これらの解析判断はZXQOBFARYN2QXZの許可チェックを置き換えるものではありません。",
+      "status": "reviewed"
+    },
+    "8757f31721430c0f005dfc92d25ab91407eb085aa43c2c1866a87095eba1585f": {
+      "source": "Whether ZXQOBFARYN0QXZ belongs to the application's configured or inferred package scope. Defaults to ZXQOBFARYN1QXZ: missing scope must not select bundled library classes for conversion.",
+      "translation": "ZXQOBFARYN0QXZが、設定または推定されたアプリケーションのパッケージスコープに属するかどうかを示します。デフォルトはZXQOBFARYN1QXZです。スコープが不明な場合、同梱されたライブラリクラスを変換対象として選択してはいけません。",
+      "status": "reviewed"
+    },
+    "67bea094793a10814e2fb6697f07abd4f9df9285e5b30e957351ba526a344417": {
+      "source": "Whether the constant field ZXQOBFARYN0QXZ declared by ZXQOBFARYN1QXZ must retain its constant representation. Consult this before moving a ConstantValue into executable initialization code, together with ZXQOBFARYN2QXZ. The default supplies no additional keep rule.",
+      "translation": "定数フィールドZXQOBFARYN0QXZがZXQOBFARYN1QXZによって宣言され、定数としての表現を保持しなければならないかどうかを示します。ConstantValueを実行可能な初期化コードへ移動する前に、ZXQOBFARYN2QXZと併せて確認してください。デフォルトでは追加のkeepルールを提供しません。",
+      "status": "reviewed"
+    },
+    "f182a0ec8b0e78453db9e1a539d2878a70a1bf4b3658684bc48a657c1819e7b2": {
+      "source": "Stable original identity, including after the built-in renamer.",
+      "translation": "組み込みの名前変更処理を適用した後も維持される、安定した元の識別子です。",
+      "status": "reviewed"
+    },
+    "b81e4841145a38a31b073fe736afa85ebf70fd519c961b348a2e2ede795c1ccf": {
+      "source": "Whether this run requests removal of Kotlin metadata from ZXQOBFARYN0QXZ. This is a selection decision, not permission to remove other metadata. Consult ZXQOBFARYN1QXZ as well. Defaults to preserving Kotlin metadata.",
+      "translation": "この実行でZXQOBFARYN0QXZからKotlinメタデータを削除するよう要求されているかどうかを示します。これは対象選択の判断であり、他のメタデータを削除する許可ではありません。ZXQOBFARYN1QXZも確認してください。デフォルトではKotlinメタデータを保持します。",
+      "status": "reviewed"
+    },
+    "331cb7eae05f0185739e2caca6fc23073c5009665e45ea1ddb7ae64aa7a20e85": {
+      "source": "Permits body, metadata, and constant-field transformations via the default method implementations. This does not override target selection, keep rules, or a pass's bytecode safety requirements.",
+      "translation": "デフォルトのメソッド実装を通じて、メソッド本体、メタデータ、定数フィールドの変換を許可します。対象選択、keepルール、または変換パスのバイトコード安全要件を上書きするものではありません。",
+      "status": "reviewed"
+    },
+    "af52f4ce4c75164b3b1bbee658c3bef3d0d57069bbbbbca81f19c7fa6574e90d": {
+      "source": "Determines whether the bytecode body of the given ZXQOBFARYN0QXZ within ZXQOBFARYN1QXZ can be modified.",
+      "translation": "指定されたZXQOBFARYN0QXZがZXQOBFARYN1QXZ内にある場合、そのバイトコード本体を変更できるかどうかを判定します。",
+      "status": "reviewed"
+    },
+    "8f7b7098f93006978df8197dc14e38d4081369ccd021450824012d1517dfcc84": {
+      "source": "Call this before editing instructions, exception handlers, or other method-body structures. Returning ZXQOBFARYN0QXZ permits a change but does not guarantee that a particular pass supports the method.",
+      "translation": "命令、例外ハンドラー、その他のメソッド本体構造を編集する前に呼び出してください。ZXQOBFARYN0QXZを返す場合は変更が許可されますが、特定の変換パスがそのメソッドをサポートすることまでは保証しません。",
+      "status": "reviewed"
+    },
+    "0d2d6b1a72d31f9ab590c40f91a8f5220c7731b4da8c2a70c7192810ca3fda63": {
+      "source": "ZXQOBFARYN0QXZ if the transformer is permitted to rewrite or mutate the method body, ZXQOBFARYN1QXZ otherwise.",
+      "translation": "Transformerがメソッド本体を書き換えまたは変更できる場合はZXQOBFARYN0QXZ、それ以外はZXQOBFARYN1QXZです。",
+      "status": "reviewed"
+    },
+    "b35b37e0ca07177a881e53742659689c6beb0e69b1b5b11d8b9c8002986efa15": {
+      "source": "The <span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span> declaring or containing the target method.",
+      "translation": "対象メソッドを宣言または保持する<span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span>です。",
+      "status": "reviewed"
+    },
+    "28eb29d79fe5555e48d3ba8d7a4d21da4a725d086c85c62aa285fde3549c2300": {
+      "source": "The <span data-unresolved-link=\"org.objectweb.asm.tree/MethodNode///PointingToDeclaration/\">MethodNode</span> candidate for body transformation.",
+      "translation": "メソッド本体変換の候補となる<span data-unresolved-link=\"org.objectweb.asm.tree/MethodNode///PointingToDeclaration/\">MethodNode</span>です。",
+      "status": "reviewed"
+    },
+    "7b32284a30fddafe6da3a778b2f560530ff8587a9f384005ba9d0920231d3033": {
+      "source": "Feature permission supplements, and must not bypass, legacy body policy.",
+      "translation": "機能ごとの許可は従来のメソッド本体ポリシーを補うものであり、回避してはいけません。",
+      "status": "reviewed"
+    },
+    "7fc77ebd15ffc9ed7987a49fd5ff766be378648a5aa0b5c0db865aeae498e840": {
+      "source": "Permission to move ZXQOBFARYN0QXZ's ConstantValue into executable initialization code in ZXQOBFARYN1QXZ.",
+      "translation": "ZXQOBFARYN0QXZのConstantValueを、ZXQOBFARYN1QXZ内の実行可能な初期化コードへ移動する許可です。",
+      "status": "reviewed"
+    },
+    "0d118db045966740bed3c83acce98b124075814255f977bb3e341f072b0050a9": {
+      "source": "Defaults to ZXQOBFARYN0QXZ. Also consult ZXQOBFARYN1QXZ and check that the destination initializer may be transformed; permission does not establish bytecode eligibility.",
+      "translation": "デフォルトはZXQOBFARYN0QXZです。ZXQOBFARYN1QXZも確認し、移動先の初期化子を変換できることを検査してください。許可だけではバイトコードの適格性は保証されません。",
+      "status": "reviewed"
+    },
+    "1e8dd6d500fa757f251533f07c6ef179e945080feae513420209900e7d374a5a": {
+      "source": "Whether constant-field conversion is permitted for this declaration.",
+      "translation": "この宣言に対して定数フィールド変換が許可されているかどうかを示します。",
+      "status": "reviewed"
+    },
+    "be18e687ec907ad4d024ad66b255231f871550836e0eb36bc8973ec36edb198e": {
+      "source": "Permission to strip metadata belonging to ZXQOBFARYN0QXZ and its fields.",
+      "translation": "ZXQOBFARYN0QXZとそのフィールドに属するメタデータを除去する許可です。",
+      "status": "reviewed"
+    },
+    "75d57bded667dffd10c1d070bc45b268f207e64f85a9d943afdb134d140c6be8": {
+      "source": "Defaults to ZXQOBFARYN0QXZ, independently of ZXQOBFARYN1QXZ. A lambda implementation only customizes body permission; implement an object and override this method to restrict metadata.",
+      "translation": "デフォルトはZXQOBFARYN0QXZであり、ZXQOBFARYN1QXZとは独立しています。ラムダ実装でカスタマイズできるのはメソッド本体の許可だけです。メタデータを制限するには、オブジェクトを実装してこのメソッドを上書きしてください。",
+      "status": "reviewed"
+    },
+    "a7441effb15be63944d18716500194e9698f27e9e7120598e158cd499bac494f": {
+      "source": "Whether a metadata pass may edit this class's metadata.",
+      "translation": "メタデータ変換パスがこのクラスのメタデータを編集できるかどうかを示します。",
+      "status": "reviewed"
     }
   }
 }
