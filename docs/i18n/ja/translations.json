@@ -2101,6 +2101,231 @@
       "source": "Body-pass package selection is per artifact, mirroring single-artifact ZXQOBFARYN0QXZ: ZXQOBFARYN1QXZ starts this artifact from an empty pipeline instead of the standard recipe, and ZXQOBFARYN2QXZ names additional provider-supplied packages (resolved on the host/extension classloader). The global rename runs regardless; any renamer a selected package registers is dropped, as for the standard one.",
       "translation": "メソッド本体パスのパッケージ選択はアーティファクト単位であり、単一アーティファクトのZXQOBFARYN0QXZと同じです。ZXQOBFARYN1QXZは標準レシピの代わりに空のパイプラインからこのアーティファクトを開始し、ZXQOBFARYN2QXZはプロバイダーが提供する追加パッケージ名を指定します。これらはホストまたは拡張クラスローダーで解決されます。グローバルな名前変更は常に実行されます。選択したパッケージが登録した名前変更処理は、標準の名前変更処理と同様に破棄されます。",
       "status": "reviewed"
+    },
+    "f3dc8f19f56233a994c13c571b6eb3a08ea1470d3afbd29877790f8c5be40f93": {
+      "source": "One input artifact taking part in a cross-artifact assembly.",
+      "translation": "複数アーティファクトにまたがるアセンブリに参加する1つの入力アーティファクトです。",
+      "status": "reviewed"
+    },
+    "4eb6b9c5a90b998c83f95aa6f99aee0cf59af8ee71b0f9401cb8354a838856e4": {
+      "source": "An assembly renames every participating artifact in a single naming universe, so an API symbol and the implementation and consumer references to it receive one consistent decision. This contract describes only what the host needs to place an artifact in that universe: where its bytecode comes from, where its transformed bytecode goes, and a stable identity used to route renamed classes back to their originating artifact when the result is split.",
+      "translation": "アセンブリは参加するすべてのアーティファクトを単一の名前空間で名前変更するため、APIシンボルと、それを参照する実装およびコンシューマーに一貫した1つの判断が適用されます。この契約は、ホストがアーティファクトをその名前空間へ配置するために必要な情報だけを定義します。具体的には、バイトコードの入力元、変換済みバイトコードの出力先、および結果の再分割時に名前変更済みクラスを元のアーティファクトへ戻すための安定した識別子です。",
+      "status": "reviewed"
+    },
+    "0417ffacd97f610e1e5c4938fd510a3ed29e77545c35066876d9c7dcee76d646": {
+      "source": "The obfuscation settings for an artifact (platform selection, body-pass choices, flags, seed) are intentionally not part of this API contract; they belong to the recipe layer that drives the session. Implementations pair this descriptor with those settings.",
+      "translation": "アーティファクトの難読化設定（プラットフォーム選択、メソッド本体パスの選択、フラグ、シード）は、意図的にこのAPI契約へ含めていません。これらはセッションを駆動するレシピ層に属します。実装は、この記述子とそれらの設定を組み合わせます。",
+      "status": "reviewed"
+    },
+    "d228458bea87de336ffa381dea519c205de4faa5a236f202499d7f730b9d995a": {
+      "source": "The input JAR for this artifact.",
+      "translation": "このアーティファクトの入力JARです。",
+      "status": "reviewed"
+    },
+    "c4eaadd563e2c290237a09dc163576674d8d56e7987b4f638c2028c01af86874": {
+      "source": "The destination JAR for this artifact's transformed output.",
+      "translation": "このアーティファクトの変換済み出力を書き込むJARです。",
+      "status": "reviewed"
+    },
+    "7ad8b1f4a34d3d9a7cc88717d827a4bad745c83a57559c1d311b13685ddcf152": {
+      "source": "A stable identifier for this artifact, unique within the session.",
+      "translation": "このアーティファクトの安定した識別子です。セッション内で一意でなければなりません。",
+      "status": "reviewed"
+    },
+    "a92e5dbecba6161733cf142bb5e81bc45ad67bad9abb9fcbd1e748af3a3f6c75": {
+      "source": "It is the sole basis for deciding which transformed classes are written back to this artifact, so it must stay constant for the lifetime of the session and must not collide with another participating artifact's identifier.",
+      "translation": "どの変換済みクラスをこのアーティファクトへ書き戻すかは、この識別子だけを根拠に決定されます。そのため、セッションの存続中は一定でなければならず、参加する別のアーティファクトの識別子と衝突してはいけません。",
+      "status": "reviewed"
+    },
+    "5041208e05d17b2549c1a6cb918903806fc4104d18d3966197a42318351814f9": {
+      "source": "Original internal package roots used by the host for application scope.",
+      "translation": "ホストがアプリケーションスコープの判定に使用する、元の内部パッケージルートです。",
+      "status": "reviewed"
+    },
+    "40803587321f6891788d28b652a7d66fcb9d1ef46bd3a839e7fa75e52edc40e3": {
+      "source": "Resolved compile/runtime classpath available while assembling passes.",
+      "translation": "変換パスの構築中に利用できる、解決済みのコンパイル時および実行時クラスパスです。",
+      "status": "reviewed"
+    },
+    "4dd1c48a5c7c7837d73ec9b6c9d86c1d374cb218ad37eb4c7f63232f7ba636b5": {
+      "source": "Effective platform configuration for this run.",
+      "translation": "この実行で有効なプラットフォーム設定です。",
+      "status": "reviewed"
+    },
+    "5b8692cf2180aa1cc6dc280475d19b64d45dcc7613fd7cb2a8442977f914995b": {
+      "source": "Shared run-wide obfuscation state (renaming tables, secrets, reporting).",
+      "translation": "実行全体で共有する難読化状態（名前変更テーブル、秘密情報、レポート）です。",
+      "status": "reviewed"
+    },
+    "55752b33dc613eb8eaa38e31b5d1f7d42cd4fcc7a5617f4e64a8549a7c2de7f6": {
+      "source": "Hide an entry from body passes and preserve its name. Direct lookups remain available.",
+      "translation": "エントリをメソッド本体パスから隠し、その名前を保持します。直接参照は引き続き利用できます。",
+      "status": "reviewed"
+    },
+    "7cd5cd32a32dd03125bfccf1c9ed57d980dbd9e0dd8826e69297c6b925360522": {
+      "source": "Hide a resource entry from resource-rewriting passes.",
+      "translation": "リソースエントリをリソース書き換えパスから隠します。",
+      "status": "reviewed"
+    },
+    "7c929b1e84b1f8657f4c8fcff2cf825e6963f5f208cbd39b91cc0e7952f56d4e": {
+      "source": "Host services available while assembling a fresh run; no standard implementation is required.",
+      "translation": "新しい実行を構築するときに利用できるホストサービスです。標準実装は必要ありません。",
+      "status": "reviewed"
+    },
+    "e8361acaceee493144e8796fafcf3009867bf84e12140b949b43d753d93d90f0": {
+      "source": "Registers output work in package order. afterWrite is never called for dry runs.",
+      "translation": "パッケージ順に出力処理を登録します。dry runではafterWriteが呼び出されることはありません。",
+      "status": "reviewed"
+    },
+    "36e2d94967b558682a72dd7b8e7daa54920dfd6d2cd62166c53d233dc7e4405c": {
+      "source": "Protect a dependency/key from being overwritten by the host's artifact destinations.",
+      "translation": "依存関係または鍵を、ホストのアーティファクト出力先による上書きから保護します。",
+      "status": "reviewed"
+    },
+    "262c3eaa5c581a973486725be5c618d64fa2b5534ed8e045d77edb31db4068f0": {
+      "source": "The artifact being transformed.",
+      "translation": "変換対象のアーティファクトです。",
+      "status": "reviewed"
+    },
+    "8690b09c9339e9c432bf65f31872ca507444638aa2b639da945b87caf9f96a75": {
+      "source": "Effective platform options for this run.",
+      "translation": "この実行で有効なプラットフォームオプションです。",
+      "status": "reviewed"
+    },
+    "427327bc865f4c3fff452fbff8b26df50a1e998c299328b796df11af4c62983f": {
+      "source": "Destination for the transformed artifact.",
+      "translation": "変換済みアーティファクトの出力先です。",
+      "status": "reviewed"
+    },
+    "052fcea6a02c92c5ff9d6caaebaf72f3047f0f4efa21d40d83015c72f2f69f54": {
+      "source": "Run-scoped random source; use this instead of a fresh ZXQOBFARYN0QXZ for reproducibility.",
+      "translation": "実行スコープの乱数源です。再現性を保つため、新しいZXQOBFARYN0QXZを作成せず、これを使用してください。",
+      "status": "reviewed"
+    },
+    "846964f506545de16be3bd0eebb8666fad76d6030127dbbd11b9a38cada7d9ac": {
+      "source": "Whether the host requested a byte-for-byte reproducible output for identical inputs/options.",
+      "translation": "入力とオプションが同一の場合に、ホストがバイト単位で再現可能な出力を要求したかどうかを示します。",
+      "status": "reviewed"
+    },
+    "73b30743b4f1fb72c4f3576c369a6d2762f0d704b56725907118e63f9f94c85f": {
+      "source": "The outcome of one cross-artifact assembly run.",
+      "translation": "複数アーティファクトにまたがる1回のアセンブリ実行の結果です。",
+      "status": "reviewed"
+    },
+    "843a845d3ae98f8bb80637a791e1c15f457b32dc888297f246dad3f8ef795f47": {
+      "source": "The rename decision is made once for the whole program, so the session produces a single cross-artifact mapping even though it writes one JAR per artifact. Writing several JARs is not a single transaction: a failure can leave only some of them written.",
+      "translation": "名前変更はプログラム全体について一度だけ決定されるため、アーティファクトごとに1つのJARを書き込む場合でも、セッションが生成するアーティファクト間マッピングは1つです。複数JARの書き込みは単一のトランザクションではありません。失敗すると、一部のJARだけが書き込まれた状態になる可能性があります。",
+      "status": "reviewed"
+    },
+    "0ffb88eb3f28933f3fbdfe1f42986b5288a10e9975ec84a2be177014e5293756": {
+      "source": "The single cross-artifact mapping covering every renamed class, method, field and package across all artifacts, in the same text form a single-artifact run emits.",
+      "translation": "すべてのアーティファクトにまたがる、名前変更済みの全クラス、メソッド、フィールド、パッケージを含む単一のアーティファクト間マッピングです。単一アーティファクト実行と同じテキスト形式を使用します。",
+      "status": "reviewed"
+    },
+    "2db204254ab75cfc0f0e464952de9df3fe90d1a8ef327d959351577b50840a6c": {
+      "source": "The destination JAR written for each artifact, keyed by ZXQOBFARYN0QXZ.",
+      "translation": "アーティファクトごとに書き込まれた出力先JARです。ZXQOBFARYN0QXZをキーとします。",
+      "status": "reviewed"
+    },
+    "6016756a3637eba8d3d2574cc7b5f54634579e8da54f6db73468eef4cd09fe6d": {
+      "source": "The transformation reports produced for each artifact, keyed by ZXQOBFARYN0QXZ.",
+      "translation": "アーティファクトごとに生成された変換レポートです。ZXQOBFARYN0QXZをキーとします。",
+      "status": "reviewed"
+    },
+    "97669cb8ccf8e099cbfa853d3590b2a1d1eb5252bc374278e54bddbeba0605be": {
+      "source": "Runs after the output archive at ZXQOBFARYN0QXZ has been fully written; never called for dry runs.",
+      "translation": "ZXQOBFARYN0QXZにある出力アーカイブが完全に書き込まれた後に実行されます。dry runでは呼び出されません。",
+      "status": "reviewed"
+    },
+    "8cd21d023257cb787c54e69fb1cc6cf3b57a6f88a16e7ef70e4632bb26fbd2a1": {
+      "source": "Runs before any entry is written to the output archive.",
+      "translation": "出力アーカイブへエントリを書き込み始める前に実行されます。",
+      "status": "reviewed"
+    },
+    "871c9a3dd8ae22b7ad4fceb29d550b90bf7ca733ec1923c55937c1ec1c848709": {
+      "source": "Optional archive lifecycle work, supplied by packages rather than hard-coded in the engine.",
+      "translation": "エンジンへ直接組み込まず、パッケージから提供する任意のアーカイブライフサイクル処理です。",
+      "status": "reviewed"
+    },
+    "cf55626b8b5a5ceb727e5cec516fa6dc5abaa80f4acffd216f0ade7e699551de": {
+      "source": "Platform-specific recipes use the same registry and contracts as user-supplied recipes.",
+      "translation": "プラットフォーム固有のレシピも、ユーザー提供のレシピと同じレジストリおよび契約を使用します。",
+      "status": "reviewed"
+    },
+    "6f18affa6a8d822123fd544a6db642dc0cc6503d339ee2146e89bbc65d98af4c": {
+      "source": "The platform's own recipes to run for this ZXQOBFARYN0QXZ/ZXQOBFARYN1QXZ, in order.",
+      "translation": "このZXQOBFARYN0QXZ/ZXQOBFARYN1QXZについて実行する、プラットフォーム自身のレシピです。指定順に実行されます。",
+      "status": "reviewed"
+    },
+    "3564aa42a5ab292834788b6fbb8815663f8cfdaefb2d3521151fbd884e714f0d": {
+      "source": "Creates a fresh ZXQOBFARYN0QXZ instance configured from ZXQOBFARYN1QXZ.",
+      "translation": "新しいZXQOBFARYN0QXZインスタンスを作成し、ZXQOBFARYN1QXZから設定します。",
+      "status": "reviewed"
+    },
+    "847029873ad6f29cf39cf6dea9fe0d3d491954a746587e8af22732f2140302a4": {
+      "source": "Stable identifier used to select this provider explicitly, such as via CLI/Gradle configuration.",
+      "translation": "CLIまたはGradle設定などから、このプロバイダーを明示的に選択するための安定した識別子です。",
+      "status": "reviewed"
+    },
+    "878f1ed3e8a7b8fbfe8857f8775f2a7f451949cd362063c7a3a829ad418fcdb5": {
+      "source": "ServiceLoader entry point. Merely installing a provider never selects its package.",
+      "translation": "ServiceLoaderのエントリーポイントです。プロバイダーをインストールしただけで、そのパッケージが選択されることはありません。",
+      "status": "reviewed"
+    },
+    "cc4a258887b8c71e9a817c14130db0f92ad0c6178b4c10912afae41cb9134db3": {
+      "source": "Registers this package's passes against ZXQOBFARYN0QXZ using services exposed by ZXQOBFARYN1QXZ.",
+      "translation": "このパッケージの変換パスをZXQOBFARYN0QXZへ登録し、その際にZXQOBFARYN1QXZが公開するサービスを使用します。",
+      "status": "reviewed"
+    },
+    "89b80ab035f169583e4f338949296868d359ce735454a53ea37f3bfc6a93e779": {
+      "source": "A reusable recipe. Construct stateful passes inside ZXQOBFARYN0QXZ, once per run; a package must not cache state across runs, since the same instance may be reused by a host across them.",
+      "translation": "再利用可能なレシピです。状態を持つ変換パスは、実行ごとに一度、ZXQOBFARYN0QXZ内で作成してください。ホストが同じインスタンスを複数の実行で再利用する可能性があるため、パッケージは実行をまたいで状態をキャッシュしてはいけません。",
+      "status": "reviewed"
+    },
+    "500bdddeb6c0566f6c2aae764176567929631a003ff6d9d40a79ad6dda612422": {
+      "source": "Represents a resource entry consisting of a name and associated binary data.",
+      "translation": "名前と、それに対応するバイナリデータで構成されるリソースエントリです。",
+      "status": "reviewed"
+    },
+    "ef8dbb2b5eabfdede454778a832d89969dd44df7873f5b50daa31f1df46700fe": {
+      "source": "The ZXQOBFARYN0QXZ class is used to store and manage entries of resources, where each resource is uniquely identified by its name and holds an array of binary data.",
+      "translation": "ZXQOBFARYN0QXZクラスはリソースエントリの保存と管理に使用します。各リソースは名前によって一意に識別され、バイナリデータの配列を保持します。",
+      "status": "reviewed"
+    },
+    "f045d1a58089910a63933d6271303a4ab4e7094b4e4d04a91309ec43281185db": {
+      "source": "Equality between two instances of ZXQOBFARYN0QXZ is determined by comparing both their ZXQOBFARYN1QXZ values and the contents of the ZXQOBFARYN2QXZ arrays. The custom implementation of ZXQOBFARYN3QXZ ensures that two resource entries are considered equal only if their names and binary data are identical. Similarly, the ZXQOBFARYN4QXZ function is overridden to generate hash codes based on both properties.",
+      "translation": "2つのZXQOBFARYN0QXZインスタンスが等しいかどうかは、ZXQOBFARYN1QXZの値とZXQOBFARYN2QXZ配列の内容の両方を比較して決定します。ZXQOBFARYN3QXZの独自実装により、名前とバイナリデータの両方が同一の場合にだけ、2つのリソースエントリを等しいものと見なします。同様に、ZXQOBFARYN4QXZ関数も、両方のプロパティに基づいてハッシュコードを生成するよう上書きされています。",
+      "status": "reviewed"
+    },
+    "93beb281b8d7b7ed6b1a930b713eb624642c03e71d160356ee33ea2414547dad": {
+      "source": "This class is typically utilized in contexts where resources are identified by a string key and need to be stored, retrieved, or modified in bulk.",
+      "translation": "通常は、リソースを文字列キーで識別し、一括で保存、取得、変更する必要がある場面で使用します。",
+      "status": "reviewed"
+    },
+    "29af0c0e5835fd1a38814679e742fadc130803f968e9359479948ee8e7d7ba95": {
+      "source": "ZXQOBFARYN0QXZ is retained and exposed without copying. Mutating it changes content-based equality and the hash code, so do not modify the array while this entry is a hash-based collection key. The generated ZXQOBFARYN1QXZ also shares the array unless a replacement is supplied; use ZXQOBFARYN2QXZ for an independent byte array.",
+      "translation": "ZXQOBFARYN0QXZはコピーされずに保持、公開されます。変更すると内容に基づく等価性とハッシュコードも変わるため、このエントリをハッシュベースのコレクションのキーとしている間は配列を変更しないでください。生成されるZXQOBFARYN1QXZも、置換を指定しない限り同じ配列を共有します。独立したバイト配列が必要な場合はZXQOBFARYN2QXZを使用してください。",
+      "status": "reviewed"
+    },
+    "8525048a1a4c890dca8e38544826526c186d9e9c467288da8e2b7f251b272c17": {
+      "source": "Raw resource bytes shared with the caller, without encoding assumptions.",
+      "translation": "エンコーディングに関する前提を設けず、呼び出し側と共有する未加工のリソースバイト列です。",
+      "status": "reviewed"
+    },
+    "1732d5ab769ca3bde6617a1f0e5ee5366d9036ef1e6f22adc8d0b5c2c9849d3b": {
+      "source": "Archive-relative resource path, such as ZXQOBFARYN0QXZ; no validation is performed here.",
+      "translation": "ZXQOBFARYN0QXZなどの、アーカイブを基準とするリソースパスです。ここでは検証を行いません。",
+      "status": "reviewed"
+    },
+    "7bfad405107f9d02d630941a96fc73ea30cda836aa844069d7123ee4bf0b0004": {
+      "source": "Built-in names only; custom IDs do not require global registration.",
+      "translation": "組み込み名だけを対象とします。独自IDをグローバルに登録する必要はありません。",
+      "status": "reviewed"
+    },
+    "583f023a35b54c8af05d3872f5981b0b7ae534b20b5c77dd822fd0b57e5151c8": {
+      "source": "Independent ordinary body passes. Enabling one never selects interpreter conversion.",
+      "translation": "互いに独立した通常のメソッド本体パスです。いずれかを有効にしても、インタープリター変換が選択されることはありません。",
+      "status": "reviewed"
     }
   }
 }
