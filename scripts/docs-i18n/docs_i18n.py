@@ -23,6 +23,7 @@ SCHEMA_VERSION = 2
 TRANSLATABLE_SELECTOR = "p.paragraph"
 PROTECTED_SELECTOR = "a, code, pre, .symbol"
 TOKEN_PATTERN = re.compile(r"ZXQOBFARYN(\d+)QXZ")
+LANGUAGE_STYLESHEET = Path(__file__).with_name("docs-i18n.css")
 HIGH_RISK = re.compile(
     r"\b(must(?:\s+not)?|nullable|non-null|thread-safe|not\s+thread-safe|"
     r"throws?|exception|security|required|forbidden|unless|only\s+if)\b",
@@ -207,14 +208,48 @@ def inject_switch(page: Path, relative: Path, localized: bool) -> None:
   depth = len(relative.parts) - 1
   if localized:
     target = "../" * (depth + 1) + relative.as_posix()
-    label = "English"
+    current = "日本語"
   else:
     target = "../" * depth + "ja/" + relative.as_posix()
-    label = "日本語"
-  link = soup.new_tag("a", href=target)
-  link["class"] = "docs-language-switch"
-  link.string = label
-  controls.insert(0, link)
+    current = "English"
+
+  stylesheet = soup.new_tag(
+      "link",
+      rel="stylesheet",
+      href="../" * depth + "styles/docs-i18n.css",
+  )
+  if soup.head:
+    soup.head.append(stylesheet)
+
+  menu = soup.new_tag("details")
+  menu["class"] = "docs-language-switch"
+  summary = soup.new_tag("summary")
+  summary["aria-label"] = f"Language: {current}"
+  icon = soup.new_tag("span")
+  icon["class"] = "docs-language-icon"
+  icon["aria-hidden"] = "true"
+  icon.string = "文"
+  label = soup.new_tag("span")
+  label["class"] = "docs-language-current"
+  label.string = current
+  summary.extend([icon, label])
+  menu.append(summary)
+
+  options = soup.new_tag("nav")
+  options["class"] = "docs-language-options"
+  options["aria-label"] = "Languages"
+  for language in ("English", "日本語"):
+    if language == current:
+      option = soup.new_tag("span")
+      option["aria-current"] = "page"
+      option["class"] = "docs-language-option is-active"
+    else:
+      option = soup.new_tag("a", href=target)
+      option["class"] = "docs-language-option"
+    option.string = language
+    options.append(option)
+  menu.append(options)
+  controls.insert(0, menu)
   page.write_text(str(soup), encoding="utf-8")
 
 
@@ -224,6 +259,10 @@ def build(args: argparse.Namespace) -> int:
   shutil.copytree(args.input, args.output)
   localized = args.output / args.locale
   shutil.copytree(args.input, localized)
+  for root in (args.output, localized):
+    styles = root / "styles"
+    styles.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(LANGUAGE_STYLESHEET, styles / LANGUAGE_STYLESHEET.name)
   catalog = read_json(args.catalog)
   translations = read_json(args.translations)
   for english_page in html_files(args.output):
@@ -241,7 +280,11 @@ def build(args: argparse.Namespace) -> int:
 def normalized_structure(path: Path) -> tuple[list[str], list[str], list[str]]:
   require_html_parser()
   soup = BeautifulSoup(path.read_text(encoding="utf-8"), "html.parser")
-  links = [node.get("href", "") for node in soup.select("a[href]") if "docs-language-switch" not in node.get("class", [])]
+  links = [
+      node.get("href", "")
+      for node in soup.select("a[href]")
+      if node.find_parent(class_="docs-language-switch") is None
+  ]
   symbols = [node.get_text(" ", strip=True) for node in soup.select(".symbol")]
   code = [node.get_text(" ", strip=True) for node in soup.select("code, pre")]
   return links, symbols, code

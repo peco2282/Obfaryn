@@ -1,0 +1,121 @@
+.docs-language-switch {
+  position: relative;
+  color: var(--color-w100);
+  font-size: 14px;
+}
+
+.docs-language-switch summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 112px;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  color: var(--color-w100);
+  border: 1px solid var(--color-w21);
+  border-radius: 6px;
+  background: var(--color-w08);
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.docs-language-switch summary::-webkit-details-marker {
+  display: none;
+}
+
+.docs-language-switch summary::after {
+  width: 6px;
+  height: 6px;
+  margin-left: auto;
+  content: "";
+  transition: transform 150ms ease-in-out;
+  transform: translateY(-2px) rotate(45deg);
+  border-right: 2px solid var(--color-w70);
+  border-bottom: 2px solid var(--color-w70);
+}
+
+.docs-language-switch summary:hover,
+.docs-language-switch[open] summary {
+  background: var(--color-w16);
+}
+
+.docs-language-switch summary:focus-visible {
+  outline: 4px solid var(--color-key-blue-50);
+  outline-offset: 2px;
+}
+
+.docs-language-switch[open] summary::after {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.docs-language-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--color-w80);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.docs-language-options {
+  position: absolute;
+  z-index: 1000;
+  top: calc(100% + 8px);
+  right: 0;
+  overflow: hidden;
+  min-width: 144px;
+  padding: 4px;
+  border: 1px solid var(--color-w21);
+  border-radius: 8px;
+  background: var(--color-background-nav-dt);
+  box-shadow: 0 8px 24px var(--color-b50);
+}
+
+.docs-language-option {
+  display: block;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: var(--color-w100);
+  border-radius: 4px;
+  line-height: 20px;
+}
+
+a.docs-language-option:hover,
+a.docs-language-option:focus-visible {
+  text-decoration: none;
+  color: var(--color-w100);
+  background: var(--color-key-blue);
+}
+
+a.docs-language-option:focus-visible {
+  outline: 2px solid var(--color-w100);
+  outline-offset: -2px;
+}
+
+.docs-language-option.is-active {
+  color: var(--color-w70);
+  background: var(--color-w08);
+}
+
+@media (width < 760px) {
+  .docs-language-switch summary {
+    min-width: 48px;
+    width: 48px;
+    height: 52px;
+    padding: 0 12px;
+    border-top: 0;
+    border-bottom: 0;
+    border-radius: 0;
+  }
+
+  .docs-language-current,
+  .docs-language-switch summary::after {
+    display: none;
+  }
+}
