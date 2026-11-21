@@ -34,6 +34,7 @@ dependencies {
   testImplementation(project(":obfaryn-standard"))
   testImplementation(platform(libs.junit5.bom))
   testImplementation(libs.junit.jupiter)
+  testRuntimeOnly(project(":obfaryn-platform-kit"))
   testRuntimeOnly(libs.junit.platform.launcher)
 }
 
