@@ -1,11 +1,11 @@
 [versions]
 asm = "9.11.1"
 jmh = "1.37"
-kotlinx-coroutines = "1.9.0"
-kotlinx-serialization = "1.9.0"
+kotlinx-coroutines = "1.11.0"
+kotlinx-serialization = "1.13.0"
 junit5 = "5.6.0"
 junit6 = "6.0.0"
-kotlin = "2.1.21"
+kotlin = "2.4.21"
 picocli = "4.7.7"
 
 [libraries]
