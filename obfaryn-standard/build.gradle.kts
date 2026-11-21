@@ -33,7 +33,7 @@ dependencies {
   testImplementation(kotlin("reflect"))
   testImplementation(kotlin("compiler-embeddable"))
   // Compatibility fixtures only; Gson/Jackson are not part of Obfaryn's production dependency surface.
-  testImplementation("com.google.code.gson:gson:2.14.0")
+  testImplementation("com.google.code.gson:gson:2.15.0")
   testImplementation("com.fasterxml.jackson.core:jackson-databind:2.15.3")
   testImplementation(libs.kotlinx.coroutines.core)
   testImplementation(libs.junit.jupiter)
