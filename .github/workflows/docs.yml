@@ -25,12 +25,41 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scripts/docs-i18n/requirements.txt
       - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
+      - run: python -m pip install -r scripts/docs-i18n/requirements.txt
       - run: ./gradlew dokkaGeneratePublicationHtml
+      - name: Synchronize translation catalog with English docs
+        run: >-
+          python scripts/docs-i18n/docs_i18n.py sync
+          --input build/dokka/html
+          --catalog docs/i18n/ja/catalog.json
+      - name: Validate reviewed translations
+        run: >-
+          python scripts/docs-i18n/docs_i18n.py validate-translations
+          --catalog docs/i18n/ja/catalog.json
+          --translations docs/i18n/ja/translations.json
+      - name: Build English and Japanese API docs
+        run: >-
+          python scripts/docs-i18n/docs_i18n.py build
+          --input build/dokka/html
+          --output build/docs-pages
+          --catalog docs/i18n/ja/catalog.json
+          --translations docs/i18n/ja/translations.json
+          --locale ja
+      - name: Verify localized API structure
+        run: >-
+          python scripts/docs-i18n/docs_i18n.py verify
+          --english build/dokka/html
+          --localized build/docs-pages/ja
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:
-          path: build/dokka/html
+          path: build/docs-pages
 
   deploy:
     needs: build

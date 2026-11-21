@@ -8,10 +8,10 @@
   <a href="LICENSE"><img src="https://img.shields.io/github/license/peco2282/Obfaryn?color=brightgreen" alt="License: MPL-2.0"></a>
   <img src="https://img.shields.io/badge/Java-8%2B-ED8B00?logo=openjdk&logoColor=white" alt="Java 8+ (library & CLI bytecode)">
   <img src="https://img.shields.io/badge/Kotlin-2.1-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin 2.1 (language level)">
-  <a href="https://peco2282.github.io/Obfaryn/"><img src="https://img.shields.io/badge/API%20docs-Dokka-025997" alt="API docs"></a>
+  <a href="https://peco2282.github.io/Obfaryn/ja/"><img src="https://img.shields.io/badge/API%20docs-Dokka-025997" alt="API docs"></a>
 </p>
 
-[English](README.md) · [APIドキュメント](https://peco2282.github.io/Obfaryn/)
+[English](README.md) · [APIドキュメント](https://peco2282.github.io/Obfaryn/ja/)
 
 ASMベースのKotlin/JVM・Java JAR難読化ツールです: 文字列/数値リテラル暗号化、クラス・メソッド・フィールドのリネーム、任意の制御フロー・呼び出し間接化保護、VM風メソッド仮想化、オフライン整合性封印。リリースは[Maven Central](https://central.sonatype.com/namespace/com.peco2282.obfaryn)で公開しています。
 

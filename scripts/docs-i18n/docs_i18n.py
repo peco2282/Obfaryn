@@ -113,6 +113,7 @@ def sync(args: argparse.Namespace) -> int:
       entries[key] = current
       continue
     previous.update(current)
+    previous.pop("orphaned", None)
     previous.pop("translation", None)
     previous.pop("status", None)
     previous.pop("engine", None)

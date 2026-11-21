@@ -32,13 +32,15 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-flow-protection/entries.html#paragraph-1": {
       "source": "This method may be used to iterate over the enum entries.",
       "sourceHash": "49872b197a64155a3747e1d58caa94eca4a0daa980467fd43b6a94201c11d8d8",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-flow-protection/index.html#paragraph-0": {
       "source": "Explicit control-flow protection override for ZXQOBFARYN0QXZ.",
@@ -84,43 +86,50 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-flow-protection/index.html#paragraph-7": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-flow-protection/index.html#paragraph-8": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-flow-protection/value-of.html#paragraph-0": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-flow-protection/value-of.html#paragraph-1": {
       "source": "if this enum type has no constant with the specified name",
       "sourceHash": "a51723ac105da2fc826628261f53e57178060293a7e9560e7aca0f9c11eb204e",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-flow-protection/values.html#paragraph-0": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-flow-protection/values.html#paragraph-1": {
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-hot-path/index.html#paragraph-0": {
       "source": "Prevents runtime body obfuscation (strings, numbers, control flow, and virtualization).",
@@ -216,13 +225,15 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-protection-mode/entries.html#paragraph-1": {
       "source": "This method may be used to iterate over the enum entries.",
       "sourceHash": "49872b197a64155a3747e1d58caa94eca4a0daa980467fd43b6a94201c11d8d8",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-protection-mode/index.html#paragraph-0": {
       "source": "Per-feature enable/disable override for ZXQOBFARYN0QXZ's properties.",
@@ -254,43 +265,50 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-protection-mode/index.html#paragraph-5": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-protection-mode/index.html#paragraph-6": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-protection-mode/value-of.html#paragraph-0": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-protection-mode/value-of.html#paragraph-1": {
       "source": "if this enum type has no constant with the specified name",
       "sourceHash": "a51723ac105da2fc826628261f53e57178060293a7e9560e7aca0f9c11eb204e",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-protection-mode/values.html#paragraph-0": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-protection-mode/values.html#paragraph-1": {
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-protection/index.html#paragraph-0": {
       "source": "Per-feature permission, inherited from class to method. Global pass enablement still applies. Existing NoObfuscation, RenameOnly and HotPath restrictions cannot be overridden here. Virtualization selection remains exclusively controlled by Virtualize and explicit selectors.",
@@ -972,13 +990,15 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api.protection/-control-flow-mode/entries.html#paragraph-1": {
       "source": "This method may be used to iterate over the enum entries.",
       "sourceHash": "49872b197a64155a3747e1d58caa94eca4a0daa980467fd43b6a94201c11d8d8",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api.protection/-control-flow-mode/index.html#paragraph-0": {
       "source": "Explicit control-flow protection selection for one method.",
@@ -1025,43 +1045,50 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api.protection/-control-flow-mode/index.html#paragraph-7": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api.protection/-control-flow-mode/index.html#paragraph-8": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api.protection/-control-flow-mode/value-of.html#paragraph-0": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api.protection/-control-flow-mode/value-of.html#paragraph-1": {
       "source": "if this enum type has no constant with the specified name",
       "sourceHash": "a51723ac105da2fc826628261f53e57178060293a7e9560e7aca0f9c11eb204e",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api.protection/-control-flow-mode/values.html#paragraph-0": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api.protection/-control-flow-mode/values.html#paragraph-1": {
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api.protection/-method-transformation-report/index.html#paragraph-0": {
       "source": "A pass decision for one method. Counts exclude labels, line numbers and stack-map frames. Code-byte counts are conservative ASM upper estimates, not measured native/JIT code sizes.",
@@ -3069,13 +3096,15 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-action/entries.html#paragraph-1": {
       "source": "This method may be used to iterate over the enum entries.",
       "sourceHash": "49872b197a64155a3747e1d58caa94eca4a0daa980467fd43b6a94201c11d8d8",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-action/index.html#paragraph-0": {
       "source": "Transformation intent associated with an annotation descriptor by an ZXQOBFARYN0QXZ.",
@@ -3132,43 +3161,50 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-action/index.html#paragraph-8": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-action/index.html#paragraph-9": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-action/value-of.html#paragraph-0": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-action/value-of.html#paragraph-1": {
       "source": "if this enum type has no constant with the specified name",
       "sourceHash": "a51723ac105da2fc826628261f53e57178060293a7e9560e7aca0f9c11eb204e",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-action/values.html#paragraph-0": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-action/values.html#paragraph-1": {
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-provider/index.html#paragraph-0": {
       "source": "Adds platform-specific annotation mappings, for example for third-party framework annotations. Return this extension from ZXQOBFARYN0QXZ; adding policies does not require adding the mapped annotation classes to Obfaryn's own annotation module. Policies are applied after content contributions, including to contributed classes. Both runtime-visible and runtime-invisible annotations are recognized. Field policies support ZXQOBFARYN1QXZ and ZXQOBFARYN2QXZ; method-body and virtualization actions have no field-level effect.",
@@ -3235,13 +3271,15 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-target/entries.html#paragraph-1": {
       "source": "This method may be used to iterate over the enum entries.",
       "sourceHash": "49872b197a64155a3747e1d58caa94eca4a0daa980467fd43b6a94201c11d8d8",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-target/index.html#paragraph-0": {
       "source": "Declaration kinds on which a policy's annotation descriptor is recognized. Policies are ignored on declarations outside their ZXQOBFARYN0QXZ.",
@@ -3273,43 +3311,50 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-target/index.html#paragraph-5": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-target/index.html#paragraph-6": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-target/value-of.html#paragraph-0": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-target/value-of.html#paragraph-1": {
       "source": "if this enum type has no constant with the specified name",
       "sourceHash": "a51723ac105da2fc826628261f53e57178060293a7e9560e7aca0f9c11eb204e",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-target/values.html#paragraph-0": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-target/values.html#paragraph-1": {
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy/action.html#paragraph-0": {
       "source": "Transformation intent associated with matching annotations.",
@@ -3395,13 +3440,15 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-archive-contribution-mode/entries.html#paragraph-1": {
       "source": "This method may be used to iterate over the enum entries.",
       "sourceHash": "49872b197a64155a3747e1d58caa94eca4a0daa980467fd43b6a94201c11d8d8",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-archive-contribution-mode/index.html#paragraph-0": {
       "source": "Determines whether an archive's contents enter the pipeline or remain opaque resource data.",
@@ -3435,43 +3482,50 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-archive-contribution-mode/index.html#paragraph-5": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-archive-contribution-mode/index.html#paragraph-6": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-archive-contribution-mode/value-of.html#paragraph-0": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-archive-contribution-mode/value-of.html#paragraph-1": {
       "source": "if this enum type has no constant with the specified name",
       "sourceHash": "a51723ac105da2fc826628261f53e57178060293a7e9560e7aca0f9c11eb204e",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-archive-contribution-mode/values.html#paragraph-0": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-archive-contribution-mode/values.html#paragraph-1": {
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-archive-contributor/contribute.html#paragraph-0": {
       "source": "Contributes archive data to the specified platform context using the provided options and archive sink. This method defines the behavior for generating and adding archives to the platform, enabling further processing or distribution.",
@@ -8605,109 +8659,127 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-code/entries.html#paragraph-1": {
       "source": "This method may be used to iterate over the enum entries.",
       "sourceHash": "49872b197a64155a3747e1d58caa94eca4a0daa980467fd43b6a94201c11d8d8",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-code/index.html#paragraph-0": {
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-code/index.html#paragraph-1": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-code/index.html#paragraph-2": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-code/value-of.html#paragraph-0": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-code/value-of.html#paragraph-1": {
       "source": "if this enum type has no constant with the specified name",
       "sourceHash": "a51723ac105da2fc826628261f53e57178060293a7e9560e7aca0f9c11eb204e",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-code/values.html#paragraph-0": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-code/values.html#paragraph-1": {
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-reason/entries.html#paragraph-0": {
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-reason/entries.html#paragraph-1": {
       "source": "This method may be used to iterate over the enum entries.",
       "sourceHash": "49872b197a64155a3747e1d58caa94eca4a0daa980467fd43b6a94201c11d8d8",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-reason/index.html#paragraph-0": {
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-reason/index.html#paragraph-1": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-reason/index.html#paragraph-2": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-reason/value-of.html#paragraph-0": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-reason/value-of.html#paragraph-1": {
       "source": "if this enum type has no constant with the specified name",
       "sourceHash": "a51723ac105da2fc826628261f53e57178060293a7e9560e7aca0f9c11eb204e",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-reason/values.html#paragraph-0": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-reason/values.html#paragraph-1": {
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-runtime/index.html#paragraph-0": {
       "source": "The ZXQOBFARYN0QXZ class provides an environment for executing a virtual instruction set. It operates on a program encoded as a Base64 string and executes instructions defined by a custom virtual machine. The class is primarily designed to interpret and execute sequences of operations on an operand stack and a local variable array.",
@@ -8721,13 +8793,15 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-selection-mode/entries.html#paragraph-1": {
       "source": "This method may be used to iterate over the enum entries.",
       "sourceHash": "49872b197a64155a3747e1d58caa94eca4a0daa980467fd43b6a94201c11d8d8",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-selection-mode/index.html#paragraph-0": {
       "source": "How selected methods that cannot be virtualized affect the run.",
@@ -8739,43 +8813,50 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-selection-mode/index.html#paragraph-2": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-selection-mode/index.html#paragraph-3": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-selection-mode/value-of.html#paragraph-0": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-selection-mode/value-of.html#paragraph-1": {
       "source": "if this enum type has no constant with the specified name",
       "sourceHash": "a51723ac105da2fc826628261f53e57178060293a7e9560e7aca0f9c11eb204e",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-selection-mode/values.html#paragraph-0": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-selection-mode/values.html#paragraph-1": {
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-transformer/-virtualization-transformer.html#paragraph-0": {
       "source": "Maximum methods sharing one interpreter; must be positive.",
@@ -8865,13 +8946,15 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-kotlin-metadata-mode/entries.html#paragraph-1": {
       "source": "This method may be used to iterate over the enum entries.",
       "sourceHash": "49872b197a64155a3747e1d58caa94eca4a0daa980467fd43b6a94201c11d8d8",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-kotlin-metadata-mode/index.html#paragraph-0": {
       "source": "Controls handling of the ZXQOBFARYN0QXZ annotation.",
@@ -8901,43 +8984,50 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-kotlin-metadata-mode/index.html#paragraph-4": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-kotlin-metadata-mode/index.html#paragraph-5": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-kotlin-metadata-mode/value-of.html#paragraph-0": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-kotlin-metadata-mode/value-of.html#paragraph-1": {
       "source": "if this enum type has no constant with the specified name",
       "sourceHash": "a51723ac105da2fc826628261f53e57178060293a7e9560e7aca0f9c11eb204e",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-kotlin-metadata-mode/values.html#paragraph-0": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-kotlin-metadata-mode/values.html#paragraph-1": {
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscation-config/-companion/index.html#paragraph-0": {
       "source": "Keeps runtime body transformations disabled; callers can opt in with copy().",
@@ -9437,13 +9527,15 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-protection-level/entries.html#paragraph-1": {
       "source": "This method may be used to iterate over the enum entries.",
       "sourceHash": "49872b197a64155a3747e1d58caa94eca4a0daa980467fd43b6a94201c11d8d8",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-protection-level/index.html#paragraph-0": {
       "source": "STRONG defaults to application-scoped control flow and adds output checks and a virtualization report.",
@@ -9455,43 +9547,50 @@
       "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
       "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-protection-level/index.html#paragraph-2": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-protection-level/index.html#paragraph-3": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-protection-level/value-of.html#paragraph-0": {
       "source": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
       "sourceHash": "f08ff9d933080d1919937eeaa4e1c0a60a67114f69a6a784cad9415e90af73b3",
       "protectedNodes": [],
-      "highRisk": true
+      "highRisk": true,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-protection-level/value-of.html#paragraph-1": {
       "source": "if this enum type has no constant with the specified name",
       "sourceHash": "a51723ac105da2fc826628261f53e57178060293a7e9560e7aca0f9c11eb204e",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-protection-level/values.html#paragraph-0": {
       "source": "Returns an array containing the constants of this enum type, in the order they're declared.",
       "sourceHash": "8dabb0208c3502911c8ace85ba3b2c28688bd0e918b8d57014f3948c2a2bebdf",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-protection-level/values.html#paragraph-1": {
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/index.html#paragraph-0": {
       "source": "Controls handling of the ZXQOBFARYN0QXZ annotation.",

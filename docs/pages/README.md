@@ -12,12 +12,15 @@ or Java terminology remain in English.
 
 Generated sites belong under `build/docs-pages` and are never committed.
 
-## Prototype commands
+## Local build commands
 
 ```bash
 ./gradlew dokkaGeneratePublicationHtml
 python3 scripts/docs-i18n/docs_i18n.py sync \
   --input build/dokka/html --catalog docs/i18n/ja/catalog.json
+python3 scripts/docs-i18n/docs_i18n.py validate-translations \
+  --catalog docs/i18n/ja/catalog.json \
+  --translations docs/i18n/ja/translations.json
 python3 scripts/docs-i18n/docs_i18n.py build \
   --input build/dokka/html --output build/docs-pages \
   --catalog docs/i18n/ja/catalog.json \
@@ -26,7 +29,8 @@ python3 scripts/docs-i18n/docs_i18n.py verify \
   --english build/dokka/html --localized build/docs-pages/ja
 ```
 
-Pages builds only consume translations already stored in the catalog, so publishing
-is deterministic and a reviewed translation is never silently replaced. Translation
-is performed during an explicit Codex documentation update, never by the publishing
-workflow.
+The production workflow publishes `build/docs-pages`, preserving English at `/` and
+placing Japanese at `/ja/`. Pages builds consume only translations already stored in
+`docs/i18n/ja/translations.json`, so publishing is deterministic and a reviewed
+translation is never silently replaced. Translation is performed during an explicit
+Codex documentation update, never by the publishing workflow.
