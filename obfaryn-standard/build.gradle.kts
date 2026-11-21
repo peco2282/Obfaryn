@@ -38,8 +38,8 @@ dependencies {
   testImplementation(libs.kotlinx.coroutines.core)
   testImplementation(libs.junit.jupiter)
   testRuntimeOnly(libs.junit.platform.launcher)
-  serializationCompiler("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.1.21")
-  serializationCompiler("org.jetbrains.kotlin:kotlin-serialization-compiler-plugin-embeddable:2.1.21")
+  serializationCompiler("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.4.21")
+  serializationCompiler("org.jetbrains.kotlin:kotlin-serialization-compiler-plugin-embeddable:2.4.21")
   serializationCompiler(libs.kotlinx.serialization.json)
 }
 publishing { publications { create<MavenPublication>("mavenJava") { from(components["java"]); artifact(dokkaJavadocJar) } } }
