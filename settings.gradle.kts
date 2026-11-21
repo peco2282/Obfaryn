@@ -11,7 +11,7 @@ pluginManagement {
   // version resolves to the same one; applying the same plugin id at two different versions across
   // the project hierarchy is what breaks Dokka's aggregation.
   plugins {
-    id("org.jetbrains.dokka") version "2.2.0"
+    id("org.jetbrains.dokka") version "2.3.0"
     id("org.jetbrains.dokka-javadoc") version "2.2.0"
     id("me.champeau.jmh") version "0.7.3"
   }
