@@ -12,7 +12,7 @@ pluginManagement {
   // the project hierarchy is what breaks Dokka's aggregation.
   plugins {
     id("org.jetbrains.dokka") version "2.3.0"
-    id("org.jetbrains.dokka-javadoc") version "2.2.0"
+    id("org.jetbrains.dokka-javadoc") version "2.3.0"
     id("me.champeau.jmh") version "0.7.4"
   }
 }
