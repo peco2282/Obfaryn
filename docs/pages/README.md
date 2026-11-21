@@ -21,6 +21,9 @@ python3 scripts/docs-i18n/docs_i18n.py sync \
 python3 scripts/docs-i18n/docs_i18n.py validate-translations \
   --catalog docs/i18n/ja/catalog.json \
   --translations docs/i18n/ja/translations.json
+python3 scripts/docs-i18n/docs_i18n.py status \
+  --catalog docs/i18n/ja/catalog.json \
+  --translations docs/i18n/ja/translations.json
 python3 scripts/docs-i18n/docs_i18n.py build \
   --input build/dokka/html --output build/docs-pages \
   --catalog docs/i18n/ja/catalog.json \
@@ -34,3 +37,8 @@ placing Japanese at `/ja/`. Pages builds consume only translations already store
 `docs/i18n/ja/translations.json`, so publishing is deterministic and a reviewed
 translation is never silently replaced. Translation is performed during an explicit
 Codex documentation update, never by the publishing workflow.
+
+The `status` command reports reviewed, machine-generated, missing, stale, and
+high-risk missing fragments. GitHub Actions writes the same report to its job
+summary. Missing translations continue to use the English source and do not stop a
+Pages deployment.

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import html
 import json
 import re
 import shutil
@@ -168,6 +169,94 @@ def validate_translations(args: argparse.Namespace) -> int:
   return 0
 
 
+def plain_source(source: str) -> str:
+  text = re.sub(r"<[^>]+>", "", source)
+  return " ".join(html.unescape(text).split())
+
+
+def translation_status(args: argparse.Namespace) -> int:
+  catalog = read_json(args.catalog)
+  translations = read_json(args.translations).get("translations", {})
+  active_by_hash: dict[str, dict] = {}
+  for page, value in catalog.get("entries", {}).items():
+    if value.get("orphaned"):
+      continue
+    digest = value["sourceHash"]
+    current = active_by_hash.setdefault(
+        digest,
+        {
+            "source": value.get("source", ""),
+            "highRisk": False,
+            "pages": [],
+        },
+    )
+    current["highRisk"] = current["highRisk"] or bool(value.get("highRisk"))
+    current["pages"].append(page.split("#", 1)[0])
+
+  reviewed: list[str] = []
+  machine: list[str] = []
+  missing: list[str] = []
+  for digest in sorted(active_by_hash):
+    status = translations.get(digest, {}).get("status")
+    if status == "reviewed":
+      reviewed.append(digest)
+    elif status == "machine":
+      machine.append(digest)
+    else:
+      missing.append(digest)
+  stale = sorted(set(translations) - set(active_by_hash))
+  high_risk_missing = [digest for digest in missing if active_by_hash[digest]["highRisk"]]
+  total = len(active_by_hash)
+  percent = 100.0 if total == 0 else len(reviewed) * 100.0 / total
+
+  lines = [
+      f"Translation coverage ({catalog.get('locale', 'unknown')})",
+      f"Reviewed: {len(reviewed)}/{total} ({percent:.1f}%)",
+      f"Machine: {len(machine)}",
+      f"Missing: {len(missing)}",
+      f"Stale: {len(stale)}",
+      f"High-risk missing: {len(high_risk_missing)}",
+  ]
+  print("\n".join(lines))
+  for digest in missing:
+    value = active_by_hash[digest]
+    marker = " [HIGH RISK]" if value["highRisk"] else ""
+    print(f"- {digest}{marker} {value['pages'][0]}: {plain_source(value['source'])}")
+
+  if args.github_summary:
+    summary = [
+        f"## {catalog.get('locale', 'unknown')} API translation coverage",
+        "",
+        "| State | Unique fragments |",
+        "| --- | ---: |",
+        f"| Reviewed | {len(reviewed)} / {total} ({percent:.1f}%) |",
+        f"| Machine, review required | {len(machine)} |",
+        f"| Missing, English fallback | {len(missing)} |",
+        f"| Stale or unused | {len(stale)} |",
+        f"| High-risk missing | {len(high_risk_missing)} |",
+        "",
+    ]
+    if missing:
+      summary.extend(["<details>", "<summary>Missing translations</summary>", ""])
+      for digest in missing:
+        value = active_by_hash[digest]
+        marker = " **HIGH RISK**" if value["highRisk"] else ""
+        source = plain_source(value["source"]).replace("|", "\\|")
+        summary.append(f"- `{digest}`{marker} — {value['pages'][0]} — {source}")
+      summary.extend(["", "</details>", ""])
+    else:
+      summary.extend(["✅ All active documentation fragments have reviewed translations.", ""])
+    if stale:
+      summary.append(
+          f"ℹ️ {len(stale)} translation(s) are retained but no longer used by the current Dokka output."
+      )
+      summary.append("")
+    args.github_summary.parent.mkdir(parents=True, exist_ok=True)
+    with args.github_summary.open("a", encoding="utf-8") as output:
+      output.write("\n".join(summary))
+  return 0
+
+
 def restore_fragment(translated: str, protected: list[str]) -> str:
   expected = [str(i) for i in range(len(protected))]
   if TOKEN_PATTERN.findall(translated) != expected:
@@ -322,6 +411,11 @@ def parser() -> argparse.ArgumentParser:
   validate_parser.add_argument("--catalog", type=Path, required=True)
   validate_parser.add_argument("--translations", type=Path, required=True)
   validate_parser.set_defaults(run=validate_translations)
+  status_parser = commands.add_parser("status")
+  status_parser.add_argument("--catalog", type=Path, required=True)
+  status_parser.add_argument("--translations", type=Path, required=True)
+  status_parser.add_argument("--github-summary", type=Path)
+  status_parser.set_defaults(run=translation_status)
   build_parser = commands.add_parser("build")
   build_parser.add_argument("--input", type=Path, required=True)
   build_parser.add_argument("--output", type=Path, required=True)

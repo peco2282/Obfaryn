@@ -43,6 +43,12 @@ jobs:
           python scripts/docs-i18n/docs_i18n.py validate-translations
           --catalog docs/i18n/ja/catalog.json
           --translations docs/i18n/ja/translations.json
+      - name: Report translation coverage
+        run: >-
+          python scripts/docs-i18n/docs_i18n.py status
+          --catalog docs/i18n/ja/catalog.json
+          --translations docs/i18n/ja/translations.json
+          --github-summary "$GITHUB_STEP_SUMMARY"
       - name: Build English and Japanese API docs
         run: >-
           python scripts/docs-i18n/docs_i18n.py build
