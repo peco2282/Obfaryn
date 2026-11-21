@@ -23,6 +23,11 @@ updates:
       junit:
         patterns:
           - "org.junit*:*"
+    ignore:
+      # JUnit 6 requires Java 17; library and CLI test classpaths must remain Java 8 compatible.
+      - dependency-name: "org.junit:junit-bom"
+        update-types:
+          - "version-update:semver-major"
 
   - package-ecosystem: "github-actions"
     directory: "/"
