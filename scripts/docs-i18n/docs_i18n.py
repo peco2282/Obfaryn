@@ -35,8 +35,10 @@ GENERATED_DOKKA_TEXT = {
     "This method may be used to iterate over the enum entries.",
     "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)",
     "Returns an array containing the constants of this enum type, in the order they're declared.",
+    "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
     "if this enum type has no constant with the specified name",
     "This method may be used to iterate over the constants.",
+    "The function returns a new instance of the array on every call. The array could be mutated, so working with it may also require defensive copying. Consider using ZXQOBFARYN0QXZ property as a more efficient alternative returning an immutable list of enum entries.",
 }
 
 

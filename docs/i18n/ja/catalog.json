@@ -29,9 +29,11 @@
       "highRisk": false
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-flow-protection/entries.html#paragraph-0": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -83,9 +85,11 @@
       "highRisk": false
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-flow-protection/index.html#paragraph-6": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -128,6 +132,15 @@
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
+      "highRisk": false,
+      "orphaned": true
+    },
+    "obfaryn-annotations/com.peco2282.obfaryn.annotations/-flow-protection/values.html#paragraph-2": {
+      "source": "The function returns a new instance of the array on every call. The array could be mutated, so working with it may also require defensive copying. Consider using ZXQOBFARYN0QXZ property as a more efficient alternative returning an immutable list of enum entries.",
+      "sourceHash": "9c913a17018d73bc900b2f148fa637d91433d8e29a41611498196832ae8389e7",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">entries</code>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -222,9 +235,11 @@
       "highRisk": false
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-protection-mode/entries.html#paragraph-0": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -262,9 +277,11 @@
       "highRisk": false
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-protection-mode/index.html#paragraph-4": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -307,6 +324,15 @@
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
+      "highRisk": false,
+      "orphaned": true
+    },
+    "obfaryn-annotations/com.peco2282.obfaryn.annotations/-protection-mode/values.html#paragraph-2": {
+      "source": "The function returns a new instance of the array on every call. The array could be mutated, so working with it may also require defensive copying. Consider using ZXQOBFARYN0QXZ property as a more efficient alternative returning an immutable list of enum entries.",
+      "sourceHash": "9c913a17018d73bc900b2f148fa637d91433d8e29a41611498196832ae8389e7",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">entries</code>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -916,7 +942,7 @@
       "source": "ZXQOBFARYN0QXZ is retained and exposed without copying. Mutating it changes content-based equality and the hash code, so do not modify the array while this entry is a hash-based collection key. The generated ZXQOBFARYN1QXZ also shares the array unless a replacement is supplied; use ZXQOBFARYN2QXZ for an independent byte array.",
       "sourceHash": "29af0c0e5835fd1a38814679e742fadc130803f968e9359479948ee8e7d7ba95",
       "protectedNodes": [
-        "<a href=\"../../../obfaryn-api/com.peco2282.obfaryn.api.context/-resource-entry/--root--.html\">data</a>",
+        "<a href=\"data.html\">data</a>",
         "<code class=\"lang-kotlin\">copy()</code>",
         "<code class=\"lang-kotlin\">entry.copy(data = entry.data.copyOf())</code>"
       ],
@@ -987,9 +1013,11 @@
       "highRisk": false
     },
     "obfaryn-api/com.peco2282.obfaryn.api.protection/-control-flow-mode/entries.html#paragraph-0": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -1042,9 +1070,11 @@
       "highRisk": false
     },
     "obfaryn-api/com.peco2282.obfaryn.api.protection/-control-flow-mode/index.html#paragraph-6": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -1090,6 +1120,15 @@
       "highRisk": false,
       "orphaned": true
     },
+    "obfaryn-api/com.peco2282.obfaryn.api.protection/-control-flow-mode/values.html#paragraph-2": {
+      "source": "The function returns a new instance of the array on every call. The array could be mutated, so working with it may also require defensive copying. Consider using ZXQOBFARYN0QXZ property as a more efficient alternative returning an immutable list of enum entries.",
+      "sourceHash": "9c913a17018d73bc900b2f148fa637d91433d8e29a41611498196832ae8389e7",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">entries</code>"
+      ],
+      "highRisk": false,
+      "orphaned": true
+    },
     "obfaryn-api/com.peco2282.obfaryn.api.protection/-method-transformation-report/index.html#paragraph-0": {
       "source": "A pass decision for one method. Counts exclude labels, line numbers and stack-map frames. Code-byte counts are conservative ASM upper estimates, not measured native/JIT code sizes.",
       "sourceHash": "4769125dd5abaedf7a465d6e5b35cf6fd407210d13efe02ad030cac61ad0bf37",
@@ -1101,7 +1140,7 @@
       "sourceHash": "4cca08805c8775a2469a02b0d486905897bc3509f1f916d7598a74dde90bf294",
       "protectedNodes": [
         "<code class=\"lang-kotlin\">null</code>",
-        "<a href=\"../../../obfaryn-api/com.peco2282.obfaryn.api.protection/-method-transformation-report/--root--.html\">reason</a>"
+        "<a href=\"reason.html\">reason</a>"
       ],
       "highRisk": false
     },
@@ -1109,7 +1148,7 @@
       "source": "Human-readable explanation for ZXQOBFARYN0QXZ, such as which budget was exceeded.",
       "sourceHash": "c4da7952c655ae5a0beead1346dcf4738bd75e52d4d3e4698f5eb1c9e19275fe",
       "protectedNodes": [
-        "<a href=\"../../../obfaryn-api/com.peco2282.obfaryn.api.protection/-method-transformation-report/--root--.html\">status</a>"
+        "<a href=\"status.html\">status</a>"
       ],
       "highRisk": false
     },
@@ -1168,7 +1207,7 @@
       "source": "Instruction count after the pass, or equal to ZXQOBFARYN0QXZ when rolled back.",
       "sourceHash": "c2c76103c526f44e8b0b6250d479b8cb8a9a3890bb078e95bd510129a944d6eb",
       "protectedNodes": [
-        "<a href=\"../../../obfaryn-api/com.peco2282.obfaryn.api.protection/-method-transformation-report/--root--.html\">inputInstructions</a>"
+        "<a href=\"input-instructions.html\">inputInstructions</a>"
       ],
       "highRisk": false
     },
@@ -1182,9 +1221,9 @@
       "source": "ZXQOBFARYN0QXZ is a full-match regex over the ORIGINAL ZXQOBFARYN1QXZ identity (never the renamed/obfuscated one). When several rules match the same method, later rules in the configured list override earlier ones on a per-property basis: a later rule that leaves ZXQOBFARYN2QXZ at ZXQOBFARYN3QXZ does not clear an earlier rule's explicit choice.",
       "sourceHash": "53ba477226a9d123427fc6db81f18da9a25779b01aca07e16c1383239ba67a7a",
       "protectedNodes": [
-        "<a href=\"../../../obfaryn-api/com.peco2282.obfaryn.api.protection/-protection-rule/--root--.html\">methodPattern</a>",
+        "<a href=\"method-pattern.html\">methodPattern</a>",
         "<code class=\"lang-kotlin\">owner.method(descriptor)</code>",
-        "<a href=\"../../../obfaryn-api/com.peco2282.obfaryn.api.protection/-protection-rule/--root--.html\">controlFlow</a>",
+        "<a href=\"control-flow.html\">controlFlow</a>",
         "<a href=\"../-control-flow-mode/-i-n-h-e-r-i-t/index.html\">ControlFlowMode.INHERIT</a>"
       ],
       "highRisk": false
@@ -1202,7 +1241,7 @@
         "<code class=\"lang-kotlin\">Engine.tick()V</code>",
         "<code class=\"lang-kotlin\">tick</code>",
         "<code class=\"lang-kotlin\">com/example</code>",
-        "<a href=\"../../../obfaryn-api/com.peco2282.obfaryn.api.protection/-protection-rule/--root--.html\">controlFlow</a>",
+        "<a href=\"control-flow.html\">controlFlow</a>",
         "<a href=\"../-control-flow-mode/-i-n-h-e-r-i-t/index.html\">ControlFlowMode.INHERIT</a>"
       ],
       "highRisk": false
@@ -1275,7 +1314,7 @@
       "source": "Roll the pass back when output size exceeds this percentage of input size (100 means no growth allowed beyond ZXQOBFARYN0QXZ); must be at least 100 when set.",
       "sourceHash": "de23d332c1a1d5ee8b08950622291232f5eeeec9beb8308fd6d0dadc34d41145",
       "protectedNodes": [
-        "<a href=\"../../../obfaryn-api/com.peco2282.obfaryn.api.protection/-transformation-budget/--root--.html\">growthAllowanceInstructions</a>"
+        "<a href=\"growth-allowance-instructions.html\">growthAllowanceInstructions</a>"
       ],
       "highRisk": true
     },
@@ -1626,8 +1665,8 @@
       "source": "Selection-only input. Inspect annotations on ZXQOBFARYN0QXZ and ZXQOBFARYN1QXZ; do not mutate ASM nodes.",
       "sourceHash": "adb02e2415ef21ffb3060539ed5d94d830815ff38029aafb3bd6891931c4f235",
       "protectedNodes": [
-        "<a href=\"../../../obfaryn-api/com.peco2282.obfaryn.api.transformer/-number-obfuscation-site/--root--.html\">owner</a>",
-        "<a href=\"../../../obfaryn-api/com.peco2282.obfaryn.api.transformer/-number-obfuscation-site/--root--.html\">method</a>"
+        "<a href=\"owner.html\">owner</a>",
+        "<a href=\"method.html\">method</a>"
       ],
       "highRisk": false
     },
@@ -3031,8 +3070,8 @@
       "source": "Selection-only input. Inspect annotations on ZXQOBFARYN0QXZ and ZXQOBFARYN1QXZ; do not mutate ASM nodes.",
       "sourceHash": "adb02e2415ef21ffb3060539ed5d94d830815ff38029aafb3bd6891931c4f235",
       "protectedNodes": [
-        "<a href=\"../../obfaryn-api/com.peco2282.obfaryn.api.transformer/-number-obfuscation-site/--root--.html\">owner</a>",
-        "<a href=\"../../obfaryn-api/com.peco2282.obfaryn.api.transformer/-number-obfuscation-site/--root--.html\">method</a>"
+        "<a href=\"-number-obfuscation-site/owner.html\">owner</a>",
+        "<a href=\"-number-obfuscation-site/method.html\">method</a>"
       ],
       "highRisk": false
     },
@@ -3093,9 +3132,11 @@
       "highRisk": false
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-action/entries.html#paragraph-0": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -3158,9 +3199,11 @@
       "highRisk": false
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-action/index.html#paragraph-7": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -3203,6 +3246,15 @@
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
+      "highRisk": false,
+      "orphaned": true
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-action/values.html#paragraph-2": {
+      "source": "The function returns a new instance of the array on every call. The array could be mutated, so working with it may also require defensive copying. Consider using ZXQOBFARYN0QXZ property as a more efficient alternative returning an immutable list of enum entries.",
+      "sourceHash": "9c913a17018d73bc900b2f148fa637d91433d8e29a41611498196832ae8389e7",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">entries</code>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -3268,9 +3320,11 @@
       "highRisk": false
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-target/entries.html#paragraph-0": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -3308,9 +3362,11 @@
       "highRisk": false
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-target/index.html#paragraph-4": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -3353,6 +3409,15 @@
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
+      "highRisk": false,
+      "orphaned": true
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api/-annotation-policy-target/values.html#paragraph-2": {
+      "source": "The function returns a new instance of the array on every call. The array could be mutated, so working with it may also require defensive copying. Consider using ZXQOBFARYN0QXZ property as a more efficient alternative returning an immutable list of enum entries.",
+      "sourceHash": "9c913a17018d73bc900b2f148fa637d91433d8e29a41611498196832ae8389e7",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">entries</code>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -3437,9 +3502,11 @@
       "highRisk": true
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-archive-contribution-mode/entries.html#paragraph-0": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -3479,9 +3546,11 @@
       "highRisk": false
     },
     "obfaryn-api/com.peco2282.obfaryn.api/-archive-contribution-mode/index.html#paragraph-4": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -3524,6 +3593,15 @@
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
+      "highRisk": false,
+      "orphaned": true
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api/-archive-contribution-mode/values.html#paragraph-2": {
+      "source": "The function returns a new instance of the array on every call. The array could be mutated, so working with it may also require defensive copying. Consider using ZXQOBFARYN0QXZ property as a more efficient alternative returning an immutable list of enum entries.",
+      "sourceHash": "9c913a17018d73bc900b2f148fa637d91433d8e29a41611498196832ae8389e7",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">entries</code>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -3775,7 +3853,7 @@
       "source": "If ZXQOBFARYN0QXZ is outside ZXQOBFARYN1QXZ.",
       "sourceHash": "7171f24d844eb103ea0951d86e7aef521634246dfa497b5c53f0d33ca4270bd6",
       "protectedNodes": [
-        "<a href=\"../../../obfaryn-api/com.peco2282.obfaryn.api/-default-platform-detection/--root--.html\">confidence</a>",
+        "<a href=\"confidence.html\">confidence</a>",
         "<code class=\"lang-kotlin\">0..100</code>"
       ],
       "highRisk": false
@@ -5634,7 +5712,7 @@
       "sourceHash": "aefc874c01a0a85b3e29707c3a964db1e5f29035437690bdef7a2dd443184d19",
       "protectedNodes": [
         "<code class=\"lang-kotlin\">PlatformProvider</code>",
-        "<a href=\"-companion/metadata.html\">metadata</a>",
+        "<a href=\"metadata.html\">metadata</a>",
         "<a href=\"create.html\">create</a>",
         "<code class=\"lang-kotlin\">ExamplePlatform</code>"
       ],
@@ -6505,9 +6583,9 @@
       "source": "ZXQOBFARYN0QXZ presents every artifact's classes as one ZXQOBFARYN1QXZ sharing the original <span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span> instances (never copies), so the renamer sees one program and rewrites references across artifact boundaries. It carries no resources: resource paths collide between artifacts and are kept local to each one. ZXQOBFARYN2QXZ maps every original internal class name to the id of the artifact that defined it, and is the sole basis for splitting the renamed result back out.",
       "sourceHash": "9500ff7c25a7e2a51fe9a796c885eb5394ad79d2a98500d688f40d422d09bf95",
       "protectedNodes": [
-        "<a href=\"../../../obfaryn-core/com.peco2282.obfaryn.core.assembly/-program-union/--root--.html\">context</a>",
+        "<a href=\"context.html\">context</a>",
         "<a href=\"../../com.peco2282.obfaryn.core.context/-obfuscation-context/index.html\">ObfuscationContext</a>",
-        "<a href=\"../../../obfaryn-core/com.peco2282.obfaryn.core.assembly/-program-union/--root--.html\">origins</a>"
+        "<a href=\"origins.html\">origins</a>"
       ],
       "highRisk": false
     },
@@ -7060,8 +7138,8 @@
       "highRisk": false
     },
     "obfaryn-core/com.peco2282.obfaryn.core.transformer/-filtered-context/index.html#paragraph-1": {
-      "source": "Enumerated maps are filtered snapshots, but their nodes and entries still belong to <span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/FilteredContext//#com.peco2282.obfaryn.api.ObfuscationContext#kotlin.collections.Set[kotlin.String]#kotlin.collections.Set[kotlin.String]/PointingToCallableParameters(0)/\">delegate</span>. Direct lookup, existence checks, and transformation policy are delegated without filtering, allowing a pass to resolve excluded dependencies. Replacing an excluded key is rejected and removing one returns null; other mutations write through. This is a cooperative filtering boundary, not isolation from mutable excluded nodes returned by direct lookup.",
-      "sourceHash": "5576c13007c077ab419bf0bc965e8e6129887f56ee72178856c5e9a41e10a890",
+      "source": "Enumerated maps are filtered snapshots, but their nodes and entries still belong to <span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/FilteredContext/delegate/#/PointingToDeclaration/\">delegate</span>. Direct lookup, existence checks, and transformation policy are delegated without filtering, allowing a pass to resolve excluded dependencies. Replacing an excluded key is rejected and removing one returns null; other mutations write through. This is a cooperative filtering boundary, not isolation from mutable excluded nodes returned by direct lookup.",
+      "sourceHash": "4019ed9ebf74431ee5f2e9027232d85044d5f9056b16c5acdb4816d7b95f0fa8",
       "protectedNodes": [],
       "highRisk": false
     },
@@ -8027,8 +8105,8 @@
       "highRisk": false
     },
     "obfaryn-platform-kit/com.peco2282.obfaryn.platformkit/index.html#paragraph-17": {
-      "source": "ZXQOBFARYN0QXZ plus every method reachable from them by following ZXQOBFARYN1QXZ instructions, restricted to methods on a class accepted by ZXQOBFARYN2QXZ. Constructors and static initializers are traversed but never added as targets in their own right, matching how callers usually only care about reachable <i>behavior</i>, not initialization. A seed outside ZXQOBFARYN3QXZ or missing from this context is dropped silently rather than failing the whole call.",
-      "sourceHash": "9e04becb64c4d5ded5929bc63ffa47c84de0587a92c34ae2a02c854bb22fcf94",
+      "source": "ZXQOBFARYN0QXZ plus every method reachable from them by following ZXQOBFARYN1QXZ instructions, restricted to methods on a class accepted by ZXQOBFARYN2QXZ. Constructors and static initializers are traversed but never added as targets in their own right, matching how callers usually only care about reachable <em>behavior</em>, not initialization. A seed outside ZXQOBFARYN3QXZ or missing from this context is dropped silently rather than failing the whole call.",
+      "sourceHash": "d3cb1d085f5e3ecfeae5c10cbb5f06eeebdbfdde7b63c172475018d6b8ec3525",
       "protectedNodes": [
         "<a href=\"method-call-closure.html\">seeds</a>",
         "<code class=\"lang-kotlin\">invoke*</code>",
@@ -8246,8 +8324,8 @@
       "highRisk": false
     },
     "obfaryn-platform-kit/com.peco2282.obfaryn.platformkit/method-call-closure.html#paragraph-0": {
-      "source": "ZXQOBFARYN0QXZ plus every method reachable from them by following ZXQOBFARYN1QXZ instructions, restricted to methods on a class accepted by ZXQOBFARYN2QXZ. Constructors and static initializers are traversed but never added as targets in their own right, matching how callers usually only care about reachable <i>behavior</i>, not initialization. A seed outside ZXQOBFARYN3QXZ or missing from this context is dropped silently rather than failing the whole call.",
-      "sourceHash": "9e04becb64c4d5ded5929bc63ffa47c84de0587a92c34ae2a02c854bb22fcf94",
+      "source": "ZXQOBFARYN0QXZ plus every method reachable from them by following ZXQOBFARYN1QXZ instructions, restricted to methods on a class accepted by ZXQOBFARYN2QXZ. Constructors and static initializers are traversed but never added as targets in their own right, matching how callers usually only care about reachable <em>behavior</em>, not initialization. A seed outside ZXQOBFARYN3QXZ or missing from this context is dropped silently rather than failing the whole call.",
+      "sourceHash": "d3cb1d085f5e3ecfeae5c10cbb5f06eeebdbfdde7b63c172475018d6b8ec3525",
       "protectedNodes": [
         "<a href=\"method-call-closure.html\">seeds</a>",
         "<code class=\"lang-kotlin\">invoke*</code>",
@@ -8341,9 +8419,9 @@
       "source": "A renamed member with its original internal ZXQOBFARYN0QXZ, ZXQOBFARYN1QXZ, and JVM ZXQOBFARYN2QXZ.",
       "sourceHash": "666a2ca35df6dae6985f9ce3335f32aed30ffdfd504c20fd5ba2720d23168d65",
       "protectedNodes": [
-        "<a href=\"../../../obfaryn-standard/com.peco2282.obfaryn.core.mapping/-mapped-member/--root--.html\">owner</a>",
-        "<a href=\"../../../obfaryn-standard/com.peco2282.obfaryn.core.mapping/-mapped-member/--root--.html\">name</a>",
-        "<a href=\"../../../obfaryn-standard/com.peco2282.obfaryn.core.mapping/-mapped-member/--root--.html\">descriptor</a>"
+        "<a href=\"owner.html\">owner</a>",
+        "<a href=\"name.html\">name</a>",
+        "<a href=\"descriptor.html\">descriptor</a>"
       ],
       "highRisk": false
     },
@@ -8467,9 +8545,9 @@
       "source": "A renamed member with its original internal ZXQOBFARYN0QXZ, ZXQOBFARYN1QXZ, and JVM ZXQOBFARYN2QXZ.",
       "sourceHash": "666a2ca35df6dae6985f9ce3335f32aed30ffdfd504c20fd5ba2720d23168d65",
       "protectedNodes": [
-        "<a href=\"../../obfaryn-standard/com.peco2282.obfaryn.core.mapping/-mapped-member/--root--.html\">owner</a>",
-        "<a href=\"../../obfaryn-standard/com.peco2282.obfaryn.core.mapping/-mapped-member/--root--.html\">name</a>",
-        "<a href=\"../../obfaryn-standard/com.peco2282.obfaryn.core.mapping/-mapped-member/--root--.html\">descriptor</a>"
+        "<a href=\"-mapped-member/owner.html\">owner</a>",
+        "<a href=\"-mapped-member/name.html\">name</a>",
+        "<a href=\"-mapped-member/descriptor.html\">descriptor</a>"
       ],
       "highRisk": false
     },
@@ -8636,8 +8714,8 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-analyzer/index.html#paragraph-1": {
-      "source": "Selectors and exclusions are full-match regexes against original ZXQOBFARYN0QXZ identities. <span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/VirtualizationAnalyzer//#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.String,kotlin.String]/PointingToCallableParameters(2)/\">exactExclusions</span> carries platform performance-policy reasons.",
-      "sourceHash": "9dc6e136cc84030330e9cb60d9ef0fc6c2c4906a6ec56a9aefab59d0edefa9b5",
+      "source": "Selectors and exclusions are full-match regexes against original ZXQOBFARYN0QXZ identities. <span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/VirtualizationAnalyzer/exactExclusions/#/PointingToDeclaration/\">exactExclusions</span> carries platform performance-policy reasons.",
+      "sourceHash": "c87228df557b014b889686c682f11b899db4cd5167cfdad40320c84c63db3555",
       "protectedNodes": [
         "<code class=\"lang-kotlin\">owner.method(descriptor)</code>"
       ],
@@ -8650,15 +8728,20 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-method-analysis/index.html#paragraph-1": {
-      "source": "<span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/VirtualizationMethodAnalysis//#kotlin.String#kotlin.Boolean#kotlin.String?#kotlin.collections.List[kotlin.String]#com.peco2282.obfaryn.core.transformer.MethodIdentity?#kotlin.collections.List[com.peco2282.obfaryn.core.transformer.VirtualizationRejection]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.Int,kotlin.Int]#kotlin.collections.List[kotlin.String]#kotlin.Int#kotlin.Int#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.String#kotlin.Boolean#kotlin.Boolean/PointingToCallableParameters(1)/\">selected</span> is false when no selector matched or a performance policy excluded the method. <span data-unresolved-link=\"com.peco2282.obfaryn.core.transformer/VirtualizationMethodAnalysis//#kotlin.String#kotlin.Boolean#kotlin.String?#kotlin.collections.List[kotlin.String]#com.peco2282.obfaryn.core.transformer.MethodIdentity?#kotlin.collections.List[com.peco2282.obfaryn.core.transformer.VirtualizationRejection]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.Int,kotlin.Int]#kotlin.collections.List[kotlin.String]#kotlin.Int#kotlin.Int#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.String#kotlin.Boolean#kotlin.Boolean/PointingToCallableParameters(5)/\">rejections</span> records unsupported instructions and their locations for selected methods. Counts ignore labels, frames, and line-number nodes.",
-      "sourceHash": "761d831bec53ea53c7f23961224e7e89874ac52d8293d31f109e6d0f7749052d",
-      "protectedNodes": [],
+      "source": "ZXQOBFARYN0QXZ is false when no selector matched or a performance policy excluded the method. ZXQOBFARYN1QXZ records unsupported instructions and their locations for selected methods. Counts ignore labels, frames, and line-number nodes.",
+      "sourceHash": "e2db203c4c89bb05e42d00b8ed32415cd16226bffe27444e8ca9abac5307e4b3",
+      "protectedNodes": [
+        "<a href=\"selected.html\">selected</a>",
+        "<a href=\"rejections.html\">rejections</a>"
+      ],
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-code/entries.html#paragraph-0": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -8670,9 +8753,11 @@
       "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-code/index.html#paragraph-0": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -8718,10 +8803,21 @@
       "highRisk": false,
       "orphaned": true
     },
+    "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-code/values.html#paragraph-2": {
+      "source": "The function returns a new instance of the array on every call. The array could be mutated, so working with it may also require defensive copying. Consider using ZXQOBFARYN0QXZ property as a more efficient alternative returning an immutable list of enum entries.",
+      "sourceHash": "9c913a17018d73bc900b2f148fa637d91433d8e29a41611498196832ae8389e7",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">entries</code>"
+      ],
+      "highRisk": false,
+      "orphaned": true
+    },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-reason/entries.html#paragraph-0": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -8733,9 +8829,11 @@
       "orphaned": true
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-reason/index.html#paragraph-0": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -8781,6 +8879,15 @@
       "highRisk": false,
       "orphaned": true
     },
+    "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-rejection-reason/values.html#paragraph-2": {
+      "source": "The function returns a new instance of the array on every call. The array could be mutated, so working with it may also require defensive copying. Consider using ZXQOBFARYN0QXZ property as a more efficient alternative returning an immutable list of enum entries.",
+      "sourceHash": "9c913a17018d73bc900b2f148fa637d91433d8e29a41611498196832ae8389e7",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">entries</code>"
+      ],
+      "highRisk": false,
+      "orphaned": true
+    },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-runtime/index.html#paragraph-0": {
       "source": "The ZXQOBFARYN0QXZ class provides an environment for executing a virtual instruction set. It operates on a program encoded as a Base64 string and executes instructions defined by a custom virtual machine. The class is primarily designed to interpret and execute sequences of operations on an operand stack and a local variable array.",
       "sourceHash": "2377df1b9a2254ac487eb216f5364ad55f04491abaa5c26bac2d44841551525c",
@@ -8790,9 +8897,11 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-selection-mode/entries.html#paragraph-0": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -8810,9 +8919,11 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-selection-mode/index.html#paragraph-1": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -8855,6 +8966,15 @@
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
+      "highRisk": false,
+      "orphaned": true
+    },
+    "obfaryn-standard/com.peco2282.obfaryn.core.transformer/-virtualization-selection-mode/values.html#paragraph-2": {
+      "source": "The function returns a new instance of the array on every call. The array could be mutated, so working with it may also require defensive copying. Consider using ZXQOBFARYN0QXZ property as a more efficient alternative returning an immutable list of enum entries.",
+      "sourceHash": "9c913a17018d73bc900b2f148fa637d91433d8e29a41611498196832ae8389e7",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">entries</code>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -8943,9 +9063,11 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-kotlin-metadata-mode/entries.html#paragraph-0": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -8981,9 +9103,11 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-kotlin-metadata-mode/index.html#paragraph-3": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -9026,6 +9150,15 @@
       "source": "This method may be used to iterate over the constants.",
       "sourceHash": "383fa462974320a5a602f8e37cf3968cbf7159dedf352117c0905c2194a3905d",
       "protectedNodes": [],
+      "highRisk": false,
+      "orphaned": true
+    },
+    "obfaryn-standard/com.peco2282.obfaryn.core/-kotlin-metadata-mode/values.html#paragraph-2": {
+      "source": "The function returns a new instance of the array on every call. The array could be mutated, so working with it may also require defensive copying. Consider using ZXQOBFARYN0QXZ property as a more efficient alternative returning an immutable list of enum entries.",
+      "sourceHash": "9c913a17018d73bc900b2f148fa637d91433d8e29a41611498196832ae8389e7",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">entries</code>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -9112,15 +9245,19 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscation-config/index.html#paragraph-15": {
-      "source": "Move eligible renamed classes into <span data-unresolved-link=\"com.peco2282.obfaryn.core/ObfuscationConfig//#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.core.KotlinMetadataMode#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Long?#kotlin.String#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.String,kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.collections.List[java.nio.file.Path]#kotlin.Boolean#kotlin.Function1[com.peco2282.obfaryn.api.PlatformConfiguration,kotlin.Unit]?#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.String?#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#java.nio.file.Path?#java.nio.file.Path?#kotlin.Int#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#java.nio.file.Path?#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.api.transformer.StringEncryptionCodec#com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy#com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector#java.util.Random?#java.util.Random?#com.peco2282.obfaryn.core.ProtectionLevel#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Int#kotlin.Boolean#com.peco2282.obfaryn.api.protection.TransformationBudget#kotlin.collections.List[com.peco2282.obfaryn.api.protection.ProtectionRule]#java.nio.file.Path?#com.peco2282.obfaryn.api.protection.ControlFlowMode#kotlin.collections.List[java.nio.file.Path]/PointingToCallableParameters(26)/\">targetPackage</span>.",
-      "sourceHash": "269406deec75e101797a0a2debe93b91ba3f3bf2058f69219b2086697eb7c3e3",
-      "protectedNodes": [],
+      "source": "Move eligible renamed classes into ZXQOBFARYN0QXZ.",
+      "sourceHash": "d5207c7c40e7c8effd0246f1d695071cdba0892672f68dbcd4c13dab554abdf1",
+      "protectedNodes": [
+        "<a href=\"target-package.html\">targetPackage</a>"
+      ],
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscation-config/index.html#paragraph-16": {
-      "source": "PKCS#8 RSA private key; requires <span data-unresolved-link=\"com.peco2282.obfaryn.core/ObfuscationConfig//#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.core.KotlinMetadataMode#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Long?#kotlin.String#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.String,kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.collections.List[java.nio.file.Path]#kotlin.Boolean#kotlin.Function1[com.peco2282.obfaryn.api.PlatformConfiguration,kotlin.Unit]?#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.String?#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#java.nio.file.Path?#java.nio.file.Path?#kotlin.Int#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#java.nio.file.Path?#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.api.transformer.StringEncryptionCodec#com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy#com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector#java.util.Random?#java.util.Random?#com.peco2282.obfaryn.core.ProtectionLevel#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Int#kotlin.Boolean#com.peco2282.obfaryn.api.protection.TransformationBudget#kotlin.collections.List[com.peco2282.obfaryn.api.protection.ProtectionRule]#java.nio.file.Path?#com.peco2282.obfaryn.api.protection.ControlFlowMode#kotlin.collections.List[java.nio.file.Path]/PointingToCallableParameters(31)/\">integrityPublicKey</span>.",
-      "sourceHash": "29dd63ffc70ec5f3b90ffd4c5ff668fb075c643d2ef761b55fc5beb08827e392",
-      "protectedNodes": [],
+      "source": "PKCS#8 RSA private key; requires ZXQOBFARYN0QXZ.",
+      "sourceHash": "841a33d3ae4d5e9685d7186bf5bd790af5606ec1056d6d3118a62abdf91f83a9",
+      "protectedNodes": [
+        "<a href=\"integrity-public-key.html\">integrityPublicKey</a>"
+      ],
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscation-config/index.html#paragraph-17": {
@@ -9142,11 +9279,14 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscation-config/index.html#paragraph-2": {
-      "source": "Application roots combine entrypoint packages with <span data-unresolved-link=\"com.peco2282.obfaryn.core/ObfuscationConfig//#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.core.KotlinMetadataMode#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Long?#kotlin.String#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.String,kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.collections.List[java.nio.file.Path]#kotlin.Boolean#kotlin.Function1[com.peco2282.obfaryn.api.PlatformConfiguration,kotlin.Unit]?#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.String?#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#java.nio.file.Path?#java.nio.file.Path?#kotlin.Int#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#java.nio.file.Path?#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.api.transformer.StringEncryptionCodec#com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy#com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector#java.util.Random?#java.util.Random?#com.peco2282.obfaryn.core.ProtectionLevel#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Int#kotlin.Boolean#com.peco2282.obfaryn.api.protection.TransformationBudget#kotlin.collections.List[com.peco2282.obfaryn.api.protection.ProtectionRule]#java.nio.file.Path?#com.peco2282.obfaryn.api.protection.ControlFlowMode#kotlin.collections.List[java.nio.file.Path]/PointingToCallableParameters(3)/\">applicationPackages</span>. When roots are known and global Kotlin metadata stripping is disabled, classes outside those roots are kept from renaming. ZXQOBFARYN0QXZ retains application metadata, as does ZXQOBFARYN1QXZ. <span data-unresolved-link=\"com.peco2282.obfaryn.core/ObfuscationConfig//#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.core.KotlinMetadataMode#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Long?#kotlin.String#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.String,kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.collections.List[java.nio.file.Path]#kotlin.Boolean#kotlin.Function1[com.peco2282.obfaryn.api.PlatformConfiguration,kotlin.Unit]?#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.String?#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#java.nio.file.Path?#java.nio.file.Path?#kotlin.Int#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#java.nio.file.Path?#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.api.transformer.StringEncryptionCodec#com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy#com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector#java.util.Random?#java.util.Random?#com.peco2282.obfaryn.core.ProtectionLevel#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Int#kotlin.Boolean#com.peco2282.obfaryn.api.protection.TransformationBudget#kotlin.collections.List[com.peco2282.obfaryn.api.protection.ProtectionRule]#java.nio.file.Path?#com.peco2282.obfaryn.api.protection.ControlFlowMode#kotlin.collections.List[java.nio.file.Path]/PointingToCallableParameters(1)/\">stripKotlinMetadata</span> overrides the mode. Package flattening requires class renaming and a non-null, valid <span data-unresolved-link=\"com.peco2282.obfaryn.core/ObfuscationConfig//#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.core.KotlinMetadataMode#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Long?#kotlin.String#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.String,kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.collections.List[java.nio.file.Path]#kotlin.Boolean#kotlin.Function1[com.peco2282.obfaryn.api.PlatformConfiguration,kotlin.Unit]?#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.String?#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#java.nio.file.Path?#java.nio.file.Path?#kotlin.Int#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#java.nio.file.Path?#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.api.transformer.StringEncryptionCodec#com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy#com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector#java.util.Random?#java.util.Random?#com.peco2282.obfaryn.core.ProtectionLevel#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Int#kotlin.Boolean#com.peco2282.obfaryn.api.protection.TransformationBudget#kotlin.collections.List[com.peco2282.obfaryn.api.protection.ProtectionRule]#java.nio.file.Path?#com.peco2282.obfaryn.api.protection.ControlFlowMode#kotlin.collections.List[java.nio.file.Path]/PointingToCallableParameters(26)/\">targetPackage</span>; specifying a target without flattening is rejected. These constraints are checked when obfuscation starts.",
-      "sourceHash": "88548229a9ad4477c500eceeeaba5e20ab3ba95ce0183c8edcbb85055df133f5",
+      "source": "Application roots combine entrypoint packages with ZXQOBFARYN0QXZ. When roots are known and global Kotlin metadata stripping is disabled, classes outside those roots are kept from renaming. ZXQOBFARYN1QXZ retains application metadata, as does ZXQOBFARYN2QXZ. ZXQOBFARYN3QXZ overrides the mode. Package flattening requires class renaming and a non-null, valid ZXQOBFARYN4QXZ; specifying a target without flattening is rejected. These constraints are checked when obfuscation starts.",
+      "sourceHash": "afe05c3a5bbf6c14cd926268d4652b1219a97262e5e8cdd964cbb623915803f1",
       "protectedNodes": [
+        "<a href=\"application-packages.html\">applicationPackages</a>",
         "<a href=\"../-kotlin-metadata-mode/-a-u-t-o/index.html\">KotlinMetadataMode.AUTO</a>",
-        "<a href=\"../-kotlin-metadata-mode/-p-r-e-s-e-r-v-e/index.html\">KotlinMetadataMode.PRESERVE</a>"
+        "<a href=\"../-kotlin-metadata-mode/-p-r-e-s-e-r-v-e/index.html\">KotlinMetadataMode.PRESERVE</a>",
+        "<a href=\"strip-kotlin-metadata.html\">stripKotlinMetadata</a>",
+        "<a href=\"target-package.html\">targetPackage</a>"
       ],
       "highRisk": true
     },
@@ -9297,9 +9437,11 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscation-config/index.html#paragraph-42": {
-      "source": "Legacy switch to strip Kotlin metadata throughout the JAR; prefer <span data-unresolved-link=\"com.peco2282.obfaryn.core/ObfuscationConfig//#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.core.KotlinMetadataMode#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Long?#kotlin.String#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.String,kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.collections.List[java.nio.file.Path]#kotlin.Boolean#kotlin.Function1[com.peco2282.obfaryn.api.PlatformConfiguration,kotlin.Unit]?#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.String?#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#java.nio.file.Path?#java.nio.file.Path?#kotlin.Int#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#java.nio.file.Path?#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.api.transformer.StringEncryptionCodec#com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy#com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector#java.util.Random?#java.util.Random?#com.peco2282.obfaryn.core.ProtectionLevel#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Int#kotlin.Boolean#com.peco2282.obfaryn.api.protection.TransformationBudget#kotlin.collections.List[com.peco2282.obfaryn.api.protection.ProtectionRule]#java.nio.file.Path?#com.peco2282.obfaryn.api.protection.ControlFlowMode#kotlin.collections.List[java.nio.file.Path]/PointingToCallableParameters(2)/\">kotlinMetadataMode</span> for new callers.",
-      "sourceHash": "8f93a5fa0c10c5f4fc381a2c366b8296b7014301552d1b42c343df990682c0d3",
-      "protectedNodes": [],
+      "source": "Legacy switch to strip Kotlin metadata throughout the JAR; prefer ZXQOBFARYN0QXZ for new callers.",
+      "sourceHash": "5bc8daa5b2aef9b80df4b4fb26eb4183fe1b5037f9a8499a75b0c388d7c3134c",
+      "protectedNodes": [
+        "<a href=\"kotlin-metadata-mode.html\">kotlinMetadataMode</a>"
+      ],
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscation-config/index.html#paragraph-43": {
@@ -9309,9 +9451,11 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscation-config/index.html#paragraph-44": {
-      "source": "Destination for eligible classes when <span data-unresolved-link=\"com.peco2282.obfaryn.core/ObfuscationConfig//#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.core.KotlinMetadataMode#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Long?#kotlin.String#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.String,kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.collections.List[java.nio.file.Path]#kotlin.Boolean#kotlin.Function1[com.peco2282.obfaryn.api.PlatformConfiguration,kotlin.Unit]?#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.String?#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#java.nio.file.Path?#java.nio.file.Path?#kotlin.Int#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#java.nio.file.Path?#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.api.transformer.StringEncryptionCodec#com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy#com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector#java.util.Random?#java.util.Random?#com.peco2282.obfaryn.core.ProtectionLevel#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Int#kotlin.Boolean#com.peco2282.obfaryn.api.protection.TransformationBudget#kotlin.collections.List[com.peco2282.obfaryn.api.protection.ProtectionRule]#java.nio.file.Path?#com.peco2282.obfaryn.api.protection.ControlFlowMode#kotlin.collections.List[java.nio.file.Path]/PointingToCallableParameters(27)/\">flattenPackages</span> is enabled.",
-      "sourceHash": "2b49f94d25d5d9da8d624923e684665e5a30c99970d888c5023d4bc62e21c1c6",
-      "protectedNodes": [],
+      "source": "Destination for eligible classes when ZXQOBFARYN0QXZ is enabled.",
+      "sourceHash": "537d95b989fc4103908b59b0ba35e1b3b90519d4e9a1db641e2414bc756d1a94",
+      "protectedNodes": [
+        "<a href=\"flatten-packages.html\">flattenPackages</a>"
+      ],
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscation-config/index.html#paragraph-45": {
@@ -9327,9 +9471,11 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscation-config/index.html#paragraph-47": {
-      "source": "Legacy selection mode; prefer <span data-unresolved-link=\"com.peco2282.obfaryn.core/ObfuscationConfig//#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.core.KotlinMetadataMode#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Long?#kotlin.String#kotlin.collections.List[kotlin.String]#kotlin.collections.Map[kotlin.String,kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.collections.List[java.nio.file.Path]#kotlin.Boolean#kotlin.Function1[com.peco2282.obfaryn.api.PlatformConfiguration,kotlin.Unit]?#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#kotlin.String?#kotlin.Boolean#kotlin.collections.List[kotlin.String]#kotlin.collections.List[kotlin.String]#java.nio.file.Path?#java.nio.file.Path?#kotlin.Int#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#java.nio.file.Path?#com.peco2282.obfaryn.core.transformer.VirtualizationSelectionMode#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#com.peco2282.obfaryn.api.transformer.StringEncryptionCodec#com.peco2282.obfaryn.api.transformer.NumberObfuscationStrategy#com.peco2282.obfaryn.api.transformer.NumberObfuscationSelector#java.util.Random?#java.util.Random?#com.peco2282.obfaryn.core.ProtectionLevel#kotlin.Boolean#kotlin.Boolean#kotlin.Boolean#kotlin.Int#kotlin.Boolean#com.peco2282.obfaryn.api.protection.TransformationBudget#kotlin.collections.List[com.peco2282.obfaryn.api.protection.ProtectionRule]#java.nio.file.Path?#com.peco2282.obfaryn.api.protection.ControlFlowMode#kotlin.collections.List[java.nio.file.Path]/PointingToCallableParameters(35)/\">virtualizationSelectionMode</span>.",
-      "sourceHash": "2da5cc1c603ff532126f78ed417fc612fd16f88efd0217468c1c89be0cf4d670",
-      "protectedNodes": [],
+      "source": "Legacy selection mode; prefer ZXQOBFARYN0QXZ.",
+      "sourceHash": "c897996842538e312958c673c553e086687ce15d1b9aaceaf9e894d029cd059c",
+      "protectedNodes": [
+        "<a href=\"virtualization-selection-mode.html\">virtualizationSelectionMode</a>"
+      ],
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscation-config/index.html#paragraph-48": {
@@ -9395,9 +9541,13 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscation-result/index.html#paragraph-1": {
-      "source": "Counts describe the processed input and transformations. <span data-unresolved-link=\"com.peco2282.obfaryn.core/ObfuscationResult//#kotlin.Int#kotlin.Int#kotlin.String#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Int#java.nio.file.Path#java.nio.file.Path?#kotlin.collections.List[kotlin.String]#kotlin.String?#kotlin.Int#kotlin.Int#com.peco2282.obfaryn.core.transformer.VirtualizationAnalysisReport?#kotlin.collections.List[com.peco2282.obfaryn.api.transformer.TransformerReport]/PointingToCallableParameters(8)/\">output</span> is the requested destination, even in dry-run or analysis-only mode, when no JAR is written. <span data-unresolved-link=\"com.peco2282.obfaryn.core/ObfuscationResult//#kotlin.Int#kotlin.Int#kotlin.String#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Int#java.nio.file.Path#java.nio.file.Path?#kotlin.collections.List[kotlin.String]#kotlin.String?#kotlin.Int#kotlin.Int#com.peco2282.obfaryn.core.transformer.VirtualizationAnalysisReport?#kotlin.collections.List[com.peco2282.obfaryn.api.transformer.TransformerReport]/PointingToCallableParameters(9)/\">mapping</span> is null if no mapping was written; <span data-unresolved-link=\"com.peco2282.obfaryn.core/ObfuscationResult//#kotlin.Int#kotlin.Int#kotlin.String#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Int#java.nio.file.Path#java.nio.file.Path?#kotlin.collections.List[kotlin.String]#kotlin.String?#kotlin.Int#kotlin.Int#com.peco2282.obfaryn.core.transformer.VirtualizationAnalysisReport?#kotlin.collections.List[com.peco2282.obfaryn.api.transformer.TransformerReport]/PointingToCallableParameters(11)/\">mappingPreview</span> contains planned renames during a dry run.",
-      "sourceHash": "6d9bfec945f991ffff88c6a766fbdab7b20d98d36ea31c4836cf122fc2c28286",
-      "protectedNodes": [],
+      "source": "Counts describe the processed input and transformations. ZXQOBFARYN0QXZ is the requested destination, even in dry-run or analysis-only mode, when no JAR is written. ZXQOBFARYN1QXZ is null if no mapping was written; ZXQOBFARYN2QXZ contains planned renames during a dry run.",
+      "sourceHash": "eb54553f4573a642e310558b8764b215fb873bf0d20c5e9a27b1dd2a5c2b090f",
+      "protectedNodes": [
+        "<a href=\"output.html\">output</a>",
+        "<a href=\"mapping.html\">mapping</a>",
+        "<a href=\"mapping-preview.html\">mappingPreview</a>"
+      ],
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscation-result/index.html#paragraph-2": {
@@ -9437,8 +9587,8 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscator/index.html#paragraph-0": {
-      "source": "Runs the JAR transformation pipeline with one immutable <span data-unresolved-link=\"com.peco2282.obfaryn.core/Obfuscator//#com.peco2282.obfaryn.core.ObfuscationConfig#com.peco2282.obfaryn.core.jar.JarReader#com.peco2282.obfaryn.core.jar.JarWriter#kotlin.Function1[com.peco2282.obfaryn.core.TransformerPipeline,kotlin.Unit]?#kotlin.collections.List[com.peco2282.obfaryn.api.transformer.PipelineConfigurer]#kotlin.collections.List[com.peco2282.obfaryn.api.assembly.TransformationPackage]?#kotlin.collections.List[java.nio.file.Path]/PointingToCallableParameters(0)/\">config</span>.",
-      "sourceHash": "2d7bb549fbf1f663f1bc356329e1a34d12aad4a9bf2de18f833fda2d709b7551",
+      "source": "Runs the JAR transformation pipeline with one immutable <span data-unresolved-link=\"com.peco2282.obfaryn.core/Obfuscator/config/#/PointingToDeclaration/\">config</span>.",
+      "sourceHash": "a463b3b531a5d8cba3945f6bfe0b977e251cbb5e3153d15366b307d2bbdbc4e8",
       "protectedNodes": [],
       "highRisk": false
     },
@@ -9451,8 +9601,8 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-obfuscator/index.html#paragraph-2": {
-      "source": "<span data-unresolved-link=\"com.peco2282.obfaryn.core/Obfuscator//#com.peco2282.obfaryn.core.ObfuscationConfig#com.peco2282.obfaryn.core.jar.JarReader#com.peco2282.obfaryn.core.jar.JarWriter#kotlin.Function1[com.peco2282.obfaryn.core.TransformerPipeline,kotlin.Unit]?#kotlin.collections.List[com.peco2282.obfaryn.api.transformer.PipelineConfigurer]#kotlin.collections.List[com.peco2282.obfaryn.api.assembly.TransformationPackage]?#kotlin.collections.List[java.nio.file.Path]/PointingToCallableParameters(3)/\">configurePipeline</span> edits the selected passes before <span data-unresolved-link=\"com.peco2282.obfaryn.core/Obfuscator//#com.peco2282.obfaryn.core.ObfuscationConfig#com.peco2282.obfaryn.core.jar.JarReader#com.peco2282.obfaryn.core.jar.JarWriter#kotlin.Function1[com.peco2282.obfaryn.core.TransformerPipeline,kotlin.Unit]?#kotlin.collections.List[com.peco2282.obfaryn.api.transformer.PipelineConfigurer]#kotlin.collections.List[com.peco2282.obfaryn.api.assembly.TransformationPackage]?#kotlin.collections.List[java.nio.file.Path]/PointingToCallableParameters(4)/\">pipelineConfigurers</span> are applied in list order. Disabling a pass does not disable archive loading, platform setup, or output processing. Platform contributions are applied before annotation validation and keep-rule configuration; the configured ZXQOBFARYN0QXZ callback runs after platform configuration.",
-      "sourceHash": "4d855908e17dedfea1bd094cf2f32a658fbb895d1e764c367f2ebea8dbe43b49",
+      "source": "<span data-unresolved-link=\"com.peco2282.obfaryn.core/Obfuscator/configurePipeline/#/PointingToDeclaration/\">configurePipeline</span> edits the selected passes before <span data-unresolved-link=\"com.peco2282.obfaryn.core/Obfuscator/pipelineConfigurers/#/PointingToDeclaration/\">pipelineConfigurers</span> are applied in list order. Disabling a pass does not disable archive loading, platform setup, or output processing. Platform contributions are applied before annotation validation and keep-rule configuration; the configured ZXQOBFARYN0QXZ callback runs after platform configuration.",
+      "sourceHash": "2eb6160cdaf1f0c484e14a09e9f9bea7f463ed69ae2271046bdae207a2623adc",
       "protectedNodes": [
         "<a href=\"../-obfuscation-config/platform-configuration.html\">ObfuscationConfig.platformConfiguration</a>"
       ],
@@ -9524,9 +9674,11 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-protection-level/entries.html#paragraph-0": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -9544,9 +9696,11 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/-protection-level/index.html#paragraph-1": {
-      "source": "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
-      "sourceHash": "bc04f43a4d9b3ce387fe274fc4bd8120ea5ff45750583bcbf052d62b25caca2f",
-      "protectedNodes": [],
+      "source": "Returns an immutable ZXQOBFARYN0QXZ list containing the constants of this enum type, in the order they're declared.",
+      "sourceHash": "6574268150b4aab0bd4395dabe96ebd3f2e7c8719363c844269e060152fa916c",
+      "protectedNodes": [
+        "<a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html\">kotlin.enums.EnumEntries</a>"
+      ],
       "highRisk": false,
       "orphaned": true
     },
@@ -9592,6 +9746,15 @@
       "highRisk": false,
       "orphaned": true
     },
+    "obfaryn-standard/com.peco2282.obfaryn.core/-protection-level/values.html#paragraph-2": {
+      "source": "The function returns a new instance of the array on every call. The array could be mutated, so working with it may also require defensive copying. Consider using ZXQOBFARYN0QXZ property as a more efficient alternative returning an immutable list of enum entries.",
+      "sourceHash": "9c913a17018d73bc900b2f148fa637d91433d8e29a41611498196832ae8389e7",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">entries</code>"
+      ],
+      "highRisk": false,
+      "orphaned": true
+    },
     "obfaryn-standard/com.peco2282.obfaryn.core/index.html#paragraph-0": {
       "source": "Controls handling of the ZXQOBFARYN0QXZ annotation.",
       "sourceHash": "8bd364043456e1ae4267655603c4546de87ea1ddb751ddb36c9063c01c0d8fa6",
@@ -9617,8 +9780,8 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.core/index.html#paragraph-3": {
-      "source": "Runs the JAR transformation pipeline with one immutable <span data-unresolved-link=\"com.peco2282.obfaryn.core/Obfuscator//#com.peco2282.obfaryn.core.ObfuscationConfig#com.peco2282.obfaryn.core.jar.JarReader#com.peco2282.obfaryn.core.jar.JarWriter#kotlin.Function1[com.peco2282.obfaryn.core.TransformerPipeline,kotlin.Unit]?#kotlin.collections.List[com.peco2282.obfaryn.api.transformer.PipelineConfigurer]#kotlin.collections.List[com.peco2282.obfaryn.api.assembly.TransformationPackage]?#kotlin.collections.List[java.nio.file.Path]/PointingToCallableParameters(0)/\">config</span>.",
-      "sourceHash": "2d7bb549fbf1f663f1bc356329e1a34d12aad4a9bf2de18f833fda2d709b7551",
+      "source": "Runs the JAR transformation pipeline with one immutable <span data-unresolved-link=\"com.peco2282.obfaryn.core/Obfuscator/config/#/PointingToDeclaration/\">config</span>.",
+      "sourceHash": "a463b3b531a5d8cba3945f6bfe0b977e251cbb5e3153d15366b307d2bbdbc4e8",
       "protectedNodes": [],
       "highRisk": false
     },
@@ -9651,8 +9814,8 @@
       "sourceHash": "7207e90bfafc93f249b29418d01b1cfe4417c06b91f09c6874eddd91b80b0dd7",
       "protectedNodes": [
         "<code class=\"lang-kotlin\">obfuscate</code>",
-        "<a href=\"../../../obfaryn-standard/com.peco2282.obfaryn.standard/-assembly-module/--root--.html\">noDefaultPackage</a>",
-        "<a href=\"../../../obfaryn-standard/com.peco2282.obfaryn.standard/-assembly-module/--root--.html\">packageIds</a>"
+        "<a href=\"no-default-package.html\">noDefaultPackage</a>",
+        "<a href=\"package-ids.html\">packageIds</a>"
       ],
       "highRisk": false
     },
@@ -9683,8 +9846,8 @@
       "highRisk": false
     },
     "obfaryn-standard/com.peco2282.obfaryn.standard/-assembly-session/index.html#paragraph-2": {
-      "source": "<strong>Phase A (per artifact):</strong> read the JAR, run platform detection/configuration against the whole-program view, collect manifest/service/platform keep rules, and run every body pass <i>except</i> renaming.",
-      "sourceHash": "fc7958227bd94449211585d87d923c621d10860f4cceba7f904d0eeaafa45921",
+      "source": "<strong>Phase A (per artifact):</strong> read the JAR, run platform detection/configuration against the whole-program view, collect manifest/service/platform keep rules, and run every body pass <em>except</em> renaming.",
+      "sourceHash": "5826513c03dcbedd0c8390203199b62d87901ded949256aeedfd11c3f37c4704",
       "protectedNodes": [],
       "highRisk": false
     },
@@ -10309,7 +10472,7 @@
       "source": "Hides ordinary call references behind encrypted linkage metadata and constant JVM call sites. Must run after renaming: encrypted names are deliberately opaque to ASM remappers. ZXQOBFARYN0QXZ receives final internal names and should restrict fat JARs to application code.",
       "sourceHash": "1fea31de03a7374a6ef21ab6c54cf647cf2ec84045ee044d364073c65e826ebc",
       "protectedNodes": [
-        "<a href=\"../../../obfaryn-transformer/com.peco2282.obfaryn.transformer/-call-indirection-transformer/--root--.html\">includeClass</a>"
+        "<a href=\"../../../obfaryn-transformer/com.peco2282.obfaryn.transformer/-call-indirection-transformer/include-class.html\">includeClass</a>"
       ],
       "highRisk": true
     },
@@ -10347,7 +10510,7 @@
       "source": "Hides ordinary call references behind encrypted linkage metadata and constant JVM call sites. Must run after renaming: encrypted names are deliberately opaque to ASM remappers. ZXQOBFARYN0QXZ receives final internal names and should restrict fat JARs to application code.",
       "sourceHash": "1fea31de03a7374a6ef21ab6c54cf647cf2ec84045ee044d364073c65e826ebc",
       "protectedNodes": [
-        "<a href=\"../../obfaryn-transformer/com.peco2282.obfaryn.transformer/-call-indirection-transformer/--root--.html\">includeClass</a>"
+        "<a href=\"../../obfaryn-transformer/com.peco2282.obfaryn.transformer/-call-indirection-transformer/include-class.html\">includeClass</a>"
       ],
       "highRisk": true
     },
