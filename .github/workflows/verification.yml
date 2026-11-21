@@ -39,7 +39,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
+      - uses: gradle/actions/setup-gradle@c0152e9a6b68fc2b5c1f256331f2e8f82b68ad62 # v6
       - run: ./gradlew test :obfaryn-cli:installDist :platforms:springboot:jar
       - run: python3 scripts/verify-cli-distribution.py
       - run: python3 scripts/verify-springboot-extension.py
@@ -64,7 +64,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
+      - uses: gradle/actions/setup-gradle@c0152e9a6b68fc2b5c1f256331f2e8f82b68ad62 # v6
       - name: Run FuzzDifferentialTest
         env:
           OBFARYN_FUZZ_CASES: ${{ github.event_name == 'workflow_dispatch' && inputs.fuzz_cases || '200' }}
@@ -92,7 +92,7 @@ jobs:
             17
             21
             25
-      - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
+      - uses: gradle/actions/setup-gradle@c0152e9a6b68fc2b5c1f256331f2e8f82b68ad62 # v6
       - run: >
           python3 scripts/verify-jdk-matrix.py --json build/jdk-matrix/results.json
           --jdk 8=$JAVA_HOME_8_X64/bin/java
@@ -117,7 +117,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
+      - uses: gradle/actions/setup-gradle@c0152e9a6b68fc2b5c1f256331f2e8f82b68ad62 # v6
       - run: python3 scripts/compatibility/run.py --project ${{ matrix.project }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
@@ -137,7 +137,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
+      - uses: gradle/actions/setup-gradle@c0152e9a6b68fc2b5c1f256331f2e8f82b68ad62 # v6
       - run: ./gradlew :obfaryn-cli:installDist :platforms:springboot:jar
       - run: python3 scripts/verify-springboot-runtime.py
   tick-benchmark:
@@ -150,7 +150,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
+      - uses: gradle/actions/setup-gradle@c0152e9a6b68fc2b5c1f256331f2e8f82b68ad62 # v6
       # Default: measure and publish machine-readable results only. The regression gate is opt-in
       # (manual dispatch with strict_performance_gate=true) because a shared runner's variance would
       # otherwise fail the job on noise rather than a real regression.
@@ -180,7 +180,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@07d1f8453baaff67fb503883367f8b13e6158a54 # v6
+      - uses: gradle/actions/setup-gradle@c0152e9a6b68fc2b5c1f256331f2e8f82b68ad62 # v6
       - run: python3 scripts/performance/virtualization.py
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
