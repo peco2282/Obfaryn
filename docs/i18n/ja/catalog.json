@@ -10495,8 +10495,8 @@
       "highRisk": false
     },
     "obfaryn-transformer/com.peco2282.obfaryn.transformer/-default-number-obfuscation-strategy/index.html#paragraph-0": {
-      "source": "The standard three integer expressions; floating-point values use the API's raw-bit defaults.",
-      "sourceHash": "6edfee17b2c962ab79257ee91b98695dceeb78b9ce511b22f98a3879c2714e57",
+      "source": "Rotate-keyed integer expressions; floating-point values use the API's raw-bit defaults.",
+      "sourceHash": "8ae02a33a47a255b61067b4b0ddc52de90300532241689e44fbb88765c88e35c",
       "protectedNodes": [],
       "highRisk": false
     },
@@ -10533,8 +10533,8 @@
       "highRisk": false
     },
     "obfaryn-transformer/com.peco2282.obfaryn.transformer/index.html#paragraph-4": {
-      "source": "The standard three integer expressions; floating-point values use the API's raw-bit defaults.",
-      "sourceHash": "6edfee17b2c962ab79257ee91b98695dceeb78b9ce511b22f98a3879c2714e57",
+      "source": "Rotate-keyed integer expressions; floating-point values use the API's raw-bit defaults.",
+      "sourceHash": "8ae02a33a47a255b61067b4b0ddc52de90300532241689e44fbb88765c88e35c",
       "protectedNodes": [],
       "highRisk": false
     },

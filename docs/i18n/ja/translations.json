@@ -647,9 +647,9 @@
       "translation": "文字列暗号化Transformerがすでに設定されている場合に発生します。",
       "status": "reviewed"
     },
-    "6edfee17b2c962ab79257ee91b98695dceeb78b9ce511b22f98a3879c2714e57": {
-      "source": "The standard three integer expressions; floating-point values use the API's raw-bit defaults.",
-      "translation": "標準の3種類の整数式です。浮動小数点値にはAPIのraw-bitデフォルト実装を使用します。",
+    "8ae02a33a47a255b61067b4b0ddc52de90300532241689e44fbb88765c88e35c": {
+      "source": "Rotate-keyed integer expressions; floating-point values use the API's raw-bit defaults.",
+      "translation": "回転演算で符号化する整数式です。浮動小数点値には、APIのビット表現を直接扱うデフォルト実装を使用します。",
       "status": "reviewed"
     },
     "81c9c27a31bd7429f5bbfe5b52a40628041dd9d3b7b060c0cec13d25b4d6ab06": {
