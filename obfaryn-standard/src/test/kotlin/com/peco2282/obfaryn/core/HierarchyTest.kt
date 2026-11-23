@@ -74,6 +74,36 @@ class HierarchyTest {
     JarFile(output.toFile()).use { jar -> assertNotNull(jar.getJarEntry("sample/Choose.class")) }
   }
 
+  @Test fun privateRenamePreservesInheritedCallThroughSubclassOwner() {
+    val src = Files.createDirectories(dir.resolve("src/sample"))
+    src.resolve("Base.java").writeText("""
+      package sample;
+      public class Base { protected final int inherited() { return 5; } }
+    """.trimIndent())
+    src.resolve("Child.java").writeText("""
+      package sample;
+      public class Child extends Base {
+        private int local() { return 9; }
+        public static int run() {
+          Child child = new Child();
+          return child.inherited() * 10 + child.local();
+        }
+      }
+    """.trimIndent())
+    val classes = dir.resolve("classes")
+    compile(src, classes)
+    val input = dir.resolve("input.jar")
+    pack(classes, input)
+    val output = dir.resolve("output.jar")
+    Obfuscator(ObfuscationConfig(
+      seed = 2, renameClasses = false, renameMethods = true, renameFields = false,
+      stringEncryption = false, numberObfuscation = false, verifyOutput = true,
+    )).obfuscate(input, output)
+    URLClassLoader(arrayOf(output.toUri().toURL()), ClassLoader.getSystemClassLoader().parent).use { loader ->
+      assertEquals(59, loader.loadClass("sample.Child").getMethod("run").invoke(null))
+    }
+  }
+
   private fun compile(source: Path, output: Path, classpath: Path? = null) {
     Files.createDirectories(output)
     val files = Files.list(source).use { it.map(Path::toString).unmodifiableList() }

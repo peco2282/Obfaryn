@@ -184,11 +184,16 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
       VirtualMethodFamilies(nodes, hierarchy, keep, classMapping).apply { if (config.renameMethods) plan() }
     }
     methodMapping.putAll(families.declarations)
+    // A Methodref may name the subclass even when the declaration belongs to its parent.
+    // A new private or static declaration must not intercept that inherited signature.
+    val inheritedSignatures = families.inheritedReferences.entries.groupBy { it.key.owner }
+      .mapValues { (_, entries) -> entries.mapTo(hashSetOf()) { it.value to it.key.desc } }
 
     for (node in nodes) {
       val methodNames = node.methods.map { it.name }.toMutableSet()
       methodNames += node.methods.mapNotNull { methodMapping[MemberKey(node.name, it.name, it.desc)] }
       methodNames += node.methods.map { it.name.removeSuffix("\$default") }
+      val inherited = inheritedSignatures[node.name].orEmpty()
       val methodGenerator = SequentialNameGenerator()
       for (method in node.methods) {
         val virtual = method.access and (Opcodes.ACC_PRIVATE or Opcodes.ACC_STATIC) == 0
@@ -198,7 +203,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
         if (node.name !in classMapping && method.access and (Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC) == (Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC)) continue
         if (method.name == "main" && method.desc == "([Ljava/lang/String;)V") continue
         var candidate: String
-        do { candidate = methodGenerator.next() } while (candidate in methodNames)
+        do { candidate = methodGenerator.next() } while (candidate in methodNames || (candidate to method.desc) in inherited)
         methodMapping[MemberKey(node.name, method.name, method.desc)] = candidate
         methodNames += candidate
       }
