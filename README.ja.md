@@ -47,7 +47,7 @@ pluginManagement {
 ```kotlin
 plugins {
   java
-  id("com.peco2282.obfaryn") version "1.0.0" // 実際に公開されている最新バージョンに置き換えてください
+  id("com.peco2282.obfaryn") version "1.2.0" // 実際に公開されている最新バージョンに置き換えてください
 }
 ```
 
@@ -103,14 +103,14 @@ obfaryn input.jar -o output.jar --seed 123 --protection strong \
 
 ```kotlin
 dependencies {
-  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0.0")
-  // または: obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-springboot:1.0.0")
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.2.0")
+  // または: obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-springboot:1.2.0")
 }
 obfaryn {
   platform = "paper" // または "springboot"
 }
 ```
-`obfarynPlatform`はplugin自身と同じリリースリポジトリから解決され、アプリケーション自身のクラスパスや出力JARには追加されません。CLIで同じことをするには、プラットフォームのJARを自分でダウンロードし`--extension`で渡します: `obfaryn input.jar --extension obfaryn-platform-paper-1.0.0.jar --platform paper`。[拡張JARの読み込み](docs/assembly.ja.md#拡張jarとして配る)を参照してください。
+`obfarynPlatform`はplugin自身と同じリリースリポジトリから解決され、アプリケーション自身のクラスパスや出力JARには追加されません。CLIで同じことをするには、プラットフォームのJARを自分でダウンロードし`--extension`で渡します: `obfaryn input.jar --extension obfaryn-platform-paper-1.2.0.jar --platform paper`。[拡張JARの読み込み](docs/assembly.ja.md#拡張jarとして配る)を参照してください。
 
 `obfaryn-platform-springboot`は`@SpringBootApplication`クラスか`META-INF/MANIFEST.MF`の`Start-Class`属性だけからSpring Bootアプリケーションを検出します。Spring Boot/Frameworkのjarをクラスパスに置く必要はありません。Spring Boot実行可能jarの`BOOT-INF/classes`/`BOOT-INF/lib`というネストされたレイアウトは展開しないため、展開済みのクラス群か、素の(fatでない)jarを対象にしてください。`@Scheduled`/`@EventListener`/`@Async`メソッドとアプリケーションの`main`メソッド、およびそれらが呼び出す先をVM化から保護する点は、`obfaryn-platform-paper`がイベントハンドラやtickコールバックを保護するのと同じ仕組みです。
 `@ConfigurationProperties`を付けた型は、外部property keyからのbindを維持するため、クラス名とpublic
@@ -386,7 +386,7 @@ pluginManagement { includeBuild("../Obfaryn") }
 ```kotlin
 plugins {
   java
-  id("com.peco2282.obfaryn") version "1.0.0" // 実際に公開されている最新バージョンに置き換えてください
+  id("com.peco2282.obfaryn") version "1.2.0" // 実際に公開されている最新バージョンに置き換えてください
 }
 
 repositories {
@@ -394,8 +394,8 @@ repositories {
 }
 
 dependencies {
-  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0.0")
-  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:1.0.0")
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.2.0")
+  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:1.2.0")
 }
 
 obfaryn {
@@ -444,7 +444,7 @@ obfaryn {
 
 ```kotlin
 // ルートの build.gradle.kts
-plugins { id("com.peco2282.obfaryn") version "1.0.0" }
+plugins { id("com.peco2282.obfaryn") version "1.2.0" }
 
 obfarynAssembly {
   artifact(project(":api"))

@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing tag to (re)build and release, e.g. v1.0.0'
+        description: 'Existing tag to (re)build and release, e.g. v1.2.0'
         required: true
 
 permissions:
@@ -25,6 +25,10 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@c0152e9a6b68fc2b5c1f256331f2e8f82b68ad62 # v6
+      - name: Prepare reviewed release notes
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: python3 scripts/release-notes.py "$RELEASE_TAG" --check-project-version --output build/release-notes.md
       - run: ./gradlew :obfaryn-cli:installDist :obfaryn-cli:distTar :obfaryn-cli:distZip
       - run: python3 scripts/verify-cli-distribution.py
       # Fallback for a tag older than distTar's gzip compression (build.gradle.kts commit
@@ -43,4 +47,5 @@ jobs:
           files: |
             obfaryn-cli/build/distributions/obfaryn-*.tar.gz
             obfaryn-cli/build/distributions/obfaryn-*.zip
-          generate_release_notes: true
+          body_path: build/release-notes.md
+          generate_release_notes: false

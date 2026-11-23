@@ -10,6 +10,54 @@ correlated with `gradle.properties`' `releaseVersion` at the time of its "Bump t
 lightweight Git tag (`v1.0.0`, `v1.1.0-RC1`, `v1.1.0`) marks that commit. **Unreleased** collects
 changes made after the latest such tag.
 
+## [1.2.0]
+
+### Added
+
+- Apply mappings from separately obfuscated dependencies with CLI `--apply-mapping`, Gradle
+  `appliedMappings`, or core `ObfuscationConfig.appliedMappings`. Class, method, field and package
+  assignments are reused so independently shipped artifacts link using their obfuscated names.
+  Mapping provenance tracks contributing artifacts; stale or conflicting mappings are rejected.
+  See [apply-mapping](docs/apply-mapping.md) for requirements and limitations.
+- Minecraft mod platform providers in the self-contained `obfaryn-platform-mc-mod` extension:
+  `fabric`, `forge` and `neoforge`. Providers detect loader descriptors or entrypoint markers,
+  preserve loader entrypoints/resources, and keep Forge/NeoForge event handlers and their callees
+  out of virtualization. This does not establish compatibility with every mod or loader version.
+- Public mapping utilities: `NameMapping`, `MappingSource`, `MappingFormat` and `MemberKey.of`.
+  Mapping rendering includes package assignments and optional provenance comments.
+- Japanese API documentation with an English/Japanese language selector, plus worked API and
+  platform-extension examples.
+- `scripts/audit-distribution-leaks.py` checks final JARs for accidentally packaged mapping and
+  transformation-report sidecars. Installed-CLI checks cover apply-mapping and all three Minecraft
+  mod providers; these checks are also included in the verification workflow.
+
+### Changed
+
+- Existing string encryption mixes keys across generated classes. Numeric encodings and indirect
+  call bootstrap layouts vary by build; indirect call metadata is packed, and dispatcher state is
+  masked and rekeyed across control-flow edges. These changes alter generated output, including
+  output produced with a seed used by an earlier version; they do not guarantee resistance to
+  recovery or unchanged runtime performance.
+- Updated the build toolchain and dependencies, including Gradle 9.9.1, Kotlin 2.4.21 and Dokka
+  2.3.0. Library and CLI bytecode still target Java 8; the Gradle plugin still targets Java 17,
+  and repository builds require JDK 21.
+
+### Fixed
+
+- Private/static method renaming no longer selects a name and descriptor that intercept an
+  inherited method reference through a subclass, preserving the original call target.
+- Shell completion suggests lowercase `bash` and `zsh` names.
+
+### Upgrade notes
+
+- Recompile applications or extensions that embed the Kotlin/JVM configuration API against
+  `1.2.0`. Adding `appliedMappings` changes `ObfuscationConfig` constructor and generated `copy`
+  JVM signatures; binary compatibility with previously compiled consumers is not guaranteed.
+  Keep the Obfaryn modules used by an embedding application on the same version.
+- Keep mappings paired with the output artifacts from the same run. Apply-mapping requires the
+  corresponding obfuscated dependency artifacts on the classpath; it does not merge their code
+  into the input.
+
 ## [1.1.0]
 
 Supersedes `1.1.0-RC1`; the changes below are on top of that pre-release (see its section for

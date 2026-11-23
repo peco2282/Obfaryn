@@ -47,7 +47,7 @@ pluginManagement {
 ```kotlin
 plugins {
   java
-  id("com.peco2282.obfaryn") version "1.0.0" // replace with the latest published version
+  id("com.peco2282.obfaryn") version "1.2.0" // replace with the latest published version
 }
 ```
 
@@ -103,14 +103,14 @@ Save a flag combination you reuse across projects as a named preset — see [Nam
 
 ```kotlin
 dependencies {
-  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0.0")
-  // or: obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-springboot:1.0.0")
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.2.0")
+  // or: obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-springboot:1.2.0")
 }
 obfaryn {
   platform = "paper" // or "springboot"
 }
 ```
-`obfarynPlatform` resolves from the same release repository as the plugin itself; it is not added to the application's own classpath or the output JAR. CLI equivalent: download the platform's JAR yourself and pass it with `--extension`, e.g. `obfaryn input.jar --extension obfaryn-platform-paper-1.0.0.jar --platform paper`. See [Discover an extension JAR](docs/assembly.md#discover-an-extension-jar).
+`obfarynPlatform` resolves from the same release repository as the plugin itself; it is not added to the application's own classpath or the output JAR. CLI equivalent: download the platform's JAR yourself and pass it with `--extension`, e.g. `obfaryn input.jar --extension obfaryn-platform-paper-1.2.0.jar --platform paper`. See [Discover an extension JAR](docs/assembly.md#discover-an-extension-jar).
 
 `obfaryn-platform-springboot` detects a Spring Boot application from an `@SpringBootApplication` class or a `META-INF/MANIFEST.MF` `Start-Class` attribute alone — it does not require the Spring Boot/Framework jars on the classpath, and does not unpack a Spring Boot executable jar's nested `BOOT-INF/classes`/`BOOT-INF/lib` layout; point it at an already-exploded set of classes or a plain (non-fat) jar. It protects `@Scheduled`/`@EventListener`/`@Async` methods and the application's `main` method, plus whatever they call, from virtualization the same way `obfaryn-platform-paper` protects event handlers and tick callbacks.
 Types annotated with `@ConfigurationProperties` retain their class name and public member names so
@@ -351,7 +351,7 @@ Platform providers and their runtime dependencies are loaded from `obfarynPlatfo
 ```kotlin
 plugins {
   java
-  id("com.peco2282.obfaryn") version "1.0.0" // replace with the latest published version
+  id("com.peco2282.obfaryn") version "1.2.0" // replace with the latest published version
 }
 
 repositories {
@@ -359,8 +359,8 @@ repositories {
 }
 
 dependencies {
-  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.0.0")
-  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:1.0.0")
+  obfarynPlatform("com.peco2282.obfaryn:obfaryn-platform-paper:1.2.0")
+  compileOnly("com.peco2282.obfaryn:obfaryn-annotations:1.2.0")
 }
 
 obfaryn {
@@ -409,7 +409,7 @@ For a multi-module build where an internal API, its implementation, and the appl
 
 ```kotlin
 // root build.gradle.kts
-plugins { id("com.peco2282.obfaryn") version "1.0.0" }
+plugins { id("com.peco2282.obfaryn") version "1.2.0" }
 
 obfarynAssembly {
   artifact(project(":api"))
