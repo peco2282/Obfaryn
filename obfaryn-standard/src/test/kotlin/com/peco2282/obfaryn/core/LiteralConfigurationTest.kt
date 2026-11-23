@@ -75,7 +75,7 @@ class LiteralConfigurationTest {
 
   @Test fun customStrategyAndPerPassRandomReachTheTransformers() {
     val keys = mutableListOf<Int>()
-    var numericRandomCalls = 0
+    val numericRandomBounds = mutableListOf<Int>()
     val strategy = object : StringEncryptionCodec by XorStringEncryptionCodec() {
       override fun encrypt(value: String, key: Int): StringEncryptionResult {
         keys += key
@@ -87,12 +87,16 @@ class LiteralConfigurationTest {
       stringEncryptionStrategy = strategy,
       stringRandom = object : Random(0) { override fun nextInt() = 123 },
       numberRandom = object : Random(0) {
-        override fun nextInt(): Int { numericRandomCalls++; return 456 }
+        override fun nextInt(bound: Int): Int {
+          numericRandomBounds += bound
+          return 1.coerceAtMost(bound - 1)
+        }
       },
     )).obfuscate(input(), output)
     assertTrue(keys.isNotEmpty())
     assertTrue(keys.all { it == 123 })
-    assertTrue(numericRandomCalls > 0)
+    assertTrue(numericRandomBounds.isNotEmpty())
+    assertTrue(numericRandomBounds.contains(Int.SIZE_BITS - 1))
     URLClassLoader(arrayOf(output.toUri().toURL()), platformClassLoader()).use { loader ->
       val type = loader.loadClass("sample.App")
       assertEquals("method secret", type.getMethod("message").invoke(null))

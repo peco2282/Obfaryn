@@ -27,17 +27,19 @@ class StringEncryptionCodecTest {
     }
   }
 
-  private fun loadOutput(node: ClassNode): Class<*> {
-    val writer = ClassWriter(ClassWriter.COMPUTE_MAXS)
-    node.accept(writer)
-    val bytes = writer.toByteArray()
+  private fun loadOutput(node: ClassNode, classes: Collection<ClassNode> = listOf(node)): Class<*> {
+    val bytecode = classes.associate { current ->
+      current.name.replace('/', '.') to ClassWriter(ClassWriter.COMPUTE_MAXS).also { current.accept(it) }.toByteArray()
+    }
     return object : ClassLoader(javaClass.classLoader) {
-      fun loadOutput() = defineClass(null, bytes, 0, bytes.size)
-    }.loadOutput()
+      override fun findClass(name: String): Class<*> = bytecode[name]?.let {
+        defineClass(name, it, 0, it.size)
+      } ?: super.findClass(name)
+    }.loadClass(node.name.replace('/', '.'))
   }
 
-  private fun assertRuntime(node: ClassNode): Class<*> {
-    val loaded = loadOutput(node)
+  private fun assertRuntime(node: ClassNode, classes: Collection<ClassNode> = listOf(node)): Class<*> {
+    val loaded = loadOutput(node, classes)
     listOf("", "hello", "日本語\u0000🔐").forEachIndexed { index, value ->
       val method = loaded.getMethod("text$index")
       assertEquals(value, method.invoke(null))
@@ -70,17 +72,68 @@ class StringEncryptionCodecTest {
         }
       }
       val node = owner(inInterface)
-      passes.single().transform(ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf()))
+      val context = ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf())
+      passes.single().transform(context)
       assertEquals(1, generated)
-      assertRuntime(node)
+      assertRuntime(node, context.classes.values)
     }
+  }
+
+  @Test fun `literal sites split effective keys with class and site context`() {
+    val effectiveKeys = mutableListOf<Int>()
+    val codec = object : StringEncryptionCodec {
+      override fun encrypt(value: String, key: Int): StringEncryptionResult {
+        effectiveKeys += key
+        return StringEncryptionResult("xx$value", key)
+      }
+      override fun generateDecryptor(owner: String, method: MethodNode) {
+        method.instructions.add(VarInsnNode(Opcodes.ALOAD, 0))
+        method.instructions.add(InsnNode(Opcodes.ICONST_2))
+        method.instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL,
+          "java/lang/String", "substring", "(I)Ljava/lang/String;", false))
+        method.instructions.add(InsnNode(Opcodes.ARETURN))
+        method.maxStack = 2
+        method.maxLocals = 2
+      }
+    }
+    val node = owner()
+    val transformed = ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf())
+    StringEncryptionTransformer(Random(11), codec).transform(transformed)
+    val calls = node.methods.flatMap { method ->
+      method.instructions.toArray().filterIsInstance<MethodInsnNode>()
+        .filter { it.owner == node.name && it.desc == "(Ljava/lang/String;II)Ljava/lang/String;" }
+        .map { method to it }
+    }
+    assertEquals(3, calls.size)
+    calls.forEachIndexed { index, (method, call) ->
+      val keyShare = call.previous.previous as LdcInsnNode
+      val slot = call.previous as LdcInsnNode
+      val context = Integer.rotateLeft(node.name.hashCode() xor (slot.cst as Int) * 0x3C6EF35F, 13) * -1640531527
+      assertNotEquals(effectiveKeys[index], keyShare.cst,
+        "${method.name} must not expose the codec's effective key as the static key argument")
+      assertEquals(effectiveKeys[index], (keyShare.cst as Int) xor context)
+    }
+    val mixerClass = transformed.classes.values.single { it !== node }
+    val keyMixers = mixerClass.methods.filter { method ->
+      method.access and Opcodes.ACC_SYNTHETIC != 0 && method.desc == "(III)I" &&
+        method.instructions.toArray().any { it.opcode == Opcodes.IRETURN }
+    }
+    assertEquals(1, keyMixers.size)
+    val keyMixer = keyMixers.single()
+    assertTrue(node.methods.any { method ->
+      method.instructions.toArray().filterIsInstance<MethodInsnNode>().any {
+        it.owner == mixerClass.name && it.name == keyMixer.name && it.desc == keyMixer.desc
+      }
+    })
+    assertRuntime(node, transformed.classes.values)
   }
 
   @Test fun `default XOR codec is executable in classes and interfaces`() {
     for (inInterface in listOf(false, true)) {
       val node = owner(inInterface)
-      StringEncryptionTransformer(Random(1), com.peco2282.obfaryn.transformer.XorStringEncryptionCodec()).transform(ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf()))
-      assertRuntime(node)
+      val context = ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf())
+      StringEncryptionTransformer(Random(1), com.peco2282.obfaryn.transformer.XorStringEncryptionCodec()).transform(context)
+      assertRuntime(node, context.classes.values)
     }
   }
 
@@ -118,8 +171,9 @@ class StringEncryptionCodecTest {
           maxStack = 1
         })
       }
-      StringEncryptionTransformer(Random(3)).transform(ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf()))
-      val method = loadOutput(node).getMethod("large")
+      val context = ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf())
+      StringEncryptionTransformer(Random(3)).transform(context)
+      val method = loadOutput(node, context.classes.values).getMethod("large")
       assertEquals(value, method.invoke(null))
       assertSame(value.intern(), method.invoke(null))
     }
@@ -159,8 +213,9 @@ class StringEncryptionCodecTest {
         instructions.add(InsnNode(Opcodes.RETURN))
         maxStack = 1
       })
-      StringEncryptionTransformer(Random(1), codec).transform(ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf()))
-      val loaded = assertRuntime(node)
+      val context = ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf())
+      StringEncryptionTransformer(Random(1), codec).transform(context)
+      val loaded = assertRuntime(node, context.classes.values)
       assertSame("hello", loaded.getField("initial").get(null))
       assertEquals(3, decoded.get())
       val method = loaded.getMethod("text1")
@@ -178,8 +233,9 @@ class StringEncryptionCodecTest {
   @Test fun `concurrent first reads publish the same interned literal`() {
     for (inInterface in listOf(false, true)) {
       val node = owner(inInterface)
-      StringEncryptionTransformer(Random(8)).transform(ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf()))
-      val loaded = loadOutput(node)
+      val context = ObfuscationContext(linkedMapOf(node.name to node), linkedMapOf())
+      StringEncryptionTransformer(Random(8)).transform(context)
+      val loaded = loadOutput(node, context.classes.values)
       val method = loaded.getMethod("text2")
       val pool = java.util.concurrent.Executors.newFixedThreadPool(4)
       val barrier = java.util.concurrent.CyclicBarrier(4)

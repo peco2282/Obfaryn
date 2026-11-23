@@ -111,6 +111,10 @@ class NumberObfuscationStrategyTest {
       val pass = NumberObfuscationTransformer(Random(seed.toLong()))
       pass.transform(context(node))
       assertEquals(values.size - 6, pass.count)
+      assertTrue(node.methods.flatMap { it.instructions.toArray().toList() }
+        .filterIsInstance<MethodInsnNode>()
+        .any { it.name in setOf("rotateLeft", "rotateRight", "reverseBytes") &&
+          it.owner in setOf("java/lang/Integer", "java/lang/Long") })
       assertRuntime(node)
     }
   }

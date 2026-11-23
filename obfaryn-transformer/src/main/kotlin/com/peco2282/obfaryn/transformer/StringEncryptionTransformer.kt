@@ -29,6 +29,11 @@ class StringEncryptionTransformer(
 
   override fun transform(context: ObfuscationContext) {
     count = 0
+    var mixerOwner: String
+    do { mixerOwner = "obf/" + "S" + java.lang.Long.toUnsignedString(random.nextLong(), 36) }
+    while (context.hasClass(mixerOwner) || context.hasResource("$mixerOwner.class"))
+    val mixerName = "m" + java.lang.Long.toUnsignedString(random.nextLong(), 36)
+    var mixerUsed = false
     for (node in context.classes.values) {
       if (node.version < Opcodes.V1_8 || node.access and Opcodes.ACC_ANNOTATION != 0 || node.access and Opcodes.ACC_MODULE != 0) continue
       val helper = uniqueName(node)
@@ -50,10 +55,14 @@ class StringEncryptionTransformer(
           val encrypted = codec.encrypt(value, key)
           val replacement = InsnList()
           val slot = slots++
+          // Slots are unique within the owning class, so this binds the effective key to both
+          // class and literal site without adding another argument at every use site.
+          val context = literalContext(node.name, slot)
+          val keyShare = encrypted.key xor context
           val inInterface = node.access and Opcodes.ACC_INTERFACE != 0
           if (modifiedUtf8Size(encrypted.payload) <= 65535) {
             replacement.add(LdcInsnNode(encrypted.payload))
-            replacement.add(LdcInsnNode(encrypted.key))
+            replacement.add(LdcInsnNode(keyShare))
             replacement.add(LdcInsnNode(slot))
             replacement.add(MethodInsnNode(Opcodes.INVOKESTATIC, node.name, accessor,
               "(Ljava/lang/String;II)Ljava/lang/String;", inInterface))
@@ -61,7 +70,7 @@ class StringEncryptionTransformer(
             var name: String
             do { name = uniqueName(node) } while (!reserved.add(name))
             largeHelpers += largeLiteralAccessor(node.name, name, accessor, cacheName,
-              encrypted.payload, encrypted.key, slot, inInterface)
+              encrypted.payload, keyShare, slot, inInterface)
             replacement.add(MethodInsnNode(Opcodes.INVOKESTATIC, node.name, name, "()Ljava/lang/String;", inInterface))
           }
           method.instructions.insertBefore(insn, replacement)
@@ -81,7 +90,9 @@ class StringEncryptionTransformer(
         }
         node.methods.addAll(largeHelpers)
         node.methods.add(decryptor)
-        node.methods.add(cachedAccessor(node.name, accessor, helper, cacheName, access, inInterface))
+        node.methods.add(cachedAccessor(node.name, accessor, helper, mixerOwner, mixerName,
+          cacheName, access, inInterface))
+        mixerUsed = true
         val fieldAccess = (if (inInterface) Opcodes.ACC_PUBLIC else Opcodes.ACC_PRIVATE) or
           Opcodes.ACC_STATIC or Opcodes.ACC_FINAL or Opcodes.ACC_SYNTHETIC
         node.fields.add(FieldNode(fieldAccess, cacheName, "Ljava/util/concurrent/atomic/AtomicReferenceArray;", null, null))
@@ -101,6 +112,7 @@ class StringEncryptionTransformer(
         initializer.maxStack = maxOf(initializer.maxStack, 3)
       }
     }
+    if (mixerUsed) context.putClass(keyMixer(mixerOwner, mixerName))
   }
 
   private fun modifiedUtf8Size(value: String): Long = value.sumOf { character ->
@@ -109,7 +121,7 @@ class StringEncryptionTransformer(
 
   /** Oversized payloads are assembled only on a cache miss, never on repeated reads. */
   private fun largeLiteralAccessor(owner: String, name: String, accessor: String, field: String,
-    payload: String, key: Int, slot: Int, inInterface: Boolean): MethodNode {
+    payload: String, keyShare: Int, slot: Int, inInterface: Boolean): MethodNode {
     val access = (if (inInterface) Opcodes.ACC_PUBLIC else Opcodes.ACC_PRIVATE) or Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC
     return MethodNode(access, name, "()Ljava/lang/String;", null, null).apply {
       val miss = LabelNode()
@@ -138,7 +150,7 @@ class StringEncryptionTransformer(
         instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false))
       }
       instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false))
-      instructions.add(LdcInsnNode(key))
+      instructions.add(LdcInsnNode(keyShare))
       instructions.add(LdcInsnNode(slot))
       instructions.add(MethodInsnNode(Opcodes.INVOKESTATIC, owner, accessor, "(Ljava/lang/String;II)Ljava/lang/String;", inInterface))
       instructions.add(InsnNode(Opcodes.ARETURN))
@@ -148,7 +160,8 @@ class StringEncryptionTransformer(
   }
 
   /** Cache slots are fixed at build time; generated calls cannot grow the cache. */
-  private fun cachedAccessor(owner: String, name: String, decoder: String, field: String,
+  private fun cachedAccessor(owner: String, name: String, decoder: String,
+    mixerOwner: String, mixerName: String, field: String,
     access: Int, inInterface: Boolean): MethodNode =
     MethodNode(access, name, "(Ljava/lang/String;II)Ljava/lang/String;", null, null).apply {
       val miss = LabelNode()
@@ -165,7 +178,7 @@ class StringEncryptionTransformer(
       instructions.add(JumpInsnNode(Opcodes.IFNONNULL, initialized))
       // Preserve LDC semantics during supertype initialization without depending on our cache.
       instructions.add(VarInsnNode(Opcodes.ALOAD, 0))
-      instructions.add(VarInsnNode(Opcodes.ILOAD, 1))
+      emitEffectiveKey(instructions, owner, mixerOwner, mixerName, 1, 2)
       instructions.add(MethodInsnNode(Opcodes.INVOKESTATIC, owner, decoder,
         "(Ljava/lang/String;I)Ljava/lang/String;", inInterface))
       instructions.add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/String", "intern", "()Ljava/lang/String;", false))
@@ -184,7 +197,7 @@ class StringEncryptionTransformer(
       instructions.add(FrameNode(Opcodes.F_NEW, 4,
         arrayOf<Any>("java/lang/String", Opcodes.INTEGER, Opcodes.INTEGER, "java/lang/Object"), 0, null))
       instructions.add(VarInsnNode(Opcodes.ALOAD, 0))
-      instructions.add(VarInsnNode(Opcodes.ILOAD, 1))
+      emitEffectiveKey(instructions, owner, mixerOwner, mixerName, 1, 2)
       instructions.add(MethodInsnNode(Opcodes.INVOKESTATIC, owner, decoder,
         "(Ljava/lang/String;I)Ljava/lang/String;", inInterface))
       // LDC strings are interned; retain identity across sites, classes, and concurrent first calls.
@@ -201,8 +214,43 @@ class StringEncryptionTransformer(
       instructions.add(TypeInsnNode(Opcodes.CHECKCAST, "java/lang/String"))
       instructions.add(InsnNode(Opcodes.ARETURN))
       maxLocals = 5
-      maxStack = 4
+      maxStack = 5
     }
+
+  private fun literalContext(owner: String, slot: Int): Int =
+    Integer.rotateLeft(owner.hashCode() xor slot * 0x3C6EF35F, 13) * -1640531527
+
+  private fun keyMixer(owner: String, name: String): ClassNode = ClassNode().apply {
+    version = Opcodes.V1_8
+    access = Opcodes.ACC_PUBLIC or Opcodes.ACC_FINAL or Opcodes.ACC_SUPER or Opcodes.ACC_SYNTHETIC
+    this.name = owner
+    superName = "java/lang/Object"
+    methods.add(MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC,
+      name, "(III)I", null, null).apply {
+      instructions.add(VarInsnNode(Opcodes.ILOAD, 0))
+      instructions.add(VarInsnNode(Opcodes.ILOAD, 1))
+      instructions.add(VarInsnNode(Opcodes.ILOAD, 2))
+      instructions.add(LdcInsnNode(0x3C6EF35F))
+      instructions.add(InsnNode(Opcodes.IMUL))
+      instructions.add(InsnNode(Opcodes.IXOR))
+      instructions.add(LdcInsnNode(13))
+      instructions.add(MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Integer", "rotateLeft", "(II)I", false))
+      instructions.add(LdcInsnNode(-1640531527))
+      instructions.add(InsnNode(Opcodes.IMUL))
+      instructions.add(InsnNode(Opcodes.IXOR))
+      instructions.add(InsnNode(Opcodes.IRETURN))
+      maxStack = 4
+      maxLocals = 3
+    })
+  }
+
+  private fun emitEffectiveKey(code: InsnList, owner: String, mixerOwner: String, mixerName: String,
+    keyShareSlot: Int, cacheSlot: Int) {
+    code.add(VarInsnNode(Opcodes.ILOAD, keyShareSlot))
+    code.add(LdcInsnNode(owner.hashCode()))
+    code.add(VarInsnNode(Opcodes.ILOAD, cacheSlot))
+    code.add(MethodInsnNode(Opcodes.INVOKESTATIC, mixerOwner, mixerName, "(III)I", false))
+  }
 
   /** Moves StringConcatFactory recipe literals into ordinary LDC instructions so they are encrypted below. */
   private fun desugarStringConcats(method: MethodNode) {

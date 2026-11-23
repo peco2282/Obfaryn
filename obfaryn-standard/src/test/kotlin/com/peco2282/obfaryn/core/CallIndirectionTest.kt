@@ -8,6 +8,7 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.InvokeDynamicInsnNode
+import org.objectweb.asm.tree.MethodInsnNode
 import java.net.URLClassLoader
 import java.nio.file.Files
 import java.nio.file.Path
@@ -19,6 +20,16 @@ import kotlin.io.path.writeText
 
 class CallIndirectionTest {
   @TempDir lateinit var dir: Path
+
+  private fun decodeStaticArgument(text: String, initialKey: Int): String {
+    var key = initialKey
+    return buildString(text.length / 4) {
+      for (index in 0 until text.length / 4) {
+        key = key * 1664525 + 1013904223
+        append((text.substring(index * 4, index * 4 + 4).toInt(16) xor (key ushr 16)).toChar())
+      }
+    }
+  }
 
   private fun input(): Path {
     val source = dir.resolve("Main.java")
@@ -44,6 +55,7 @@ class CallIndirectionTest {
         public static synchronized double wide(double x, long y) { return Math.scalb(x, 2) + y; }
         public static Class<?> lookup() { return java.lang.invoke.MethodHandles.lookup().lookupClass(); }
         public static Class<?> load() throws Exception { return Class.forName("java.lang.String"); }
+        public static int rotate(int value) { return Integer.rotateLeft(value, 7); }
         @HotPath public static int hot(int n) { return Math.abs(n); }
         @NoObfuscation public static int plain(int n) { return Math.abs(n); }
       }
@@ -89,7 +101,25 @@ class CallIndirectionTest {
         assertTrue(sites("calc").isNotEmpty())
         assertTrue(sites("hot").isEmpty())
         assertTrue(sites("plain").isEmpty())
+        assertTrue(sites("rotate").isEmpty())
+        assertTrue(node.methods.single { it.name == "rotate" }.instructions.toArray()
+          .filterIsInstance<MethodInsnNode>().any { it.owner == "java/lang/Integer" && it.name == "rotateLeft" })
         assertFalse(sites("calc").flatMap { it.bsmArgs.toList() }.any { it == "java/lang/Math" || it == "abs" })
+        for (site in sites("calc")) {
+          assertEquals(4, site.bsmArgs.size)
+          assertTrue(site.bsm.name in setOf("linkA", "linkB"))
+          val variantA = site.bsm.name == "linkA"
+          val metadata = site.bsmArgs[if (variantA) 0 else 1] as String
+          val keyShare = site.bsmArgs[if (variantA) 1 else 0] as Int
+          val ownerEnd = 16 + metadata.substring(0, 8).toUInt(16).toInt()
+          val nameEnd = ownerEnd + metadata.substring(8, 16).toUInt(16).toInt()
+          val decodedWithStaticShare = listOf(metadata.substring(16, ownerEnd),
+            metadata.substring(ownerEnd, nameEnd), metadata.substring(nameEnd))
+            .map { decodeStaticArgument(it, keyShare) }
+          assertFalse(decodedWithStaticShare.any {
+            it == "java/lang/Math" || it == "abs" || it.startsWith('(')
+          }, "The bootstrap key share alone must not recover linkage metadata")
+        }
       }
       URLClassLoader(arrayOf(output.toUri().toURL()), null).use { loader ->
         val cls = loader.loadClass("app.Main")
@@ -106,6 +136,7 @@ class CallIndirectionTest {
         assertEquals(11.0, cls.getMethod("wide", Double::class.javaPrimitiveType, Long::class.javaPrimitiveType).invoke(null, 2.0, 3L))
         assertEquals(cls, cls.getMethod("lookup").invoke(null))
         assertEquals(String::class.java, cls.getMethod("load").invoke(null))
+        assertEquals(Integer.rotateLeft(123456, 7), cls.getMethod("rotate", integer).invoke(null, 123456))
       }
     }
   }

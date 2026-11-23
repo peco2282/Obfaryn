@@ -1,13 +1,12 @@
 package com.peco2282.obfaryn.transformer.linkage
 
-import org.objectweb.asm.Handle
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.*
 
 /** Bounded linkage-only entrypoints. Caller initialization remains an explicit runtime action. */
 internal object PrelinkGenerator {
-  fun generate(owner: ClassNode, sites: List<InvokeDynamicInsnNode>, bootstrap: Handle) {
+  fun generate(owner: ClassNode, sites: List<InvokeDynamicInsnNode>) {
     require(owner.methods.none { it.name.startsWith("\$obfaryn\$prelink") }) { "Reserved prelink method collision in ${owner.name}" }
     val inInterface = owner.access and Opcodes.ACC_INTERFACE != 0
     val access = Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC
@@ -26,7 +25,7 @@ internal object PrelinkGenerator {
           add(VarInsnNode(Opcodes.ILOAD, 2)); add(VarInsnNode(Opcodes.ILOAD, 1)); add(JumpInsnNode(Opcodes.IF_ICMPGE, done))
           add(VarInsnNode(Opcodes.ALOAD, 3)); add(LdcInsnNode(site.name)); add(LdcInsnNode(Type.getMethodType(site.desc)))
           for (argument in site.bsmArgs) add(LdcInsnNode(argument))
-          add(MethodInsnNode(Opcodes.INVOKESTATIC, bootstrap.owner, bootstrap.name, bootstrap.desc, false))
+          add(MethodInsnNode(Opcodes.INVOKESTATIC, site.bsm.owner, site.bsm.name, site.bsm.desc, false))
           add(InsnNode(Opcodes.POP)); add(IincInsnNode(2, 1)); add(next)
         }
         add(done); add(VarInsnNode(Opcodes.ILOAD, 2)); add(InsnNode(Opcodes.IRETURN))

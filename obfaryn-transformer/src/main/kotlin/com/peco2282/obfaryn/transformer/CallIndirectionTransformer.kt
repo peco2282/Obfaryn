@@ -56,9 +56,12 @@ class CallIndirectionTransformer @JvmOverloads constructor(
       helperName = "obf/" + "L" + java.lang.Long.toUnsignedString(random.nextLong(), 36)
     } while (context.hasClass(helperName) || context.hasResource("$helperName.class") ||
       context.hasClass(helperName + "\$C") || context.hasResource(helperName + "\$C.class"))
-    val bootstrap = Handle(Opcodes.H_INVOKESTATIC, helperName, "link",
+    val bootstrapA = Handle(Opcodes.H_INVOKESTATIC, helperName, "linkA",
       "(Ljava/lang/invoke/MethodHandles\$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;" +
-        "Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)Ljava/lang/invoke/CallSite;", false)
+        "Ljava/lang/String;III)Ljava/lang/invoke/CallSite;", false)
+    val bootstrapB = Handle(Opcodes.H_INVOKESTATIC, helperName, "linkB",
+      "(Ljava/lang/invoke/MethodHandles\$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;" +
+        "ILjava/lang/String;II)Ljava/lang/invoke/CallSite;", false)
     for (owner in context.classes.values.toList()) {
       if (!(includeClass?.invoke(owner.name) ?: context.transformationInputs.isApplicationClass(owner.name)) || owner.version and 0xffff < Opcodes.V1_8) continue
       // Reserve constant-pool headroom before expanding each target into three encoded strings.
@@ -76,12 +79,14 @@ class CallIndirectionTransformer @JvmOverloads constructor(
         method.accept(size)
         var codeBudget = ((65535 - size.maxSize) / 2).coerceAtLeast(0)
         for (call in method.instructions.toArray().filterIsInstance<MethodInsnNode>()) {
-          if (budget == 0 || codeBudget == 0 || maxOf(call.owner.length, call.name.length, call.desc.length) > 16383 ||
+          if (budget == 0 || codeBudget == 0 || call.owner.length + call.name.length + call.desc.length > 16379 ||
             call.opcode !in setOf(Opcodes.INVOKESTATIC, Opcodes.INVOKEVIRTUAL, Opcodes.INVOKEINTERFACE) ||
             call.owner.startsWith('[') || call.owner == "java/lang/Object" && call.name == "clone" ||
             call.owner == "java/lang/invoke/MethodHandle" ||
             call.owner == "java/lang/invoke/VarHandle" ||
             call.owner == "java/lang/invoke/MethodHandles" ||
+            call.name in setOf("rotateLeft", "rotateRight", "reverseBytes") &&
+              call.owner in setOf("java/lang/Integer", "java/lang/Long") ||
             call.owner == "java/lang/Class" && call.name == "forName") {
             skipped++
             continue
@@ -102,8 +107,20 @@ class CallIndirectionTransformer @JvmOverloads constructor(
           val key = random.nextInt()
           var siteName: String
           do { siteName = "c" + Integer.toUnsignedString(random.nextInt(), 36) } while (!siteNames.add(siteName))
+          // The bootstrap argument is only one key share. The effective metadata key also
+          // depends on the actual caller and this call-site name, which the JVM supplies to the
+          // bootstrap. Dumping the static arguments and invoking the decoder with [key] alone no
+          // longer recovers every target in the archive.
+          val effectiveKey = contextualKey(key, owner.name.replace('/', '.'), siteName)
+          val metadata = pack(call.owner, call.name, call.desc, effectiveKey)
+          val maskShare = random.nextInt()
+          val keyShare = key xor Integer.rotateLeft(maskShare, siteName.hashCode() and 31)
+          val encodedKind = call.opcode xor Integer.rotateLeft(keyShare xor maskShare, 3)
+          val variantA = random.nextBoolean()
           val replacement = InvokeDynamicInsnNode(siteName,
-            descriptor, bootstrap, encode(call.owner, key), encode(call.name, key), encode(call.desc, key), key, call.opcode)
+            descriptor, if (variantA) bootstrapA else bootstrapB,
+            *(if (variantA) arrayOf<Any>(metadata, keyShare, maskShare, encodedKind)
+              else arrayOf<Any>(keyShare, metadata, encodedKind, maskShare)))
           method.instructions.set(call, replacement)
           ownerSites += replacement
           calls++
@@ -111,7 +128,7 @@ class CallIndirectionTransformer @JvmOverloads constructor(
           codeBudget--
         }
       }
-      if (prelink && ownerSites.isNotEmpty()) PrelinkGenerator.generate(owner, ownerSites, bootstrap)
+      if (prelink && ownerSites.isNotEmpty()) PrelinkGenerator.generate(owner, ownerSites)
     }
     if (calls > 0) {
       val names = mapOf(templateName to helperName, "$templateName\$SiteCache" to "$helperName\$C")
@@ -137,5 +154,19 @@ class CallIndirectionTransformer @JvmOverloads constructor(
         append((character.code xor (key ushr 16)).toString(16).padStart(4, '0'))
       }
     }
+  }
+
+  private fun contextualKey(key: Int, caller: String, siteName: String): Int {
+    var mixed = key xor caller.hashCode()
+    mixed = Integer.rotateLeft(mixed, 11) * -1640531527
+    return mixed xor Integer.rotateLeft(siteName.hashCode(), 7)
+  }
+
+  private fun pack(owner: String, name: String, descriptor: String, key: Int): String {
+    val encodedOwner = encode(owner, key)
+    val encodedName = encode(name, key)
+    return encodedOwner.length.toUInt().toString(16).padStart(8, '0') +
+      encodedName.length.toUInt().toString(16).padStart(8, '0') +
+      encodedOwner + encodedName + encode(descriptor, key)
   }
 }

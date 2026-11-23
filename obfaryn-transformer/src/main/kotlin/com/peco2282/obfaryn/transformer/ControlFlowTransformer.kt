@@ -243,27 +243,24 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
       do value = random.nextInt() while (value == 0 || !usedStates.add(value))
       value
     }
-    val stateLocal = computedMaxLocals
-    method.maxLocals = computedMaxLocals + 1
+    val maskLocal = computedMaxLocals
+    val stateLocal = computedMaxLocals + 1
+    method.maxLocals = computedMaxLocals + 2
     val dispatch = LabelNode()
     val defaultCase = LabelNode()
     val caseLabels = Array(blocks.size) { LabelNode() }
     val output = InsnList()
 
-    // Only entry installs a literal state. Every subsequent edge depends on its source state.
-    fun InsnList.route(block: Int, from: Int? = null) {
-      if (from == null) {
-        add(LdcInsnNode(states[block]))
-      } else {
-        add(VarInsnNode(Opcodes.ILOAD, stateLocal))
-        if (random.nextBoolean()) {
-          add(LdcInsnNode(states[from] xor states[block]))
-          add(InsnNode(Opcodes.IXOR))
-        } else {
-          add(LdcInsnNode(states[block] - states[from]))
-          add(InsnNode(Opcodes.IADD))
-        }
-      }
+    // Keep the dispatcher state encoded in a separate local. Recovering edges now requires local
+    // value/data-flow analysis rather than treating each switch case as the raw stored state.
+    fun InsnList.route(block: Int) {
+      var edgeMask: Int
+      do edgeMask = random.nextInt() while (edgeMask == 0)
+      add(LdcInsnNode(edgeMask))
+      add(VarInsnNode(Opcodes.ISTORE, maskLocal))
+      add(VarInsnNode(Opcodes.ILOAD, maskLocal))
+      add(LdcInsnNode(states[block]))
+      add(InsnNode(Opcodes.IXOR))
       add(VarInsnNode(Opcodes.ISTORE, stateLocal))
       add(JumpInsnNode(Opcodes.GOTO, dispatch))
     }
@@ -289,6 +286,8 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
         is Int, is Float -> {
           val bits = if (value is Float) value.toRawBits() else value.toInt()
           add(VarInsnNode(Opcodes.ILOAD, stateLocal))
+          add(VarInsnNode(Opcodes.ILOAD, maskLocal))
+          add(InsnNode(Opcodes.IXOR))
           add(LdcInsnNode(bits xor states[block]))
           add(InsnNode(Opcodes.IXOR))
           if (value is Float) add(MethodInsnNode(Opcodes.INVOKESTATIC,
@@ -297,6 +296,8 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
         is Long, is Double -> {
           val bits = if (value is Double) value.toRawBits() else value.toLong()
           add(VarInsnNode(Opcodes.ILOAD, stateLocal))
+          add(VarInsnNode(Opcodes.ILOAD, maskLocal))
+          add(InsnNode(Opcodes.IXOR))
           add(InsnNode(Opcodes.I2L))
           add(LdcInsnNode(bits xor states[block].toLong()))
           add(InsnNode(Opcodes.LXOR))
@@ -341,18 +342,18 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
           }
           for ((destination, trampoline) in routes) {
             output.add(trampoline)
-            output.route(target(destination), blockIndex)
+            output.route(target(destination))
           }
         } else if (nodeIndex != lastExecutable || node !is JumpInsnNode) {
           output.emit(node, blockIndex)
         } else if (node.opcode == Opcodes.GOTO) {
-          output.route(target(node.label), blockIndex)
+          output.route(target(node.label))
         } else {
           val taken = LabelNode()
           output.add(JumpInsnNode(node.opcode, taken))
-          output.route(blockIndex + 1, blockIndex)
+          output.route(blockIndex + 1)
           output.add(taken)
-          output.route(target(node.label), blockIndex)
+          output.route(target(node.label))
         }
       }
       val terminal = nodes.getOrNull(lastExecutable)?.opcode
@@ -360,12 +361,14 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
         nodes.getOrNull(lastExecutable) !is JumpInsnNode &&
         nodes.getOrNull(lastExecutable) !is TableSwitchInsnNode &&
         nodes.getOrNull(lastExecutable) !is LookupSwitchInsnNode) {
-        output.route(blockIndex + 1, blockIndex)
+        output.route(blockIndex + 1)
       }
     }
 
     output.add(dispatch)
     output.add(VarInsnNode(Opcodes.ILOAD, stateLocal))
+    output.add(VarInsnNode(Opcodes.ILOAD, maskLocal))
+    output.add(InsnNode(Opcodes.IXOR))
     val sorted = blocks.indices.sortedBy { states[it] }
     output.add(LookupSwitchInsnNode(defaultCase, sorted.map { states[it] }.toIntArray(),
       sorted.map { caseLabels[it] }.toTypedArray()))

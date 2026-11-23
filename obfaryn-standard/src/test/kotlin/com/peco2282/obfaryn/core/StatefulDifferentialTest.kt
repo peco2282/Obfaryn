@@ -98,7 +98,10 @@ class StatefulDifferentialTest {
       val result = Obfuscator(config.copy(seed = seed)).obfuscate(input, output)
       assertEquals(0, result.methodsVirtualized)
       when (name) {
-        "arithmetic", "combined" -> assertTrue(result.transformerReports.single { it.id == "integer-arithmetic" }.metrics.getValue("transformed") > 0)
+        "arithmetic", "combined" -> assertTrue(
+          result.transformerReports.single { it.id == "integer-arithmetic" }.metrics.getValue("transformed") > 0,
+          "integer arithmetic did not transform any operation for config=$name seed=$seed",
+        )
         "flow" -> assertTrue(result.branchesObfuscated > 0)
         "calls" -> assertTrue(result.transformerReports.single { it.id == "call-indirection" }.metrics.getValue("indirectedCalls") > 0)
         "strings" -> assertTrue(result.stringsEncrypted > 0)
