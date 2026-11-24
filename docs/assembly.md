@@ -123,6 +123,16 @@ Recipes may call `excludeClass`, `excludeResource`, and `protectInput` on `Assem
 
 Output tools register `OutputProcessor` through assembly. `beforeWrite` runs after passes, including on dry runs; `afterWrite` runs only after the JAR has been written. Hooks run in registration order. Integrity sealing is supplied by the standard recipe through this contract. Arbitrary extension code is trusted code; these contracts are not a security sandbox, filesystem lock or multi-artifact transaction.
 
+## External provider stability contract
+
+An out-of-tree recipe — whether an open sample like `examples/custom-extension`, a platform package, or a separately distributed provider — is expected to build against one fixed contract set and nothing else. That set is: the provider/recipe entry points (`TransformationPackageProvider`, `TransformationPackage`, `PlatformPackages`), the assembly services (`AssemblyContext`, `OutputProcessor`), the pass surface (`Transformer`, `TransformerRegistry`, `PipelineConfigurer`, `ObfuscationContext` and its `classes`/`putClass`/`putResource`/mutation members), the protection surface (`BodyFeature`, `ProtectionRule`, `TransformationBudget`, `MethodTransformationReport`, the annotation-policy reader), and the renaming surface (`RenamingTransformer`, `NameMapping`, `packageMapping`) together with the platform types. These are the stability-controlled, breaking-change-managed APIs: they live in `obfaryn-api` and follow its SemVer. A recipe that stays on this set composes with the standard recipe through the shared registry and executor regardless of how it is packaged or distributed, exactly as the API-only sample proves.
+
+A recipe must not reach past that set into `obfaryn-core`, `obfaryn-standard` or `obfaryn-transformer` internals, which are not stability-controlled and may change without notice.
+
+### Injected runtime support is self-contained
+
+A recipe that needs runtime support in the output (a loader, a decoder, an integrity or linkage helper) embeds its own self-contained classes through `context.putClass`, compiled only against the public API or the recipe's own sources, and takes responsibility for their names and exclusions. It does not depend on the `obfaryn-runtime` module or reuse its types as a shared library: that module is the optional prelink API an *application* compiles against (see [protection controls](protection.md)), not an internal toolkit for recipes, and its internals are not part of the contract set above. Keeping injected runtime classes independent of in-tree implementation modules is what lets an out-of-tree recipe evolve its own protection without tracking core/standard internals, and keeps each output archive self-contained.
+
 ## Validation
 
 With JDK 21:

@@ -125,6 +125,16 @@ platformの`extensions()`から`PlatformPackages { context, options -> listOf(my
 
 出力ツールは`OutputProcessor`を登録します。`beforeWrite`はパスの後でdry runでも呼ばれ、`afterWrite`はJAR出力成功後だけ呼ばれます。フックの順序は登録順です。標準の整合性保護もこの契約を使います。任意の拡張コードを実行する仕組みであり、セキュリティ用サンドボックス、ファイルロック、複数成果物のトランザクションではありません。
 
+## 外部プロバイダの安定契約
+
+ツリー外のレシピ——`examples/custom-extension`のような公開サンプル、platformパッケージ、あるいは別配布のプロバイダ——は、固定された契約セットだけに対してビルドすることを前提とします。そのセットとは、プロバイダ/レシピの入口(`TransformationPackageProvider`・`TransformationPackage`・`PlatformPackages`)、組み立てサービス(`AssemblyContext`・`OutputProcessor`)、パス面(`Transformer`・`TransformerRegistry`・`PipelineConfigurer`・`ObfuscationContext`とその`classes`/`putClass`/`putResource`等の変更メンバー)、保護面(`BodyFeature`・`ProtectionRule`・`TransformationBudget`・`MethodTransformationReport`・アノテーション方針リーダー)、改名面(`RenamingTransformer`・`NameMapping`・`packageMapping`)、およびplatform型です。これらが安定性を管理し破壊的変更を統制するAPIで、`obfaryn-api`に属しそのSemVerに従います。このセットに留まるレシピは、パッケージ化や配布方法に関わらず共通の登録経路と実行器を通じて標準レシピと合成でき、API限定のサンプルがそれを実証しています。
+
+レシピはこのセットを越えて`obfaryn-core`・`obfaryn-standard`・`obfaryn-transformer`の内部に手を伸ばしてはいけません。これらは安定性を管理しておらず、予告なく変わり得ます。
+
+### 注入するランタイムは自己完結させる
+
+出力側にランタイム支援(ローダ、デコーダ、整合性やリンク用ヘルパー)が必要なレシピは、公開APIまたは自身のソースだけに対してコンパイルした自己完結クラスを`context.putClass`で注入し、その名前と除外の責任を負います。`obfaryn-runtime`モジュールに依存したりその型を共有ライブラリとして流用したりはしません——そのモジュールは*アプリケーション*がコンパイル対象とする任意のprelink API(「[保護制御](protection.ja.md)」参照)であって、レシピ用の内部ツールキットではなく、その内部は上記の契約セットに含まれません。注入するランタイムクラスをツリー内の実装モジュールから独立させておくことが、ツリー外レシピがcore/standardの内部を追わずに独自の保護を発展させられる前提であり、各出力アーカイブの自己完結性も保ちます。
+
 ## 検証
 
 JDK 21で実行します。
