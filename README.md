@@ -177,8 +177,6 @@ The build uses JDK 21 and Kotlin Gradle Plugin 2.4.21. The `obfaryn-api`, `obfar
 
 ## License
 
-Development of community improvements, additional-protection candidates and experiments follows the [edition development policy](docs/edition-policy.md).
-
 Obfaryn's original source code, including its API, annotations, core, CLI, and Gradle plugin, is licensed under the [Mozilla Public License 2.0](LICENSE). If you modify and distribute an Obfaryn source file, make that file's source available under MPL 2.0. Separate files that merely use Obfaryn can have their own license. The Gradle Wrapper and third-party dependencies retain their respective licenses.
 
 Because Obfaryn embeds and generates runtime code (the `obfaryn-runtime` templates and the verifier, virtualization, prelink/linkage, call-indirection, and literal-decoder code) into the JARs it produces, the [Obfaryn Output and Runtime Exception](LICENSE-EXCEPTION) grants additional permission: you may ship that embedded code inside your obfuscated output under terms of your own choosing (including proprietary), without the output or your own code becoming MPL-covered. The exception adds permission only for code embedded in outputs; distributing Obfaryn itself stays under the MPL.
