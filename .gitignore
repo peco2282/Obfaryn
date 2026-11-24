@@ -36,3 +36,5 @@ secrets.properties
 *.key
 *.p12
 *.jks
+
+IMPLEMENTATION_DIRECTION.md
