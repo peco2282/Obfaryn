@@ -87,7 +87,7 @@ object ObfuscatedFixtures {
         "--release", "8", "-d", classes.toString(), source.toString())
     val produced = Files.walk(classes).use { it.filter { p -> p.toString().endsWith(".class") }.count() }
     check(exit == 0 && produced > 0L) {
-      "benchmark fixture failed to compile (exit $exit, produced=$produced, source=$source exists=${Files.exists(source)}): ${diagnostics}"
+      "benchmark fixture failed to compile (exit $exit, produced=$produced, source=$source exists=${Files.exists(source)}): $diagnostics"
     }
     val jar = dir.resolve("original.jar")
     JarOutputStream(Files.newOutputStream(jar)).use { out ->

@@ -39,7 +39,6 @@ class ObfuscationContext(
   val originalClassNames = mutableMapOf<String, String>()
   val originalMethodIdentities = mutableMapOf<String, String>()
   override var transformationInputs: TransformationInputs = TransformationInputs.EMPTY
-    set
   private val classMap = LinkedHashMap(classes)
   private val resourceMap = LinkedHashMap(resources)
   override val classes: Map<String, ClassNode> = Collections.unmodifiableMap(classMap)

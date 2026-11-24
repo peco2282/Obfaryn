@@ -39,7 +39,7 @@ internal object KotlinMemberConstraints {
     if (!helper.name.endsWith("\$default") ||
       helper.access and (Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC) != (Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC) ||
       (owner.visibleAnnotations.orEmpty() + owner.invisibleAnnotations.orEmpty()).none { it.desc == "Lkotlin/Metadata;" }) return null
-    return helper.instructions.toArray().filterIsInstance<MethodInsnNode>()
+    return helper.instructions.toArray().asSequence().filterIsInstance<MethodInsnNode>()
       .filter { it.name == helper.name.removeSuffix("\$default") }
       .map { MemberKey(it.owner, it.name, it.desc) }.distinct().singleOrNull()
   }

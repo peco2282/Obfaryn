@@ -12,7 +12,7 @@ internal object PrelinkGenerator {
     val access = Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC
     val chunks = sites.chunked(96)
     for ((index, chunk) in chunks.withIndex()) {
-      val method = MethodNode(access, "\$obfaryn\$prelink\$$index", "(II)I", null, arrayOf("java/lang/Throwable"))
+      val method = MethodNode(access, "\$obfaryn\$prelink$$index", "(II)I", null, arrayOf("java/lang/Throwable"))
       val done = LabelNode()
       with(method.instructions) {
         add(InsnNode(Opcodes.ICONST_0)); add(VarInsnNode(Opcodes.ISTORE, 2))
@@ -43,7 +43,7 @@ internal object PrelinkGenerator {
         add(InsnNode(Opcodes.ICONST_0)); add(VarInsnNode(Opcodes.ILOAD, 0)); add(LdcInsnNode(index * 96)); add(InsnNode(Opcodes.ISUB))
         add(MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Math", "max", "(II)I", false))
         add(VarInsnNode(Opcodes.ILOAD, 1)); add(VarInsnNode(Opcodes.ILOAD, 2)); add(InsnNode(Opcodes.ISUB))
-        add(MethodInsnNode(Opcodes.INVOKESTATIC, owner.name, "\$obfaryn\$prelink\$$index", "(II)I", inInterface))
+        add(MethodInsnNode(Opcodes.INVOKESTATIC, owner.name, "\$obfaryn\$prelink$$index", "(II)I", inInterface))
         add(VarInsnNode(Opcodes.ILOAD, 2)); add(InsnNode(Opcodes.IADD)); add(VarInsnNode(Opcodes.ISTORE, 2))
         add(VarInsnNode(Opcodes.ILOAD, 2)); add(VarInsnNode(Opcodes.ILOAD, 1)); add(JumpInsnNode(Opcodes.IF_ICMPGE, done))
         add(next)

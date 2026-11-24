@@ -332,7 +332,8 @@ class VirtualizationAnalyzer(patterns: List<String>, exclusions: List<String> = 
           })
       if (insn is LdcInsnNode && insn.cst !is Int && insn.cst !is Long && insn.cst !is Float &&
         insn.cst !is Double && insn.cst !is String &&
-        !((insn.cst as? Type)?.sort in setOf(Type.OBJECT, Type.ARRAY)))
+        (insn.cst as? Type)?.sort !in setOf(Type.OBJECT, Type.ARRAY)
+      )
         reject(VirtualizationRejectionReason.UNSUPPORTED_CONSTANT, "unsupported constant at instruction $index", index, insn.opcode)
       if (insn is LdcInsnNode && insn.cst is Type && (insn.cst as Type).sort in setOf(Type.OBJECT, Type.ARRAY)) {
         val type = insn.cst as Type

@@ -43,8 +43,7 @@ public final class IntegrityRuntime {
       if (!file.isFile()) {
         throw new SecurityException("Integrity anchor must originate from a JAR file");
       }
-      String identity = new StringBuilder(file.getCanonicalPath()).append('\n').append(file.length())
-          .append('\n').append(file.lastModified()).append('\n').append(publicKeyBase64).toString();
+      String identity = file.getCanonicalPath() + '\n' + file.length() + '\n' + file.lastModified() + '\n' + publicKeyBase64;
       if (VERIFIED.contains(identity)) return;
       PublicKey key = KeyFactory.getInstance("RSA").generatePublic(
           new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyBase64)));
@@ -58,7 +57,7 @@ public final class IntegrityRuntime {
           JarEntry entry = enumeration.nextElement();
           String name = entry.getName();
           if (!names.add(name)) {
-            throw new SecurityException(new StringBuilder("Duplicate JAR entry: ").append(name).toString());
+            throw new SecurityException("Duplicate JAR entry: " + name);
           }
           if (MANIFEST.equals(name)) {
             manifestEntry = entry;
@@ -94,7 +93,7 @@ public final class IntegrityRuntime {
           for (int i = 0; i < count; i++) {
             String name = input.readUTF();
             if (!manifestNames.add(name) || MANIFEST.equals(name) || SIGNATURE.equals(name)) {
-              throw new SecurityException(new StringBuilder("Invalid or duplicate manifest entry: ").append(name).toString());
+              throw new SecurityException("Invalid or duplicate manifest entry: " + name);
             }
             if (input.readInt() != 32) {
               throw new SecurityException("Invalid integrity digest length");
@@ -103,7 +102,7 @@ public final class IntegrityRuntime {
             input.readFully(expected);
             JarEntry entry = entries.remove(name);
             if (entry == null) {
-              throw new SecurityException(new StringBuilder("Missing JAR entry: ").append(name).toString());
+              throw new SecurityException("Missing JAR entry: " + name);
             }
             digest.reset();
             try (InputStream content = jar.getInputStream(entry)) {
@@ -113,7 +112,7 @@ public final class IntegrityRuntime {
               }
             }
             if (!MessageDigest.isEqual(expected, digest.digest())) {
-              throw new SecurityException(new StringBuilder("Integrity digest mismatch: ").append(name).toString());
+              throw new SecurityException("Integrity digest mismatch: " + name);
             }
           }
           if (input.read() != -1 || !entries.isEmpty()) {

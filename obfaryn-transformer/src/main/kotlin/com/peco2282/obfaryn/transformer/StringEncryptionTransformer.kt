@@ -40,7 +40,7 @@ class StringEncryptionTransformer(
       var accessor: String
       do { accessor = uniqueName(node) } while (accessor == helper)
       var cacheName: String
-      do { cacheName = "v\$" + java.lang.Long.toUnsignedString(random.nextLong(), 36) }
+      do { cacheName = "v$" + java.lang.Long.toUnsignedString(random.nextLong(), 36) }
       while (node.fields.any { it.name == cacheName })
       val largeHelpers = mutableListOf<MethodNode>()
       val reserved = mutableSetOf(helper, accessor)
@@ -330,7 +330,7 @@ class StringEncryptionTransformer(
 
   private fun uniqueName(node: ClassNode): String {
     var name: String
-    do { name = "v\$" + java.lang.Long.toUnsignedString(random.nextLong(), 36) } while (node.methods.any { it.name == name })
+    do { name = "v$" + java.lang.Long.toUnsignedString(random.nextLong(), 36) } while (node.methods.any { it.name == name })
     return name
   }
 

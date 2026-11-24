@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.peco2282.obfaryn.gradle
 
 import com.peco2282.obfaryn.api.protection.BodyFeature

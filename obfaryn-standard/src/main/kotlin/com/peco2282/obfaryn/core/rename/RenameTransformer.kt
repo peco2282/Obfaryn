@@ -140,11 +140,11 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
         val outer = classMapping[nesting.first] ?: nesting.first
         val candidate = if (metadata.isCompanionClass(node.name)) {
           // Kotlin reflection resolves the companion instance through its named static field.
-          "$outer\$${nesting.second}"
+          "$outer$${nesting.second}"
         } else {
           val generator = generatedByOuter.getOrPut(outer) { SequentialNameGenerator() }
           var name: String
-          do { name = "$outer\$${generator.next()}" }
+          do { name = "$outer$${generator.next()}" }
           while (name in occupied || name.substringAfterLast('$') in companionNames[nesting.first].orEmpty())
           name
         }
@@ -227,7 +227,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
     for ((helper, target) in defaultHelpers) {
       if (keep.method(helper.owner, helper.name, helper.desc)) continue
       val renamed = methodMapping[target] ?: families.inheritedReferences[target] ?: continue
-      methodMapping[helper] = renamed + "\$default"
+      methodMapping[helper] = "$renamed\$default"
     }
 
     val remapper = object : Remapper() {
@@ -256,7 +256,7 @@ class RenameTransformer(private val config: ObfuscationConfig, private val keep:
   }
 
   private fun capturedKotlinOuter(node: ClassNode, field: FieldNode): Boolean =
-    keep.kotlinClass(node) && field.name == "this\$0" && field.access and Opcodes.ACC_SYNTHETIC != 0 &&
+    keep.kotlinClass(node) && field.name == "this$0" && field.access and Opcodes.ACC_SYNTHETIC != 0 &&
       node.innerClasses.any { it.name == node.name && it.outerName != null && field.desc == "L${it.outerName};" }
 
   private fun protectedClass(node: ClassNode): Boolean =

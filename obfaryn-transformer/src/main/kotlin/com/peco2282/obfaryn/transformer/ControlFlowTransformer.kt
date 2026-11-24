@@ -112,7 +112,7 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
     val labels = original.filterIsInstance<LabelNode>().associateWith { LabelNode() }
     val output = InsnList()
     output.add(JumpInsnNode(Opcodes.GOTO, entries[0]))
-    val order = blocks.indices.toMutableList().also { Collections.shuffle(it, random) }
+    val order = blocks.indices.toMutableList().also { it.shuffle(random) }
     if (order == blocks.indices.toList()) Collections.rotate(order, 1)
     for (index in order) {
       output.add(entries[index])
@@ -139,6 +139,7 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
     count += edges + handlers.size
   }
 
+  @Suppress("UnnecessaryVariable")
   private fun flatten(owner: String, method: MethodNode) {
     if (method in flattened) return
     if (method.name.startsWith('<') || method.instructions.size() < 2 || method.instructions.size() > 10000 ||
@@ -202,7 +203,7 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
       if (next < original.size) leaders += next
     }
     val starts = leaders.toList()
-    if (starts.size < 2 || starts.size > 256) return
+    if (starts.size !in 2..256) return
     // Compute actual limits instead of allocating an instruction-count-sized stack for every
     // analysis frame. Earlier passes can leave the original limits stale.
     val savedMaxStack = method.maxStack
@@ -325,7 +326,7 @@ class ControlFlowTransformer(private val random: Random, private val lightweight
       }, slot))
     }
     output.route(0)
-    val blockOrder = blocks.indices.toMutableList().also { Collections.shuffle(it, random) }
+    val blockOrder = blocks.indices.toMutableList().also { it.shuffle(random) }
     for (blockIndex in blockOrder) {
       output.add(caseLabels[blockIndex])
       val nodes = blocks[blockIndex]

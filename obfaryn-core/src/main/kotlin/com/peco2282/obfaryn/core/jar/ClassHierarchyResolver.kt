@@ -78,7 +78,7 @@ class ClassHierarchyResolver(context: ObfuscationContext, classpath: List<Path>)
       if (!target.startsWith("[")) return false
       val targetComponent = target.drop(1)
       val sourceComponent = source.drop(1)
-      if (!targetComponent.startsWith("L") && !targetComponent.startsWith("[")) return target == source
+      if (!targetComponent.startsWith("L") && !targetComponent.startsWith("[")) return false
       if (!sourceComponent.startsWith("L") && !sourceComponent.startsWith("[")) return false
       return assignable(targetComponent.removeSurrounding("L", ";"), sourceComponent.removeSurrounding("L", ";"))
     }

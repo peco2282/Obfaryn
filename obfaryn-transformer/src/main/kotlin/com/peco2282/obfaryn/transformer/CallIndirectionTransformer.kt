@@ -55,7 +55,7 @@ class CallIndirectionTransformer @JvmOverloads constructor(
     do {
       helperName = "obf/" + "L" + java.lang.Long.toUnsignedString(random.nextLong(), 36)
     } while (context.hasClass(helperName) || context.hasResource("$helperName.class") ||
-      context.hasClass(helperName + "\$C") || context.hasResource(helperName + "\$C.class"))
+      context.hasClass("$helperName\$C") || context.hasResource("$helperName\$C.class"))
     val bootstrapA = Handle(Opcodes.H_INVOKESTATIC, helperName, "linkA",
       "(Ljava/lang/invoke/MethodHandles\$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;" +
         "Ljava/lang/String;III)Ljava/lang/invoke/CallSite;", false)

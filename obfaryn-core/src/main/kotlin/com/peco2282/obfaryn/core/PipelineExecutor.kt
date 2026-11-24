@@ -29,8 +29,7 @@ class PipelineExecutor {
           MemberKey(owner.name, method.name, method.desc) to context.transformationInputs.methodIdentity(owner, method)
         } }.toMap() else emptyMap()
         val feature = transformer.isolatedBodyFeature
-        val effective = if (feature != null) BudgetedPass(transformer, feature, baseline, detailed,
-          { transformer.transformedCount }) else transformer
+        val effective = if (feature != null) BudgetedPass(transformer, feature, baseline, detailed) { transformer.transformedCount } else transformer
         val startNanos = System.nanoTime()
         effective.transform(if (renamer != null) context else FilteredContext(context, excludedClasses, excludedResources))
         val elapsedNanos = System.nanoTime() - startNanos

@@ -12,6 +12,7 @@ internal class VirtualMethodFamilies(
   private val nodes: List<ClassNode>,
   private val hierarchy: ClassHierarchyResolver,
   private val keep: KeepRules,
+  @Suppress("unused")
   private val classMapping: Map<String, String>,
 ) {
   private data class Signature(val name: String, val desc: String)

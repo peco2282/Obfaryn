@@ -170,7 +170,7 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
     if (preparing) {
       if (metadata is KotlinClassMetadata.Class) {
         metadata.kmClass.companionObject?.let { companion ->
-          companionClasses += metadata.kmClass.name.removePrefix(".").replace('.', '$') + "\$" + companion
+          companionClasses += metadata.kmClass.name.removePrefix(".").replace('.', '$') + "$" + companion
         }
       }
       val container = when (metadata) {
@@ -251,9 +251,9 @@ class KotlinMetadataRemapper private constructor(private val modules: Map<String
       val oldOwner = node.name.removePrefix(".").replace('.', '$')
       fun nested(name: String): String {
         val owner = internal(oldOwner)
-        val child = internal("$oldOwner\$$name")
-        require(child.startsWith("$owner\$")) { "Mapping breaks nested Kotlin class ownership: $oldOwner\$$name" }
-        return child.removePrefix("$owner\$")
+        val child = internal("$oldOwner$$name")
+        require(child.startsWith("$owner$")) { "Mapping breaks nested Kotlin class ownership: $oldOwner$$name" }
+        return child.removePrefix("$owner$")
       }
       node.nestedClasses.replaceAll(::nested)
       node.companionObject = node.companionObject?.let(::nested)

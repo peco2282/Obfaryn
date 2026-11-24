@@ -55,7 +55,7 @@ internal object ReflectionScanner {
             val owners = receiver?.insns.orEmpty().mapNotNull { source ->
               val literal = ((source as? LdcInsnNode)?.cst as? Type)
                 ?.takeIf { it.sort == Type.OBJECT }?.internalName
-              if (literal != null) literal else if (source is MethodInsnNode &&
+              literal ?: if (source is MethodInsnNode &&
                 ((source.owner == "java/lang/Class" && source.name == "forName") ||
                   (source.owner == "java/lang/ClassLoader" && source.name == "loadClass")) &&
                 source.desc.startsWith("(Ljava/lang/String;")) {

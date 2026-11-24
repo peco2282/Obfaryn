@@ -12,7 +12,7 @@ import com.peco2282.obfaryn.api.transformer.TransformerRegistry
  * and then ID order. Dependencies therefore take precedence over numeric order, and registration
  * order does not break ties. Disabling a pass does not automatically disable its dependants.
  */
-class TransformerPipeline constructor(defaults: List<Transformer> = emptyList()) : TransformerRegistry {
+class TransformerPipeline(defaults: List<Transformer> = emptyList()) : TransformerRegistry {
   private val passes = linkedMapOf<String, Transformer>()
 
   init {
