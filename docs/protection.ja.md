@@ -41,7 +41,7 @@ class Physics {
 4. API の一致ルール。同じ項目には後の一致ルールを適用
 5. 実行全体の既定値
 
-既存の「クラス側の `@HotPath` / `@RenameOnly` に対する、メソッドの明示的な `@Virtualize`」の扱いは維持します。新しい `Protection` だけで既存の制限を回避できません。`@KeepName` は名前の保持のみです。core では `tick` / `onTick` のような名前から処理頻度を推測しません。
+既存の「クラス側の `@HotPath` / `@RenameOnly` に対する、メソッドの明示的な `@Virtualize`」の扱いは維持します。新しい `Protection` だけで既存の制限を回避できません。`@NoVirtualize` は仮想化のみを除外し、その他の本体変換は維持します。メソッドのアノテーションはクラスの判定をどちらの方向にも上書きし、同一宣言での `@Virtualize` と `@NoVirtualize` の併用は検証でエラーとなります。`@KeepName` は名前の保持のみです。core では `tick` / `onTick` のような名前から処理頻度を推測しません。
 
 ソースを変更できない場合は API を使えます。
 

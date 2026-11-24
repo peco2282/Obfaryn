@@ -181,7 +181,7 @@ data class VirtualizationAnalysisReport(
  */
 class VirtualizationAnalyzer(patterns: List<String>, exclusions: List<String> = emptyList(),
   private val exactExclusions: Map<String, String> = emptyMap()) {
-  private enum class AnnotationDirective { VIRTUALIZE, HOT_PATH }
+  private enum class AnnotationDirective { VIRTUALIZE, NO_VIRTUALIZE, HOT_PATH }
 
   private val selectors = patterns.map(::Regex)
   private val exclusions = exclusions.map(::Regex)
@@ -202,11 +202,13 @@ class VirtualizationAnalyzer(patterns: List<String>, exclusions: List<String> = 
           ObfuscationAnnotationPolicy.noObfuscation(method) -> "@NoObfuscation on method"
           ObfuscationAnnotationPolicy.renameOnly(method) -> "@RenameOnly on method"
           methodDirective == AnnotationDirective.HOT_PATH -> "@HotPath on method"
+          methodDirective == AnnotationDirective.NO_VIRTUALIZE -> "@NoVirtualize on method"
           candidate && exclusions.any { it.matches(identity) } -> "user virtualization exclusion"
           methodDirective == AnnotationDirective.VIRTUALIZE -> null
           ObfuscationAnnotationPolicy.noObfuscation(owner) -> "@NoObfuscation on class"
           ObfuscationAnnotationPolicy.renameOnly(owner) -> "@RenameOnly on class"
           classDirective == AnnotationDirective.HOT_PATH -> "@HotPath on class"
+          classDirective == AnnotationDirective.NO_VIRTUALIZE -> "@NoVirtualize on class"
           classDirective == AnnotationDirective.VIRTUALIZE -> null
           patternSelected -> exactExclusions[identity]
           else -> null
@@ -224,13 +226,18 @@ class VirtualizationAnalyzer(patterns: List<String>, exclusions: List<String> = 
 
   private fun annotationDirective(annotations: List<AnnotationNode>, target: String): AnnotationDirective? {
     val virtualize = annotations.any { it.desc == ObfuscationAnnotationPolicy.VIRTUALIZE }
+    val noVirtualize = annotations.any { it.desc == ObfuscationAnnotationPolicy.NO_VIRTUALIZE }
     val hotPath = annotations.any { it.desc == ObfuscationAnnotationPolicy.HOT_PATH }
     require(!(virtualize && hotPath)) {
       "Conflicting virtualization annotations on $target: @Virtualize and @HotPath"
     }
+    require(!(virtualize && noVirtualize)) {
+      "Conflicting virtualization annotations on $target: @Virtualize and @NoVirtualize"
+    }
     return when {
       virtualize -> AnnotationDirective.VIRTUALIZE
       hotPath -> AnnotationDirective.HOT_PATH
+      noVirtualize -> AnnotationDirective.NO_VIRTUALIZE
       else -> null
     }
   }

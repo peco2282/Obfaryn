@@ -658,7 +658,7 @@ CLI では `obfaryn input.jar --protection strong --application-package com.exam
 
 strong は制御フロー変換、ASM 出力検証、フレーム再計算を有効にします。VM 化の対象は自動で増やしません。`@Virtualize` で明示的に選択します。既存のメソッドパターン指定も引き続き利用できます。アプリケーションルートの明示指定、またはプラットフォーム・マニフェストの起点からの検出が必要です。ルート外の同梱クラスは本体変換と名前変更から除外し、変更されたアプリケーション型への参照は更新します。リテラル変換と Kotlin Metadata の設定は引き続き指定できます。パッケージの flatten は独立した設定です。
 
-strong は出力 JAR の隣に `<出力名>.virtualization.json` を生成します。`virtualizationReport` による出力先指定も可能です。明示指定には設定した選択モードを適用し、`strict` では未対応なら失敗します。VM 化されるメソッドがゼロでも成功します。`@HotPath` とユーザー指定の除外も利用できます。
+strong は出力 JAR の隣に `<出力名>.virtualization.json` を生成します。`virtualizationReport` による出力先指定も可能です。明示指定には設定した選択モードを適用し、`strict` では未対応なら失敗します。VM 化されるメソッドがゼロでも成功します。`@HotPath`、`@NoVirtualize` とユーザー指定の除外も利用できます。
 
 Paper の性能除外はメソッドパターンによる選択に適用します。明示的な `@Virtualize` は Paper の性能除外を上書きします。パターン選択で性能除外を解除する場合は、Gradle で `platformOptions["virtualization-protect-hot-paths"] = "false"`、CLI で `--platform-option virtualization-protect-hot-paths=false` を指定できます。Paper による起動・イベント・スケジューラ・その呼び出し先の自動除外を解除し、起点名とプラグイン記述ファイルの保護は維持します。ユーザー指定の除外とソースの `@HotPath` は引き続き適用されます。tick の実行コストが増える可能性があるため、配備前に実際の負荷で計測してください。
 
@@ -694,7 +694,7 @@ obfaryn {
 
 CLI の対応オプションは `--virtualize-method regex`、`--exclude-virtualization regex`、`--virtualization-runtime-group-size N`、`--virtualization-mode strict|eligible`、`--virtualization-analyze-only`、および `--virtualization-report path` です。明示的な除外が優先されます。`strict` モードは選択されたメソッドに対象外のものが含まれていた場合、変換前に処理を中断して失敗します。`eligible` モードは非対応メソッドを JVM バイトコードのまま残し、警告を出力します。解析専用（analyze-only）モードでは JAR、マッピング、ランタイム、ブリッジは生成されません。
 
-`@HotPath` はレイテンシに敏感な高頻度メソッドを仮想化から除外します。`@KeepName` は名前のみを保持します。`@RenameOnly` は名前変更を許可しますが本体変換を抑止します。`@NoObfuscation` は名前変更と本体変換の両方を抑止します。これらはバイナリ保持アノテーションであり、実行時依存関係は不要です。メソッドのアノテーションはクラスレベルの `@HotPath`、`@RenameOnly`、または `@Virtualize` を上書きできますが、クラスレベルの `@NoObfuscation` は最終決定となります。同一宣言に対して矛盾するアノテーションが指定された場合は検証でエラーとなります。
+`@HotPath` はレイテンシに敏感な高頻度メソッドを仮想化から除外します。`@NoVirtualize` はクラスまたはメソッドを仮想化からのみ除外し、文字列暗号化・数値難読化・制御フローなどその他の本体変換は引き続き適用します。メソッドの `@Virtualize` はクラスの `@NoVirtualize` を、メソッドの `@NoVirtualize` はクラスの `@Virtualize` を上書きします。`@KeepName` は名前のみを保持します。`@RenameOnly` は名前変更を許可しますが本体変換を抑止します。`@NoObfuscation` は名前変更と本体変換の両方を抑止します。これらはバイナリ保持アノテーションであり、実行時依存関係は不要です。メソッドのアノテーションはクラスレベルの `@HotPath`、`@RenameOnly`、`@NoVirtualize`、または `@Virtualize` を上書きできますが、クラスレベルの `@NoObfuscation` は最終決定となります。同一宣言に対して矛盾するアノテーション（`@Virtualize` と `@NoVirtualize` の併用を含む）が指定された場合は検証でエラーとなります。
 
 ```kotlin
 @HotPath

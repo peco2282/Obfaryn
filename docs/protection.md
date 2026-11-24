@@ -39,7 +39,7 @@ Precedence, from strongest to weakest:
 4. Matching API rules (last matching rule wins per feature).
 5. Run defaults.
 
-Existing method-level `@Virtualize` behavior under class-level `@HotPath`/`@RenameOnly` remains as before. A new `Protection` annotation cannot bypass those restrictions. `KeepName` only preserves names. No arbitrary names such as `tick` or `onTick` influence core policy.
+Existing method-level `@Virtualize` behavior under class-level `@HotPath`/`@RenameOnly` remains as before. A new `Protection` annotation cannot bypass those restrictions. `@NoVirtualize` opts a declaration out of virtualization only, leaving the other body passes in effect; a method annotation overrides the class decision in either direction, and `@Virtualize` with `@NoVirtualize` on one declaration fails validation. `KeepName` only preserves names. No arbitrary names such as `tick` or `onTick` influence core policy.
 
 For source-independent configuration:
 
