@@ -12,11 +12,23 @@ plugins {
 // org.jetbrains.dokka:dokka-core:2.3.0 (no newer release exists yet) pulls in
 // jackson-core/jackson-databind 2.22.2, which carry four high-severity advisories fixed in
 // 2.22.3 (DoS and ReDoS in jackson-core; unbounded type-ID retention and quadratic
-// forward-reference completion in jackson-databind). This is build-time-only (Dokka doc
-// generation), never part of a published or obfuscated artifact, but forcing it up here closes
-// the GHSA alerts without waiting on a Dokka release.
+// forward-reference completion in jackson-databind). Two separate resolutions need forcing:
+// the root build's own plugin "classpath" configuration, and each subproject's own Dokka
+// generation-time resolver configuration ("dokkaHtmlGeneratorRuntimeResolver"), which resolves
+// jackson independently and is unaffected by the buildscript block below. Build-time only
+// (Dokka doc generation), never part of a published or obfuscated artifact, but forcing both
+// up here closes the GHSA alerts without waiting on a Dokka release.
 buildscript {
   configurations.classpath {
+    resolutionStrategy.force(
+      "com.fasterxml.jackson.core:jackson-core:2.22.3",
+      "com.fasterxml.jackson.core:jackson-databind:2.22.3"
+    )
+  }
+}
+
+allprojects {
+  configurations.all {
     resolutionStrategy.force(
       "com.fasterxml.jackson.core:jackson-core:2.22.3",
       "com.fasterxml.jackson.core:jackson-databind:2.22.3"
