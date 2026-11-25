@@ -131,6 +131,8 @@ platformの`extensions()`から`PlatformPackages { context, options -> listOf(my
 
 レシピはこのセットを越えて`obfaryn-core`・`obfaryn-standard`・`obfaryn-transformer`の内部に手を伸ばしてはいけません。これらは安定性を管理しておらず、予告なく変わり得ます。
 
+上記の契約セットには、明示的で狭い例外が1つあります：`obfaryn-transformer`の`StringEncryptionTransformer`と`NumberObfuscationTransformer`は、差し替え可能な`codec`/`strategy`コンストラクタ引数を受け取ります——`StringEncryptionCodec`と`NumberObfuscationStrategy`（および`NumberObfuscationSelector`）は`obfaryn-api`に属し、`obfaryn-api`だけに依存するレシピが実装できるものとして明示的に文書化されています。レシピはこれらいずれかのTransformerを自前のcodec/strategyで直接構築し、`TransformerRegistry`経由で登録（`add`/`replace`）できます——パス全体を自分で再実装するのではなく、ホスト側の定数プールのチャンク分割・並行安全なキャッシュ・interface対応・`StringConcatFactory`脱糖をそのまま再利用できます。対象はこの2つのTransformerの公開コンストラクタのみで、`obfaryn-transformer`の他の部分は対象外です。
+
 ### 注入するランタイムは自己完結させる
 
 出力側にランタイム支援(ローダ、デコーダ、整合性やリンク用ヘルパー)が必要なレシピは、公開APIまたは自身のソースだけに対してコンパイルした自己完結クラスを`context.putClass`で注入し、その名前と除外の責任を負います。`obfaryn-runtime`モジュールに依存したりその型を共有ライブラリとして流用したりはしません——そのモジュールは*アプリケーション*がコンパイル対象とする任意のprelink API(「[保護制御](protection.ja.md)」参照)であって、レシピ用の内部ツールキットではなく、その内部は上記の契約セットに含まれません。注入するランタイムクラスをツリー内の実装モジュールから独立させておくことが、ツリー外レシピがcore/standardの内部を追わずに独自の保護を発展させられる前提であり、各出力アーカイブの自己完結性も保ちます。
