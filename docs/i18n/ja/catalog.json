@@ -168,6 +168,30 @@
       "protectedNodes": [],
       "highRisk": false
     },
+    "obfaryn-annotations/com.peco2282.obfaryn.annotations/-no-virtualize/index.html#paragraph-0": {
+      "source": "Excludes the annotated class or method from Obfaryn virtualization while leaving every other protection in place.",
+      "sourceHash": "9bca2a7ad9f6da5e302f0fc6b265189e381971c301f37a14d785945e38e5d4b7",
+      "protectedNodes": [],
+      "highRisk": false
+    },
+    "obfaryn-annotations/com.peco2282.obfaryn.annotations/-no-virtualize/index.html#paragraph-1": {
+      "source": "Unlike ZXQOBFARYN0QXZ, which suppresses all runtime body obfuscation, this only opts out of the interpreter: string encryption, numeric obfuscation, control-flow protection and the remaining body passes still apply to the annotated code.",
+      "sourceHash": "2664c1df8dec7a2793b71d7040500efa85f446e78382c8dd788224f715d50392",
+      "protectedNodes": [
+        "<a href=\"../-hot-path/index.html\">HotPath</a>"
+      ],
+      "highRisk": false
+    },
+    "obfaryn-annotations/com.peco2282.obfaryn.annotations/-no-virtualize/index.html#paragraph-2": {
+      "source": "On a method it removes that method from virtualization even when the enclosing class carries ZXQOBFARYN0QXZ or an explicit selector would match it. On a class it prevents every method from being virtualized, except a method that carries its own ZXQOBFARYN1QXZ. A method annotation therefore overrides the class decision in both directions. Combining this with ZXQOBFARYN2QXZ on the same declaration is a conflict and fails validation.",
+      "sourceHash": "128f652d16f49f55e81510c1cc2c11d262e8ce8de8b852b271898eb3680100e8",
+      "protectedNodes": [
+        "<a href=\"../-virtualize/index.html\">Virtualize</a>",
+        "<a href=\"../-virtualize/index.html\">Virtualize</a>",
+        "<a href=\"../-virtualize/index.html\">Virtualize</a>"
+      ],
+      "highRisk": false
+    },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/-performance-budget/growth-allowance-instructions.html#paragraph-0": {
       "source": "Minimum added-instruction allowance for the percentage check; -1 inherits, 0 uses a strict ratio.",
       "sourceHash": "e4813ffc5d79b9abfc8408de367806f0818f01bcf39234a7c8e5022d921d65a7",
@@ -429,18 +453,24 @@
       "highRisk": false
     },
     "obfaryn-annotations/com.peco2282.obfaryn.annotations/index.html#paragraph-4": {
+      "source": "Excludes the annotated class or method from Obfaryn virtualization while leaving every other protection in place.",
+      "sourceHash": "9bca2a7ad9f6da5e302f0fc6b265189e381971c301f37a14d785945e38e5d4b7",
+      "protectedNodes": [],
+      "highRisk": false
+    },
+    "obfaryn-annotations/com.peco2282.obfaryn.annotations/index.html#paragraph-5": {
       "source": "-1 inherits the corresponding limit; limits restrict structure, not elapsed execution time.",
       "sourceHash": "361350c2ad61eb64da20cc9519da85b9ec89bde31b1e58d74093101791d04fcc",
       "protectedNodes": [],
       "highRisk": false
     },
-    "obfaryn-annotations/com.peco2282.obfaryn.annotations/index.html#paragraph-5": {
+    "obfaryn-annotations/com.peco2282.obfaryn.annotations/index.html#paragraph-6": {
       "source": "Per-feature permission, inherited from class to method. Global pass enablement still applies. Existing NoObfuscation, RenameOnly and HotPath restrictions cannot be overridden here. Virtualization selection remains exclusively controlled by Virtualize and explicit selectors.",
       "sourceHash": "22ce8e329765e6d8e3c02dca400d2018bc82513c6fbf9c7d4de866f1f18bcb4e",
       "protectedNodes": [],
       "highRisk": false
     },
-    "obfaryn-annotations/com.peco2282.obfaryn.annotations/index.html#paragraph-6": {
+    "obfaryn-annotations/com.peco2282.obfaryn.annotations/index.html#paragraph-7": {
       "source": "Per-feature enable/disable override for ZXQOBFARYN0QXZ's properties.",
       "sourceHash": "4e765d83ea8ebc5dad89d29a0f8014b3df431119a4b549a18ea8542b887769fb",
       "protectedNodes": [
@@ -448,15 +478,106 @@
       ],
       "highRisk": false
     },
-    "obfaryn-annotations/com.peco2282.obfaryn.annotations/index.html#paragraph-7": {
+    "obfaryn-annotations/com.peco2282.obfaryn.annotations/index.html#paragraph-8": {
       "source": "Allows renaming while keeping the annotated class or method body otherwise unchanged.",
       "sourceHash": "6fbd71bcf231b66be87048b3c6c0472d8681cb4796abc9ec6151caaa28a21b0d",
       "protectedNodes": [],
       "highRisk": false
     },
-    "obfaryn-annotations/com.peco2282.obfaryn.annotations/index.html#paragraph-8": {
+    "obfaryn-annotations/com.peco2282.obfaryn.annotations/index.html#paragraph-9": {
       "source": "Explicitly selects the annotated class or method for Obfaryn virtualization.",
       "sourceHash": "055a0e9cc8bf5e880e76fa478b740ae7776f77e1c9f472c4347af3565667b804",
+      "protectedNodes": [],
+      "highRisk": false
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api.annotation/-obfuscation-annotation-policy/index.html#paragraph-0": {
+      "source": "Public reader for Obfaryn policy annotations, usable by host-loaded extension passes without depending on the core engine.",
+      "sourceHash": "cc429d577abd71b1f12e500a055d459e940ac3939c2dd5fc8d48f6018f925527",
+      "protectedNodes": [],
+      "highRisk": false
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api.annotation/-obfuscation-annotation-policy/index.html#paragraph-1": {
+      "source": "Annotations are interpreted directly from ASM nodes by descriptor, so neither the annotation classes nor this helper's host need be on the runtime classpath. Both runtime-visible and runtime-invisible annotations are recognized. Queries only inspect their supplied nodes; ZXQOBFARYN0QXZ must be called separately to reject conflicts.",
+      "sourceHash": "83aca051286247e222f58a60c34516f9d89dc256ca01f0e2fc139b9dde43c21c",
+      "protectedNodes": [
+        "<a href=\"validate.html\">validate</a>"
+      ],
+      "highRisk": true
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api.annotation/-obfuscation-annotation-policy/index.html#paragraph-2": {
+      "source": "This is the stable contract that host-loaded extension recipes resolve annotation-driven selection through; the descriptors below name the annotations declared in ZXQOBFARYN0QXZ.",
+      "sourceHash": "2880cea1386891c77c18f9781442d21f9ae4d091b866cf07102ad98a3582ca89",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">obfaryn-annotations</code>"
+      ],
+      "highRisk": false
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api.annotation/-obfuscation-annotation-policy/index.html#paragraph-3": {
+      "source": "Whether annotation policy suppresses ordinary body transformations for ZXQOBFARYN0QXZ.",
+      "sourceHash": "6847b705bddf716295747d860eac6aec0b24dd71a9b131ea6bb7dc2abbba33a3",
+      "protectedNodes": [
+        "<a href=\"skip-body.html\">method</a>"
+      ],
+      "highRisk": false
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api.annotation/-obfuscation-annotation-policy/index.html#paragraph-4": {
+      "source": "Rejects incompatible annotations on each class, method, or field independently.",
+      "sourceHash": "adf336c2cc8b3366d7f1014f61524d055aa3d327a073cde8cc7bd9f723aaef79",
+      "protectedNodes": [],
+      "highRisk": false
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api.annotation/-obfuscation-annotation-policy/skip-body.html#paragraph-0": {
+      "source": "Whether annotation policy suppresses ordinary body transformations for ZXQOBFARYN0QXZ.",
+      "sourceHash": "6847b705bddf716295747d860eac6aec0b24dd71a9b131ea6bb7dc2abbba33a3",
+      "protectedNodes": [
+        "<a href=\"skip-body.html\">method</a>"
+      ],
+      "highRisk": false
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api.annotation/-obfuscation-annotation-policy/skip-body.html#paragraph-1": {
+      "source": "Class or method ZXQOBFARYN0QXZ, method ZXQOBFARYN1QXZ, and method ZXQOBFARYN2QXZ take precedence. Otherwise a method-level ZXQOBFARYN3QXZ overrides class-level ZXQOBFARYN4QXZ or ZXQOBFARYN5QXZ. ZXQOBFARYN6QXZ does not suppress body changes. This query does not check whether virtualization itself is supported for the method.",
+      "sourceHash": "8327ec4dc89b0fb9599b3ac98a787ea4b1b8e0b96e23543b10d51f0ffe54f8b6",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">NoObfuscation</code>",
+        "<code class=\"lang-kotlin\">RenameOnly</code>",
+        "<code class=\"lang-kotlin\">HotPath</code>",
+        "<code class=\"lang-kotlin\">Virtualize</code>",
+        "<code class=\"lang-kotlin\">RenameOnly</code>",
+        "<code class=\"lang-kotlin\">HotPath</code>",
+        "<code class=\"lang-kotlin\">KeepName</code>"
+      ],
+      "highRisk": false
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api.annotation/-obfuscation-annotation-policy/validate.html#paragraph-0": {
+      "source": "Rejects incompatible annotations on each class, method, or field independently.",
+      "sourceHash": "adf336c2cc8b3366d7f1014f61524d055aa3d327a073cde8cc7bd9f723aaef79",
+      "protectedNodes": [],
+      "highRisk": false
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api.annotation/-obfuscation-annotation-policy/validate.html#paragraph-1": {
+      "source": "ZXQOBFARYN0QXZ cannot coexist with ZXQOBFARYN1QXZ; ZXQOBFARYN2QXZ cannot coexist with ZXQOBFARYN3QXZ, ZXQOBFARYN4QXZ, ZXQOBFARYN5QXZ, or ZXQOBFARYN6QXZ on the same node. Owner/member combinations are not conflicts here and are resolved by queries such as ZXQOBFARYN7QXZ.",
+      "sourceHash": "ab3382d52747f7d8fffee5ff3e02062949dd2d2ccf7443cfe5b8750cd9996aca",
+      "protectedNodes": [
+        "<code class=\"lang-kotlin\">NoObfuscation</code>",
+        "<code class=\"lang-kotlin\">RenameOnly</code>",
+        "<code class=\"lang-kotlin\">Virtualize</code>",
+        "<code class=\"lang-kotlin\">HotPath</code>",
+        "<code class=\"lang-kotlin\">RenameOnly</code>",
+        "<code class=\"lang-kotlin\">NoObfuscation</code>",
+        "<code class=\"lang-kotlin\">NoVirtualize</code>",
+        "<a href=\"skip-body.html\">skipBody</a>"
+      ],
+      "highRisk": false
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api.annotation/-obfuscation-annotation-policy/validate.html#paragraph-2": {
+      "source": "If a conflicting combination is found.",
+      "sourceHash": "7ddfece4ec2d64373b9f833d61acafa0bbc54a3fcbb928b62da398386d026435",
+      "protectedNodes": [],
+      "highRisk": false
+    },
+    "obfaryn-api/com.peco2282.obfaryn.api.annotation/index.html#paragraph-0": {
+      "source": "Public reader for Obfaryn policy annotations, usable by host-loaded extension passes without depending on the core engine.",
+      "sourceHash": "cc429d577abd71b1f12e500a055d459e940ac3939c2dd5fc8d48f6018f925527",
       "protectedNodes": [],
       "highRisk": false
     },
@@ -6298,18 +6419,16 @@
       "highRisk": false
     },
     "obfaryn-core/com.peco2282.obfaryn.core.annotation/-obfuscation-annotation-policy/index.html#paragraph-0": {
-      "source": "Interprets Obfaryn policy annotations directly from ASM nodes without loading annotation classes. Both runtime-visible and runtime-invisible annotations are recognized by descriptor. Queries only inspect their supplied nodes; ZXQOBFARYN0QXZ must be called separately to reject conflicts.",
-      "sourceHash": "a0f2c5e9d35e7b916b2ef52af7fa5028afb9545da9d34b89a7500d8723df53cc",
-      "protectedNodes": [
-        "<a href=\"validate.html\">validate</a>"
-      ],
-      "highRisk": true
+      "source": "Back-compatible alias for the annotation reader promoted to the public API.",
+      "sourceHash": "381bda6ef6d035dd989df098410f0c73cf5f9c99ace566764d8007c71015bb75",
+      "protectedNodes": [],
+      "highRisk": false
     },
     "obfaryn-core/com.peco2282.obfaryn.core.annotation/-obfuscation-annotation-policy/index.html#paragraph-1": {
-      "source": "Whether annotation policy suppresses ordinary body transformations for ZXQOBFARYN0QXZ.",
-      "sourceHash": "6847b705bddf716295747d860eac6aec0b24dd71a9b131ea6bb7dc2abbba33a3",
+      "source": "The implementation now lives in ZXQOBFARYN0QXZ so host-loaded extension and external recipes can resolve annotation-driven selection without a core dependency. Core code may continue to reference this name; new code should prefer the API type.",
+      "sourceHash": "6f9652ba1d427a60556655686b9db5719f5f6038ebd2d7ab08a9f9c5b99905c7",
       "protectedNodes": [
-        "<a href=\"skip-body.html\">method</a>"
+        "<a href=\"../../../obfaryn-api/com.peco2282.obfaryn.api.annotation/-obfuscation-annotation-policy/index.html\">com.peco2282.obfaryn.api.annotation.ObfuscationAnnotationPolicy</a>"
       ],
       "highRisk": false
     },
@@ -6317,7 +6436,8 @@
       "source": "Rejects incompatible annotations on each class, method, or field independently.",
       "sourceHash": "adf336c2cc8b3366d7f1014f61524d055aa3d327a073cde8cc7bd9f723aaef79",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-core/com.peco2282.obfaryn.core.annotation/-obfuscation-annotation-policy/skip-body.html#paragraph-0": {
       "source": "Whether annotation policy suppresses ordinary body transformations for ZXQOBFARYN0QXZ.",
@@ -6325,7 +6445,8 @@
       "protectedNodes": [
         "<a href=\"skip-body.html\">method</a>"
       ],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-core/com.peco2282.obfaryn.core.annotation/-obfuscation-annotation-policy/skip-body.html#paragraph-1": {
       "source": "Class or method ZXQOBFARYN0QXZ, method ZXQOBFARYN1QXZ, and method ZXQOBFARYN2QXZ take precedence. Otherwise a method-level ZXQOBFARYN3QXZ overrides class-level ZXQOBFARYN4QXZ or ZXQOBFARYN5QXZ. ZXQOBFARYN6QXZ does not suppress body changes. This query does not check whether virtualization itself is supported for the method.",
@@ -6339,13 +6460,15 @@
         "<code class=\"lang-kotlin\">HotPath</code>",
         "<code class=\"lang-kotlin\">KeepName</code>"
       ],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-core/com.peco2282.obfaryn.core.annotation/-obfuscation-annotation-policy/validate.html#paragraph-0": {
       "source": "Rejects incompatible annotations on each class, method, or field independently.",
       "sourceHash": "adf336c2cc8b3366d7f1014f61524d055aa3d327a073cde8cc7bd9f723aaef79",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-core/com.peco2282.obfaryn.core.annotation/-obfuscation-annotation-policy/validate.html#paragraph-1": {
       "source": "ZXQOBFARYN0QXZ cannot coexist with ZXQOBFARYN1QXZ; ZXQOBFARYN2QXZ cannot coexist with ZXQOBFARYN3QXZ, ZXQOBFARYN4QXZ, or ZXQOBFARYN5QXZ on the same node. Owner/member combinations are not conflicts here and are resolved by queries such as ZXQOBFARYN6QXZ.",
@@ -6359,21 +6482,21 @@
         "<code class=\"lang-kotlin\">NoObfuscation</code>",
         "<a href=\"skip-body.html\">skipBody</a>"
       ],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-core/com.peco2282.obfaryn.core.annotation/-obfuscation-annotation-policy/validate.html#paragraph-2": {
       "source": "If a conflicting combination is found.",
       "sourceHash": "7ddfece4ec2d64373b9f833d61acafa0bbc54a3fcbb928b62da398386d026435",
       "protectedNodes": [],
-      "highRisk": false
+      "highRisk": false,
+      "orphaned": true
     },
     "obfaryn-core/com.peco2282.obfaryn.core.annotation/index.html#paragraph-0": {
-      "source": "Interprets Obfaryn policy annotations directly from ASM nodes without loading annotation classes. Both runtime-visible and runtime-invisible annotations are recognized by descriptor. Queries only inspect their supplied nodes; ZXQOBFARYN0QXZ must be called separately to reject conflicts.",
-      "sourceHash": "a0f2c5e9d35e7b916b2ef52af7fa5028afb9545da9d34b89a7500d8723df53cc",
-      "protectedNodes": [
-        "<a href=\"-obfuscation-annotation-policy/validate.html\">validate</a>"
-      ],
-      "highRisk": true
+      "source": "Back-compatible alias for the annotation reader promoted to the public API.",
+      "sourceHash": "381bda6ef6d035dd989df098410f0c73cf5f9c99ace566764d8007c71015bb75",
+      "protectedNodes": [],
+      "highRisk": false
     },
     "obfaryn-core/com.peco2282.obfaryn.core.assembly/-artifact-splitter/-artifact-splitter.html#paragraph-0": {
       "source": "the renamed union context.",
