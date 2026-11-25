@@ -372,6 +372,11 @@
       "translation": "この拡張が提供するアノテーションマッピングを返します。同じディスクリプターに対するすべてのポリシーは、対象集合が異なる場合でも同じアクションを指定しなければなりません。",
       "status": "reviewed"
     },
+    "128f652d16f49f55e81510c1cc2c11d262e8ce8de8b852b271898eb3680100e8": {
+      "source": "On a method it removes that method from virtualization even when the enclosing class carries ZXQOBFARYN0QXZ or an explicit selector would match it. On a class it prevents every method from being virtualized, except a method that carries its own ZXQOBFARYN1QXZ. A method annotation therefore overrides the class decision in both directions. Combining this with ZXQOBFARYN2QXZ on the same declaration is a conflict and fails validation.",
+      "translation": "メソッドに付与すると、クラス側がZXQOBFARYN0QXZを持っていたり明示的なセレクタが一致したりする場合でも、そのメソッドを仮想化対象から除外します。クラスに付与すると、自身のZXQOBFARYN1QXZを持つメソッドを除き、すべてのメソッドの仮想化を防ぎます。したがってメソッド単位のアノテーションは、どちらの方向でもクラスの判断を上書きします。同じ宣言にZXQOBFARYN2QXZを組み合わせると競合となり、検証に失敗します。",
+      "status": "machine"
+    },
     "130b1c13ab5924906d27510ca3a9333aea6838f91fd112649e18acd48e588467": {
       "source": "Adds a JVM class file represented as a byte array for processing.",
       "translation": "バイト配列で表されたJVMクラスファイルを処理対象として追加します。",
@@ -652,6 +657,11 @@
       "translation": "変換対象のアーティファクトです。",
       "status": "reviewed"
     },
+    "2664c1df8dec7a2793b71d7040500efa85f446e78382c8dd788224f715d50392": {
+      "source": "Unlike ZXQOBFARYN0QXZ, which suppresses all runtime body obfuscation, this only opts out of the interpreter: string encryption, numeric obfuscation, control-flow protection and the remaining body passes still apply to the annotated code.",
+      "translation": "実行時のボディ難読化すべてを抑制するZXQOBFARYN0QXZとは異なり、これはインタプリタ化のみを対象外にします。文字列暗号化、数値難読化、制御フロー保護など、その他のボディパスは付与されたコードにも引き続き適用されます。",
+      "status": "machine"
+    },
     "2690e678c4d10fb2464e47f9331703d7f28f85ec10258c6a84b906fc5cabacd1": {
       "source": "Built-in fallback platform reporting confidence 1 without inspecting the archive.",
       "translation": "アーカイブを検査せずに信頼度1を報告する、組み込みのフォールバックプラットフォームです。",
@@ -686,6 +696,11 @@
       "source": "The single reader/writer for the textual mapping format, so no caller re-implements the syntax.",
       "translation": "テキストマッピング形式を読み書きする唯一の実装です。これにより、呼び出し側が構文を再実装する必要はありません。",
       "status": "reviewed"
+    },
+    "2880cea1386891c77c18f9781442d21f9ae4d091b866cf07102ad98a3582ca89": {
+      "source": "This is the stable contract that host-loaded extension recipes resolve annotation-driven selection through; the descriptors below name the annotations declared in ZXQOBFARYN0QXZ.",
+      "translation": "これは、ホスト側でロードされる拡張レシピがアノテーション駆動の選択を解決するために利用する安定した契約です。以下のディスクリプタは、ZXQOBFARYN0QXZで宣言されたアノテーションを指します。",
+      "status": "machine"
     },
     "28858de07b3a487ea8dac5fc372db15674ed9acfefb079a8ff979c4fe7d2dc23": {
       "source": "If constant field handling is enabled for string encryption or number obfuscation, a ZXQOBFARYN0QXZ is automatically inserted ahead of dependent transformers.",
@@ -966,6 +981,11 @@
       "source": "the artifact's original ZXQOBFARYN0QXZ node, or ZXQOBFARYN1QXZ when it has none.",
       "translation": "アーティファクトの元のZXQOBFARYN0QXZノードです。存在しない場合はZXQOBFARYN1QXZです。",
       "status": "reviewed"
+    },
+    "381bda6ef6d035dd989df098410f0c73cf5f9c99ace566764d8007c71015bb75": {
+      "source": "Back-compatible alias for the annotation reader promoted to the public API.",
+      "translation": "public APIに昇格したアノテーションリーダーに対する、後方互換のためのエイリアスです。",
+      "status": "machine"
     },
     "38c7626cb8e5658c088d24843f4f278f721626c668f0cedb92afbe8800dd45c6": {
       "source": "Force this feature off for the annotated declaration.",
@@ -1952,6 +1972,11 @@
       "translation": "他の有効な難読化パスをすべて許可しながら、メソッドを通常のJVMバイトコードとして維持します。プラットフォームは、インタープリターのオーバーヘッドを避ける必要がある、レイテンシー重視のコールバックに使用します。",
       "status": "reviewed"
     },
+    "6f9652ba1d427a60556655686b9db5719f5f6038ebd2d7ab08a9f9c5b99905c7": {
+      "source": "The implementation now lives in ZXQOBFARYN0QXZ so host-loaded extension and external recipes can resolve annotation-driven selection without a core dependency. Core code may continue to reference this name; new code should prefer the API type.",
+      "translation": "実装は現在ZXQOBFARYN0QXZ側に置かれており、ホスト側でロードされる拡張や外部レシピがcoreへの依存なしにアノテーション駆動の選択を解決できるようにしています。core内のコードはこの名前を引き続き参照して構いませんが、新規コードはAPI側の型を使うことを推奨します。",
+      "status": "machine"
+    },
     "6fb3cf52afa9e5341d3bf23741da5c85c304937c85c0cebc0d3bd27ca2e890d9": {
       "source": "inputs, classpath entries and integrity keys that no output may overwrite.",
       "translation": "どの出力からも上書きしてはならない入力、クラスパスエントリ、整合性鍵です。",
@@ -2717,6 +2742,11 @@
       "translation": "このメソッドは、ZXQOBFARYN0QXZ インターフェースに準拠するプラットフォームを作成するファクトリーとして機能します。実装クラスで指定されたメタデータと設定を使用し、完全に初期化されたプラットフォームインスタンスを生成します。返されたプラットフォームは、後で環境検出、エントリーポイント探索、設定、拡張の取得に使用できます。",
       "status": "reviewed"
     },
+    "9bca2a7ad9f6da5e302f0fc6b265189e381971c301f37a14d785945e38e5d4b7": {
+      "source": "Excludes the annotated class or method from Obfaryn virtualization while leaving every other protection in place.",
+      "translation": "アノテーションが付与されたクラスまたはメソッドをObfarynの仮想化対象から除外しつつ、それ以外の保護はすべてそのまま適用します。",
+      "status": "machine"
+    },
     "9bda6a0215ddc10f76b3782077af57f82a4ea754ae9a8cfc64639b252a2a389c": {
       "source": "This method customizes the ZXQOBFARYN0QXZ for the target platform, using details from the execution environment and additional configuration options. The default implementation leaves ZXQOBFARYN1QXZ unchanged. Add rules through ZXQOBFARYN2QXZ rather than modifying the class nodes exposed by ZXQOBFARYN3QXZ.",
       "translation": "このメソッドは、実行環境の詳細と追加の設定オプションを使用して、対象プラットフォーム向けに ZXQOBFARYN0QXZ を調整します。デフォルト実装は ZXQOBFARYN1QXZ を変更しません。ルールは ZXQOBFARYN2QXZ を通じて追加し、ZXQOBFARYN3QXZ が公開するクラスノードを変更しないでください。",
@@ -3022,6 +3052,11 @@
       "translation": "アーカイブの書き込み前に、検証処理の呼び出しと、公開鍵だけを持つランタイムヘルパーを追加します。",
       "status": "reviewed"
     },
+    "ab3382d52747f7d8fffee5ff3e02062949dd2d2ccf7443cfe5b8750cd9996aca": {
+      "source": "ZXQOBFARYN0QXZ cannot coexist with ZXQOBFARYN1QXZ; ZXQOBFARYN2QXZ cannot coexist with ZXQOBFARYN3QXZ, ZXQOBFARYN4QXZ, ZXQOBFARYN5QXZ, or ZXQOBFARYN6QXZ on the same node. Owner/member combinations are not conflicts here and are resolved by queries such as ZXQOBFARYN7QXZ.",
+      "translation": "同じノード上でZXQOBFARYN0QXZとZXQOBFARYN1QXZは共存できません。また、ZXQOBFARYN2QXZはZXQOBFARYN3QXZ、ZXQOBFARYN4QXZ、ZXQOBFARYN5QXZ、ZXQOBFARYN6QXZのいずれとも共存できません。オーナー/メンバーの組み合わせはここでは競合とみなされず、ZXQOBFARYN7QXZのようなクエリで解決されます。",
+      "status": "machine"
+    },
     "ab8390a58c863fdd2a7c803036e58ad7f4e2dde4bfc2c7dddc66e8485dd77afb": {
       "source": "Run after these passes when they are registered. Missing IDs are ignored.",
       "translation": "これらの変換パスが登録されている場合、その後に実行します。存在しないIDは無視されます。",
@@ -3195,11 +3230,6 @@
     "b35b37e0ca07177a881e53742659689c6beb0e69b1b5b11d8b9c8002986efa15": {
       "source": "The <span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span> declaring or containing the target method.",
       "translation": "対象メソッドを宣言または保持する<span data-unresolved-link=\"org.objectweb.asm.tree/ClassNode///PointingToDeclaration/\">ClassNode</span>です。",
-      "status": "reviewed"
-    },
-    "b35cd2f04da2076ea6ee40637df8f43e15f7f083279c58485e9f7446224eb5ee": {
-      "source": "ZXQOBFARYN0QXZ cannot coexist with ZXQOBFARYN1QXZ; ZXQOBFARYN2QXZ cannot coexist with ZXQOBFARYN3QXZ, ZXQOBFARYN4QXZ, or ZXQOBFARYN5QXZ on the same node. Owner/member combinations are not conflicts here and are resolved by queries such as ZXQOBFARYN6QXZ.",
-      "translation": "同じノード上でZXQOBFARYN0QXZとZXQOBFARYN1QXZを併用することはできません。また、ZXQOBFARYN2QXZをZXQOBFARYN3QXZ、ZXQOBFARYN4QXZ、ZXQOBFARYN5QXZのいずれかと併用することもできません。所有クラスとメンバーの組み合わせはここでは競合とせず、ZXQOBFARYN6QXZなどのクエリで解決します。",
       "status": "reviewed"
     },
     "b3685133f3c64c450425361e33aa1fbde282aba83b25efb341abdbce76094b7c": {
@@ -3606,6 +3636,11 @@
       "source": "In the core sink, if the path is invalid, denotes a class, or is already present in the resource map.",
       "translation": "コアの出力先で、パスが不正、クラスを示す、またはリソースマップにすでに存在する場合。",
       "status": "reviewed"
+    },
+    "cc429d577abd71b1f12e500a055d459e940ac3939c2dd5fc8d48f6018f925527": {
+      "source": "Public reader for Obfaryn policy annotations, usable by host-loaded extension passes without depending on the core engine.",
+      "translation": "Obfarynのポリシーアノテーション用のpublicなリーダーで、coreエンジンに依存せずホスト側でロードされる拡張パスから利用できます。",
+      "status": "machine"
     },
     "cc4a258887b8c71e9a817c14130db0f92ad0c6178b4c10912afae41cb9134db3": {
       "source": "Registers this package's passes against ZXQOBFARYN0QXZ using services exposed by ZXQOBFARYN1QXZ.",
