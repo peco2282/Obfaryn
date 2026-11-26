@@ -1,0 +1,4 @@
+name: ObfarynPaperFixture
+version: "1.0"
+main: com.peco2282.obfaryn.platformtests.paper.fixture.SamplePlugin
+api-version: "1.21"

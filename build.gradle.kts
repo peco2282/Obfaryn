@@ -129,6 +129,9 @@ subprojects {
 
   val targetJava = when (name) {
     "obfaryn-gradle-plugin" -> 17 to 17
+    // Platform compatibility tests are tooling, not a shipped library; paper-api itself now
+    // requires JVM 21.
+    "paper-test" -> 21 to 21
     else -> 8 to 1.8
   }
 
