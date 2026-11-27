@@ -126,6 +126,23 @@ class McModPlatformTest {
   }
 
   @Test
+  fun forgeExcludesSubscribeEventHandlersUnderTheEventbus7PackageToo() {
+    // eventbus moved SubscribeEvent from net.minecraftforge.eventbus.api to
+    // net.minecraftforge.eventbus.api.listener between 6.x and 7.x; mods built against either
+    // must have their handlers excluded from virtualization the same way.
+    val mod = annotated("sample/ForgeMod", "Lnet/minecraftforge/fml/common/Mod;")
+    val handlers = classNode("sample/Handlers").apply {
+      methods.add(method(Opcodes.ACC_PUBLIC, "onTick", "(Ljava/lang/Object;)V").apply {
+        visibleAnnotations = mutableListOf(AnnotationNode("Lnet/minecraftforge/eventbus/api/listener/SubscribeEvent;"))
+      })
+    }
+    val ctx = context(listOf(mod, handlers).associateBy { it.name })
+    val keep = KeepRules()
+    ForgePlatformProvider().create().configure(ctx, MapPlatformOptions(), keep)
+    assertEquals("minecraft mod event handler", keep.virtualizationExclusions()["sample/Handlers.onTick(Ljava/lang/Object;)V"])
+  }
+
+  @Test
   fun fabricDeclaresNoAnnotationDrivenVirtualizationExclusions() {
     val init = classNode("sample/ExampleMod", "net/fabricmc/api/ModInitializer").apply {
       methods.add(method(Opcodes.ACC_PUBLIC, "onInitialize", "()V"))
