@@ -40,6 +40,20 @@ sourceSets {
 val obfarynPluginClasspath = configurations.create("obfarynPluginClasspath") { isCanBeConsumed = false }
 val paperPlatformClasspath = configurations.create("paperPlatformClasspath") { isCanBeConsumed = false }
 
+// paper-api:1.21.1 (pinned above to match MockBukkit) transitively pulls known-vulnerable
+// versions of these build/runtime-only libraries (guava, log4j-api via paper-api itself;
+// plexus-utils, commons-lang3 via its bundled Maven artifact-resolution libs). None of them are
+// part of what this suite actually exercises (event dispatch, plugin loading), so forcing patched
+// versions here is safe without needing a newer, MockBukkit-incompatible paper-api.
+configurations.all {
+  resolutionStrategy.force(
+    "com.google.guava:guava:33.7.2-jre",
+    "org.apache.logging.log4j:log4j-api:2.25.5",
+    "org.codehaus.plexus:plexus-utils:3.6.1",
+    "org.apache.commons:commons-lang3:3.18.0",
+  )
+}
+
 dependencies {
   compileOnly("io.papermc.paper:paper-api:$paperApiVersion")
 
