@@ -17,6 +17,18 @@ dependencies {
   implementation(project(":obfaryn-standard"))
 }
 
+// me.champeau.jmh pulls in jmh-generator-asm, which depends on org.ow2.asm:asm:9.0; the forked
+// JMH benchmark JVM's own classpath construction resolves that dependency independently of the
+// rest of this module's configurations (confirmed: `./gradlew :obfaryn-benchmarks:dependencies
+// --configuration jmhRuntimeClasspath` reports asm upgraded to 9.11.1 everywhere, yet the actually
+// running ClassReader at fixture-build time loaded from asm-9.0.jar), so 9.0 wins there and can't
+// parse Java 21+ (major version 65+) class files -- breaking any fixture whose frame computation
+// needs to read a JDK class (e.g. java/lang/invoke/CallSite for the callIndirection/prelink
+// variants). Forcing it on every configuration closes that gap regardless of its exact name.
+configurations.all {
+  resolutionStrategy.force("org.ow2.asm:asm:${libs.versions.asm.get()}")
+}
+
 jmh {
   jmhVersion.set(libs.versions.jmh)
   // Defaults favor CI-reasonable runtime; override on the command line for a real measurement run,
