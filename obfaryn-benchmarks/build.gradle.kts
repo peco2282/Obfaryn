@@ -33,6 +33,7 @@ jmh {
   jmhVersion.set(libs.versions.jmh)
   // Defaults favor CI-reasonable runtime; override on the command line for a real measurement run,
   // e.g. `./gradlew :obfaryn-benchmarks:jmh -Pjmh.iterations=10 -Pjmh.warmupIterations=5 -Pjmh.fork=3`.
+  (project.findProperty("jmh.includes") as String?)?.let { includes.set(listOf(it)) }
   fork.set((project.findProperty("jmh.fork") as String?)?.toInt() ?: 2)
   warmupIterations.set((project.findProperty("jmh.warmupIterations") as String?)?.toInt() ?: 3)
   iterations.set((project.findProperty("jmh.iterations") as String?)?.toInt() ?: 5)
