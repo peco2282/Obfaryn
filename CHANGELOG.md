@@ -10,6 +10,15 @@ correlated with `gradle.properties`' `releaseVersion` at the time of its "Bump t
 lightweight Git tag (`v1.0.0`, `v1.1.0-RC1`, `v1.1.0`) marks that commit. **Unreleased** collects
 changes made after the latest such tag.
 
+## [Unreleased]
+
+### Fixed
+
+- `forge` platform provider also recognizes `@SubscribeEvent` under
+  `net.minecraftforge.eventbus.api.listener`, where `net.minecraftforge:eventbus` 7.x relocated it
+  from `net.minecraftforge.eventbus.api`. Mods built against eventbus 7.x previously had their
+  event handler methods virtualized/renamed like ordinary methods instead of kept verbatim.
+
 ## [1.2.0]
 
 ### Added
