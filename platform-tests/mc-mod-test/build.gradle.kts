@@ -55,6 +55,11 @@ dependencies {
   fabricLoaderClasspath("net.fabricmc:fabric-loader:$fabricLoaderVersion")
 }
 
+configurations.all {
+  // net.minecraftforge:eventbus pulls in an old, vulnerable log4j-api transitively.
+  resolutionStrategy.force("org.apache.logging.log4j:log4j-api:2.25.5")
+}
+
 tasks.test {
   useJUnitPlatform()
   dependsOn(tasks.named("jar"))
