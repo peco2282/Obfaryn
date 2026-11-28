@@ -21,7 +21,7 @@ plugins {
 buildscript {
   configurations.classpath {
     resolutionStrategy.force(
-      "com.fasterxml.jackson.core:jackson-core:2.22.3",
+      "com.fasterxml.jackson.core:jackson-core:2.22.4",
       "com.fasterxml.jackson.core:jackson-databind:2.22.3"
     )
   }
@@ -30,7 +30,7 @@ buildscript {
 allprojects {
   configurations.all {
     resolutionStrategy.force(
-      "com.fasterxml.jackson.core:jackson-core:2.22.3",
+      "com.fasterxml.jackson.core:jackson-core:2.22.4",
       "com.fasterxml.jackson.core:jackson-databind:2.22.3"
     )
   }
