@@ -1,0 +1,7 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="MPL-2.0"
+
+[[mods]]
+modId="obfaryn_neoforge_fixture"
+version="1.0"

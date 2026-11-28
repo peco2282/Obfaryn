@@ -64,3 +64,4 @@ include("platforms:mc-mod")
 // obfaryn-gradle-plugin and exercised against a platform's own test harness (not published
 // artifacts), one subproject per platform so dependency sets never mix.
 include("platform-tests:paper-test")
+include("platform-tests:mc-mod-test")

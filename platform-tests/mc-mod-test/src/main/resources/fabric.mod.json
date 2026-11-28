@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "id": "obfaryn_fabric_fixture",
+  "version": "1.0",
+  "entrypoints": {
+    "main": ["com.peco2282.obfaryn.platformtests.mcmod.fabric.FabricMod"]
+  }
+}
